@@ -1,36 +1,148 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ============================================
+# GAYATAMA WEB — KKN Management System
+# .gitignore — Next.js Frontend + Laravel Backend
+# ============================================
 
-# dependencies
-/node_modules
-/.pnp
+# --- NODE MODULES ---
+node_modules/
+.pnp
 .pnp.js
 
-# testing
-/coverage
+# --- NEXT.JS BUILD ---
+.next/
+out/
+build/
+dist/
 
-# next.js
-/.next/
-/out/
+# --- PHP / LARAVEL BACKEND ---
+vendor/
+composer.lock
+storage/
+bootstrap/cache/
+config/cache.php
+config/installed.php
+storage/framework/
+storage/logs/
+database/*.sqlite
+database/*.sqlite3
+database/seeders/
 
-# production
-/build
+# --- ENVIRONMENT FILES ---
+.env
+.env.*
+!.env.example
 
-# misc
+# --- IDE & EDITOR ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.atom/
+.sublime-project
+.sublime-workspace
+
+# --- OS FILES ---
 .DS_Store
-*.pem
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
 
-# debug
+# --- DEBUG & LOGS ---
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+debug.log
+php_error.log
+laravel.log
 
-# local env files
-.env*.local
-.env
-
-# vercel
-.vercel
-
-# typescript
+# --- TYPESCRIPT ---
 *.tsbuildinfo
 next-env.d.ts
+*.js.map
+
+# --- VERCEL ---
+.vercel
+
+# --- TESTING ---
+coverage/
+__tests__/
+*.test.js
+*.spec.js
+
+# --- DOCKER ---
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# --- DATABASE ---
+*.sqlite
+*.sqlite3
+*.db
+dump.sql
+mysql-data/
+
+# --- UPLOADS (user files) ---
+public/uploads/
+public/storage/
+uploads/
+
+# --- SECURITY FILES ---
+*.pem
+*.key
+*.secret
+*.crt
+credentials/
+certs/
+ssl/
+
+# --- DEPLOYMENT ---
+deploy/
+deployments/
+release/
+.vercel/
+
+# --- CI/CD ---
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# --- GOOPSPEC ---
+.goopspec/
+
+# --- TEMP FILES ---
+*.bak
+*.backup
+*.temp
+*.tmp
+
+# --- COMPOSER ---
+composer.phar
+composer-setup.php
+
+# --- MIX ASSETS ---
+mix-manifest.json
+
+# --- PHPSTORM ---
+.idea/
+*.iml
+*.iws
+
+# --- NPM TOKENS ---
+.npmrc
+.yarnrc
+.yarn-integrity
+.yarn-cache
+.npm/
+.yarn/
+
+# --- DOCKER ---
+.docker/
+.docker-build/
+
+# ============================================
+# END OF .gitignore
+# ============================================
