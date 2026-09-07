@@ -23,28 +23,29 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] select-none';
+      'inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none';
 
     const variants = {
       primary:
-        'bg-primary text-white hover:bg-primary-600 focus:ring-primary-400 shadow-sm hover:shadow-glow-primary',
+        'bg-primary text-white hover:bg-primary-600 focus:ring-primary shadow-sm hover:shadow active:bg-primary-700',
       secondary:
-        'bg-surface-subtle text-navy hover:bg-surface-container focus:ring-navy-300 border border-slate-200/80',
+        'bg-slate-100 dark:bg-navy-900 text-navy-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-navy-800 focus:ring-slate-300 border border-slate-200/80 dark:border-navy-700',
       outline:
-        'bg-transparent text-navy hover:bg-surface-subtle border border-slate-300 focus:ring-primary-400',
-      ghost: 'bg-transparent text-navy hover:bg-surface-subtle focus:ring-slate-300',
+        'bg-white dark:bg-navy-900 text-navy-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-navy-800 border border-slate-300 dark:border-navy-700 focus:ring-primary shadow-sm',
+      ghost:
+        'bg-transparent text-navy-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-navy-900 focus:ring-slate-300',
       amber:
-        'bg-tertiary text-navy-950 hover:bg-tertiary-400 focus:ring-tertiary-300 font-semibold shadow-sm hover:shadow-glow-tertiary',
+        'bg-tertiary text-navy-950 hover:bg-tertiary-600 hover:text-white focus:ring-tertiary font-semibold shadow-sm',
       emerald:
-        'bg-secondary text-white hover:bg-secondary-600 focus:ring-secondary-400 shadow-sm hover:shadow-glow-secondary',
+        'bg-secondary text-white hover:bg-secondary-600 focus:ring-secondary shadow-sm active:bg-secondary-700',
       danger:
-        'bg-red-500 text-white hover:bg-red-600 focus:ring-red-400 shadow-sm',
+        'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm',
     };
 
     const sizes = {
-      sm: 'text-xs px-3 py-1.5 gap-1.5',
-      md: 'text-sm px-5 py-2.5 gap-2',
-      lg: 'text-base px-7 py-3.5 gap-2.5 font-semibold',
+      sm: 'text-xs px-3.5 py-1.5 gap-1.5 font-medium',
+      md: 'text-sm px-5 py-2.5 gap-2 font-medium',
+      lg: 'text-sm sm:text-base px-6 py-3 gap-2.5 font-semibold',
       icon: 'p-2.5 aspect-square',
     };
 

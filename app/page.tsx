@@ -13,339 +13,510 @@ import {
   MapPin,
   Sparkles,
   ArrowRight,
-  TrendingUp,
   Award,
   Users,
   Building,
   Sprout,
   HeartPulse,
   Laptop,
-  ShoppingBag,
+  Globe2,
   FileCheck2,
-  CheckCircle2,
-  Calendar,
-  Compass,
 } from 'lucide-react';
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
+  const [activeTab, setActiveTab] = useState('Semua');
+  const [searchLocation, setSearchLocation] = useState('');
+  const [searchJurusan, setSearchJurusan] = useState('');
 
-  const categories = [
-    { name: 'Semua', icon: Sparkles, count: 24 },
-    { name: 'Digitalisasi & Teknologi', icon: Laptop, count: 8 },
-    { name: 'Agrikultur & Pangan', icon: Sprout, count: 6 },
-    { name: 'Kesehatan & Sanitasi', icon: HeartPulse, count: 5 },
-    { name: 'Pemberdayaan UMKM', icon: ShoppingBag, count: 5 },
+  const exploreRegions = [
+    {
+      name: 'Jawa Barat & Banten',
+      desc: '480 Pos Kebutuhan',
+      img: 'https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?w=300&auto=format&fit=crop&q=80',
+    },
+    {
+      name: 'Jawa Tengah & DIY',
+      desc: '320 Pos Kebutuhan',
+      img: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=300&auto=format&fit=crop&q=80',
+    },
+    {
+      name: 'Sumatera',
+      desc: '240 Pos Kebutuhan',
+      img: 'https://images.unsplash.com/photo-1609137144822-0a18e97f6c77?w=300&auto=format&fit=crop&q=80',
+    },
+    {
+      name: 'Sulawesi & Maluku',
+      desc: '160 Pos Kebutuhan',
+      img: 'https://images.unsplash.com/photo-1516690561799-46d8f74f9abf?w=300&auto=format&fit=crop&q=80',
+    },
+    {
+      name: 'Bali & Nusa Tenggara',
+      desc: '130 Pos Kebutuhan',
+      img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=300&auto=format&fit=crop&q=80',
+    },
+    {
+      name: 'Kalimantan',
+      desc: '90 Pos Kebutuhan',
+      img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&auto=format&fit=crop&q=80',
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-surface-canvas flex flex-col selection:bg-primary-100">
+    <div className="min-h-screen bg-surface-canvas dark:bg-[#071629] flex flex-col selection:bg-emerald-100 selection:text-emerald-900 font-jakarta transition-colors duration-200">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Background Ambient Glows */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-96 bg-gradient-to-b from-primary-100/60 via-surface-subtle/30 to-transparent blur-3xl -z-10 pointer-events-none" />
-        <div className="absolute top-1/3 -left-32 w-80 h-80 bg-secondary-100/50 rounded-full blur-3xl -z-10 pointer-events-none" />
-        <div className="absolute top-1/4 -right-32 w-80 h-80 bg-tertiary-100/50 rounded-full blur-3xl -z-10 pointer-events-none" />
+      {/* ========================================================================= */}
+      {/* 1. HERO SECTION (Inspirasi Farmvest & Trippin': Ilustrasi Lanskap Tropis) */}
+      {/* ========================================================================= */}
+      <section className="relative bg-[#EAF4FE] dark:bg-navy-950 pt-10 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-slate-200 dark:border-navy-800 transition-colors duration-200">
+        {/* Vector Background Landscape (Sawah, Bukit & Matahari Pagi) */}
+        <div className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-10 select-none overflow-hidden">
+          <svg className="w-full h-full object-cover" viewBox="0 0 1440 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="720" cy="180" r="140" fill="#FDE68A" />
+            <path d="M0 380C320 280 540 320 840 260C1140 200 1320 310 1440 350V600H0V380Z" fill="#86EFAC" />
+            <path d="M0 430C280 360 620 400 960 350C1240 310 1380 410 1440 430V600H0V430Z" fill="#4ADE80" />
+            <path d="M0 480C380 430 760 470 1140 440C1320 425 1400 480 1440 490V600H0V480Z" fill="#16A34A" />
+          </svg>
+        </div>
 
-        <div className="max-w-5xl mx-auto text-center space-y-6">
-          {/* Top Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-container border border-primary-200/80 shadow-ambient-sm">
-            <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-semibold text-primary-900 font-jakarta">
-              Platform KKN Tematik Terintegrasi No. 1 Indonesia
-            </span>
+        <div className="relative max-w-5xl mx-auto text-center space-y-6">
+          {/* Top Pill Announcement */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 dark:bg-navy-900/90 border border-slate-200 dark:border-navy-700 shadow-sm text-xs font-semibold text-navy-900 dark:text-slate-200 font-jakarta">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
+            <span>Pendaftaran KKN Tematik Semester Ganjil 2026/2027 Dibuka</span>
           </div>
 
-          {/* Headline with Epilogue Font */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-950 font-epilogue tracking-tight leading-[1.15]">
+          {/* Big Authoritative Headline with Epilogue Font */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight leading-[1.12]">
             Membangun Desa, <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-primary to-emerald-600">
-              Mengabdi dengan Karya Nyata.
-            </span>
+            <span className="text-primary-600 dark:text-primary-400">Mengabdi</span> dengan{' '}
+            <span className="text-secondary-600 dark:text-secondary-400">Karya Nyata.</span>
           </h1>
 
-          {/* Subtitle with Plus Jakarta Sans */}
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 font-jakarta leading-relaxed">
-            Menghubungkan mahasiswa perguruan tinggi dengan ribuan pos kebutuhan desa di seluruh nusantara.
-            Transparan, terukur, dan berdampak langsung bagi kemandirian warga.
+          <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-700 dark:text-slate-300 font-jakarta leading-relaxed">
+            Platform terpadu yang menghubungkan mahasiswa perguruan tinggi dengan ribuan pos kebutuhan riil
+            pemerintah desa di seluruh Indonesia secara transparan dan terukur.
           </p>
 
-          {/* Floating Pill Search Bar Island (from Stitch) */}
-          <div className="max-w-3xl mx-auto pt-4">
-            <div className="bg-white/95 backdrop-blur-xl p-2.5 sm:p-3 rounded-full border border-primary-200 shadow-ambient-lg flex flex-col sm:flex-row items-center gap-2">
-              <div className="flex items-center gap-3 px-4 flex-1 w-full">
-                <Search className="w-5 h-5 text-primary shrink-0" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari desa, kabupaten, program kerja, atau keahlian..."
-                  className="w-full bg-transparent text-sm text-navy-950 placeholder-slate-400 focus:outline-none font-jakarta"
-                />
+          {/* ========================================================================= */}
+          {/* SEARCH CARD (Gaya Trippin': Tabbed multi-input card) */}
+          {/* ========================================================================= */}
+          <div className="max-w-4xl mx-auto pt-4 text-left">
+            <div className="bg-white dark:bg-navy-900 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-navy-800 shadow-float p-3 sm:p-5 space-y-4">
+              {/* Category selector tabs */}
+              <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-slate-100 dark:border-navy-800">
+                {[
+                  { label: 'Semua Pos', icon: Globe2 },
+                  { label: 'Agrikultur & Pangan', icon: Sprout },
+                  { label: 'Digitalisasi UMKM', icon: Laptop },
+                  { label: 'Kesehatan Posyandu', icon: HeartPulse },
+                ].map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.label;
+                  return (
+                    <button
+                      key={tab.label}
+                      onClick={() => setActiveTab(tab.label)}
+                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                        isActive
+                          ? 'bg-navy-900 dark:bg-primary text-white shadow-sm'
+                          : 'text-slate-600 dark:text-slate-300 hover:text-navy-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-navy-800'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <Link href="/maps" className="hidden md:flex">
-                  <Button variant="secondary" size="md" className="gap-1.5 text-xs whitespace-nowrap">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Peta Radius</span>
-                  </Button>
-                </Link>
-                <Link href={`/search?q=${encodeURIComponent(searchQuery)}`} className="w-full sm:w-auto">
-                  <Button variant="primary" size="md" className="w-full gap-2 shadow-glow-primary">
-                    <span>Temukan Pos KKN</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
+              {/* Input Fields Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                {/* Wilayah / Lokasi */}
+                <div className="sm:col-span-5 bg-slate-50 dark:bg-navy-950 hover:bg-slate-100/80 dark:hover:bg-navy-950/80 p-3 rounded-xl border border-slate-200/80 dark:border-navy-800 transition-colors">
+                  <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    Lokasi Wilayah
+                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
+                    <input
+                      type="text"
+                      value={searchLocation}
+                      onChange={(e) => setSearchLocation(e.target.value)}
+                      placeholder="Cari desa, kecamatan, kabupaten..."
+                      className="w-full bg-transparent text-xs font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
 
-            {/* Quick popular tags */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs text-slate-500 font-medium">
-              <span className="font-semibold text-navy-800">Populer:</span>
-              {['Digitalisasi UMKM', 'Irigasi Cerdas', 'Stunting Posyandu', 'Agrowisata', 'Energi Surya'].map(
-                (tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => setSearchQuery(tag)}
-                    className="px-3 py-1 rounded-full bg-white/80 hover:bg-primary-50 hover:text-primary-700 border border-slate-200/80 transition-colors shadow-sm"
+                {/* Minat Jurusan / Keahlian */}
+                <div className="sm:col-span-4 bg-slate-50 dark:bg-navy-950 hover:bg-slate-100/80 dark:hover:bg-navy-950/80 p-3 rounded-xl border border-slate-200/80 dark:border-navy-800 transition-colors">
+                  <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    Keahlian / Jurusan
+                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                    <input
+                      type="text"
+                      value={searchJurusan}
+                      onChange={(e) => setSearchJurusan(e.target.value)}
+                      placeholder="Teknik, Agribisnis, Gizi, DKV..."
+                      className="w-full bg-transparent text-xs font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Tombol Cari */}
+                <div className="sm:col-span-3">
+                  <Link
+                    href={`/search?q=${encodeURIComponent(searchLocation || searchJurusan)}`}
+                    className="block"
                   >
-                    {tag}
-                  </button>
-                )
-              )}
+                    <Button
+                      size="lg"
+                      variant="primary"
+                      className="w-full h-12 rounded-xl text-xs font-bold gap-2 shadow-sm"
+                    >
+                      <Search className="w-4 h-4" />
+                      <span>Cari Pos KKN</span>
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Live Metrics Showcase */}
-        <div className="max-w-6xl mx-auto mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+      {/* ========================================================================= */}
+      {/* 2. REAL INDONESIA PHOTOGRAPHIC SHOWCASE (Gaya IKN https://ikn.go.id/id) */}
+      {/* ========================================================================= */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-1 max-w-2xl">
+            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+              Dokumentasi Aksi Lapangan
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Sinergi Nyata Mahasiswa & Warga Desa
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-jakarta">
+              Dari modernisasi irigasi pertanian hingga penguatan UMKM lokal, KKN hadir menjawab tantangan riil desa.
+            </p>
+          </div>
+
+          <Link href="/portofolio/kelompok-14-sukamaju">
+            <Button variant="outline" size="sm" className="text-xs font-semibold gap-1.5">
+              <span>Lihat Dokumentasi</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </Link>
+        </div>
+
+        {/* Real Authentic Photo Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           {[
-            { label: 'Desa Terdaftar & Aktif', val: '1,420+', icon: Building, color: 'text-primary' },
-            { label: 'Mahasiswa Berkontribusi', val: '18,500+', icon: Users, color: 'text-emerald-600' },
-            { label: 'Program Kerja Terlaksana', val: '3,890+', icon: FileCheck2, color: 'text-amber-600' },
-            { label: 'Indeks Kepuasan Mitra Desa', val: '98.4%', icon: Award, color: 'text-indigo-600' },
-          ].map((stat, i) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={i} className="p-5 text-center bg-white/90 border-slate-200/80 hoverEffect">
-                <div className="inline-flex p-3 rounded-2xl bg-surface-subtle mb-3">
-                  <Icon className={`w-6 h-6 ${stat.color}`} />
+            {
+              title: 'Modernisasi Irigasi Pertanian',
+              location: 'Desa Sukamaju, Ciawi, Bogor',
+              sector: 'Agrikultur & IoT',
+              img: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=600&auto=format&fit=crop&q=80',
+            },
+            {
+              title: 'Pemeriksaan Posyandu & Gizi Balita',
+              location: 'Desa Tanjung Karang, Babakan Madang',
+              sector: 'Kesehatan Masyarakat',
+              img: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop&q=80',
+            },
+            {
+              title: 'Digitalisasi & Kemasan Produk UMKM',
+              location: 'Desa Cibodas Asri, Cianjur',
+              sector: 'Ekonomi & Branding',
+              img: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&auto=format&fit=crop&q=80',
+            },
+            {
+              title: 'Edukasi Literasi Digital Desa',
+              location: 'Desa Pabuaran, Sukabumi',
+              sector: 'Pendidikan & Literasi',
+              img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&auto=format&fit=crop&q=80',
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-navy-800 shadow-card hover:shadow-card-hover transition-all duration-200 bg-white dark:bg-navy-900 flex flex-col"
+            >
+              <div className="h-48 overflow-hidden relative">
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <span className="absolute top-3 left-3 bg-navy-950/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md">
+                  {item.sector}
+                </span>
+              </div>
+              <div className="p-4 space-y-1 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue leading-snug">
+                    {item.title}
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                    <MapPin className="w-3 h-3 text-rose-500" />
+                    <span>{item.location}</span>
+                  </p>
                 </div>
-                <p className="text-2xl sm:text-3xl font-extrabold text-navy-950 font-epilogue">{stat.val}</p>
-                <p className="text-xs text-slate-500 font-medium mt-1">{stat.label}</p>
-              </Card>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Real Numbers & Metrics (Clean Farmvest Style) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-slate-200 dark:border-navy-800">
+          {[
+            { num: '1,420+', label: 'Desa Terdaftar & Aktif', icon: Building, color: 'text-primary-600 dark:text-primary-400' },
+            { num: '18,500+', label: 'Mahasiswa Berkontribusi', icon: Users, color: 'text-secondary-600 dark:text-secondary-400' },
+            { num: '3,890+', label: 'Program Selesai & BAST', icon: FileCheck2, color: 'text-tertiary-600 dark:text-tertiary-400' },
+            { num: '98.4%', label: 'Kepuasan Pemerintah Desa', icon: Award, color: 'text-indigo-600 dark:text-indigo-400' },
+          ].map((m, i) => {
+            const Icon = m.icon;
+            return (
+              <div key={i} className="p-5 rounded-2xl bg-slate-50 dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+                    {m.num}
+                  </span>
+                  <Icon className={`w-5 h-5 ${m.color}`} />
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">{m.label}</p>
+              </div>
             );
           })}
         </div>
       </section>
 
-      {/* Featured Pos Kebutuhan Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white border-y border-slate-200/80">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wider mb-2">
-                <Sparkles className="w-3.5 h-3.5" /> Pos Kebutuhan Terverifikasi
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-950 font-epilogue">
-                Peluang Pengabdian KKN Siap Dilamar
-              </h2>
-              <p className="text-sm text-slate-500 font-jakarta mt-1">
-                Kebutuhan riil dari pemerintah desa yang telah terverifikasi oleh LPPM
-              </p>
-            </div>
-
-            <Link href="/search">
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <span>Lihat Semua 240+ Pos</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-            </Link>
+      {/* ========================================================================= */}
+      {/* 3. JELAJAHI SEBARAN WILAYAH NUSANTARA (Gaya Trippin': Circular Badges) */}
+      {/* ========================================================================= */}
+      <section className="py-14 bg-surface-sand dark:bg-navy-950 border-y border-slate-200 dark:border-navy-800 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto space-y-8 text-center">
+          <div className="space-y-1 max-w-xl mx-auto">
+            <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
+              Sebaran Geografis KKN
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Jelajahi Pengabdian di Seluruh Nusantara
+            </h2>
           </div>
 
-          {/* Sektor Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {categories.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = selectedCategory === cat.name;
-              return (
-                <button
-                  key={cat.name}
-                  onClick={() => setSelectedCategory(cat.name)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                    isActive
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-surface-canvas text-navy-700 hover:bg-surface-subtle border border-slate-200'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{cat.name}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {cat.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {MOCK_POS_KEBUTUHAN.map((pos) => (
-              <Card key={pos.id} hoverEffect className="p-6 flex flex-col justify-between border-slate-200">
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <StatusBadge status={pos.status} size="sm" />
-                    {pos.matching_score && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-                        <Sparkles className="w-3 h-3 text-emerald-600" />
-                        {pos.matching_score}% Cocok
-                      </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <span className="text-xs font-bold text-primary-700 tracking-wide uppercase">
-                      {pos.kategori_sektor}
-                    </span>
-                    <h3 className="text-base font-bold text-navy-950 font-epilogue mt-1 line-clamp-2 leading-snug">
-                      {pos.judul}
-                    </h3>
-                  </div>
-
-                  <p className="text-xs text-slate-600 font-jakarta line-clamp-3 leading-relaxed">
-                    {pos.deskripsi}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {exploreRegions.map((reg, idx) => (
+              <Link
+                key={idx}
+                href={`/search?q=${encodeURIComponent(reg.name)}`}
+                className="group flex flex-col items-center space-y-2.5 p-3 rounded-2xl hover:bg-white dark:hover:bg-navy-900 transition-all duration-150 border border-transparent hover:border-slate-200 dark:hover:border-navy-800 hover:shadow-card"
+              >
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-white dark:border-navy-700 shadow-card group-hover:scale-105 transition-transform duration-200">
+                  <img src={reg.img} alt={reg.name} className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-navy-950 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    {reg.name}
                   </p>
-
-                  <div className="pt-2 flex items-center gap-4 text-xs text-slate-500 font-medium border-t border-slate-100">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                      <span>
-                        {pos.nama_desa}, {pos.kabupaten}
-                      </span>
-                    </div>
-                    {pos.distance_km && (
-                      <div className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
-                        {pos.distance_km} km
-                      </div>
-                    )}
-                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">{reg.desc}</p>
                 </div>
-
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <div className="text-xs">
-                    <span className="text-slate-400">Kuota: </span>
-                    <span className="font-bold text-navy-900">
-                      {pos.terisi_mahasiswa}/{pos.kuota_mahasiswa} Mahasiswa
-                    </span>
-                  </div>
-
-                  <Link href={`/search/${pos.id}`}>
-                    <Button size="sm" variant="primary">
-                      Detail Program
-                    </Button>
-                  </Link>
-                </div>
-              </Card>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 4-Step Collaborative Workflow */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
-          <span className="text-xs font-bold text-primary uppercase tracking-wider">
-            Alur Kerja Terstandarisasi
-          </span>
-          <h2 className="text-3xl font-extrabold text-navy-950 font-epilogue">
-            Bagaimana Ekosistem KKN Terintegrasi
-          </h2>
-          <p className="text-sm text-slate-600">
-            Kolaborasi mulus dari penyerapan aspirasi warga hingga penerbitan Berita Acara Serah Terima (BAST)
-          </p>
-        </div>
+      {/* ========================================================================= */}
+      {/* 4. DEEP NAVY ORGANIC SECTION (Gaya Trippin': Dark Organic Wave Container) */}
+      {/* ========================================================================= */}
+      <section className="bg-navy-950 text-white py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto space-y-14 relative z-10">
+          <div className="max-w-2xl space-y-2">
+            <span className="text-xs font-bold text-primary-400 uppercase tracking-wider">
+              Arsitektur Terpadu
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold font-epilogue leading-snug">
+              Teknologi Tepat Guna untuk Tata Kelola KKN yang Transparan
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-jakarta">
+              Setiap tahapan pengabdian terekam secara digital, mulai dari perumusan kebutuhan warga hingga
+              pengesahan Berita Acara Serah Terima resmi (BAST).
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {[
-            {
-              step: '01',
-              title: 'Aspirasi & Pos Desa',
-              desc: 'Masyarakat dan Perangkat Desa mengajukan kebutuhan riil wilayah yang otomatis dikonversi menjadi pos KKN.',
-              icon: Building,
-              color: 'bg-primary-50 text-primary border-primary-200',
-            },
-            {
-              step: '02',
-              title: 'Proposal & Tim Mahasiswa',
-              desc: 'Kelompok mahasiswa lintas disiplin melamar pos kebutuhan dengan menyusun rencana kerja terukur.',
-              icon: Users,
-              color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-            },
-            {
-              step: '03',
-              title: 'Bimbingan & Logbook DPL',
-              desc: 'Dosen Pembimbing memverifikasi progres mingguan, memberikan catatan revisi real-time di lapangan.',
-              icon: HeartPulse,
-              color: 'bg-amber-50 text-amber-700 border-amber-200',
-            },
-            {
-              step: '04',
-              title: 'BAST & Konversi SKS',
-              desc: 'Kepala Desa mengesahkan luaran akhir melalui BAST digital, LPPM mengonversi nilai ke SKS akademik.',
-              icon: Award,
-              color: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-            },
-          ].map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <Card key={idx} className="p-6 relative bg-white border-slate-200/90 shadow-ambient">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-epilogue font-extrabold text-2xl text-slate-300">
-                    {item.step}
-                  </span>
-                  <div className={`p-2.5 rounded-2xl border ${item.color}`}>
-                    <Icon className="w-5 h-5" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              {
+                step: '01',
+                title: 'Aspirasi & Pos Kebutuhan',
+                desc: 'Masyarakat mengajukan usulan fasilitas desa secara terbuka yang divalidasi oleh Kepala Desa.',
+                icon: Building,
+                badge: 'Desa Mandiri',
+              },
+              {
+                step: '02',
+                title: 'Smart-Matching & Tim',
+                desc: 'Pencocokan kompetensi lintas disiplin mahasiswa dengan kebutuhan nyata di lapangan.',
+                icon: Sparkles,
+                badge: 'Multidisiplin',
+              },
+              {
+                step: '03',
+                title: 'Logbook & Bimbingan DPL',
+                desc: 'Verifikasi jam kerja harian dan revisi catatan lapangan langsung dari Dosen Pembimbing.',
+                icon: HeartPulse,
+                badge: 'Validasi Real-time',
+              },
+              {
+                step: '04',
+                title: 'BAST & Konversi SKS',
+                desc: 'Penandatanganan Berita Acara Serah Terima digital dan konversi nilai ke 2-4 SKS kurikulum.',
+                icon: Award,
+                badge: 'Sah & Legal',
+              },
+            ].map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={idx}
+                  className="p-6 rounded-2xl bg-navy-900 border border-slate-800 space-y-4 hover:border-slate-700 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold text-primary-400">{item.step}</span>
+                    <span className="text-[10px] font-bold text-slate-400 bg-navy-950 px-2 py-0.5 rounded-md border border-slate-800">
+                      {item.badge}
+                    </span>
                   </div>
+                  <h3 className="text-base font-bold font-epilogue text-white">{item.title}</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
                 </div>
-                <h3 className="text-base font-bold text-navy-950 font-epilogue mb-2">{item.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-jakarta">{item.desc}</p>
-              </Card>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="max-w-6xl mx-auto rounded-3xl bg-gradient-to-r from-navy-950 via-navy-900 to-primary-900 text-white p-8 sm:p-12 shadow-2xl relative overflow-hidden">
-          <div className="relative z-10 max-w-2xl space-y-4">
-            <h2 className="text-2xl sm:text-4xl font-extrabold font-epilogue tracking-tight leading-tight">
-              Siap Menjalankan Pengabdian Nyata di Desa?
+      {/* ========================================================================= */}
+      {/* 5. POS KEBUTUHAN PILIHAN SIAP DILAMAR */}
+      {/* ========================================================================= */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-1">
+            <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
+              Peluang Pengabdian Terverifikasi
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Pos Kebutuhan Siap Dilamar Mahasiswa
             </h2>
-            <p className="text-sm sm:text-base text-slate-300 font-jakarta leading-relaxed">
-              Daftarkan diri Anda atau kelompok sekarang, jelajahi ribuan pos kebutuhan desa, dan jadilah
-              agen perubahan nyata bagi Indonesia.
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              Pilih program pengabdian yang telah disahkan oleh perangkat desa dan tim LPPM.
             </p>
-            <div className="pt-2 flex flex-wrap items-center gap-3">
-              <Link href="/register">
-                <Button size="lg" variant="primary" className="bg-primary text-white shadow-glow-primary">
-                  Daftar KKN Sekarang
-                </Button>
-              </Link>
-              <Link href="/aspirasi">
-                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
-                  Kirim Aspirasi Desa
-                </Button>
-              </Link>
-            </div>
+          </div>
+
+          <Link href="/search">
+            <Button variant="outline" size="sm" className="text-xs font-semibold gap-1.5">
+              <span>Buka Katalog Lengkap</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {MOCK_POS_KEBUTUHAN.map((pos) => (
+            <Card key={pos.id} hoverEffect className="overflow-hidden flex flex-col justify-between border-slate-200 dark:border-navy-800">
+              <div className="space-y-3">
+                {/* Photo Thumbnail */}
+                <div className="h-40 overflow-hidden relative">
+                  <img
+                    src={
+                      pos.id === 1
+                        ? 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=600&auto=format&fit=crop&q=80'
+                        : pos.id === 2
+                        ? 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=600&auto=format&fit=crop&q=80'
+                        : 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop&q=80'
+                    }
+                    alt={pos.judul}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <StatusBadge status={pos.status} size="sm" />
+                  </div>
+                  {pos.matching_score && (
+                    <div className="absolute top-3 right-3 bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">
+                      {pos.matching_score}% Cocok
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-5 space-y-2">
+                  <span className="text-[11px] font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wide">
+                    {pos.kategori_sektor}
+                  </span>
+                  <h3 className="text-sm sm:text-base font-bold text-navy-950 dark:text-white font-epilogue line-clamp-2">
+                    {pos.judul}
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    {pos.deskripsi}
+                  </p>
+
+                  <div className="pt-2 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-navy-800">
+                    <span className="flex items-center gap-1 font-medium">
+                      <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                      {pos.nama_desa}, {pos.kabupaten}
+                    </span>
+                    <span className="font-semibold text-slate-600 dark:text-slate-400">{pos.distance_km} km</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-100 dark:border-navy-800 mt-2">
+                <div className="text-xs">
+                  <span className="text-slate-400 dark:text-slate-500">Kuota: </span>
+                  <strong className="text-navy-950 dark:text-slate-200">
+                    {pos.terisi_mahasiswa}/{pos.kuota_mahasiswa} Mahasiswa
+                  </strong>
+                </div>
+
+                <Link href={`/search/${pos.id}`}>
+                  <Button size="sm" variant="primary" className="text-xs font-semibold">
+                    Detail Pos
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 6. CTA BANNER (Clean & Authoritative) */}
+      {/* ========================================================================= */}
+      <section className="px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="max-w-6xl mx-auto rounded-3xl bg-navy-900 dark:bg-navy-900/90 text-white p-8 sm:p-12 border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-2 max-w-xl text-left">
+            <h2 className="text-2xl sm:text-3xl font-extrabold font-epilogue">
+              Siap Mendedikasikan Ilmu untuk Kemajuan Desa?
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 font-jakarta leading-relaxed">
+              Bergabunglah bersama ribuan mahasiswa dan dosen pembimbing dalam memajukan desa-desa di Indonesia.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <Link href="/register">
+              <Button size="lg" variant="primary" className="font-bold text-xs sm:text-sm">
+                Daftar KKN Sekarang
+              </Button>
+            </Link>
+            <Link href="/aspirasi">
+              <Button size="lg" variant="outline" className="border-slate-600 text-navy-950 dark:text-white bg-white dark:bg-navy-800 hover:bg-slate-100 dark:hover:bg-navy-700 font-bold text-xs sm:text-sm">
+                Kirim Aspirasi Desa
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

@@ -56,48 +56,49 @@ export default function AspirasiPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-canvas flex flex-col">
+    <div className="min-h-screen bg-surface-canvas flex flex-col font-jakarta">
       <Navbar />
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-tertiary-700 bg-tertiary-50 px-3 py-1 rounded-full">
-            <MessageSquare className="w-3.5 h-3.5 text-tertiary-600" /> Kanal Aspirasi Publik
-          </div>
+          <span className="text-xs font-bold text-tertiary-700 uppercase tracking-wider">
+            Kanal Partisipasi Publik
+          </span>
           <h1 className="text-3xl font-extrabold text-navy-950 font-epilogue">
-            Sampaikan Masalah & Usulan Desa Anda
+            Sampaikan Usulan & Masalah Desa Anda
           </h1>
-          <p className="text-sm text-slate-500 font-jakarta">
-            Warga masyarakat dapat mengajukan keluhan atau usulan fasilitas desa secara terbuka tanpa harus login. Usulan yang terverifikasi akan dijadikan pos kebutuhan KKN.
+          <p className="text-xs sm:text-sm text-slate-600">
+            Warga masyarakat dapat menyampaikan usulan kebutuhan wilayah secara terbuka. Usulan yang
+            diverifikasi akan diteruskan menjadi pos kebutuhan KKN mahasiswa.
           </p>
         </div>
 
         {/* Two Columns: Form on Left, Ticket Lookup on Right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Submission Form (7 cols) */}
           <div className="lg:col-span-7">
-            <Card className="p-6 sm:p-8 border-slate-200 shadow-ambient space-y-5">
+            <Card className="p-6 sm:p-8 border-slate-200 shadow-card space-y-5">
               <div className="space-y-1">
-                <h2 className="text-lg font-bold text-navy-950 font-epilogue">
-                  Formulir Aspirasi Baru
+                <h2 className="text-base font-bold text-navy-950 font-epilogue">
+                  Formulir Aspirasi Warga Desa
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Semua data akan diteruskan ke perangkat desa dan tim LPPM kampus.
+                  Data Anda akan diteruskan ke perangkat desa dan tim LPPM pengabdian masyarakat.
                 </p>
               </div>
 
               {submittedTicket ? (
-                <div className="p-6 rounded-3xl bg-emerald-50 border border-emerald-200 text-center space-y-3 animate-in fade-in">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-glow-secondary">
+                <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-3 animate-in fade-in">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-sm">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <h3 className="text-base font-bold text-emerald-950 font-epilogue">
                     Aspirasi Berhasil Diterima!
                   </h3>
                   <p className="text-xs text-emerald-800 leading-relaxed">
-                    Simpan nomor tiket ini untuk memantau status tindak lanjut oleh perangkat desa dan mahasiswa KKN:
+                    Simpan nomor tiket ini untuk memantau proses verifikasi oleh perangkat desa:
                   </p>
-                  <div className="p-3 rounded-full bg-white border border-emerald-300 font-mono font-bold text-sm text-emerald-900 tracking-wider">
+                  <div className="p-3 rounded-xl bg-white border border-emerald-300 font-mono font-bold text-sm text-emerald-900 tracking-wider">
                     {submittedTicket}
                   </div>
                   <Button
@@ -117,8 +118,8 @@ export default function AspirasiPage() {
                 <form onSubmit={handleCreateAspirasi} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-navy-900 mb-1.5">
-                        Nama Pengusul / Tokoh Warga
+                      <label className="block text-xs font-semibold text-navy-900 mb-1">
+                        Nama Pengusul / Warga
                       </label>
                       <input
                         type="text"
@@ -126,12 +127,12 @@ export default function AspirasiPage() {
                         value={nama}
                         onChange={(e) => setNama(e.target.value)}
                         placeholder="Contoh: Pak Joko (RT 03)"
-                        className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-navy-900 mb-1.5">
-                        Nomor Kontak / WhatsApp
+                      <label className="block text-xs font-semibold text-navy-900 mb-1">
+                        Nomor WhatsApp / Kontak
                       </label>
                       <input
                         type="text"
@@ -139,19 +140,19 @@ export default function AspirasiPage() {
                         value={kontak}
                         onChange={(e) => setKontak(e.target.value)}
                         placeholder="0812xxxxxxx"
-                        className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-navy-900 mb-1.5">
-                      Pilih Wilayah Desa Terkait
+                    <label className="block text-xs font-semibold text-navy-900 mb-1">
+                      Pilih Wilayah Desa
                     </label>
                     <select
                       value={desa}
                       onChange={(e) => setDesa(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
                     >
                       <option value="Desa Sukamaju, Ciawi, Bogor">Desa Sukamaju, Ciawi, Bogor</option>
                       <option value="Desa Cibodas Asri, Pacet, Cianjur">Desa Cibodas Asri, Pacet, Cianjur</option>
@@ -161,26 +162,26 @@ export default function AspirasiPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-semibold text-navy-900 mb-1.5">
-                        Judul Aspirasi / Masalah
+                      <label className="block text-xs font-semibold text-navy-900 mb-1">
+                        Judul Kebutuhan / Masalah
                       </label>
                       <input
                         type="text"
                         required
                         value={judul}
                         onChange={(e) => setJudul(e.target.value)}
-                        placeholder="Contoh: Perbaikan Saluran Irigasi Sawah"
-                        className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="Contoh: Perbaikan Saluran Irigasi"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-navy-900 mb-1.5">
+                      <label className="block text-xs font-semibold text-navy-900 mb-1">
                         Kategori
                       </label>
                       <select
                         value={kategori}
                         onChange={(e) => setKategori(e.target.value)}
-                        className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
                       >
                         <option value="Infrastruktur">Infrastruktur</option>
                         <option value="Ekonomi / UMKM">Ekonomi / UMKM</option>
@@ -192,20 +193,20 @@ export default function AspirasiPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-navy-900 mb-1.5">
-                      Uraian Kebutuhan & Lokasi Spesifik
+                    <label className="block text-xs font-semibold text-navy-900 mb-1">
+                      Uraian Kebutuhan & Lokasi
                     </label>
                     <textarea
                       rows={4}
                       required
                       value={deskripsi}
                       onChange={(e) => setDeskripsi(e.target.value)}
-                      placeholder="Jelaskan kondisi di lapangan dan harapan dari warga desa..."
-                      className="w-full p-4 bg-surface-canvas border border-slate-300 rounded-2xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Jelaskan kondisi di lapangan dan harapan dari warga..."
+                      className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed"
                     />
                   </div>
 
-                  <Button type="submit" size="lg" variant="primary" className="w-full shadow-glow-primary">
+                  <Button type="submit" size="lg" variant="primary" className="w-full font-bold text-xs sm:text-sm">
                     <Send className="w-4 h-4 mr-2" />
                     <span>Kirimkan Aspirasi ke Perangkat Desa</span>
                   </Button>
@@ -216,7 +217,7 @@ export default function AspirasiPage() {
 
           {/* Ticket Lookup (5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            <Card className="p-6 border-slate-200 bg-white space-y-4 shadow-ambient">
+            <Card className="p-6 border-slate-200 bg-white space-y-4 shadow-card">
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-navy-950 font-epilogue">
                   Lacak Status Tiket Aspirasi
@@ -234,7 +235,7 @@ export default function AspirasiPage() {
                     value={ticketQuery}
                     onChange={(e) => setTicketQuery(e.target.value)}
                     placeholder="Contoh: ASP-2026-SKM-0089"
-                    className="w-full pl-10 pr-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs font-mono text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
                 <Button type="submit" size="md" variant="secondary" className="w-full text-xs font-semibold">
@@ -242,7 +243,6 @@ export default function AspirasiPage() {
                 </Button>
               </form>
 
-              {/* Sample Quick Ticket button */}
               <div className="text-[11px] text-slate-500 flex items-center justify-between pt-2 border-t border-slate-100">
                 <span>Coba tiket demo:</span>
                 <button
@@ -258,9 +258,9 @@ export default function AspirasiPage() {
               </div>
 
               {searchedTicket && (
-                <div className="mt-4 p-4 rounded-2xl bg-surface-subtle border border-slate-200 space-y-3 animate-in fade-in">
+                <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 animate-in fade-in">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono font-bold text-xs text-navy-900">
+                    <span className="font-mono font-bold text-xs text-navy-950">
                       {searchedTicket.ticket_number}
                     </span>
                     <StatusBadge status={searchedTicket.status} size="sm" />
@@ -272,8 +272,8 @@ export default function AspirasiPage() {
                   </p>
 
                   {searchedTicket.tanggapan_desa && (
-                    <div className="p-3 rounded-xl bg-primary-50 border border-primary-200 text-[11px] text-primary-950 space-y-1">
-                      <span className="font-bold flex items-center gap-1 text-primary-800">
+                    <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-950 space-y-1">
+                      <span className="font-bold flex items-center gap-1 text-emerald-800">
                         <Building className="w-3.5 h-3.5" /> Tanggapan Desa:
                       </span>
                       <p>{searchedTicket.tanggapan_desa}</p>

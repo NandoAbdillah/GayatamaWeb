@@ -3,19 +3,17 @@ import { cn } from '@/lib/utils';
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverEffect?: boolean;
-  glass?: boolean;
 }
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, hoverEffect = false, glass = false, children, ...props }, ref) => {
+  ({ className, hoverEffect = false, children, ...props }, ref) => {
     return (
       <div
         ref={ref}
         className={cn(
-          'rounded-2xl border border-slate-200/80 bg-white shadow-ambient transition-all duration-300',
-          glass && 'bg-white/90 backdrop-blur-md border-white/40',
+          'rounded-2xl border border-slate-200/90 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-card transition-all duration-200',
           hoverEffect &&
-            'hover:-translate-y-1 hover:shadow-ambient-lg hover:border-primary-200 cursor-pointer',
+            'hover:-translate-y-1 hover:shadow-card-hover dark:hover:border-navy-700 hover:border-slate-300 cursor-pointer',
           className
         )}
         {...props}

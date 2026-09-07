@@ -22,6 +22,7 @@ import {
   Activity,
   LogOut,
   Sparkles,
+  User,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -36,7 +37,9 @@ export const Sidebar: React.FC = () => {
           { href: '/mahasiswa/progress', label: 'Logbook Harian', icon: BookOpen, badge: 'Aktif' },
           { href: '/mahasiswa/kelompok', label: 'Kelompok KKN', icon: Users },
           { href: '/mahasiswa/proposal', label: 'Proposal Program', icon: FileText },
+          { href: '/mahasiswa/izin', label: 'Surat Izin Orang Tua', icon: FileCheck2, badge: '>50km' },
           { href: '/mahasiswa/portofolio', label: 'Luaran & Portofolio', icon: Award },
+          { href: '/mahasiswa/profile', label: 'Profil & Skill Mahasiswa', icon: User },
         ];
       case 'perangkat_desa':
         return [
@@ -70,10 +73,10 @@ export const Sidebar: React.FC = () => {
   const navItems = getRoleNavItems();
 
   return (
-    <aside className="w-64 shrink-0 hidden lg:flex flex-col bg-white border-r border-slate-200 min-h-[calc(100vh-4rem)] p-4 justify-between select-none">
+    <aside className="w-64 shrink-0 hidden lg:flex flex-col bg-white dark:bg-navy-950 border-r border-slate-200 dark:border-navy-800 min-h-[calc(100vh-4rem)] p-4 justify-between select-none transition-colors duration-200">
       <div className="space-y-6">
         {/* User Card */}
-        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-surface-subtle to-surface-container border border-slate-200/90">
+        <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-navy-900 border border-slate-200 dark:border-navy-800">
           <div className="flex items-center gap-3">
             <img
               src={
@@ -81,11 +84,11 @@ export const Sidebar: React.FC = () => {
                 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'
               }
               alt={user?.name}
-              className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm"
+              className="w-11 h-11 rounded-full object-cover border-2 border-white dark:border-navy-700 shadow-sm"
             />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-navy-950 truncate">{user?.name}</p>
-              <p className="text-xs text-primary-700 font-semibold capitalize flex items-center gap-1">
+              <p className="text-sm font-bold text-navy-950 dark:text-white truncate">{user?.name}</p>
+              <p className="text-xs text-primary dark:text-primary-400 font-semibold capitalize flex items-center gap-1">
                 <Sparkles className="w-3 h-3" />
                 {user?.role?.replace('_', ' ')}
               </p>
@@ -95,7 +98,7 @@ export const Sidebar: React.FC = () => {
 
         {/* Menu Section */}
         <div className="space-y-1">
-          <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+          <p className="px-3 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
             Menu Utama
           </p>
           {navItems.map((item) => {
@@ -109,15 +112,15 @@ export const Sidebar: React.FC = () => {
                 className={cn(
                   'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group',
                   isActive
-                    ? 'bg-primary text-white shadow-sm font-semibold shadow-primary-200'
-                    : 'text-navy-800 hover:bg-surface-subtle hover:text-primary-700'
+                    ? 'bg-primary text-white shadow-sm font-semibold'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-navy-900 hover:text-navy-950 dark:hover:text-white'
                 )}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     className={cn(
                       'w-4 h-4 transition-transform group-hover:scale-110',
-                      isActive ? 'text-white' : 'text-slate-500 group-hover:text-primary'
+                      isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-primary'
                     )}
                   />
                   <span>{item.label}</span>
@@ -128,7 +131,7 @@ export const Sidebar: React.FC = () => {
                       'text-[10px] font-bold px-2 py-0.5 rounded-full',
                       isActive
                         ? 'bg-white/20 text-white'
-                        : 'bg-amber-100 text-amber-800'
+                        : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
                     )}
                   >
                     {item.badge}
@@ -141,17 +144,17 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Footer Navigation Action */}
-      <div className="pt-4 border-t border-slate-100 space-y-1.5">
+      <div className="pt-4 border-t border-slate-100 dark:border-navy-800 space-y-1.5">
         <Link
           href="/"
-          className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-surface-subtle transition-colors"
+          className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-navy-900 transition-colors"
         >
           <Building className="w-4 h-4 text-slate-400" />
           <span>Halaman Beranda Utama</span>
         </Link>
         <button
           onClick={() => logout()}
-          className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors"
+          className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
         >
           <LogOut className="w-4 h-4" />
           <span>Keluar Sesi</span>
