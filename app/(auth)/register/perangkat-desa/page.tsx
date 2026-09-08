@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api-client';
+import { WilayahSelect } from '@/components/wilayah/WilayahSelect';
+import { SelectedWilayahHierarchy } from '@/lib/wilayah-types';
 
 export default function RegisterPerangkatDesaPage() {
   const router = useRouter();
@@ -83,6 +85,19 @@ export default function RegisterPerangkatDesaPage() {
     } finally {
       setUploadingSk(false);
     }
+  };
+
+  const handleWilayahChange = (hierarchy: SelectedWilayahHierarchy) => {
+    setFormData((prev) => ({
+      ...prev,
+      provinsi: hierarchy.provinceName || prev.provinsi,
+      kabupaten: hierarchy.regencyName || prev.kabupaten,
+      kecamatan: hierarchy.districtName || prev.kecamatan,
+      nama_desa: hierarchy.villageName || prev.nama_desa,
+      kode_kemendagri: hierarchy.villageId || hierarchy.districtId || hierarchy.regencyId || prev.kode_kemendagri,
+      latitude: hierarchy.latitude ? hierarchy.latitude.toFixed(6) : prev.latitude,
+      longitude: hierarchy.longitude ? hierarchy.longitude.toFixed(6) : prev.longitude,
+    }));
   };
 
   const handleGetLocation = () => {
@@ -263,95 +278,33 @@ export default function RegisterPerangkatDesaPage() {
 
             {/* Bagian 2: Wilayah Administrasi Desa */}
             <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-navy-800">
-              <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                2. Data Administrasi & Geospasial Desa
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Nama Desa / Kelurahan <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.nama_desa}
-                    onChange={(e) => setFormData({ ...formData, nama_desa: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    2. Data Administrasi & Geospasial Wilayah Desa
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Data tersinkronisasi otomatis dengan standar Kemendagri & BIG Geospasial
+                  </p>
                 </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Kode Kemendagri Desa
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.kode_kemendagri}
-                    onChange={(e) => setFormData({ ...formData, kode_kemendagri: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Kecamatan <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.kecamatan}
-                    onChange={(e) => setFormData({ ...formData, kecamatan: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Kabupaten / Kota <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.kabupaten}
-                    onChange={(e) => setFormData({ ...formData, kabupaten: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-
-                {/* Titik Koordinat Kantor Desa */}
-                <div className="space-y-1 sm:col-span-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Koordinat Lokasi Balai Desa (Untuk Peta Radius KKN)
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleGetLocation}
-                      className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"
-                    >
-                      <Compass className="w-3.5 h-3.5" />
-                      <span>{gettingGps ? 'Mendeteksi...' : 'Ambil GPS Saat Ini'}</span>
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      placeholder="Latitude (-6.689200)"
-                      value={formData.latitude}
-                      onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Longitude (106.845300)"
-                      value={formData.longitude}
-                      onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none"
-                    />
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleGetLocation}
+                  className="text-xs font-bold text-primary flex items-center gap-1.5 hover:underline bg-primary/10 px-3 py-1.5 rounded-full"
+                >
+                  <Compass className="w-3.5 h-3.5" />
+                  <span>{gettingGps ? 'Mendeteksi...' : 'Ambil GPS Balai Desa'}</span>
+                </button>
               </div>
+
+              {/* Dynamic Wilayah Selector (Provinsi -> Kab/Kota -> Kecamatan -> Desa) */}
+              <WilayahSelect
+                initialProvinceId="32" // Jawa Barat default
+                initialRegencyId="32.01" // Kab. Bogor default
+                onChange={handleWilayahChange}
+                required={true}
+                showCoordinates={true}
+              />
             </div>
 
             {/* Bagian 3: Unggah Berkas SK Kades */}
