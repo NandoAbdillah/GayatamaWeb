@@ -43,7 +43,7 @@ export const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { href: '/search', label: 'Pos Kebutuhan', icon: Compass },
+    { href: '/katalog', label: 'Katalog KKN', icon: Compass },
     { href: '/maps', label: 'Peta Sebaran', icon: MapPin },
     { href: '/aspirasi', label: 'Aspirasi Desa', icon: MessageSquare },
     { href: '/portofolio/kelompok-14-sukamaju', label: 'Portofolio Publik', icon: Sparkles },

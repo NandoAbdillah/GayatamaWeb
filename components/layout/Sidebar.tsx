@@ -23,6 +23,11 @@ import {
   LogOut,
   Sparkles,
   User,
+  BarChart3,
+  History,
+  FileSignature,
+  ThumbsUp,
+  MapPin,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -35,10 +40,12 @@ export const Sidebar: React.FC = () => {
         return [
           { href: '/mahasiswa/dashboard', label: 'Dashboard', icon: LayoutDashboard },
           { href: '/mahasiswa/progress', label: 'Logbook Harian', icon: BookOpen, badge: 'Aktif' },
+          { href: '/mahasiswa/lokasi', label: 'Presensi Lokasi GPS', icon: MapPin, badge: 'GPS' },
           { href: '/mahasiswa/kelompok', label: 'Kelompok KKN', icon: Users },
           { href: '/mahasiswa/proposal', label: 'Proposal Program', icon: FileText },
           { href: '/mahasiswa/izin', label: 'Surat Izin Orang Tua', icon: FileCheck2, badge: '>50km' },
           { href: '/mahasiswa/portofolio', label: 'Luaran & Portofolio', icon: Award },
+          { href: '/mahasiswa/verifikasi', label: 'Verifikasi Identitas', icon: ShieldCheck },
           { href: '/mahasiswa/profile', label: 'Profil & Skill Mahasiswa', icon: User },
         ];
       case 'perangkat_desa':
@@ -46,9 +53,12 @@ export const Sidebar: React.FC = () => {
           { href: '/perangkat-desa/dashboard', label: 'Dashboard Desa', icon: Home },
           { href: '/perangkat-desa/pos-kebutuhan', label: 'Pos Kebutuhan', icon: ClipboardList },
           { href: '/perangkat-desa/proposal', label: 'Proposal Masuk', icon: FileCheck2 },
+          { href: '/perangkat-desa/surat-tugas', label: 'Surat Tugas Desa', icon: FileSignature },
+          { href: '/perangkat-desa/luaran', label: 'Verifikasi Luaran', icon: Award },
           { href: '/perangkat-desa/aspirasi', label: 'Aspirasi Warga', icon: MessageSquare, badge: '2 Baru' },
           { href: '/perangkat-desa/progress', label: 'Monitoring Mahasiswa', icon: Activity },
           { href: '/perangkat-desa/bast', label: 'Penilaian & BAST', icon: Award },
+          { href: '/perangkat-desa/riwayat', label: 'Riwayat KKN Desa', icon: History },
         ];
       case 'dosen':
         return [
@@ -62,9 +72,14 @@ export const Sidebar: React.FC = () => {
       default:
         return [
           { href: '/admin/dashboard', label: 'Monev LPPM', icon: LayoutDashboard },
+          { href: '/admin/monitoring', label: 'Live Monitoring Spasial', icon: MapPin, badge: 'Live' },
+          { href: '/admin/analytics', label: 'Analisis & Statistik SDG', icon: BarChart3 },
+          { href: '/admin/laporan-dosen', label: 'Tinjau Laporan DPL', icon: FileText, badge: '1 Baru' },
           { href: '/admin/dosen', label: 'Alokasi Dosen DPL', icon: GraduationCap },
           { href: '/admin/sks', label: 'Konversi SKS & Kelulusan', icon: FileCheck2 },
           { href: '/admin/verifikasi', label: 'Verifikasi Berkas SK/KTM', icon: ShieldCheck },
+          { href: '/admin/documentation', label: 'Pusat SOP & Regulasi', icon: BookOpen },
+          { href: '/admin/feedback', label: 'Feedback Stakeholder', icon: ThumbsUp },
           { href: '/admin/logs', label: 'Audit Trail & Sistem', icon: Activity },
         ];
     }
