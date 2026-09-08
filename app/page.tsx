@@ -66,23 +66,16 @@ export default function HomePage() {
       <Navbar />
 
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION (Inspirasi Farmvest & Trippin': Ilustrasi Lanskap Tropis) */}
+      {/* 1. HERO SECTION (Clean, Minimalist & Centered on Screen) */}
       {/* ========================================================================= */}
-      <section className="relative bg-[#EAF4FE] dark:bg-navy-950 pt-10 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-slate-200 dark:border-navy-800 transition-colors duration-200">
-        {/* Vector Background Landscape (Sawah, Bukit & Matahari Pagi) */}
-        <div className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-10 select-none overflow-hidden">
-          <svg className="w-full h-full object-cover" viewBox="0 0 1440 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="720" cy="180" r="140" fill="#FDE68A" />
-            <path d="M0 380C320 280 540 320 840 260C1140 200 1320 310 1440 350V600H0V380Z" fill="#86EFAC" />
-            <path d="M0 430C280 360 620 400 960 350C1240 310 1380 410 1440 430V600H0V430Z" fill="#4ADE80" />
-            <path d="M0 480C380 430 760 470 1140 440C1320 425 1400 480 1440 490V600H0V480Z" fill="#16A34A" />
-          </svg>
-        </div>
+      <section className="relative min-h-[calc(100vh-4.5rem)] flex flex-col justify-center items-center py-12 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-surface-canvas dark:bg-[#071629] border-b border-slate-200/80 dark:border-navy-800 transition-colors duration-200">
+        {/* Subtle Ambient Radial Glow (Clean, Non-Intrusive) */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[850px] h-[400px] sm:h-[500px] bg-gradient-to-tr from-primary/8 via-emerald-500/6 to-sky-400/8 blur-[120px] pointer-events-none rounded-full" />
 
-        <div className="relative max-w-5xl mx-auto text-center space-y-6">
+        <div className="relative max-w-5xl w-full mx-auto text-center space-y-6 sm:space-y-7 my-auto">
           {/* Top Pill Announcement */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 dark:bg-navy-900/90 border border-slate-200 dark:border-navy-700 shadow-sm text-xs font-semibold text-navy-900 dark:text-slate-200 font-jakarta">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 shadow-xs text-xs font-semibold text-navy-900 dark:text-slate-200 font-jakarta">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Pendaftaran KKN Tematik Semester Ganjil 2026/2027 Dibuka</span>
           </div>
 
@@ -93,16 +86,16 @@ export default function HomePage() {
             <span className="text-secondary-600 dark:text-secondary-400">Karya Nyata.</span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-700 dark:text-slate-300 font-jakarta leading-relaxed">
+          <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-600 dark:text-slate-300 font-jakarta leading-relaxed">
             Platform terpadu yang menghubungkan mahasiswa perguruan tinggi dengan ribuan pos kebutuhan riil
             pemerintah desa di seluruh Indonesia secara transparan dan terukur.
           </p>
 
           {/* ========================================================================= */}
-          {/* SEARCH CARD (Gaya Trippin': Tabbed multi-input card) */}
+          {/* SEARCH CARD (Clean multi-input card) */}
           {/* ========================================================================= */}
-          <div className="max-w-4xl mx-auto pt-4 text-left">
-            <div className="bg-white dark:bg-navy-900 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-navy-800 shadow-float p-3 sm:p-5 space-y-4">
+          <div className="max-w-4xl mx-auto pt-2 sm:pt-4 text-left">
+            <div className="bg-white dark:bg-navy-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-navy-800 shadow-xl p-3.5 sm:p-5 space-y-4">
               {/* Category selector tabs */}
               <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-slate-100 dark:border-navy-800">
                 {[
@@ -189,9 +182,9 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. REAL INDONESIA PHOTOGRAPHIC SHOWCASE (Gaya IKN https://ikn.go.id/id) */}
+      {/* 2. REAL INDONESIA PHOTOGRAPHIC SHOWCASE */}
       {/* ========================================================================= */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+      <section className="pt-24 sm:pt-32 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1 max-w-2xl">
             <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
