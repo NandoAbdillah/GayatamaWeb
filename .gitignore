@@ -143,6 +143,10 @@ mix-manifest.json
 .docker/
 .docker-build/
 
+
+.agents/
+.opencode/
+
 # ============================================
 # END OF .gitignore
 # ============================================
