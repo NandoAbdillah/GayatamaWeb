@@ -1,0 +1,133 @@
+{
+  "common": {
+    "appName": "BaktiNusantara",
+    "appTagline": "Platform Kolaborasi KKN & Desa Terpadu",
+    "search": "Cari",
+    "filter": "Filter",
+    "all": "Semua",
+    "loading": "Memuat...",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "back": "Kembali",
+    "details": "Rincian",
+    "apply": "Lamar Pos KKN",
+    "viewMore": "Lihat Selengkapnya",
+    "copy": "Salin",
+    "copied": "Berhasil disalin!",
+    "status": {
+      "open": "Dibuka",
+      "in_progress": "Berjalan",
+      "completed": "Selesai",
+      "verified": "Terverifikasi",
+      "pending": "Menunggu Review",
+      "rejected": "Ditolak"
+    }
+  },
+  "nav": {
+    "katalog": "Katalog KKN",
+    "maps": "Peta Sebaran",
+    "aspirasi": "Aspirasi Desa",
+    "portofolio": "Portofolio Publik",
+    "dashboard": "Dashboard",
+    "login": "Masuk Portal",
+    "register": "Daftar Akun",
+    "logout": "Keluar",
+    "switchRole": "Ganti Peran",
+    "roles": {
+      "mahasiswa": "Mahasiswa KKN",
+      "perangkat_desa": "Pemerintah Desa",
+      "dosen": "Dosen Pembimbing (DPL)",
+      "universitas": "Admin Universitas / LPPM",
+      "admin": "Super Admin"
+    }
+  },
+  "hero": {
+    "announcement": "Pendaftaran KKN Tematik Semester Ganjil 2026/2027 Dibuka",
+    "titleLine1": "Membangun Desa,",
+    "titleAction": "Mengabdi",
+    "titleWith": "dengan",
+    "titleImpact": "Karya Nyata.",
+    "subtitle": "Platform terpadu yang menghubungkan mahasiswa perguruan tinggi dengan ribuan pos kebutuhan riil pemerintah desa di seluruh Indonesia secara transparan dan terukur.",
+    "tabs": {
+      "all": "Semua Pos",
+      "agrikultur": "Agrikultur & Pangan",
+      "digitalisasi": "Digitalisasi UMKM",
+      "kesehatan": "Kesehatan Posyandu"
+    },
+    "inputs": {
+      "locationLabel": "Lokasi Wilayah",
+      "locationPlaceholder": "Cari desa, kecamatan, kabupaten...",
+      "majorLabel": "Keahlian / Jurusan",
+      "majorPlaceholder": "Teknik, Agribisnis, Gizi, DKV...",
+      "searchBtn": "Cari Pos KKN"
+    }
+  },
+  "showcase": {
+    "badge": "DOKUMENTASI AKSI LAPANGAN",
+    "title": "Sinergi Nyata Mahasiswa & Warga Desa",
+    "subtitle": "Dari modernisasi irigasi pertanian hingga penguatan UMKM lokal, KKN hadir menjawab tantangan riil desa.",
+    "viewDoc": "Lihat Dokumentasi"
+  },
+  "maps": {
+    "badge": "Haversine Geospatial Radius",
+    "title": "Peta Sebaran Pos KKN & Jangkauan Wilayah",
+    "filterDistance": "Filter Jarak",
+    "lessThan20": "< 20 km",
+    "lessThan50": "< 50 km",
+    "allDistance": "Semua",
+    "campusCenter": "Pusat Kampus",
+    "selectedPos": "Pos Kebutuhan Terpilih",
+    "selectProvince": "Pilih Provinsi (Batas Wilayah)",
+    "selectRegency": "Filter Kabupaten / Kota",
+    "regionInfo": "Informasi Wilayah Terpilih",
+    "capital": "Ibukota",
+    "population": "Populasi",
+    "area": "Luas Wilayah",
+    "elevation": "Ketinggian",
+    "fromCampus": "dari kampus",
+    "targetOutputs": "Target Luaran Pos",
+    "viewDetailsAndApply": "Lihat Rincian Pos & Lamar"
+  },
+  "pos": {
+    "quota": "Kuota",
+    "filled": "Terisi",
+    "sector": "Sektor",
+    "village": "Desa",
+    "regency": "Kabupaten",
+    "province": "Provinsi",
+    "criteria": "Kriteria Jurusan"
+  },
+  "dashboard": {
+    "welcome": "Selamat datang kembali,",
+    "activeRole": "Peran Aktif",
+    "quickStats": "Ringkasan Metrik",
+    "recentActivity": "Aktivitas Terkini",
+    "viewAll": "Lihat Semua",
+    "hoursKkn": "Jam Kegiatan KKN",
+    "targetHours": "Target Jam",
+    "logbook": "Catatan Logbook",
+    "proposal": "Proposal Program",
+    "assessment": "Penilaian DPL",
+    "survey": "Survei Kepuasan Desa",
+    "letterOfDuty": "Surat Tugas Desa",
+    "bast": "Berita Acara (BAST)"
+  },
+  "copilot": {
+    "name": "Bakti AI Agent",
+    "badge": "Agentic Copilot",
+    "tagline": "Asisten Cerdas & Agen Aksi Terpadu",
+    "floatingPrompt": "Ada yang perlu AI bantu/eksekusi?",
+    "inputPlaceholder": "Tanya atau minta tindakan AI...",
+    "thinking": "AI Agent sedang berpikir & menyiapkan tindakan...",
+    "openPage": "Buka Halaman",
+    "copyDraft": "Salin Draf",
+    "quick": {
+      "map": "🗺️ Buka Peta Radius KKN",
+      "searchUmkm": "🔍 Cari Pos KKN UMKM",
+      "draftProposal": "📝 Draf Proposal KKN",
+      "matching": "📊 Cek Kecocokan Jurusan",
+      "logbook": "📋 Draf Catatan Logbook"
+    }
+  }
+}

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
+import { useTranslations } from 'next-intl';
 import {
   Search,
   MapPin,
@@ -27,6 +28,9 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState('Semua');
   const [searchLocation, setSearchLocation] = useState('');
   const [searchJurusan, setSearchJurusan] = useState('');
+
+  const tHero = useTranslations('hero');
+  const tShowcase = useTranslations('showcase');
 
   const exploreRegions = [
     {
@@ -76,19 +80,18 @@ export default function HomePage() {
           {/* Top Pill Announcement */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 shadow-xs text-xs font-semibold text-navy-900 dark:text-slate-200 font-jakarta">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Pendaftaran KKN Tematik Semester Ganjil 2026/2027 Dibuka</span>
+            <span>{tHero('announcement')}</span>
           </div>
 
           {/* Big Authoritative Headline with Epilogue Font */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight leading-[1.12]">
-            Membangun Desa, <br />
-            <span className="text-primary-600 dark:text-primary-400">Mengabdi</span> dengan{' '}
-            <span className="text-secondary-600 dark:text-secondary-400">Karya Nyata.</span>
+            {tHero('titleLine1')} <br />
+            <span className="text-primary-600 dark:text-primary-400">{tHero('titleAction')}</span> {tHero('titleWith')}{' '}
+            <span className="text-secondary-600 dark:text-secondary-400">{tHero('titleImpact')}</span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-600 dark:text-slate-300 font-jakarta leading-relaxed">
-            Platform terpadu yang menghubungkan mahasiswa perguruan tinggi dengan ribuan pos kebutuhan riil
-            pemerintah desa di seluruh Indonesia secara transparan dan terukur.
+            {tHero('subtitle')}
           </p>
 
           {/* ========================================================================= */}
@@ -99,17 +102,17 @@ export default function HomePage() {
               {/* Category selector tabs */}
               <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-slate-100 dark:border-navy-800">
                 {[
-                  { label: 'Semua Pos', icon: Globe2 },
-                  { label: 'Agrikultur & Pangan', icon: Sprout },
-                  { label: 'Digitalisasi UMKM', icon: Laptop },
-                  { label: 'Kesehatan Posyandu', icon: HeartPulse },
+                  { key: 'all', label: tHero('tabs.all'), icon: Globe2 },
+                  { key: 'agrikultur', label: tHero('tabs.agrikultur'), icon: Sprout },
+                  { key: 'digitalisasi', label: tHero('tabs.digitalisasi'), icon: Laptop },
+                  { key: 'kesehatan', label: tHero('tabs.kesehatan'), icon: HeartPulse },
                 ].map((tab) => {
                   const Icon = tab.icon;
-                  const isActive = activeTab === tab.label;
+                  const isActive = activeTab === tab.key || activeTab === tab.label;
                   return (
                     <button
-                      key={tab.label}
-                      onClick={() => setActiveTab(tab.label)}
+                      key={tab.key}
+                      onClick={() => setActiveTab(tab.key)}
                       className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                         isActive
                           ? 'bg-navy-900 dark:bg-primary text-white shadow-sm'
@@ -128,7 +131,7 @@ export default function HomePage() {
                 {/* Wilayah / Lokasi */}
                 <div className="sm:col-span-5 bg-slate-50 dark:bg-navy-950 hover:bg-slate-100/80 dark:hover:bg-navy-950/80 p-3 rounded-xl border border-slate-200/80 dark:border-navy-800 transition-colors">
                   <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                    Lokasi Wilayah
+                    {tHero('inputs.locationLabel')}
                   </span>
                   <div className="flex items-center gap-2 mt-0.5">
                     <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
@@ -136,7 +139,7 @@ export default function HomePage() {
                       type="text"
                       value={searchLocation}
                       onChange={(e) => setSearchLocation(e.target.value)}
-                      placeholder="Cari desa, kecamatan, kabupaten..."
+                      placeholder={tHero('inputs.locationPlaceholder')}
                       className="w-full bg-transparent text-xs font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
                     />
                   </div>
@@ -145,7 +148,7 @@ export default function HomePage() {
                 {/* Minat Jurusan / Keahlian */}
                 <div className="sm:col-span-4 bg-slate-50 dark:bg-navy-950 hover:bg-slate-100/80 dark:hover:bg-navy-950/80 p-3 rounded-xl border border-slate-200/80 dark:border-navy-800 transition-colors">
                   <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                    Keahlian / Jurusan
+                    {tHero('inputs.majorLabel')}
                   </span>
                   <div className="flex items-center gap-2 mt-0.5">
                     <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
@@ -153,7 +156,7 @@ export default function HomePage() {
                       type="text"
                       value={searchJurusan}
                       onChange={(e) => setSearchJurusan(e.target.value)}
-                      placeholder="Teknik, Agribisnis, Gizi, DKV..."
+                      placeholder={tHero('inputs.majorPlaceholder')}
                       className="w-full bg-transparent text-xs font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
                     />
                   </div>
@@ -171,7 +174,7 @@ export default function HomePage() {
                       className="w-full h-12 rounded-xl text-xs font-bold gap-2 shadow-sm"
                     >
                       <Search className="w-4 h-4" />
-                      <span>Cari Pos KKN</span>
+                      <span>{tHero('inputs.searchBtn')}</span>
                     </Button>
                   </Link>
                 </div>
@@ -188,19 +191,19 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1 max-w-2xl">
             <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
-              Dokumentasi Aksi Lapangan
+              {tShowcase('badge')}
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              Sinergi Nyata Mahasiswa & Warga Desa
+              {tShowcase('title')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-jakarta">
-              Dari modernisasi irigasi pertanian hingga penguatan UMKM lokal, KKN hadir menjawab tantangan riil desa.
+              {tShowcase('subtitle')}
             </p>
           </div>
 
           <Link href="/portofolio/kelompok-14-sukamaju">
             <Button variant="outline" size="sm" className="text-xs font-semibold gap-1.5">
-              <span>Lihat Dokumentasi</span>
+              <span>{tShowcase('viewDoc')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </Link>

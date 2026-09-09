@@ -7,13 +7,13 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { RoleSwitcher } from '@/components/ui/RoleSwitcher';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { useTranslations } from 'next-intl';
 import {
   Sprout,
   LayoutDashboard,
   Menu,
   X,
-  ChevronDown,
-  Globe,
   Compass,
   MapPin,
   MessageSquare,
@@ -24,6 +24,8 @@ export const Navbar: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const t = useTranslations('nav');
+  const tCommon = useTranslations('common');
 
   const getDashboardLink = () => {
     if (!user) return '/login';
@@ -43,10 +45,10 @@ export const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { href: '/katalog', label: 'Katalog KKN', icon: Compass },
-    { href: '/maps', label: 'Peta Sebaran', icon: MapPin },
-    { href: '/aspirasi', label: 'Aspirasi Desa', icon: MessageSquare },
-    { href: '/portofolio/kelompok-14-sukamaju', label: 'Portofolio Publik', icon: Sparkles },
+    { href: '/katalog', label: t('katalog'), icon: Compass },
+    { href: '/maps', label: t('maps'), icon: MapPin },
+    { href: '/aspirasi', label: t('aspirasi'), icon: MessageSquare },
+    { href: '/portofolio/kelompok-14-sukamaju', label: t('portofolio'), icon: Sparkles },
   ];
 
   return (
@@ -60,10 +62,10 @@ export const Navbar: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <span className="font-epilogue font-extrabold text-navy-950 dark:text-white text-xl leading-none tracking-tight">
-                BaktiNusantara
+                {tCommon('appName')}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium font-jakarta mt-1 tracking-wide">
-                KKN Tematik Terpadu Indonesia
+                {tCommon('appTagline')}
               </span>
             </div>
           </Link>
@@ -91,20 +93,16 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Action & Controls (Farmvest Style + Dark Mode) */}
-          <div className="hidden sm:flex items-center gap-3 lg:gap-3.5 shrink-0">
+          {/* Right Action & Controls (Farmvest Style + Dark Mode + Language Switcher) */}
+          <div className="hidden sm:flex items-center gap-2.5 lg:gap-3 shrink-0">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
             {/* Dark Mode Toggle */}
             <ThemeToggle />
 
             {/* Quick Demo Switcher Dropdown */}
             <RoleSwitcher />
-
-            {/* Language Selector */}
-            <div className="flex items-center gap-1 text-xs font-bold text-slate-600 dark:text-slate-300 px-2.5 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-navy-900 cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-navy-700 transition-all duration-150">
-              <Globe className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-              <span>ID</span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
-            </div>
 
             <div className="h-6 w-px bg-slate-200 dark:bg-navy-800 mx-0.5" />
 
@@ -112,19 +110,19 @@ export const Navbar: React.FC = () => {
               <Link href={getDashboardLink()}>
                 <Button size="md" variant="primary" className="gap-2 font-bold px-4 py-2 rounded-xl shadow-sm hover:shadow-md">
                   <LayoutDashboard className="w-4 h-4" />
-                  <span>Portal Saya</span>
+                  <span>{t('dashboard')}</span>
                 </Button>
               </Link>
             ) : (
               <div className="flex items-center gap-2.5">
                 <Link href="/login">
                   <Button size="sm" variant="ghost" className="text-xs font-bold text-navy-950 dark:text-slate-200 px-3.5 py-2 hover:bg-slate-100 dark:hover:bg-navy-900">
-                    Masuk
+                    {t('login')}
                   </Button>
                 </Link>
                 <Link href="/register">
                   <Button size="sm" variant="primary" className="text-xs font-bold px-4 py-2 rounded-xl shadow-sm">
-                    Daftar KKN
+                    {t('register')}
                   </Button>
                 </Link>
               </div>

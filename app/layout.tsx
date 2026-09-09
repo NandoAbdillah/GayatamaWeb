@@ -3,6 +3,7 @@ import { Epilogue, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 import { Toaster } from 'sonner';
 import { BaktiAiCopilot } from '@/components/ai/BaktiAiCopilot';
 
@@ -65,13 +66,15 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col font-jakarta bg-surface-canvas text-navy-950 dark:bg-[#071629] dark:text-slate-100 transition-colors duration-200">
-        <ThemeProvider>
-          <AuthProvider>
-            {children}
-            <BaktiAiCopilot />
-            <Toaster richColors position="top-right" />
-          </AuthProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              {children}
+              <BaktiAiCopilot />
+              <Toaster richColors position="top-right" />
+            </AuthProvider>
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

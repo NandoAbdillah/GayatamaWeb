@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import {
   Bot,
   Sparkles,
@@ -43,6 +45,8 @@ export function BaktiAiCopilot() {
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuth();
+  const { locale } = useLanguage();
+  const tCopilot = useTranslations('copilot');
 
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -102,6 +106,7 @@ Ada yang bisa saya bantu atau eksekusi untuk Anda hari ini?`,
           history: messages.map((m) => ({ role: m.role, content: m.content })),
           userRole: activeRole,
           activePage: pathname,
+          locale: locale,
         }),
       });
 
