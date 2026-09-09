@@ -182,12 +182,7 @@ Ada yang bisa saya bantu atau eksekusi untuk Anda hari ini?`,
     <>
       {/* Floating Trigger Aura Button */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-navy-700 shadow-lg text-xs font-bold text-navy-950 dark:text-white animate-bounce">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Ada yang perlu AI bantu/eksekusi?</span>
-          </div>
-
+        <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3">
           <button
             onClick={() => setIsOpen(true)}
             aria-label="Buka Bakti AI Copilot"
@@ -197,6 +192,11 @@ Ada yang bisa saya bantu atau eksekusi untuk Anda hari ini?`,
             <Bot className="w-7 h-7 group-hover:rotate-12 transition-transform duration-300" />
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-white dark:border-navy-950 rounded-full" />
           </button>
+
+          <div className="hidden sm:flex items-center gap-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-navy-700 shadow-lg text-xs font-bold text-navy-950 dark:text-white animate-bounce">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>Ada yang perlu AI bantu/eksekusi?</span>
+          </div>
         </div>
       )}
 
@@ -206,7 +206,7 @@ Ada yang bisa saya bantu atau eksekusi untuk Anda hari ini?`,
           className={`fixed z-50 transition-all duration-300 flex flex-col shadow-2xl rounded-3xl overflow-hidden border border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-950 font-jakarta ${
             isExpanded
               ? 'inset-4 sm:inset-10'
-              : 'bottom-6 right-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
+              : 'bottom-6 left-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
           }`}
         >
           {/* Header */}

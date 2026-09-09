@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { Toaster } from 'sonner';
 import { BaktiAiCopilot } from '@/components/ai/BaktiAiCopilot';
+import { AccessibilityWidget } from '@/components/accessibility/AccessibilityWidget';
 
 const epilogue = Epilogue({
   subsets: ['latin'],
@@ -71,6 +72,7 @@ export default function RootLayout({
             <AuthProvider>
               {children}
               <BaktiAiCopilot />
+              <AccessibilityWidget />
               <Toaster richColors position="top-right" />
             </AuthProvider>
           </ThemeProvider>
