@@ -121,7 +121,7 @@ export const GEMINI_AGENT_TOOL_DECLARATIONS = [
   {
     name: 'query_wilayah_indonesia',
     description:
-      'Ambil data profil geospasial resmi wilayah Indonesia (Ibukota, Luas Wilayah km2, Populasi penduduk, Titik Koordinat GPS, Ketinggian mdpl, dan status batas polygon) dari dataset Kemendagri & BIG.',
+      'Ambil data profil geospasial resmi wilayah Indonesia (Logo Resmi Pemda, Ibukota, Luas Wilayah km2, Populasi penduduk, Titik Koordinat GPS, Ketinggian mdpl, dan status batas polygon) dari dataset Kemendagri, BIG & API edopandoyo.',
     parameters: {
       type: 'OBJECT',
       properties: {
@@ -134,6 +134,21 @@ export const GEMINI_AGENT_TOOL_DECLARATIONS = [
           description: 'Nama kabupaten/kota (misal: "Bogor", "Bandung", "Banyuwangi")',
         },
       },
+    },
+  },
+  {
+    name: 'search_wilayah_dan_logo',
+    description:
+      'Cari nama wilayah di seluruh Indonesia (Provinsi, Kab/Kota, Kecamatan, Desa) beserta URL Lambang/Logo Resmi Daerah dari edopandoyo/wilayah-indonesia-api.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        keyword: {
+          type: 'STRING',
+          description: 'Kata kunci pencarian wilayah (contoh: "Bogor", "Surabaya", "Denpasar", "Sleman")',
+        },
+      },
+      required: ['keyword'],
     },
   },
   {
@@ -290,9 +305,29 @@ export async function executeAgentTool(toolName: string, args: any) {
             population: matchedProv?.population,
             total_area_km2: matchedProv?.total_area,
             elevation_mdpl: matchedProv?.elv,
+            logo_url: matchedProv?.logo_url,
+            fallback_logo_url: matchedProv?.fallback_logo_url,
             coordinates: { lat: matchedProv?.lat, lng: matchedProv?.lng },
             has_polygon_boundary: matchedProv?.has_path,
           },
+        };
+      }
+
+      case 'search_wilayah_dan_logo': {
+        const keyword = args.keyword || '';
+        const searchRes = await WilayahService.searchWilayahFromApi(keyword);
+        return {
+          status: 'success',
+          action: 'WILAYAH_SEARCHED',
+          keyword,
+          total_found: searchRes.data.length,
+          data: searchRes.data.slice(0, 6).map((item) => ({
+            kode: item.kode,
+            nama: item.nama,
+            level: item.level,
+            logo_url: item.logo_url || (item.kode.length === 2 ? WilayahService.getProvinceLogoUrl(item.kode) : WilayahService.getRegencyLogoUrl(item.kode)),
+            kodepos: item.kodepos,
+          })),
         };
       }
 

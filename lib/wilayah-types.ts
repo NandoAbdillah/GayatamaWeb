@@ -9,6 +9,8 @@ export interface Province {
   population?: number;
   total_area?: number;
   has_path: boolean;
+  logo_url?: string;
+  fallback_logo_url?: string;
 }
 
 export interface Regency {
@@ -22,6 +24,8 @@ export interface Regency {
   population?: number;
   total_area?: number;
   has_path: boolean;
+  logo_url?: string;
+  fallback_logo_url?: string;
   province?: {
     id: string;
     name: string;
@@ -124,3 +128,23 @@ export interface SelectedWilayahHierarchy {
   latitude?: number;
   longitude?: number;
 }
+
+export interface WilayahSearchItem {
+  kode: string;
+  nama: string;
+  level: string; // "Provinsi" | "Kabupaten/Kota" | "Kecamatan" | "Desa/Kelurahan"
+  level_code: number; // 1: Prov, 2: Kab/Kota, 3: Kec, 4: Kel/Desa
+  logo_url: string | null;
+  kodepos: string | null;
+}
+
+export interface WilayahSearchResult {
+  data: WilayahSearchItem[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+  };
+}
+
