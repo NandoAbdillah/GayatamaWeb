@@ -1,0 +1,98 @@
+import type { Config } from 'tailwindcss';
+
+const config: Config = {
+  darkMode: 'class',
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './context/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        epilogue: ['var(--font-epilogue)', 'sans-serif'],
+        jakarta: ['var(--font-jakarta)', 'sans-serif'],
+      },
+      colors: {
+        primary: {
+          DEFAULT: '#2589F5',
+          50: '#F0F7FF',
+          100: '#E0F2FE',
+          200: '#BAE6FD',
+          300: '#7DD3FC',
+          400: '#38BDF8',
+          500: '#2589F5',
+          600: '#1D70D0',
+          700: '#1558AA',
+          800: '#0F4284',
+          900: '#0A2D5C',
+        },
+        secondary: {
+          DEFAULT: '#16A34A',
+          50: '#F0FDF4',
+          100: '#DCFCE7',
+          200: '#BBF7D0',
+          300: '#86EFAC',
+          400: '#4ADE80',
+          500: '#16A34A',
+          600: '#15803D',
+          700: '#0F612E',
+          800: '#0A4320',
+          900: '#062B15',
+        },
+        tertiary: {
+          DEFAULT: '#F59E0B',
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          200: '#FDE68A',
+          300: '#FCD34D',
+          400: '#FBBF24',
+          500: '#F59E0B',
+          600: '#D97706',
+          700: '#B45309',
+          800: '#92400E',
+          900: '#78350F',
+        },
+        navy: {
+          DEFAULT: '#0F294A',
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F294A',
+          950: '#071629',
+        },
+        surface: {
+          DEFAULT: '#FFFFFF',
+          canvas: '#F8FAFC',
+          card: '#FFFFFF',
+          subtle: '#F1F5F9',
+          sand: '#FAF8F5',
+          container: '#EBF3FE',
+          darkCanvas: '#071629',
+          darkCard: '#0F294A',
+          darkSubtle: '#1E293B',
+        },
+      },
+      boxShadow: {
+        'card': '0 1px 3px 0 rgba(15, 41, 74, 0.06), 0 1px 2px 0 rgba(15, 41, 74, 0.04)',
+        'card-hover': '0 10px 25px -5px rgba(15, 41, 74, 0.08), 0 8px 10px -6px rgba(15, 41, 74, 0.04)',
+        'float': '0 20px 35px -10px rgba(15, 41, 74, 0.12)',
+      },
+      borderRadius: {
+        'xl': '0.875rem',
+        '2xl': '1.25rem',
+        '3xl': '1.75rem',
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;
