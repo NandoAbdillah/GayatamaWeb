@@ -18,10 +18,12 @@ import {
   MapPin,
   MessageSquare,
   Sparkles,
+  LogOut,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const Navbar: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = useTranslations('nav');
@@ -107,12 +109,24 @@ export const Navbar: React.FC = () => {
             <div className="h-6 w-px bg-slate-200 dark:bg-navy-800 mx-0.5" />
 
             {isAuthenticated ? (
-              <Link href={getDashboardLink()}>
-                <Button size="md" variant="primary" className="gap-2 font-bold px-4 py-2 rounded-xl shadow-sm hover:shadow-md">
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>{t('dashboard')}</span>
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href={getDashboardLink()}>
+                  <Button size="md" variant="primary" className="gap-2 font-bold px-3.5 py-2 rounded-xl shadow-sm hover:shadow-md text-xs">
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    <span>Portal {user?.name ? user.name.split(' ')[0] : 'Dashboard'}</span>
+                  </Button>
+                </Link>
+                <button
+                  onClick={async () => {
+                    await logout();
+                    toast.success('Sesi berhasil keluar');
+                  }}
+                  className="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-slate-200 dark:border-navy-700 transition-colors"
+                  title="Keluar Sesi"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             ) : (
               <div className="flex items-center gap-2.5">
                 <Link href="/login">
@@ -175,12 +189,26 @@ export const Navbar: React.FC = () => {
 
           <div className="pt-3 border-t border-slate-100 dark:border-navy-800">
             {isAuthenticated ? (
-              <Link href={getDashboardLink()} onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full justify-center gap-2" variant="primary">
-                  <LayoutDashboard className="w-4 h-4" />
-                  Buka Portal ({user?.name})
+              <div className="space-y-2">
+                <Link href={getDashboardLink()} onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full justify-center gap-2" variant="primary">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Buka Portal ({user?.name})
+                  </Button>
+                </Link>
+                <Button
+                  onClick={async () => {
+                    setMobileMenuOpen(false);
+                    await logout();
+                    toast.success('Sesi berhasil keluar');
+                  }}
+                  variant="outline"
+                  className="w-full justify-center gap-2 text-rose-600 border-rose-200 dark:border-rose-900 dark:text-rose-400"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Keluar Akun
                 </Button>
-              </Link>
+              </div>
             ) : (
               <div className="flex gap-2.5">
                 <Link href="/login" className="flex-1" onClick={() => setMobileMenuOpen(false)}>

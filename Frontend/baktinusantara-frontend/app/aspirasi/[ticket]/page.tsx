@@ -24,6 +24,7 @@ import {
   Send,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/services';
 
 export default function DetailTicketAspirasiPage({
   params,
@@ -35,8 +36,8 @@ export default function DetailTicketAspirasiPage({
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
 
-  // Mock data for ticket tracking
-  const ticketData = {
+  // Dynamic ticket state with rich fallback
+  const [ticketData, setTicketData] = useState({
     ticket_number: ticketId || 'ASP-2026-0901',
     judul: 'Perbaikan Sistem Irigasi Sawah & Otomatisasi Debit Air Dusun 2',
     pengusul: 'Bpk. Su***anto (Ketua Gapoktan Sumber Makmur)',
@@ -52,7 +53,6 @@ export default function DetailTicketAspirasiPage({
       'Saluran irigasi primer sepanjang 400 meter mengalami sedimentasi dan pintu air manual sering macet, menyebabkan 25 hektar sawah warga kekurangan pasokan air saat musim kemarau.',
     foto_bukti:
       'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=800&auto=format&fit=crop&q=80',
-    // Data Tim KKN yang mengerjakan
     kelompok: {
       nama: 'Kelompok 14 KKN Tematik',
       ketua: 'Muhammad Raihan Pratama',
@@ -98,7 +98,34 @@ export default function DetailTicketAspirasiPage({
         status: 'completed',
       },
     ],
-  };
+  });
+
+  React.useEffect(() => {
+    async function loadTicket() {
+      try {
+        const res: any = await api.aspirasi.getByTicket(ticketId);
+        if (res && res.id) {
+          setTicketData((prev) => ({
+            ...prev,
+            ticket_number: String(res.id || ticketId),
+            judul: res.deskripsi ? `Aspirasi Warga: ${res.deskripsi.slice(0, 45)}...` : prev.judul,
+            pengusul: res.pelapor_nama || prev.pengusul,
+            desa: res.desa?.nama_desa || prev.desa,
+            kecamatan: res.desa?.kecamatan || prev.kecamatan,
+            kabupaten: res.desa?.kabupaten || prev.kabupaten,
+            status: res.status || 'menunggu',
+            kategori: res.kategori || prev.kategori,
+            urgensi: res.urgensi || prev.urgensi,
+            deskripsi: res.deskripsi || prev.deskripsi,
+            foto_bukti: res.foto_url || prev.foto_bukti,
+          }));
+        }
+      } catch (err) {
+        console.warn('Fallback to mock ticket tracking:', err);
+      }
+    }
+    if (ticketId) loadTicket();
+  }, [ticketId]);
 
   const handleSendFeedback = (e: React.FormEvent) => {
     e.preventDefault();

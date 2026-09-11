@@ -16,8 +16,9 @@ export interface DecideProposalPayload {
 }
 
 export interface ReviewKelayakanPayload {
-  status_kelayakan: 'layak' | 'perlu_revisi';
+  status_kelayakan: 'layak' | 'perlu_revisi' | 'revisi' | 'ditolak';
   catatan_dosen?: string;
+  catatan_dpl?: string;
 }
 
 export const proposalService = {

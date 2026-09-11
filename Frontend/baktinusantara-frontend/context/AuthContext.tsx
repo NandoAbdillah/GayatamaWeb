@@ -10,12 +10,46 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string, mockRole?: UserRole) => Promise<User>;
+  login: (email: string, password: string, roleHint?: UserRole) => Promise<User>;
   register: (role: UserRole, payload: any) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<User | null>;
-  switchRoleDemo: (role: UserRole) => void;
+  switchRoleDemo: (role: UserRole) => Promise<User>;
 }
+
+// Seeded account credentials matching Laravel DatabaseSeeder
+export const SEEDED_ACCOUNTS: Record<UserRole, { email: string; password: string; name: string }> = {
+  mahasiswa: {
+    email: 'ketua.ahmad@mhs.unesa.ac.id',
+    password: 'password',
+    name: 'Ahmad Fauzi',
+  },
+  perangkat_desa: {
+    email: 'desa.sukamaju@desa.id',
+    password: 'password',
+    name: 'Kantor Kepala Desa Sukamaju',
+  },
+  dosen: {
+    email: 'dosen.budi@unesa.ac.id',
+    password: 'password',
+    name: 'Dr. Budi Santoso, M.Kom.',
+  },
+  universitas: {
+    email: 'unesa@unesa.ac.id',
+    password: 'password',
+    name: 'Lembaga Pengabdian Masyarakat UNESA',
+  },
+  admin: {
+    email: 'admin@baktinusantara.id',
+    password: 'password',
+    name: 'Super Admin BaktiNusantara',
+  },
+  masyarakat: {
+    email: 'ketua.ahmad@mhs.unesa.ac.id',
+    password: 'password',
+    name: 'Warga / Masyarakat Umum',
+  },
+};
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
@@ -33,11 +67,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     document.cookie = `user_role=${userData.role}; path=/; max-age=86400; SameSite=Lax`;
   }, []);
 
+  const clearAuthSession = useCallback(() => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('sanctum_token');
+    localStorage.removeItem('user_data');
+    document.cookie = 'sanctum_token=; path=/; max-age=0';
+    document.cookie = 'user_role=; path=/; max-age=0';
+  }, []);
+
   const refreshUser = useCallback(async (): Promise<User | null> => {
     try {
       const currentToken = localStorage.getItem('sanctum_token');
-      if (!currentToken || currentToken.startsWith('mock-') || currentToken.startsWith('demo-')) {
-        return user;
+      if (!currentToken) {
+        return null;
       }
       const freshUser = await authService.getMe();
       if (freshUser) {
@@ -45,154 +88,168 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('user_data', JSON.stringify(freshUser));
         return freshUser;
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn('Could not refresh user from backend:', e);
+      if (e?.response?.status === 401) {
+        clearAuthSession();
+        return null;
+      }
     }
     return user;
-  }, [user]);
+  }, [user, clearAuthSession]);
 
   useEffect(() => {
-    try {
-      const storedToken = localStorage.getItem('sanctum_token');
-      const storedUser = localStorage.getItem('user_data');
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        // Silently attempt to fetch real profile if not demo token
-        if (!storedToken.startsWith('demo-') && !storedToken.startsWith('mock-')) {
-          authService.getMe()
-            .then((freshUser) => {
-              if (freshUser) {
-                setUser(freshUser);
-                localStorage.setItem('user_data', JSON.stringify(freshUser));
-              }
-            })
-            .catch(() => {
-              // keep stored user if offline
-            });
-        }
-      } else {
-        // Default demo user: Mahasiswa for initial exploration
-        const defaultUser = MOCK_USERS.mahasiswa;
-        setUser(defaultUser);
-        setToken('demo-sanctum-token-mahasiswa-2026');
-        localStorage.setItem('sanctum_token', 'demo-sanctum-token-mahasiswa-2026');
-        localStorage.setItem('user_data', JSON.stringify(defaultUser));
-        document.cookie = `sanctum_token=demo-sanctum-token-mahasiswa-2026; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `user_role=${defaultUser.role}; path=/; max-age=86400; SameSite=Lax`;
-      }
-    } catch (e) {
-      console.error('Failed to load auth storage', e);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    let isMounted = true;
 
-  const login = async (email: string, password: string, mockRole?: UserRole): Promise<User> => {
-    setIsLoading(true);
-    try {
-      // 1. Try real Laravel backend Sanctum login
-      const res = await authService.login({ email, password });
-      if (res?.token) {
-        let loggedUser: User;
-        if (res.user) {
-          loggedUser = res.user;
-        } else {
-          // Fetch authenticated user profile with Sanctum token
-          localStorage.setItem('sanctum_token', res.token);
+    async function initAuth() {
+      try {
+        const storedToken = localStorage.getItem('sanctum_token');
+        const storedUser = localStorage.getItem('user_data');
+
+        if (storedToken && storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          if (isMounted) {
+            setToken(storedToken);
+            setUser(parsedUser);
+          }
+
+          // Verify token against Laravel backend
           try {
-            loggedUser = await authService.getMe();
-          } catch {
-            loggedUser = {
-              id: 1,
-              name: email.split('@')[0],
-              email,
-              role: (res.role || 'mahasiswa') as UserRole,
-              is_verified: res.is_verified ?? true,
-            };
+            const freshUser = await authService.getMe();
+            if (freshUser && isMounted) {
+              setUser(freshUser);
+              localStorage.setItem('user_data', JSON.stringify(freshUser));
+            }
+          } catch (apiErr: any) {
+            if (apiErr?.response?.status === 401 && isMounted) {
+              clearAuthSession();
+            }
           }
         }
+      } catch (e) {
+        console.error('Failed to load auth storage', e);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    initAuth();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [clearAuthSession]);
+
+  const login = async (email: string, password: string, roleHint?: UserRole): Promise<User> => {
+    setIsLoading(true);
+    try {
+      // 1. Real Laravel Sanctum Login
+      const res = await authService.login({ email, password });
+      if (res?.token) {
+        localStorage.setItem('sanctum_token', res.token);
+        
+        let loggedUser: User;
+        try {
+          loggedUser = await authService.getMe();
+        } catch {
+          loggedUser = {
+            id: 1,
+            name: email.split('@')[0],
+            email,
+            role: (res.role || roleHint || 'mahasiswa') as UserRole,
+            is_verified: res.is_verified ?? true,
+          };
+        }
+
         saveAuthSession(res.token, loggedUser);
         setIsLoading(false);
         return loggedUser;
       }
-    } catch (err) {
-      console.warn('Backend login unavailable or credentials error, checking mock fallback:', err);
+      throw new Error('Gagal mendapatkan token otentikasi');
+    } catch (err: any) {
+      setIsLoading(false);
+      const errorMessage = err?.response?.data?.message || err?.message || 'Email atau kata sandi tidak valid';
+      throw new Error(errorMessage);
     }
-
-    // Fallback: match mock role or email
-    let matchedUser = mockRole ? MOCK_USERS[mockRole] : null;
-    if (!matchedUser) {
-      if (email.includes('kades') || email.includes('desa')) {
-        matchedUser = MOCK_USERS.perangkat_desa;
-      } else if (email.includes('dosen') || email.includes('budi') || email.includes('hendra')) {
-        matchedUser = MOCK_USERS.dosen;
-      } else if (email.includes('lppm') || email.includes('admin') || email.includes('univ') || email.includes('unesa')) {
-        matchedUser = MOCK_USERS.universitas;
-      } else {
-        matchedUser = MOCK_USERS.mahasiswa;
-      }
-    }
-
-    const demoToken = `mock-sanctum-token-${matchedUser.role}-${Date.now()}`;
-    saveAuthSession(demoToken, matchedUser);
-    setIsLoading(false);
-    return matchedUser;
   };
 
   const register = async (role: UserRole, payload: any): Promise<User> => {
     setIsLoading(true);
     try {
-      let res: any;
+      let regRes: any;
       if (role === 'mahasiswa') {
-        res = await authService.registerMahasiswa(payload);
+        regRes = await authService.registerMahasiswa(payload);
       } else if (role === 'perangkat_desa') {
-        res = await authService.registerDesa(payload);
+        regRes = await authService.registerDesa(payload);
       } else if (role === 'universitas') {
-        res = await authService.registerUniversitas(payload);
+        regRes = await authService.registerUniversitas(payload);
       }
 
-      if (res?.token && res?.user) {
-        saveAuthSession(res.token, res.user);
-        setIsLoading(false);
-        return res.user;
+      // Automatically log in with the new credentials
+      const email = payload instanceof FormData ? (payload.get('email') as string) : payload.email;
+      const password = payload instanceof FormData ? (payload.get('password') as string) : payload.password;
+
+      if (email && password) {
+        try {
+          const loggedUser = await login(email, password, role);
+          setIsLoading(false);
+          return loggedUser;
+        } catch {
+          // If auto-login fails, build user object from registration response
+          const newUser: User = {
+            id: regRes?.data?.id || Date.now(),
+            name: (payload instanceof FormData ? payload.get('name') : payload.name) || 'Pengguna Terdaftar',
+            email,
+            role,
+            is_verified: false,
+          };
+          saveAuthSession(`token-${Date.now()}`, newUser);
+          setIsLoading(false);
+          return newUser;
+        }
       }
-    } catch (err) {
-      console.warn('Backend register error, fallback to mock register:', err);
+
+      const defaultUser: User = {
+        id: Date.now(),
+        name: 'Pengguna Terdaftar',
+        email: 'user@baktinusantara.id',
+        role,
+        is_verified: false,
+      };
+      saveAuthSession(`token-${Date.now()}`, defaultUser);
+      setIsLoading(false);
+      return defaultUser;
+    } catch (err: any) {
+      setIsLoading(false);
+      const errorMessage = err?.response?.data?.message || err?.message || 'Registrasi gagal. Periksa kembali kelengkapan data.';
+      throw new Error(errorMessage);
     }
-
-    const newUser: User = {
-      id: Date.now(),
-      name: payload?.name || payload?.nama_desa || 'Pengguna Baru KKN',
-      email: payload?.email || 'user@baktinusantara.id',
-      role: role,
-      is_verified: true,
-      avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    };
-
-    saveAuthSession(`mock-registered-token-${Date.now()}`, newUser);
-    setIsLoading(false);
-    return newUser;
   };
 
   const logout = async () => {
+    setIsLoading(true);
     try {
       await authService.logout();
     } catch {
-      // ignore logout network errors
+      // ignore network errors on logout
     } finally {
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('sanctum_token');
-      localStorage.removeItem('user_data');
-      document.cookie = 'sanctum_token=; path=/; max-age=0';
-      document.cookie = 'user_role=; path=/; max-age=0';
+      clearAuthSession();
+      setIsLoading(false);
     }
   };
 
-  const switchRoleDemo = (role: UserRole) => {
-    const targetUser = MOCK_USERS[role] || MOCK_USERS.mahasiswa;
-    saveAuthSession(`demo-switch-${role}-${Date.now()}`, targetUser);
+  const switchRoleDemo = async (role: UserRole): Promise<User> => {
+    const creds = SEEDED_ACCOUNTS[role] || SEEDED_ACCOUNTS.mahasiswa;
+    try {
+      return await login(creds.email, creds.password, role);
+    } catch (e) {
+      console.warn('Backend login for seeded role failed, using fallback mock session:', e);
+      const mockUser = MOCK_USERS[role] || MOCK_USERS.mahasiswa;
+      saveAuthSession(`demo-token-${role}-${Date.now()}`, mockUser);
+      return mockUser;
+    }
   };
 
   return (
@@ -215,3 +272,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+

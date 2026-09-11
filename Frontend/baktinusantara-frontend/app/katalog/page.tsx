@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
 import { PosKebutuhan } from '@/lib/types';
+import api from '@/lib/services';
 import {
   Search,
   MapPin,
@@ -23,19 +24,68 @@ import {
 
 export default function KatalogPublikPage() {
   const [posList, setPosList] = useState<PosKebutuhan[]>(MOCK_POS_KEBUTUHAN);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSektor, setSelectedSektor] = useState<string>('all');
   const [selectedJurusan, setSelectedJurusan] = useState<string>('all');
 
+  React.useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const data = await api.posKebutuhan.getAll();
+        if (Array.isArray(data) && data.length > 0) {
+          // Normalize if backend field format differs
+          const normalized: PosKebutuhan[] = data.map((item: any) => ({
+            id: item.id,
+            desa_id: item.desa_id || 1,
+            judul: item.judul || item.title || 'Pos Kebutuhan KKN',
+            deskripsi: item.deskripsi || item.description || '',
+            nama_desa: item.desa?.nama_desa || item.nama_desa || 'Desa Mitra',
+            kecamatan: item.desa?.kecamatan || item.kecamatan || 'Kecamatan',
+            kabupaten: item.desa?.kabupaten || item.kabupaten || 'Kabupaten',
+            provinsi: item.desa?.provinsi || item.provinsi || 'Jawa Timur',
+            latitude: item.latitude || -6.595,
+            longitude: item.longitude || 106.8166,
+            kategori_sektor: item.kategori || item.kategori_sektor || 'Digitalisasi & Teknologi Desa',
+            kuota_mahasiswa: item.kuota_kelompok ? item.kuota_kelompok * 10 : (item.kuota_mahasiswa || 10),
+            terisi_mahasiswa: item.terisi_mahasiswa || 0,
+            status: item.status || 'terbuka',
+            matching_score: item.matching_score || 95,
+            kriteria_jurusan: Array.isArray(item.kriteria_jurusan)
+              ? item.kriteria_jurusan
+              : item.jurusan_dibutuhkan
+              ? Object.keys(item.jurusan_dibutuhkan)
+              : ['Teknik Informatika', 'Manajemen', 'Sistem Informasi'],
+            target_luaran: Array.isArray(item.target_luaran)
+              ? item.target_luaran
+              : ['Sistem Informasi Web Desa', 'Modul Pelatihan Aparatur', 'Laporan Akhir KKN'],
+            distance_km: item.distance_km || Math.floor(Math.random() * 40) + 5,
+            created_at: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja',
+          }));
+          setPosList(normalized);
+        }
+      } catch (err) {
+        console.warn('Fallback to mock catalog data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   const filteredList = posList.filter((item) => {
     const matchSearch =
       item.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.nama_desa.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.deskripsi.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchSektor = selectedSektor === 'all' || item.kategori_sektor === selectedSektor;
+      (item.nama_desa && item.nama_desa.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.deskripsi && item.deskripsi.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchSektor =
+      selectedSektor === 'all' ||
+      (item.kategori_sektor && item.kategori_sektor.toLowerCase().includes(selectedSektor.toLowerCase()));
     const matchJurusan =
       selectedJurusan === 'all' ||
-      item.kriteria_jurusan.some((j) => j.toLowerCase().includes(selectedJurusan.toLowerCase()));
+      (Array.isArray(item.kriteria_jurusan) &&
+        item.kriteria_jurusan.some((j) => j.toLowerCase().includes(selectedJurusan.toLowerCase())));
 
     return matchSearch && matchSektor && matchJurusan;
   });

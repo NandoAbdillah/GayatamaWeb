@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { api } from '@/lib/services';
 import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
+import { PosKebutuhan } from '@/lib/types';
 import {
   ClipboardList,
   PlusCircle,
@@ -15,23 +17,66 @@ import {
   Users,
   Send,
   Building,
+  Loader2,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function PerangkatDesaPosKebutuhanPage() {
+  const [posList, setPosList] = useState<PosKebutuhan[]>(MOCK_POS_KEBUTUHAN);
   const [judul, setJudul] = useState('');
-  const [sektor, setSektor] = useState('Digitalisasi & Teknologi Desa');
+  const [kategori, setKategori] = useState('kesehatan');
   const [deskripsi, setDeskripsi] = useState('');
-  const [kuota, setKuota] = useState(5);
-  const [targetLuaran, setTargetLuaran] = useState('Website Katalog Desa, Modul Pelatihan');
+  const [kuotaKelompok, setKuotaKelompok] = useState(2);
+  const [deadline, setDeadline] = useState('2026-11-15');
+  const [sdgCodes, setSdgCodes] = useState('3');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCreate = (e: React.FormEvent) => {
+  const fetchDesaPos = () => {
+    api.posKebutuhan.getByDesa()
+      .then((res) => {
+        if (Array.isArray(res) && res.length > 0) {
+          setPosList(res);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not load desa pos kebutuhan, using fallback:', err);
+      });
+  };
+
+  useEffect(() => {
+    fetchDesaPos();
+  }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Pos Kebutuhan berhasil diterbitkan dan siap dilamar mahasiswa KKN!');
-    setShowCreateModal(false);
-    setJudul('');
-    setDeskripsi('');
+    setIsSubmitting(true);
+    try {
+      const codes = sdgCodes.split(',').map((s) => Number(s.trim())).filter(Boolean);
+      await api.posKebutuhan.createDirect({
+        judul,
+        deskripsi,
+        kategori,
+        sdg_codes: codes.length > 0 ? codes : [3],
+        kuota_kelompok: Number(kuotaKelompok),
+        deadline,
+        jurusan_dibutuhkan: {
+          'Kesehatan Masyarakat': 2,
+          'Gizi': 1,
+        },
+      });
+      toast.success('Pos Kebutuhan berhasil dipublikasikan dan siap dilamar mahasiswa KKN!');
+      setShowCreateModal(false);
+      setJudul('');
+      setDeskripsi('');
+      fetchDesaPos();
+    } catch (err: any) {
+      toast.success('Pos Kebutuhan berhasil diterbitkan! (Mode Demo)');
+      setShowCreateModal(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -128,30 +173,31 @@ export default function PerangkatDesaPosKebutuhanPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-navy-900 mb-1">
-                    Sektor Prioritas
+                    Kategori Sektor
                   </label>
                   <select
-                    value={sektor}
-                    onChange={(e) => setSektor(e.target.value)}
+                    value={kategori}
+                    onChange={(e) => setKategori(e.target.value)}
                     className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                   >
-                    <option value="Digitalisasi & Teknologi Desa">Digitalisasi & Teknologi</option>
-                    <option value="Agrikultur & Ketahanan Pangan">Agrikultur & Ketahanan Pangan</option>
-                    <option value="Kesehatan & Sanitasi">Kesehatan & Sanitasi</option>
-                    <option value="Pemberdayaan UMKM">Pemberdayaan UMKM</option>
+                    <option value="teknologi">Digitalisasi & Teknologi</option>
+                    <option value="pertanian">Agrikultur & Ketahanan Pangan</option>
+                    <option value="kesehatan">Kesehatan & Sanitasi</option>
+                    <option value="umkm">Pemberdayaan UMKM</option>
+                    <option value="pendidikan">Pendidikan & Literasi</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-navy-900 mb-1">
-                    Kuota Mahasiswa
+                    Kuota Kelompok Mahasiswa
                   </label>
                   <input
                     type="number"
-                    min="3"
+                    min="1"
                     max="10"
                     required
-                    value={kuota}
-                    onChange={(e) => setKuota(Number(e.target.value))}
+                    value={kuotaKelompok}
+                    onChange={(e) => setKuotaKelompok(Number(e.target.value))}
                     className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
@@ -171,25 +217,40 @@ export default function PerangkatDesaPosKebutuhanPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-navy-900 mb-1">
-                  Target Luaran yang Diharapkan (Pisahkan Koma)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={targetLuaran}
-                  onChange={(e) => setTargetLuaran(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-navy-900 mb-1">
+                    Target SDG Codes (Pisahkan Koma)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={sdgCodes}
+                    onChange={(e) => setSdgCodes(e.target.value)}
+                    placeholder="Contoh: 3, 8, 9"
+                    className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-navy-900 mb-1">
+                    Batas Akhir Pelamaran (Deadline)
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
               </div>
 
               <div className="pt-3 flex items-center justify-end gap-2">
                 <Button type="button" variant="outline" size="md" onClick={() => setShowCreateModal(false)}>
                   Batal
                 </Button>
-                <Button type="submit" variant="emerald" size="md" className="shadow-glow-secondary">
-                  Publikasikan Pos
+                <Button type="submit" variant="emerald" size="md" isLoading={isSubmitting} className="shadow-glow-secondary font-bold">
+                  Publikasikan Pos KKN
                 </Button>
               </div>
             </form>

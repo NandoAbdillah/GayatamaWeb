@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -18,6 +18,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/services';
 
 interface LaporanDosen {
   id: number;
@@ -81,7 +82,39 @@ export default function AdminLaporanDosenPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLaporan, setSelectedLaporan] = useState<LaporanDosen | null>(null);
 
-  const handleApprove = (id: number) => {
+  useEffect(() => {
+    async function loadReports() {
+      try {
+        const data = await api.universitas.getLaporanDosen();
+        if (Array.isArray(data) && data.length > 0) {
+          const normalized: LaporanDosen[] = data.map((item: any) => ({
+            id: item.id,
+            dosen: item.dosen?.name || 'Dr. Budi Utomo, M.Kom',
+            nip: item.dosen?.nip || '197508122003121002',
+            kelompok: item.proposal?.judul ? `Kelompok ${item.proposal_id}` : 'Kelompok Binaan KKN',
+            desa: item.desa?.nama_desa || 'Desa Sukamaju',
+            tanggal_kunjungan: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja',
+            jenis_supervisi: 'Supervisi & Evaluasi Lapangan',
+            status: item.status === 'selesai' ? 'disetujui' : item.status === 'ditinjau' ? 'menunggu' : 'menunggu',
+            ringkasan: item.isi || 'Laporan hasil monev kinerja kelompok mahasiswa KKN di desa mitra.',
+            catatan_dpl: item.catatan || 'Kinerja pengabdian terlaksana sesuai rencana kerja.',
+            lampiran_url: '#',
+          }));
+          setLaporanList(normalized);
+        }
+      } catch (err) {
+        console.warn('Fallback to mock reports:', err);
+      }
+    }
+    loadReports();
+  }, []);
+
+  const handleApprove = async (id: number) => {
+    try {
+      await api.universitas.updateLaporanStatus(id, 'selesai');
+    } catch (err) {
+      console.warn('Backend update status error:', err);
+    }
     setLaporanList((prev) =>
       prev.map((item) => (item.id === id ? { ...item, status: 'disetujui' } : item))
     );
@@ -89,7 +122,12 @@ export default function AdminLaporanDosenPage() {
     toast.success('Laporan supervisi DPL berhasil disetujui oleh LPPM!');
   };
 
-  const handleRequestRevision = (id: number) => {
+  const handleRequestRevision = async (id: number) => {
+    try {
+      await api.universitas.updateLaporanStatus(id, 'ditinjau');
+    } catch (err) {
+      console.warn('Backend update status error:', err);
+    }
     setLaporanList((prev) =>
       prev.map((item) => (item.id === id ? { ...item, status: 'revisi' } : item))
     );

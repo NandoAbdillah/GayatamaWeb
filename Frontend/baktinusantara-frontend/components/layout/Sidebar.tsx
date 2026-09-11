@@ -2,8 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -32,6 +33,7 @@ import {
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuth();
 
   const getRoleNavItems = () => {
@@ -168,7 +170,11 @@ export const Sidebar: React.FC = () => {
           <span>Halaman Beranda Utama</span>
         </Link>
         <button
-          onClick={() => logout()}
+          onClick={async () => {
+            await logout();
+            toast.success('Sesi berhasil keluar');
+            router.push('/login');
+          }}
           className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
         >
           <LogOut className="w-4 h-4" />

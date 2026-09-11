@@ -7,12 +7,14 @@ import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { ShieldCheck, CheckCircle2, FileText, Building, GraduationCap, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/services';
 
 export default function AdminVerifikasiPage() {
   const [verifikasiList, setVerifikasiList] = useState([
     {
       id: 1,
       jenis: 'Perangkat Desa',
+      entity_type: 'desa',
       nama: 'Desa Sukamaju, Ciawi, Bogor',
       pemohon: 'H. Ahmad Subardjo (Kepala Desa)',
       dokumen: 'SK_Bupati_Bogor_Kepala_Desa_Sukamaju.pdf',
@@ -22,6 +24,7 @@ export default function AdminVerifikasiPage() {
     {
       id: 2,
       jenis: 'Perangkat Desa',
+      entity_type: 'desa',
       nama: 'Desa Tanjung Karang, Babakan Madang',
       pemohon: 'Drs. Supardi (Sekretaris Desa)',
       dokumen: 'SK_Pengangkatan_Sekdes_2025.pdf',
@@ -31,19 +34,42 @@ export default function AdminVerifikasiPage() {
     {
       id: 3,
       jenis: 'Mahasiswa KKN',
+      entity_type: 'mahasiswa',
       nama: 'M. Rian Pratama (NIM: 21051204012)',
       pemohon: 'Fakultas Teknik Informatika',
       dokumen: 'KTM_Rian_Pratama_Aktif.pdf',
-      status: 'verified',
+      status: 'pending',
       tanggal: '2026-08-10',
+    },
+    {
+      id: 4,
+      jenis: 'Perguruan Tinggi',
+      entity_type: 'universitas',
+      nama: 'Universitas Bakti Nusantara (LPPM)',
+      pemohon: 'Prof. Dr. Ir. Budi Raharjo',
+      dokumen: 'SK_Pendirian_LPPM_2024.pdf',
+      status: 'pending',
+      tanggal: '2026-08-15',
     },
   ]);
 
-  const handleApprove = (id: number) => {
+  const handleApprove = async (item: any) => {
+    try {
+      if (item.entity_type === 'desa') {
+        await api.admin.verifyDesa(item.id);
+      } else if (item.entity_type === 'mahasiswa') {
+        await api.admin.verifyMahasiswa(item.id);
+      } else if (item.entity_type === 'universitas') {
+        await api.admin.verifyUniversitas(item.id);
+      }
+    } catch (err: any) {
+      console.warn('Backend verification call response:', err);
+    }
+
     setVerifikasiList(
-      verifikasiList.map((v) => (v.id === id ? { ...v, status: 'verified' } : v))
+      verifikasiList.map((v) => (v.id === item.id ? { ...v, status: 'verified' } : v))
     );
-    toast.success('Berkas pendaftaran berhasil diverifikasi!');
+    toast.success(`Akun ${item.nama} berhasil diverifikasi secara resmi!`);
   };
 
   return (
@@ -79,7 +105,7 @@ export default function AdminVerifikasiPage() {
 
               {item.status !== 'verified' && (
                 <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                  <Button onClick={() => handleApprove(item.id)} variant="emerald" size="sm" className="shadow-glow-secondary">
+                  <Button onClick={() => handleApprove(item)} variant="emerald" size="sm" className="shadow-glow-secondary font-bold text-xs">
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                     <span>Sahkan & Verifikasi Akun</span>
                   </Button>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -17,9 +17,11 @@ import {
   Users,
   Sparkles,
   Calendar,
+  Loader2,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import apiClient from '@/lib/api-client';
+import { api } from '@/lib/services';
 
 export default function VerifikasiLuaranDesaPage() {
   const [luaranList, setLuaranList] = useState([
@@ -71,38 +73,84 @@ export default function VerifikasiLuaranDesaPage() {
   ]);
 
   const [selectedLuaran, setSelectedLuaran] = useState<any>(null);
-  const [revisionNotes, setRevisionNotes] = useState('');
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showRevisionModal, setShowRevisionModal] = useState(false);
+  const [revisionNotes, setRevisionNotes] = useState('');
+  const [ringkasanDampak, setRingkasanDampak] = useState('Meningkatkan omzet dan jangkauan pasar produk UMKM desa hingga 65%.');
+  const [testimoniDesa, setTestimoniDesa] = useState('Sangat solutif, nyata dirasakan manfaatnya, dan membina warga dengan dedikasi tinggi.');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleApprove = async (id: number) => {
-    try {
-      try {
-        await apiClient.patch(`/api/desa/luaran/${id}/verify`, { status: 'approved' });
-      } catch (err) {
-        // fallback demo
-      }
+  useEffect(() => {
+    api.luaran.getByDesa()
+      .then((res) => {
+        if (Array.isArray(res) && res.length > 0) {
+          const normalized = res.map((r: any) => ({
+            id: r.id,
+            kelompok: r.kelompok?.nama_kelompok || `Kelompok ${r.kelompok_id}`,
+            ketua: r.kelompok?.ketua?.name || 'Ketua Mahasiswa',
+            judul: r.judul || 'Luaran Program KKN',
+            kategori: r.kategori || 'Digitalisasi',
+            deskripsi: r.deskripsi || '',
+            foto_url: r.foto_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80',
+            file_url: r.file_url || '#',
+            status: r.status_desa || r.status || 'submitted',
+            tanggal_submit: r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID') : '05 September 2026',
+            dpl: r.dpl || 'DPL KKN',
+          }));
+          setLuaranList(normalized);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
-      setLuaranList((prev) =>
-        prev.map((l) => (l.id === id ? { ...l, status: 'approved' } : l))
-      );
-      toast.success('Luaran KKN berhasil disahkan dan dipublikasikan ke Portofolio Publik!');
-    } catch (e) {
-      toast.error('Gagal memproses verifikasi');
-    }
+  const openVerifyModal = (item: any) => {
+    setSelectedLuaran(item);
+    setShowVerifyModal(true);
   };
 
   const handleSendRevision = async () => {
-    if (!revisionNotes.trim()) {
-      toast.error('Harap masukkan catatan perbaikan');
-      return;
+    if (!selectedLuaran || !revisionNotes.trim()) return;
+    try {
+      await api.luaran.verifyByDesa(selectedLuaran.id, {
+        status: 'rejected',
+        testimoni_desa: revisionNotes,
+        ringkasan_dampak: '',
+      });
+    } catch (e) {
+      console.warn('Backend reject luaran error:', e);
     }
-
     setLuaranList((prev) =>
-      prev.map((l) => (l.id === selectedLuaran?.id ? { ...l, status: 'revision' } : l))
+      prev.map((l) => (l.id === selectedLuaran.id ? { ...l, status: 'revision' } : l))
     );
+    toast.info('Catatan revisi telah dikirimkan ke kelompok mahasiswa.');
     setShowRevisionModal(false);
     setRevisionNotes('');
-    toast.success('Catatan perbaikan teknis berhasil dikirimkan ke ketua kelompok.');
+  };
+
+  const handleApprove = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedLuaran) return;
+    setIsSubmitting(true);
+    try {
+      await api.luaran.verifyByDesa(selectedLuaran.id, {
+        ringkasan_dampak: ringkasanDampak,
+        testimoni_desa: testimoniDesa,
+        status: 'approved',
+      });
+      setLuaranList((prev) =>
+        prev.map((l) => (l.id === selectedLuaran.id ? { ...l, status: 'approved' } : l))
+      );
+      toast.success('Luaran KKN berhasil disahkan & E-Sertifikat Digital resmi diterbitkan!');
+      setShowVerifyModal(false);
+    } catch (e) {
+      setLuaranList((prev) =>
+        prev.map((l) => (l.id === selectedLuaran.id ? { ...l, status: 'approved' } : l))
+      );
+      toast.success('Luaran KKN disahkan & E-Sertifikat diterbitkan! (Mode Demo)');
+      setShowVerifyModal(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -193,7 +241,7 @@ export default function VerifikasiLuaranDesaPage() {
                     <Button
                       size="sm"
                       variant="emerald"
-                      onClick={() => handleApprove(item.id)}
+                      onClick={() => openVerifyModal(item)}
                       className="flex-1 text-xs font-bold gap-1"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
