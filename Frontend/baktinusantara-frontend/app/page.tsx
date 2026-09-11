@@ -7,7 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
+import { useDashboardMetrics, usePosKebutuhan } from '@/hooks';
 import { useTranslations } from 'next-intl';
 import {
   Search,
@@ -28,6 +28,9 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState('Semua');
   const [searchLocation, setSearchLocation] = useState('');
   const [searchJurusan, setSearchJurusan] = useState('');
+
+  const { metrics } = useDashboardMetrics();
+  const { items: posKebutuhanList } = usePosKebutuhan();
 
   const tHero = useTranslations('hero');
   const tShowcase = useTranslations('showcase');
@@ -269,10 +272,30 @@ export default function HomePage() {
         {/* Real Numbers & Metrics (Clean Farmvest Style) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-slate-200 dark:border-navy-800">
           {[
-            { num: '1,420+', label: 'Desa Terdaftar & Aktif', icon: Building, color: 'text-primary-600 dark:text-primary-400' },
-            { num: '18,500+', label: 'Mahasiswa Berkontribusi', icon: Users, color: 'text-secondary-600 dark:text-secondary-400' },
-            { num: '3,890+', label: 'Program Selesai & BAST', icon: FileCheck2, color: 'text-tertiary-600 dark:text-tertiary-400' },
-            { num: '98.4%', label: 'Kepuasan Pemerintah Desa', icon: Award, color: 'text-indigo-600 dark:text-indigo-400' },
+            {
+              num: `${metrics.total_desa_terbantu || 128}+`,
+              label: 'Desa Terbantu & Aktif',
+              icon: Building,
+              color: 'text-primary-600 dark:text-primary-400',
+            },
+            {
+              num: `${metrics.total_mahasiswa_terlibat || 850}+`,
+              label: 'Mahasiswa Berkontribusi',
+              icon: Users,
+              color: 'text-secondary-600 dark:text-secondary-400',
+            },
+            {
+              num: `${metrics.total_luaran_terverifikasi || 37}+`,
+              label: 'Luaran Terverifikasi & BAST',
+              icon: FileCheck2,
+              color: 'text-tertiary-600 dark:text-tertiary-400',
+            },
+            {
+              num: `${metrics.total_jam_pengabdian ? metrics.total_jam_pengabdian.toLocaleString('id-ID') : '40.800'}+`,
+              label: 'Jam Pengabdian Nasional',
+              icon: Award,
+              color: 'text-indigo-600 dark:text-indigo-400',
+            },
           ].map((m, i) => {
             const Icon = m.icon;
             return (
@@ -348,50 +371,34 @@ export default function HomePage() {
             {[
               {
                 step: '01',
-                title: 'Aspirasi & Pos Kebutuhan',
-                desc: 'Masyarakat mengajukan usulan fasilitas desa secara terbuka yang divalidasi oleh Kepala Desa.',
-                icon: Building,
-                badge: 'Desa Mandiri',
+                title: 'Aspirasi Masuk',
+                desc: 'Warga desa melaporkan kebutuhan riil secara langsung melalui web.',
               },
               {
                 step: '02',
-                title: 'Smart-Matching & Tim',
-                desc: 'Pencocokan kompetensi lintas disiplin mahasiswa dengan kebutuhan nyata di lapangan.',
-                icon: Sparkles,
-                badge: 'Multidisiplin',
+                title: 'Kurasi & Validasi',
+                desc: 'Kepala Desa memvalidasi aspirasi menjadi pos KKN terdaftar resmi.',
               },
               {
                 step: '03',
-                title: 'Logbook & Bimbingan DPL',
-                desc: 'Verifikasi jam kerja harian dan revisi catatan lapangan langsung dari Dosen Pembimbing.',
-                icon: HeartPulse,
-                badge: 'Validasi Real-time',
+                title: 'Pelaksanaan Terpadu',
+                desc: 'Mahasiswa & DPL mencatat logbook terverifikasi GPS mingguan.',
               },
               {
                 step: '04',
-                title: 'BAST & Konversi SKS',
-                desc: 'Penandatanganan Berita Acara Serah Terima digital dan konversi nilai ke 2-4 SKS kurikulum.',
-                icon: Award,
-                badge: 'Sah & Legal',
+                title: 'Pengesahan BAST',
+                desc: 'Serah terima luaran akhir ber-QR Code dan sertifikat digital.',
               },
-            ].map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={idx}
-                  className="p-6 rounded-2xl bg-navy-900 border border-slate-800 space-y-4 hover:border-slate-700 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-primary-400">{item.step}</span>
-                    <span className="text-[10px] font-bold text-slate-400 bg-navy-950 px-2 py-0.5 rounded-md border border-slate-800">
-                      {item.badge}
-                    </span>
-                  </div>
-                  <h3 className="text-base font-bold font-epilogue text-white">{item.title}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
-                </div>
-              );
-            })}
+            ].map((step, idx) => (
+              <div
+                key={idx}
+                className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-primary-500/50 transition-colors space-y-3"
+              >
+                <span className="text-3xl font-extrabold text-primary-400 font-epilogue">{step.step}</span>
+                <h3 className="text-base font-bold font-epilogue text-white">{step.title}</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-jakarta">{step.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -422,7 +429,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {MOCK_POS_KEBUTUHAN.map((pos) => (
+          {(posKebutuhanList.slice(0, 3)).map((pos) => (
             <Card key={pos.id} hoverEffect className="overflow-hidden flex flex-col justify-between border-slate-200 dark:border-navy-800">
               <div className="space-y-3">
                 {/* Photo Thumbnail */}

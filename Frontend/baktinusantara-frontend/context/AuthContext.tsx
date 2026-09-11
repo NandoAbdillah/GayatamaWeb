@@ -1,8 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, UserRole } from '@/lib/types';
-import apiClient from '@/lib/api-client';
+import authService from '@/lib/services/auth.service';
 import { MOCK_USERS } from '@/lib/mock-data';
 
 interface AuthContextType {
@@ -13,8 +13,8 @@ interface AuthContextType {
   login: (email: string, password: string, mockRole?: UserRole) => Promise<User>;
   register: (role: UserRole, payload: any) => Promise<User>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<User | null>;
   switchRoleDemo: (role: UserRole) => void;
-  
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -24,6 +24,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const saveAuthSession = useCallback((authToken: string, userData: User) => {
+    setToken(authToken);
+    setUser(userData);
+    localStorage.setItem('sanctum_token', authToken);
+    localStorage.setItem('user_data', JSON.stringify(userData));
+    document.cookie = `sanctum_token=${authToken}; path=/; max-age=86400; SameSite=Lax`;
+    document.cookie = `user_role=${userData.role}; path=/; max-age=86400; SameSite=Lax`;
+  }, []);
+
+  const refreshUser = useCallback(async (): Promise<User | null> => {
+    try {
+      const currentToken = localStorage.getItem('sanctum_token');
+      if (!currentToken || currentToken.startsWith('mock-') || currentToken.startsWith('demo-')) {
+        return user;
+      }
+      const freshUser = await authService.getMe();
+      if (freshUser) {
+        setUser(freshUser);
+        localStorage.setItem('user_data', JSON.stringify(freshUser));
+        return freshUser;
+      }
+    } catch (e) {
+      console.warn('Could not refresh user from backend:', e);
+    }
+    return user;
+  }, [user]);
+
   useEffect(() => {
     try {
       const storedToken = localStorage.getItem('sanctum_token');
@@ -31,15 +58,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (storedToken && storedUser) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
+        // Silently attempt to fetch real profile if not demo token
+        if (!storedToken.startsWith('demo-') && !storedToken.startsWith('mock-')) {
+          authService.getMe()
+            .then((freshUser) => {
+              if (freshUser) {
+                setUser(freshUser);
+                localStorage.setItem('user_data', JSON.stringify(freshUser));
+              }
+            })
+            .catch(() => {
+              // keep stored user if offline
+            });
+        }
       } else {
-        // Default demo user: Mahasiswa for smooth preview
+        // Default demo user: Mahasiswa for initial exploration
         const defaultUser = MOCK_USERS.mahasiswa;
         setUser(defaultUser);
         setToken('demo-sanctum-token-mahasiswa-2026');
         localStorage.setItem('sanctum_token', 'demo-sanctum-token-mahasiswa-2026');
         localStorage.setItem('user_data', JSON.stringify(defaultUser));
-        document.cookie = `sanctum_token=demo-sanctum-token-mahasiswa-2026; path=/; max-age=86400`;
-        document.cookie = `user_role=${defaultUser.role}; path=/; max-age=86400`;
+        document.cookie = `sanctum_token=demo-sanctum-token-mahasiswa-2026; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `user_role=${defaultUser.role}; path=/; max-age=86400; SameSite=Lax`;
       }
     } catch (e) {
       console.error('Failed to load auth storage', e);
@@ -48,26 +88,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const saveAuthSession = (authToken: string, userData: User) => {
-    setToken(authToken);
-    setUser(userData);
-    localStorage.setItem('sanctum_token', authToken);
-    localStorage.setItem('user_data', JSON.stringify(userData));
-    document.cookie = `sanctum_token=${authToken}; path=/; max-age=86400`;
-    document.cookie = `user_role=${userData.role}; path=/; max-age=86400`;
-  };
-
   const login = async (email: string, password: string, mockRole?: UserRole): Promise<User> => {
     setIsLoading(true);
     try {
-      // Try real Laravel API endpoint first
-      const res = await apiClient.post('/api/login', { email, password });
-      if (res.data?.token && res.data?.user) {
-        saveAuthSession(res.data.token, res.data.user);
-        return res.data.user;
+      // 1. Try real Laravel backend Sanctum login
+      const res = await authService.login({ email, password });
+      if (res?.token) {
+        let loggedUser: User;
+        if (res.user) {
+          loggedUser = res.user;
+        } else {
+          // Fetch authenticated user profile with Sanctum token
+          localStorage.setItem('sanctum_token', res.token);
+          try {
+            loggedUser = await authService.getMe();
+          } catch {
+            loggedUser = {
+              id: 1,
+              name: email.split('@')[0],
+              email,
+              role: (res.role || 'mahasiswa') as UserRole,
+              is_verified: res.is_verified ?? true,
+            };
+          }
+        }
+        saveAuthSession(res.token, loggedUser);
+        setIsLoading(false);
+        return loggedUser;
       }
     } catch (err) {
-      console.warn('Backend API unavailable or error, falling back to mock login:', err);
+      console.warn('Backend login unavailable or credentials error, checking mock fallback:', err);
     }
 
     // Fallback: match mock role or email
@@ -75,9 +125,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!matchedUser) {
       if (email.includes('kades') || email.includes('desa')) {
         matchedUser = MOCK_USERS.perangkat_desa;
-      } else if (email.includes('dosen') || email.includes('hendra')) {
+      } else if (email.includes('dosen') || email.includes('budi') || email.includes('hendra')) {
         matchedUser = MOCK_USERS.dosen;
-      } else if (email.includes('lppm') || email.includes('admin') || email.includes('univ')) {
+      } else if (email.includes('lppm') || email.includes('admin') || email.includes('univ') || email.includes('unesa')) {
         matchedUser = MOCK_USERS.universitas;
       } else {
         matchedUser = MOCK_USERS.mahasiswa;
@@ -93,28 +143,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (role: UserRole, payload: any): Promise<User> => {
     setIsLoading(true);
     try {
-      const endpoint =
-        role === 'mahasiswa'
-          ? '/api/register/mahasiswa'
-          : role === 'perangkat_desa'
-          ? '/api/register/perangkat-desa'
-          : role === 'universitas'
-          ? '/api/register/universitas'
-          : '/api/register';
+      let res: any;
+      if (role === 'mahasiswa') {
+        res = await authService.registerMahasiswa(payload);
+      } else if (role === 'perangkat_desa') {
+        res = await authService.registerDesa(payload);
+      } else if (role === 'universitas') {
+        res = await authService.registerUniversitas(payload);
+      }
 
-      const res = await apiClient.post(endpoint, payload);
-      if (res.data?.token && res.data?.user) {
-        saveAuthSession(res.data.token, res.data.user);
-        return res.data.user;
+      if (res?.token && res?.user) {
+        saveAuthSession(res.token, res.user);
+        setIsLoading(false);
+        return res.user;
       }
     } catch (err) {
-      console.warn('Backend register failed or offline, falling back to mock register:', err);
+      console.warn('Backend register error, fallback to mock register:', err);
     }
 
     const newUser: User = {
       id: Date.now(),
-      name: payload.name || 'Pengguna Baru KKN',
-      email: payload.email || 'user@gayatama.id',
+      name: payload?.name || payload?.nama_desa || 'Pengguna Baru KKN',
+      email: payload?.email || 'user@baktinusantara.id',
       role: role,
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
@@ -127,9 +177,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await apiClient.post('/api/logout');
-    } catch (e) {
-      // ignore
+      await authService.logout();
+    } catch {
+      // ignore logout network errors
     } finally {
       setUser(null);
       setToken(null);
@@ -155,6 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        refreshUser,
         switchRoleDemo,
       }}
     >
