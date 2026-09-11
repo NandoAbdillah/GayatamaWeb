@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -26,8 +26,16 @@ export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const t = useTranslations('nav');
   const tCommon = useTranslations('common');
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const getDashboardLink = () => {
     if (!user) return '/login';
@@ -54,7 +62,13 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 dark:bg-navy-950/95 backdrop-blur-md border-b border-slate-200/80 dark:border-navy-800 transition-colors duration-200">
+    <header
+      className={`sticky top-0 z-50 w-full border-b transition-all duration-200 ${
+        isScrolled
+          ? 'bg-white/95 dark:bg-navy-950/95 backdrop-blur-md border-slate-200/80 dark:border-navy-800 shadow-sm'
+          : 'bg-transparent dark:bg-transparent border-transparent backdrop-blur-none shadow-none'
+      }`}
+    >
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between h-20">
           {/* Logo Brand (Farmvest / IKN Style) */}
@@ -66,9 +80,9 @@ export const Navbar: React.FC = () => {
               <span className="font-epilogue font-extrabold text-navy-950 dark:text-white text-xl leading-none tracking-tight">
                 {tCommon('appName')}
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium font-jakarta mt-1 tracking-wide">
+              {/* <span className="text-xs text-slate-500 dark:text-slate-400 font-medium font-jakarta mt-1 tracking-wide">
                 {tCommon('appTagline')}
-              </span>
+              </span> */}
             </div>
           </Link>
 

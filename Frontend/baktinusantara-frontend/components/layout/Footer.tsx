@@ -4,7 +4,7 @@ import { Heart, MapPin, Mail, Phone, Sprout } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="w-full bg-navy-950 text-white mt-20 border-t border-slate-800">
+    <footer className="w-full bg-navy-950 text-white border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Col 1: Brand */}
