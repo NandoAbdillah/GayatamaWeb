@@ -14,6 +14,7 @@ interface AuthContextType {
   register: (role: UserRole, payload: any) => Promise<User>;
   logout: () => Promise<void>;
   switchRoleDemo: (role: UserRole) => void;
+  
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
