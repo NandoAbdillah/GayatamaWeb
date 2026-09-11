@@ -3,50 +3,34 @@
 import { useState, useEffect, useCallback } from 'react';
 import notificationService from '@/lib/services/notification.service';
 import { NotificationItem } from '@/lib/types';
+import { useAuth } from '@/context/AuthContext';
 
-const MOCK_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: 1,
-    user_id: 1,
-    title: 'Proposal KKN Disetujui',
-    message: 'Proposal kelompok Anda telah disetujui oleh Kepala Desa Sukamaju.',
-    type: 'success',
-    is_read: false,
-    action_url: '/mahasiswa/proposal',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    user_id: 1,
-    title: 'Pengingat Laporan Mingguan',
-    message: 'Batas akhir pengumpulan laporan progres minggu ke-3 adalah hari Minggu.',
-    type: 'info',
-    is_read: false,
-    action_url: '/mahasiswa/progress',
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
-
-export function useNotifikasi(pollIntervalMs?: number) {
-  const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
+export function useNotifikasi(pollIntervalMs: number = 10000) {
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   const fetchNotifications = useCallback(async () => {
+    if (!user) {
+      setNotifications([]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const data = await notificationService.getAll();
-      if (Array.isArray(data) && data.length > 0) {
+      const data = await notificationService.getAll(user.id);
+      if (Array.isArray(data)) {
         setNotifications(data);
       }
     } catch (err: any) {
-      // ignore or fallback silently
       setError(err?.message || 'Gagal memuat notifikasi.');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchNotifications();
@@ -57,15 +41,34 @@ export function useNotifikasi(pollIntervalMs?: number) {
     }
   }, [fetchNotifications, pollIntervalMs]);
 
-  const markAsRead = async (id: number) => {
+  // Listen for push notifications received in Service Worker
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+    const handleSwMessage = (event: MessageEvent) => {
+      if (
+        event.data?.type === 'GAYATAMA_PUSH_RECEIVED' ||
+        event.data?.type === 'GAYATAMA_NOTIFICATION_CLICKED'
+      ) {
+        fetchNotifications();
+      }
+    };
+
+    navigator.serviceWorker.addEventListener('message', handleSwMessage);
+    return () => {
+      navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+    };
+  }, [fetchNotifications]);
+
+  const markAsRead = async (id: number | string) => {
     // Optimistic update
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      prev.map((n) => (String(n.id) === String(id) ? { ...n, is_read: true } : n))
     );
     try {
       await notificationService.markAsRead(id);
     } catch {
-      // rollback or keep
+      // Keep optimistic
     }
   };
 
@@ -73,9 +76,9 @@ export function useNotifikasi(pollIntervalMs?: number) {
     // Optimistic update
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
     try {
-      await notificationService.markAllAsRead();
+      await notificationService.markAllAsRead(user?.id);
     } catch {
-      // rollback or keep
+      // Keep optimistic
     }
   };
 

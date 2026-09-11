@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { RoleSwitcher } from '@/components/ui/RoleSwitcher';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { NotificationCenter } from '@/components/ui/NotificationCenter';
 import { useTranslations } from 'next-intl';
 import {
   Sprout,
@@ -109,13 +110,16 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Action & Controls (Farmvest Style + Dark Mode + Language Switcher) */}
+          {/* Right Action & Controls (Farmvest Style + Dark Mode + Language Switcher + Notification Bell) */}
           <div className="hidden sm:flex items-center gap-2.5 lg:gap-3 shrink-0">
             {/* Language Switcher */}
             <LanguageSwitcher />
 
             {/* Dark Mode Toggle */}
             <ThemeToggle />
+
+            {/* Notification Center */}
+            <NotificationCenter />
 
             {/* Quick Demo Switcher Dropdown */}
             <RoleSwitcher />

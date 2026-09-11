@@ -4,9 +4,10 @@ import React from 'react';
 import { Sidebar } from './Sidebar';
 import { RoleSwitcher } from '@/components/ui/RoleSwitcher';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { NotificationCenter } from '@/components/ui/NotificationCenter';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import { Bell, Sprout } from 'lucide-react';
+import { Sprout } from 'lucide-react';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: string }> = ({
   children,
@@ -39,11 +40,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: stri
             <ThemeToggle />
             <RoleSwitcher />
 
-            {/* Notification Icon */}
-            <button className="relative p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-navy-900 border border-slate-200/80 dark:border-navy-800 transition-colors">
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-navy-950 animate-pulse" />
-            </button>
+            {/* Interactive Notification Center */}
+            <NotificationCenter />
           </div>
         </div>
       </header>

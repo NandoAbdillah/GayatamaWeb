@@ -35,6 +35,18 @@ export const metadata: Metadata = {
     'Logbook KKN',
     'BAST Desa',
   ],
+  manifest: '/manifest.json',
+  themeColor: '#071629',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Gayatama',
+  },
+  icons: {
+    icon: '/icons/icon-192x192.png',
+    shortcut: '/icons/icon-192x192.png',
+    apple: '/icons/icon-192x192.png',
+  },
 };
 
 export default function RootLayout({
