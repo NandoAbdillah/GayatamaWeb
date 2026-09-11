@@ -72,7 +72,17 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 1. HERO SECTION (Clean, Minimalist & Centered on Screen) */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[calc(100vh-4.5rem)] flex flex-col justify-center items-center py-12 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-surface-canvas dark:bg-[#071629] border-b border-slate-200/80 dark:border-navy-800 transition-colors duration-200">
+      <section
+        className="relative -mt-20 min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-40 lg:pt-44 pb-12 sm:pb-20 lg:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-surface-canvas dark:bg-[#071629] border-b border-slate-200/80 dark:border-navy-800 transition-colors duration-200"
+        style={{
+          backgroundImage: "url('/images/BGhero.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 10%',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        {/* BGhero background overlay for readability */}
+        <div aria-hidden className="absolute inset-0 bg-white/25 dark:bg-[#071629]/75 pointer-events-none" />
         {/* Subtle Ambient Radial Glow (Clean, Non-Intrusive) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[850px] h-[400px] sm:h-[500px] bg-gradient-to-tr from-primary/8 via-emerald-500/6 to-sky-400/8 blur-[120px] pointer-events-none rounded-full" />
 
@@ -184,10 +194,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ========================================================================= */}
-      {/* 2. REAL INDONESIA PHOTOGRAPHIC SHOWCASE */}
-      {/* ========================================================================= */}
-      <section className="pt-24 sm:pt-32 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+      {/* Wrapper image2.png sebagai background untuk section 2 & 3 - transparan */}
+      <div
+        className="relative overflow-hidden"
+        style={{
+          backgroundImage: "url('/images/image2.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 80%',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div aria-hidden className="absolute inset-0 bg-white/25 dark:bg-[#071629]/60 pointer-events-none" />
+        {/* ========================================================================= */}
+        {/* 2. REAL INDONESIA PHOTOGRAPHIC SHOWCASE */}
+        {/* ========================================================================= */}
+        <section className="relative pt-24 sm:pt-32 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1 max-w-2xl">
             <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
@@ -223,7 +244,7 @@ export default function HomePage() {
               location: 'Desa Tanjung Karang, Babakan Madang',
               sector: 'Kesehatan Masyarakat',
               img: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop&q=80',
-            },
+            },  
             {
               title: 'Digitalisasi & Kemasan Produk UMKM',
               location: 'Desa Cibodas Asri, Cianjur',
@@ -293,7 +314,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 3. JELAJAHI SEBARAN WILAYAH NUSANTARA (Gaya Trippin': Circular Badges) */}
       {/* ========================================================================= */}
-      <section className="py-14 bg-surface-sand dark:bg-navy-950 border-y border-slate-200 dark:border-navy-800 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
+      <section className="relative py-14 bg-transparent dark:bg-transparent  border-slate-200/50 dark:border-navy-800/50 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
         <div className="max-w-7xl mx-auto space-y-8 text-center">
           <div className="space-y-1 max-w-xl mx-auto">
             <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
@@ -325,6 +346,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </div>
 
       {/* ========================================================================= */}
       {/* 4. DEEP NAVY ORGANIC SECTION (Gaya Trippin': Dark Organic Wave Container) */}
@@ -396,10 +418,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ========================================================================= */}
-      {/* 5. POS KEBUTUHAN PILIHAN SIAP DILAMAR */}
-      {/* ========================================================================= */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+      {/* Wrapper image3.png sebagai background untuk section 5 & 6 - center 70% */}
+      <div
+        className="relative overflow-hidden"
+        style={{
+          backgroundImage: "url('/images/image3.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 1%',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div aria-hidden className="absolute inset-0 bg-white/50 dark:bg-[#071629]/60 pointer-events-none" />
+        {/* ========================================================================= */}
+        {/* 5. POS KEBUTUHAN PILIHAN SIAP DILAMAR */}
+        {/* ========================================================================= */}
+        <section className="relative py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1">
             <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
@@ -491,7 +524,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 6. CTA BANNER (Clean & Authoritative) */}
       {/* ========================================================================= */}
-      <section className="px-4 sm:px-6 lg:px-8 pb-16">
+      <section className="relative px-4 sm:px-6 lg:px-8 pb-16">
         <div className="max-w-6xl mx-auto rounded-3xl bg-navy-900 dark:bg-navy-900/90 text-white p-8 sm:p-12 border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-2 max-w-xl text-left">
             <h2 className="text-2xl sm:text-3xl font-extrabold font-epilogue">
@@ -516,6 +549,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </div>
 
       <Footer />
     </div>
