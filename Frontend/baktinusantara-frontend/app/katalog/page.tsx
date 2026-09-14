@@ -21,8 +21,10 @@ import {
   CheckCircle2,
   Building,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function KatalogPublikPage() {
+  const tkatalog = useTranslations('katalog');
   const [posList, setPosList] = useState<PosKebutuhan[]>(MOCK_POS_KEBUTUHAN);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -99,13 +101,13 @@ export default function KatalogPublikPage() {
         <div className="text-center max-w-3xl mx-auto space-y-3 pt-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-950/60 text-primary dark:text-primary-400 text-xs font-bold">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Katalog Resmi KKN Terbuka 2025/2026</span>
+            <span>{tkatalog('badge')}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-navy-950 dark:text-white font-epilogue tracking-tight">
-            Katalog Pos Kebutuhan KKN Desa Se-Indonesia
+            {tkatalog('title')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-jakarta leading-relaxed">
-            Temukan ribuan pos pengabdian desa yang membutuhkan kontribusi keilmuan mahasiswa. Disaring langsung dari aspirasi riil warga masyarakat.
+            {tkatalog('subtitle')}
           </p>
         </div>
 
@@ -116,7 +118,7 @@ export default function KatalogPublikPage() {
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Cari nama pos, desa, proker, atau kecamatan..."
+                placeholder={tkatalog('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
@@ -129,12 +131,12 @@ export default function KatalogPublikPage() {
                 onChange={(e) => setSelectedSektor(e.target.value)}
                 className="w-full py-2.5 px-3 rounded-xl text-xs sm:text-sm border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <option value="all">Semua Sektor SDG</option>
-                <option value="Agrikultur & Ketahanan Pangan">Agrikultur & Pangan</option>
-                <option value="Kesehatan & Sanitasi">Kesehatan & Sanitasi</option>
-                <option value="Digitalisasi & Teknologi Desa">Digitalisasi Desa</option>
-                <option value="Pemberdayaan UMKM">Pemberdayaan UMKM</option>
-                <option value="Pendidikan & Literasi">Pendidikan & Literasi</option>
+                <option value="all">{tkatalog('filters.sectors.all')}</option>
+                <option value="Agrikultur & Ketahanan Pangan">{tkatalog('filters.sectors.agrikultur')}</option>
+                <option value="Kesehatan & Sanitasi">{tkatalog('filters.sectors.kesehatan')}</option>
+                <option value="Digitalisasi & Teknologi Desa">{tkatalog('filters.sectors.digitalisasi')}</option>
+                <option value="Pemberdayaan UMKM">{tkatalog('filters.sectors.umkm')}</option>
+                <option value="Pendidikan & Literasi">{tkatalog('filters.sectors.pendidikan')}</option>
               </select>
             </div>
 
@@ -144,19 +146,19 @@ export default function KatalogPublikPage() {
                 onChange={(e) => setSelectedJurusan(e.target.value)}
                 className="w-full py-2.5 px-3 rounded-xl text-xs sm:text-sm border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <option value="all">Semua Rumpun Jurusan</option>
-                <option value="Informatika">Teknik Informatika</option>
-                <option value="Pertanian">Pertanian / Agroteknologi</option>
-                <option value="Gizi">Gizi / Kesehatan</option>
-                <option value="Manajemen">Manajemen / Ekonomi</option>
-                <option value="Sipil">Teknik Sipil</option>
+                <option value="all">{tkatalog('filters.majors.all')}</option>
+                <option value="Informatika">{tkatalog('filters.majors.informatika')}</option>
+                <option value="Pertanian">{tkatalog('filters.majors.pertanian')}</option>
+                <option value="Gizi">{tkatalog('filters.majors.gizi')}</option>
+                <option value="Manajemen">{tkatalog('filters.majors.manajemen')}</option>
+                <option value="Sipil">{tkatalog('filters.majors.sipil')}</option>
               </select>
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-navy-800 text-xs text-slate-500">
+          <div className="flex items-center justify-between pt-2 border-tkatalog border-slate-100 dark:border-navy-800 text-xs text-slate-500">
             <span>
-              Menampilkan <strong className="text-navy-950 dark:text-white">{filteredList.length}</strong> Pos Kebutuhan Aktif
+              {tkatalog('resultsPrefix')} <strong className="text-navy-950 dark:text-white">{filteredList.length}</strong> {tkatalog('resultsSuffix')}
             </span>
 
             <Link
@@ -164,7 +166,7 @@ export default function KatalogPublikPage() {
               className="font-bold text-primary dark:text-primary-400 hover:underline flex items-center gap-1"
             >
               <MapPin className="w-3.5 h-3.5" />
-              <span>Buka Tampilan Peta Interaktif</span>
+              <span>{tkatalog('openMap')}</span>
             </Link>
           </div>
         </Card>
@@ -221,8 +223,8 @@ export default function KatalogPublikPage() {
                   </div>
 
                   {/* Jurusan Tags */}
-                  <div className="pt-2 border-t border-slate-100 dark:border-navy-800">
-                    <p className="text-[11px] font-bold text-slate-400 mb-1.5">Kriteria Jurusan:</p>
+                  <div className="pt-2 border-tkatalog border-slate-100 dark:border-navy-800">
+                    <p className="text-[11px] font-bold text-slate-400 mb-1.5">{tkatalog('criteriaLabel')}</p>
                     <div className="flex flex-wrap gap-1">
                       {pos.kriteria_jurusan.map((j, idx) => (
                         <span
@@ -237,20 +239,20 @@ export default function KatalogPublikPage() {
                 </div>
 
                 {/* Card Footer Actions */}
-                <div className="p-4 bg-slate-50 dark:bg-navy-950/60 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between gap-2">
+                <div className="p-4 bg-slate-50 dark:bg-navy-950/60 border-tkatalog border-slate-100 dark:border-navy-800 flex items-center justify-between gap-2">
                   <div className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
                     <Users className="w-3.5 h-3.5 text-slate-400" />
                     <span>
-                      Kuota:{' '}
+                      {tkatalog('quotaLabel')}{' '}
                       <strong className="text-navy-950 dark:text-white">
-                        {pos.terisi_mahasiswa}/{pos.kuota_mahasiswa} Mahasiswa
+                        {tkatalog('quotaValue', { filled: pos.terisi_mahasiswa, quota: pos.kuota_mahasiswa })}
                       </strong>
                     </span>
                   </div>
 
                   <Link href={`/search/${pos.id}`}>
                     <Button size="sm" variant="primary" className="font-bold text-xs gap-1">
-                      <span>Detail Pos</span>
+                      <span>{tkatalog('detailBtn')}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Button>
                   </Link>
@@ -262,8 +264,8 @@ export default function KatalogPublikPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 py-6 text-center text-xs text-slate-500 mt-12">
-        <p>© 2025 BaktiNusantara & Gayatama Web. Platform Tata Kelola KKN Terintegrasi.</p>
+      <footer className="border-tkatalog border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 py-6 text-center text-xs text-slate-500 mt-12">
+        <p>{tkatalog('footer')}</p>
       </footer>
     </div>
   );

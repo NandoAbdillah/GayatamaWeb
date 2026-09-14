@@ -67,11 +67,118 @@
     "badge": "DOKUMENTASI AKSI LAPANGAN",
     "title": "Sinergi Nyata Mahasiswa & Warga Desa",
     "subtitle": "Dari modernisasi irigasi pertanian hingga penguatan UMKM lokal, KKN hadir menjawab tantangan riil desa.",
-    "viewDoc": "Lihat Dokumentasi"
+    "viewDoc": "Lihat Dokumentasi",
+    "stats": {
+      "stat1": "Desa Terbantu & Aktif",
+      "stat2": "Mahasiswa Berkontribusi",
+      "stat3": "Luaran Terverifikasi & BAST",
+      "stat4": "Jam Pengabdian Nasional"
+    }
+  },
+  "explore": {
+    "badge": "Sebaran Geografis KKN",
+    "title": "Jelajahi Pengabdian di Seluruh Nusantara",
+    "postsCount": "{count} Pos Kebutuhan"
+  },
+  "technology": {
+    "badge": "Arsitektur Terpadu",
+    "title": "Teknologi Tepat Guna untuk Tata Kelola KKN yang Transparan",
+    "subtitle": "Setiap tahapan pengabdian terekam secara digital, mulai dari perumusan kebutuhan warga hingga pengesahan Berita Acara Serah Terima resmi (BAST).",
+    "steps": {
+      "step1": {
+        "title": "Aspirasi Masuk",
+        "desc": "Warga desa melaporkan kebutuhan riil secara langsung melalui web."
+      },
+      "step2": {
+        "title": "Kurasi & Validasi",
+        "desc": "Kepala Desa memvalidasi aspirasi menjadi pos KKN terdaftar resmi."
+      },
+      "step3": {
+        "title": "Pelaksanaan Terpadu",
+        "desc": "Mahasiswa & DPL mencatat logbook terverifikasi GPS mingguan."
+      },
+      "step4": {
+        "title": "Pengesahan BAST",
+        "desc": "Serah terima luaran akhir ber-QR Code dan sertifikat digital."
+      }
+    }
+  },
+  "opportunities": {
+    "badge": "Peluang Pengabdian Terverifikasi",
+    "title": "Pos Kebutuhan Siap Dilamar Mahasiswa",
+    "subtitle": "Pilih program pengabdian yang telah disahkan oleh perangkat desa dan tim LPPM.",
+    "viewCatalog": "Buka Katalog Lengkap",
+    "matchBadge": "{score}% Cocok",
+    "quotaLabel": "Kuota:",
+    "quotaValue": "{filled}/{quota} Mahasiswa",
+    "detailBtn": "Detail Pos"
+  },
+  "cta": {
+    "title": "Siap Mendedikasikan Ilmu untuk Kemajuan Desa?",
+    "subtitle": "Bergabunglah bersama ribuan mahasiswa dan dosen pembimbing dalam memajukan desa-desa di Indonesia.",
+    "registerBtn": "Daftar KKN Sekarang",
+    "aspirasiBtn": "Kirim Aspirasi Desa"
+  },
+  "footer": {
+    "description": "Platform kolaborasi terpadu Kuliah Kerja Nyata (KKN) Tematik Indonesia. Menghubungkan aspirasi warga desa, inovasi mahasiswa, bimbingan dosen, dan pengabdian universitas.",
+    "portalUsers": "Portal Pengguna",
+    "openServices": "Layanan Terbuka",
+    "secretariat": "Sekretariat KKN",
+    "links": {
+      "portalMahasiswa": "Portal Mahasiswa",
+      "portalMitraDesa": "Portal Mitra Desa",
+      "portalDpl": "Portal Dosen Pembimbing (DPL)",
+      "portalLppm": "Portal Monev LPPM Kampus",
+      "katalog": "Katalog Pos Kebutuhan Desa",
+      "maps": "Peta Sebaran & Radius KKN",
+      "aspirasiForm": "Formulir Aspirasi Warga",
+      "gallery": "Galeri Karya & Luaran KKN"
+    },
+    "contact": {
+      "address": "Gedung LPPM Lt. 3, Kampus Terpadu Nusantara"
+    },
+    "bottom": {
+      "copyright": "© 2026 BaktiNusantara — Gayatama Web Platform. Hak cipta dilindungi undang-undang.",
+      "tagline": "Didedikasikan untuk kemajuan desa di Indonesia"
+    }
+  },
+  "katalog": {
+    "badge": "Katalog Resmi KKN Terbuka 2025/2026",
+    "title": "Katalog Pos Kebutuhan KKN Desa Se-Indonesia",
+    "subtitle": "Temukan ribuan pos pengabdian desa yang membutuhkan kontribusi keilmuan mahasiswa. Disaring langsung dari aspirasi riil warga masyarakat.",
+    "searchPlaceholder": "Cari nama pos, desa, proker, atau kecamatan...",
+    "filters": {
+      "sectors": {
+        "all": "Semua Sektor SDG",
+        "agrikultur": "Agrikultur & Pangan",
+        "kesehatan": "Kesehatan & Sanitasi",
+        "digitalisasi": "Digitalisasi Desa",
+        "umkm": "Pemberdayaan UMKM",
+        "pendidikan": "Pendidikan & Literasi"
+      },
+      "majors": {
+        "all": "Semua Rumpun Jurusan",
+        "informatika": "Teknik Informatika",
+        "pertanian": "Pertanian / Agroteknologi",
+        "gizi": "Gizi / Kesehatan",
+        "manajemen": "Manajemen / Ekonomi",
+        "sipil": "Teknik Sipil"
+      }
+    },
+    "resultsPrefix": "Menampilkan",
+    "resultsSuffix": "Pos Kebutuhan Aktif",
+    "openMap": "Buka Tampilan Peta Interaktif",
+    "criteriaLabel": "Kriteria Jurusan:",
+    "quotaLabel": "Kuota:",
+    "quotaValue": "{filled}/{quota} Mahasiswa",
+    "detailBtn": "Detail Pos",
+    "footer": "© 2025 BaktiNusantara & Gayatama Web. Platform Tata Kelola KKN Terintegrasi."
   },
   "maps": {
     "badge": "Haversine Geospatial Radius",
     "title": "Peta Sebaran Pos KKN & Jangkauan Wilayah",
+    "headerBadge": "GIS Geospasial & Lambang Daerah • API Wilayah Indonesia",
+    "headerTitle": "Peta Sebaran Wilayah & Lambang Resmi Daerah",
     "filterDistance": "Filter Jarak",
     "lessThan20": "< 20 km",
     "lessThan50": "< 50 km",
@@ -87,7 +194,72 @@
     "elevation": "Ketinggian",
     "fromCampus": "dari kampus",
     "targetOutputs": "Target Luaran Pos",
-    "viewDetailsAndApply": "Lihat Rincian Pos & Lamar"
+    "viewDetailsAndApply": "Lihat Rincian Pos & Lamar",
+    "header": {
+      "badge": "GIS Geospasial & Lambang Daerah • API Wilayah Indonesia",
+      "title": "Peta Sebaran Wilayah & Lambang Resmi Daerah",
+      "statsProv": "Prov",
+      "statsRegencies": "Kab/Kota",
+      "statsDistricts": "Kec"
+    },
+    "search": {
+      "placeholder": "Cari wilayah se-Indonesia (contoh: 'Bogor', 'Bandung', 'Surabaya', 'Denpasar', 'Malang')...",
+      "resultsTitle": "Hasil Pencarian ({count} Wilayah)",
+      "apiLabel": "edopandoyo/wilayah-indonesia-api"
+    },
+    "quick": {
+      "label": "Cepat:"
+    },
+    "filters": {
+      "provinceLabel": "Pilih Provinsi",
+      "regencyLabel": "Filter Kabupaten / Kota",
+      "radiusLabel": "Radius Jarak dari Kampus",
+      "allRegencies": "Semua Kab/Kota di {province}",
+      "all": "Semua"
+    },
+    "mapLoading": "Menyiapkan Engine Peta Geospasial & Lambang Daerah...",
+    "region": {
+      "provinceGov": "Pemerintah Provinsi",
+      "regencyGov": "Pemerintah Daerah",
+      "logoBoundary": "Logo & Batas Resmi Kemendagri & BIG",
+      "capital": "Ibukota:",
+      "population": "Populasi:",
+      "area": "Luas Wilayah:",
+      "elevation": "Ketinggian:",
+      "populationUnit": "jiwa",
+      "areaUnit": "km²",
+      "elevationUnit": "mdpl",
+      "capitalWithPrefix": "(Ibukota: {capital})"
+    },
+    "posCard": {
+      "distanceFromCampus": "{distance} km dari kampus",
+      "targetOutputs": "Target Luaran Pos:",
+      "viewDetails": "Lihat Rincian Pos & Lamar"
+    },
+    "leaflet": {
+      "campusLabel": "Pusat Kampus",
+      "loadingBoundary": "Memuat Garis Batas Wilayah ({regionName})...",
+      "province": "Provinsi",
+      "regencyCity": "Kabupaten / Kota",
+      "campusCoordinate": "Pusat Kampus: Univ. Nusantara ({lat}, {lng})",
+      "provinceGov": "Pemerintah Provinsi",
+      "regencyGov": "Pemerintah Daerah",
+      "code": "Kode:",
+      "capital": "Ibukota:",
+      "population": "Populasi:",
+      "area": "Luas:",
+      "officialBoundary": "✓ Garis Batas & Data Resmi Kemendagri & BIG",
+      "centroidPoint": "Titik Pusat Wilayah Geospasial",
+      "campusTitle": "Pusat Kampus Universitas Nusantara",
+      "campusDesc": "Titik acuan radius perhitungan Haversine pos KKN.",
+      "posNeed": "Pos Kebutuhan KKN",
+      "distanceFromCampus": "Jarak dari kampus: {distance} km",
+      "legendCampus": "Pusat Kampus",
+      "legendSelectedPos": "Pos Terpilih",
+      "legendPolygon": "Batas Polygon Wilayah",
+      "legendLogo": "Logo Resmi Pemda Aktif",
+      "wilayahTerpilih": "Wilayah Terpilih"
+    }
   },
   "pos": {
     "quota": "Kuota",
