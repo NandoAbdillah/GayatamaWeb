@@ -89,18 +89,16 @@ export default function HomePage() {
         {/* Subtle Ambient Radial Glow (Clean, Non-Intrusive) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[850px] h-[400px] sm:h-[500px] bg-gradient-to-tr from-primary/8 via-emerald-500/6 to-sky-400/8 blur-[120px] pointer-events-none rounded-full" />
 
-        <div className="relative max-w-5xl w-full mx-auto text-center space-y-6 sm:space-y-7 my-auto">
+        <div className="relative w-full max-w-5xl xl:max-w-[1100px] 2xl:max-w-[1200px] mx-auto text-center space-y-6 sm:space-y-7 my-auto px-4 sm:px-0">
           {/* Top Pill Announcement */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 shadow-xs text-xs font-semibold text-navy-900 dark:text-slate-200 font-jakarta">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{tHero('announcement')}</span>
-          </div>
 
           {/* Big Authoritative Headline with Epilogue Font */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight leading-[1.12]">
             {tHero('titleLine1')} <br />
-            <span className="text-primary-600 dark:text-primary-400">{tHero('titleAction')}</span> {tHero('titleWith')}{' '}
-            <span className="text-secondary-600 dark:text-secondary-400">{tHero('titleImpact')}</span>
+            {/* <span className="text-primary-600 dark:text-primary-400">{tHero('titleAction')}</span> {tHero('titleWith')}{' '} */}
+            <span className="text-secondary-600 dark:text-secondary-400">{tHero('titleAction')}</span> {tHero('titleWith')}{' '}
+            <span className="text-primary-600 dark:text-primary-400">{tHero('titleImpact')}</span>
+            {/* <span className="text-secondary-600 dark:text-secondary-400">{tHero('titleImpact')}</span> */}
           </h1>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-600 dark:text-slate-300 font-jakarta leading-relaxed">
@@ -184,7 +182,7 @@ export default function HomePage() {
                     <Button
                       size="lg"
                       variant="primary"
-                      className="w-full h-12 rounded-xl text-xs font-bold gap-2 shadow-sm"
+                      className="w-full h-12 rounded-xl text-xs font-bold gap-2 shadow-sm whitespace-nowrap"
                     >
                       <Search className="w-4 h-4" />
                       <span>{tHero('inputs.searchBtn')}</span>
@@ -211,7 +209,7 @@ export default function HomePage() {
         {/* ========================================================================= */}
         {/* 2. REAL INDONESIA PHOTOGRAPHIC SHOWCASE */}
         {/* ========================================================================= */}
-        <section className="relative pt-24 sm:pt-32 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+        <section className="relative pt-24 sm:pt-32 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-12 w-full max-w-7xl xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto space-y-8 sm:space-y-10 lg:space-y-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1 max-w-2xl">
             <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
@@ -233,8 +231,8 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Real Authentic Photo Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+        {/* Real Authentic Photo Grid - fluid di semua breakpoint tanpa sisa ruang */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
           {[
             {
               title: 'Modernisasi Irigasi Pertanian',
@@ -265,11 +263,14 @@ export default function HomePage() {
               key={idx}
               className="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-navy-800 shadow-card hover:shadow-card-hover transition-all duration-200 bg-white dark:bg-navy-900 flex flex-col"
             >
-              <div className="h-48 overflow-hidden relative">
+              <div className="relative w-full aspect-[16/10] sm:aspect-[4/3] lg:aspect-[4/3] xl:aspect-[16/11] overflow-hidden">
                 <img
                   src={item.img}
                   alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 max-w-full"
                 />
                 <span className="absolute top-3 left-3 bg-navy-950/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md">
                   {item.sector}
@@ -320,7 +321,7 @@ export default function HomePage() {
           ].map((m, i) => {
             const Icon = m.icon;
             return (
-              <div key={i} className="p-5 rounded-2xl bg-slate-50 dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 space-y-2">
+              <div key={i} className="p-5 rounded-2xl bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
                     {m.num}
@@ -337,8 +338,8 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 3. JELAJAHI SEBARAN WILAYAH NUSANTARA (Gaya Trippin': Circular Badges) */}
       {/* ========================================================================= */}
-      <section className="relative py-14 bg-transparent dark:bg-transparent  border-slate-200/50 dark:border-navy-800/50 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto space-y-8 text-center">
+      <section className="relative py-10 sm:py-12 lg:py-14 bg-transparent dark:bg-transparent border-slate-200/50 dark:border-navy-800/50 px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-12 transition-colors duration-200">
+        <div className="w-full max-w-7xl xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto space-y-6 sm:space-y-8 text-center">
           <div className="space-y-1 max-w-xl mx-auto">
             <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
               Sebaran Geografis KKN
@@ -348,15 +349,15 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 xl:gap-6">
             {exploreRegions.map((reg, idx) => (
               <Link
                 key={idx}
                 href={`/search?q=${encodeURIComponent(reg.name)}`}
                 className="group flex flex-col items-center space-y-2.5 p-3 rounded-2xl hover:bg-white dark:hover:bg-navy-900 transition-all duration-150 border border-transparent hover:border-slate-200 dark:hover:border-navy-800 hover:shadow-card"
               >
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-white dark:border-navy-700 shadow-card group-hover:scale-105 transition-transform duration-200">
-                  <img src={reg.img} alt={reg.name} className="w-full h-full object-cover" />
+                <div className="w-16 h-16 xs:w-20 xs:h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 rounded-full overflow-hidden border-2 border-white dark:border-navy-700 shadow-card group-hover:scale-105 transition-transform duration-200 shrink-0 aspect-square">
+                  <img src={reg.img} alt={reg.name} loading="lazy" decoding="async" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw" className="w-full h-full object-cover object-center max-w-full" />
                 </div>
                 <div>
                   <p className="text-xs font-bold text-navy-950 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
@@ -439,7 +440,7 @@ export default function HomePage() {
         {/* ========================================================================= */}
         {/* 5. POS KEBUTUHAN PILIHAN SIAP DILAMAR */}
         {/* ========================================================================= */}
-        <section className="relative py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+        <section className="relative py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-12 w-full max-w-7xl xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto space-y-6 sm:space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1">
             <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
@@ -461,12 +462,12 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
           {(posKebutuhanList.slice(0, 3)).map((pos) => (
             <Card key={pos.id} hoverEffect className="overflow-hidden flex flex-col justify-between border-slate-200 dark:border-navy-800">
               <div className="space-y-3">
-                {/* Photo Thumbnail */}
-                <div className="h-40 overflow-hidden relative">
+                {/* Photo Thumbnail - fluid aspect, tidak menyisakan ruang */}
+                <div className="relative w-full aspect-[16/9] sm:aspect-[16/10] lg:aspect-[16/9] xl:aspect-[4/3] overflow-hidden">
                   <img
                     src={
                       pos.id === 1
@@ -476,7 +477,10 @@ export default function HomePage() {
                         : 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop&q=80'
                     }
                     alt={pos.judul}
-                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="absolute inset-0 w-full h-full object-cover object-center max-w-full"
                   />
                   <div className="absolute top-3 left-3">
                     <StatusBadge status={pos.status} size="sm" />
