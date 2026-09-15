@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Footer } from '@/components/layout/Footer';
 import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
 import { PosKebutuhan } from '@/lib/types';
 import api from '@/lib/services';
@@ -263,10 +264,7 @@ export default function KatalogPublikPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-tkatalog border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 py-6 text-center text-xs text-slate-500 mt-12">
-        <p>{tkatalog('footer')}</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
