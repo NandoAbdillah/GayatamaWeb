@@ -44,80 +44,165 @@
   },
   "hero": {
     "announcement": "Thematic Community Service Registration for Odd Semester 2026/2027 is Now Open",
-    "titleLine1": "Empowering Villages,",
-    "titleAction": "Serving",
-    "titleWith": "through",
-    "titleImpact": "Real Impact.",
-    "subtitle": "An integrated platform connecting university students with thousands of real village development needs across Indonesia with transparency and measurable impact.",
-    "tabs": {
-      "all": "All Posts",
-      "agrikultur": "Agriculture & Food Security",
-      "digitalisasi": "MSME Digitalization",
-      "kesehatan": "Community Health & Nutrition"
+    "badge": "NATIONAL KKN COLLABORATION PLATFORM",
+    "titleLine1": "Discover Village Needs.",
+    "titleLine2": "Channel Student Expertise.",
+    "titleLine3": "Create Real Impact.",
+    "subtitle": "BaktiNusantara bridges genuine village needs with student competencies through a single integrated platform — from program discovery, aspiration submission, execution to impact documentation.",
+    "searchHeader": "Explore Student KKN Posts",
+    "searchMicrocopy": "Find community service programs aligned with your location, discipline, and village needs.",
+    "searchBtn": "Explore KKN Posts",
+    "mapBtn": "View Nusantara Map"
+  },
+  "problem": {
+    "badge": "CURRENT CHALLENGES",
+    "title": "KKN Ecosystem is Still Fragmented",
+    "subtitle": "Why traditional community service needs transformation into an integrated digital platform.",
+    "card1": {
+      "title": "Village Needs are Hard to Find",
+      "desc": "Village aspirations and potential are scattered across physical documents and inaccessible to students."
     },
-    "inputs": {
-      "locationLabel": "Target Location",
-      "locationPlaceholder": "Search village, district, regency...",
-      "majorLabel": "Major / Field of Expertise",
-      "majorPlaceholder": "Engineering, Agronomy, Nutrition, Design...",
-      "searchBtn": "Search Programs"
+    "card2": {
+      "title": "Programs Lack Alignment",
+      "desc": "Student service ideas often do not match the real urgency and priority needs of local communities."
+    },
+    "card3": {
+      "title": "Data & Documentation are Scattered",
+      "desc": "Program outcomes, outputs, and sustainability are difficult to trace and quantify after service ends."
+    },
+    "card4": {
+      "title": "Collaboration is Still Manual",
+      "desc": "Information, submissions, permits, validation, and follow-ups reside in fragmented channels without unified standards."
+    },
+    "transition": "BaktiNusantara unites this entire lifecycle into one integrated digital ecosystem."
+  },
+  "workflow": {
+    "badge": "INTEGRATED WORKFLOW",
+    "title": "How BaktiNusantara Works",
+    "subtitle": "An integrated end-to-end journey from village aspirations to measurable community impact.",
+    "steps": [
+      {
+        "step": "01",
+        "title": "Villages Submit Real Needs",
+        "desc": "Village governments & citizens register grassroots challenges and local potentials through verified aspiration forms."
+      },
+      {
+        "step": "02",
+        "title": "Students Discover Posts",
+        "desc": "Students search matching service posts with smart filters based on academic major, skills, and target region."
+      },
+      {
+        "step": "03",
+        "title": "Team Proposal Submission",
+        "desc": "Student teams submit structured action plans, work programs, and task allocations online."
+      },
+      {
+        "step": "04",
+        "title": "Validation & Coordination",
+        "desc": "Village Heads and Academic Supervisors (DPL) validate team readiness and expected project outputs."
+      },
+      {
+        "step": "05",
+        "title": "Execution & GPS Logbooks",
+        "desc": "Students record daily GPS-verified activity logbooks with periodic supervisory monitoring."
+      },
+      {
+        "step": "06",
+        "title": "Documentation & Lasting Impact",
+        "desc": "Official Handover Minutes (BAST) with QR Code verification and public portfolio showcase."
+      }
+    ]
+  },
+  "roles": {
+    "badge": "MULTI-STAKEHOLDER",
+    "title": "One Platform, Three Ecosystem Roles",
+    "subtitle": "Engineered specifically to connect all three key stakeholders in one collaborative cycle.",
+    "mahasiswa": {
+      "role": "FOR STUDENTS",
+      "tagline": "Service Seekers & Impact Executors",
+      "desc": "Find posts matching your academic discipline. Apply transparently, log GPS-verified field activities, and build your public portfolio.",
+      "cta": "Search KKN Programs"
+    },
+    "desa": {
+      "role": "FOR VILLAGE GOVERNMENTS & CITIZENS",
+      "tagline": "Aspiration Originators & Field Partners",
+      "desc": "Submit authentic village needs and connect with skilled student teams ready to address challenges in agriculture, MSMEs, health, and tech.",
+      "cta": "Submit Village Need"
+    },
+    "dpl": {
+      "role": "FOR SUPERVISORS & LPPM (DPL)",
+      "tagline": "Quality Assurance & Output Verifiers",
+      "desc": "Manage, validate, and monitor all service activities in one transparent system with automated reporting and digital BAST certification.",
+      "cta": "Enter Supervisor Portal"
     }
   },
   "showcase": {
-    "badge": "FIELD ACTION DOCUMENTATION",
-    "title": "Real Synergy Between Students & Village Citizens",
-    "subtitle": "From modernizing agricultural irrigation to strengthening local MSMEs, community service answers real challenges.",
+    "badge": "MEASURABLE IMPACT EVIDENCE",
+    "title": "From Real Challenges to Sustainable Solutions",
+    "subtitle": "Beyond ceremonial events — concrete service programs with verified outputs and measurable community impact.",
     "viewDoc": "View Documentation",
     "stats": {
-      "stat1": "Villages Supported & Active",
-      "stat2": "Contributing Students",
-      "stat3": "Verified Outcomes & BAST",
-      "stat4": "National Community Service Hours"
+      "stat1": "Villages Registered & Supported",
+      "stat2": "Active Contributing Students",
+      "stat3": "Priority Programs Completed",
+      "stat4": "Citizens Directly Impacted"
     }
   },
   "explore": {
-    "badge": "KKN Geographic Distribution",
-    "title": "Explore Community Service Across the Archipelago",
+    "badge": "GEOGRAPHIC DISTRIBUTION",
+    "title": "Explore Service Distribution Across Nusantara",
+    "subtitle": "Active community service posts across 38 provinces from Sabang to Merauke.",
     "postsCount": "{count} Available Posts"
   },
+  "dashboardPreview": {
+    "badge": "WEB APP PREVIEW",
+    "title": "BaktiNusantara in One Unified Dashboard",
+    "subtitle": "A modern software experience to monitor programs, field logbooks, village aspirations, and BAST validations in real-time."
+  },
   "technology": {
-    "badge": "Integrated Architecture",
-    "title": "Appropriate Technology for Transparent KKN Governance",
-    "subtitle": "Every stage of community service is digitally recorded — from identifying community needs to the official Handover Minutes (BAST) endorsement.",
+    "badge": "SYSTEM & DATA TRANSPARENCY",
+    "title": "Every Program Tracked. Every Impact Documented.",
+    "subtitle": "Digital accountability ensures every stage of community service and student contribution is recorded reliably.",
     "steps": {
       "step1": {
         "title": "Aspirations Submitted",
-        "desc": "Village residents report real needs directly through the web platform."
+        "desc": "Village residents report real needs directly through standardized web forms."
       },
       "step2": {
         "title": "Curation & Validation",
-        "desc": "Village Heads validate aspirations into officially registered KKN posts."
+        "desc": "Village Heads & LPPM validate aspirations into officially registered KKN posts."
       },
       "step3": {
-        "title": "Integrated Implementation",
-        "desc": "Students & Field Supervisors record weekly GPS-verified logbooks."
+        "title": "Integrated Execution",
+        "desc": "Students & Supervisors record weekly GPS-verified daily logbooks."
       },
       "step4": {
         "title": "BAST Endorsement",
-        "desc": "Final output handover with QR code and digital certificate."
+        "desc": "Final output handover with verifiable QR Code and official digital certificates."
       }
     }
   },
   "opportunities": {
-    "badge": "Verified Service Opportunities",
+    "badge": "VERIFIED SERVICE OPPORTUNITIES",
     "title": "Ready-to-Apply Posts for Students",
-    "subtitle": "Choose community service programs endorsed by village officials and the LPPM team.",
+    "subtitle": "Choose community service programs endorsed by village officials and university LPPM teams.",
     "viewCatalog": "Browse Full Catalog",
     "matchBadge": "{score}% Match",
     "quotaLabel": "Quota:",
     "quotaValue": "{filled}/{quota} Students",
     "detailBtn": "View Details"
   },
+  "impactPortfolio": {
+    "badge": "IMPACT TRACK RECORD",
+    "title": "Every Program Leaves a Lasting Legacy",
+    "subtitle": "Comprehensive public documentation ensuring the long-term sustainability of student innovations in every village.",
+    "cta": "View Public Portfolio"
+  },
   "cta": {
-    "title": "Ready to Dedicate Your Knowledge for Village Progress?",
-    "subtitle": "Join thousands of students and field supervisors advancing villages across Indonesia.",
-    "registerBtn": "Register for KKN Now",
-    "aspirasiBtn": "Submit Village Aspiration"
+    "title": "Villages have needs. Students have skills. BaktiNusantara connects them.",
+    "subtitle": "Join Indonesia's largest collaborative community service ecosystem. Create measurable change today.",
+    "registerBtn": "Explore KKN Posts",
+    "aspirasiBtn": "Submit Village Need"
   },
   "footer": {
     "description": "Integrated collaboration platform for Thematic Community Service (KKN) in Indonesia. Connecting village aspirations, student innovation, supervisor guidance, and university service.",
