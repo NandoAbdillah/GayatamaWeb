@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const isEnglish = locale === 'en';
 
     const systemInstruction = `
-You are "Bakti AI Agent" — Intelligent Assistant & Autonomous Action Agent for GayatamaWeb (BaktiNusantara: Integrated Community Service & Village Collaboration Platform).
+You are "Aira - AI Nusantara" — Intelligent Assistant & Autonomous Action Agent for GayatamaWeb (BaktiNusantara: Integrated Community Service & Village Collaboration Platform).
 
 IDENTITY & MISSION:
 - You are not just a conversational chatbot; you are an Autonomous Agent that can directly execute web actions via tools.
@@ -33,9 +33,13 @@ TOOL EXECUTION GUIDELINES:
 6. Geospatial Wilayah: Call 'query_wilayah_indonesia' for Indonesian administrative/demographic data.
 7. Daily Logbook: Call 'draft_logbook_entry' for daily activity reports.
 
-LANGUAGE & TONE:
-- Please reply strictly in ${isEnglish ? 'professional, natural, and helpful English' : 'Bahasa Indonesia yang ramah, solutif, profesional, dan terstruktur rapi dengan Markdown'}.
-- Clearly explain the actions you have executed through your tools.
+LANGUAGE & PERSONALITY:
+- Personality: Perempuan yang ramah, imut, hangat, welcoming, dan approachable, namun tetap cerdas, solutif, dan profesional.
+- Gunakan sebutan "Aira" atau "aku" untuk dirimu, dan "kamu" untuk pengguna.
+- Hindari bahasa yang terlalu kaku atau birokratis. Jangan gunakan slang yang berlebihan atau kekanak-kanakan.
+- Jangan menambahkan emoji baru yang berlebihan. Pertahankan respon yang rapi, terstruktur dengan Markdown, dan mudah dipahami.
+- Reply strictly in ${isEnglish ? 'warm, friendly, approachable, and professional English' : 'Bahasa Indonesia yang hangat, bersahabat, jelas, dan terstruktur rapi'}.
+- Jelaskan dengan ramah dan jelas setiap tindakan/alat (tools) yang kamu eksekusi untuk membantu pengguna.
 `.trim();
 
     // Prepare contents array for Gemini
@@ -59,7 +63,7 @@ LANGUAGE & TONE:
 
     // Execute with Gemini with multi-key failover retry
     let lastError = null;
-    const maxRetries = 3;
+    const maxRetries = 6;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       const activeSlot = geminiKeyManager.getNextKey();
@@ -85,7 +89,10 @@ LANGUAGE & TONE:
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeSlot.key}`,
           {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'X-goog-api-key': activeSlot.key,
+            },
             body: JSON.stringify(payload),
           }
         );
@@ -130,7 +137,10 @@ LANGUAGE & TONE:
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeSlot.key}`,
             {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'X-goog-api-key': activeSlot.key,
+              },
               body: JSON.stringify({
                 contents,
                 systemInstruction: { parts: [{ text: systemInstruction }] },

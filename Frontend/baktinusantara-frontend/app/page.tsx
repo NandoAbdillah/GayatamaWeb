@@ -10,6 +10,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { HeroFireflies } from '@/components/ui/HeroFireflies';
 import { IndonesiaMapBackdrop } from '@/components/ui/IndonesiaMapBackdrop';
 import { DashboardPreview } from '@/components/landing/DashboardPreview';
+import { ProvinceDistributionCarousel } from '@/components/landing/ProvinceDistributionCarousel';
 import { RegionLogo } from '@/components/ui/RegionLogo';
 import { INDONESIA_POPULAR_MAJORS } from '@/data/indonesia-majors';
 import { useDashboardMetrics, usePosKebutuhan } from '@/hooks';
@@ -169,6 +170,7 @@ export default function HomePage() {
   const { items: posKebutuhanList } = usePosKebutuhan();
 
   const tHero = useTranslations('hero');
+  const tGeographic = useTranslations('geographic');
   const tProblem = useTranslations('problem');
   const tWorkflow = useTranslations('workflow');
   const tRoles = useTranslations('roles');
@@ -776,24 +778,24 @@ export default function HomePage() {
         <div aria-hidden className="absolute inset-0 bg-white/20 dark:bg-[#071629]/70 pointer-events-none" />
 
         {/* ========================================================================= */}
-        {/* 2. PROBLEM SECTION ("KKN Masih Terfragmentasi") */}
+        {/* 2. GEOGRAPHIC DISTRIBUTION SECTION */}
         {/* ========================================================================= */}
-        <section className="relative py-16 sm:py-20 lg:py-24 px-4 sm:px-8 lg:px-12 max-w-7xl 2xl:max-w-[1380px] mx-auto space-y-10 sm:space-y-12">
-          {/* Header Row: Left-Aligned Problem Statement + Right-Aligned Peta Nusantara (Papua Flush Right) */}
+        <section className="relative py-16 sm:py-20 lg:py-24 px-4 sm:px-8 lg:px-12 max-w-7xl 2xl:max-w-[1380px] mx-auto space-y-8 sm:space-y-10">
+          {/* Header Row: Left-Aligned Distribution Statement + Right-Aligned Peta Nusantara (Papua Flush Right) */}
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
             {/* Left Column: Heading & Description (Align Left) */}
             <div className="space-y-3.5 max-w-xl xl:max-w-2xl text-left shrink-0">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 shadow-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                <span className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider font-jakarta">
-                  {tProblem('badge')}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider font-jakarta">
+                  {tGeographic('badge')}
                 </span>
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight leading-[1.18]">
-                {tProblem('title')}
+                {tGeographic('title')}
               </h2>
               <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 font-jakarta leading-relaxed max-w-xl">
-                {tProblem('subtitle')}
+                {tGeographic('subtitle')}
               </p>
             </div>
 
@@ -803,57 +805,9 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch">
-            {[
-              {
-                icon: AlertCircle,
-                color: 'text-rose-600 dark:text-rose-400',
-                bgColor: 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/50',
-                title: tProblem('card1.title'),
-                desc: tProblem('card1.desc'),
-              },
-              {
-                icon: HelpCircle,
-                color: 'text-amber-600 dark:text-amber-400',
-                bgColor: 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/50',
-                title: tProblem('card2.title'),
-                desc: tProblem('card2.desc'),
-              },
-              {
-                icon: Clock,
-                color: 'text-sky-600 dark:text-sky-400',
-                bgColor: 'bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-900/50',
-                title: tProblem('card3.title'),
-                desc: tProblem('card3.desc'),
-              },
-              {
-                icon: Activity,
-                color: 'text-purple-600 dark:text-purple-400',
-                bgColor: 'bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-900/50',
-                title: tProblem('card4.title'),
-                desc: tProblem('card4.desc'),
-              },
-            ].map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={idx}
-                  className="h-full p-6 sm:p-7 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/90 dark:border-navy-800 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 space-y-4 flex flex-col justify-between backdrop-blur-md"
-                >
-                  <div className="space-y-3.5">
-                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shadow-xs ${item.bgColor}`}>
-                      <Icon className={`w-6 h-6 ${item.color}`} />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold text-navy-950 dark:text-white font-epilogue leading-snug">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-jakarta leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+          {/* 38-Province Interactive Carousel & Regional Tabs */}
+          <div className="relative z-10">
+            <ProvinceDistributionCarousel />
           </div>
 
           {/* Transition Banner */}
@@ -874,7 +828,7 @@ export default function HomePage() {
 
             <Link href="/katalog" className="shrink-0">
               <Button variant="primary" size="sm" className="rounded-xl text-xs font-bold gap-1.5 shadow-sm">
-                <span>Pelajari Alur</span>
+                <span>Jelajahi Katalog</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </Link>

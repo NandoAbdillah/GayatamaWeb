@@ -9,7 +9,7 @@ export interface GeminiKeySlot {
 // Default fallback key pool from environment or user specifications
 const RAW_KEYS =
   process.env.GEMINI_API_KEYS ||
-  'Esper|AQ.Ab8RN6J8hmVyLXVofC8aNRnuZw36MQ8CL-FtUwpoOCn6-nYD-A|true,Stud|AQ.Ab8RN6KJJPiFoH2UmM5IuVulGip1wbDpeFblyM_Erlhnm9KmKw|true,Tom|AQ.Ab8RN6JX-D1ROgHsEf_lMwuSPqiHc-EN004aSDGs6-l_3Oyqow|true,Village|AQ.Ab8RN6KurK4cxWhQFg50LX5UQm-4OIW58B89NmHZLBAjgmfn-g|true,Ara|AQ.Ab8RN6ItRuE2JfcG5sNanrt-5P4Pth5mIi8ykQj9VPtbnpP4mQ|true';
+  'UserAccount|AQ.Ab8RN6LmNwGwmlb8yzWrALP3O5SR1QxeJq7C2uXZYZVyb6Bllw|true,Esper|AQ.Ab8RN6J8hmVyLXVofC8aNRnuZw36MQ8CL-FtUwpoOCn6-nYD-A|true,Stud|AQ.Ab8RN6KJJPiFoH2UmM5IuVulGip1wbDpeFblyM_Erlhnm9KmKw|true,Tom|AQ.Ab8RN6JX-D1ROgHsEf_lMwuSPqiHc-EN004aSDGs6-l_3Oyqow|true,Village|AQ.Ab8RN6KurK4cxWhQFg50LX5UQm-4OIW58B89NmHZLBAjgmfn-g|true,Ara|AQ.Ab8RN6ItRuE2JfcG5sNanrt-5P4Pth5mIi8ykQj9VPtbnpP4mQ|true';
 
 class GeminiKeyManager {
   private keySlots: GeminiKeySlot[] = [];
@@ -56,8 +56,8 @@ class GeminiKeyManager {
       return this.keySlots[0];
     }
 
+    const chosen = activeSlots[this.currentIndex % activeSlots.length];
     this.currentIndex = (this.currentIndex + 1) % activeSlots.length;
-    const chosen = activeSlots[this.currentIndex];
     chosen.lastUsed = Date.now();
     return chosen;
   }
