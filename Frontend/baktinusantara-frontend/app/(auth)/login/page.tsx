@@ -248,12 +248,12 @@ export default function LoginPage() {
       className="min-h-[100dvh] min-h-screen w-full bg-cover bg-center lg:bg-[position:60%_center] bg-no-repeat flex font-jakarta overflow-hidden"
       style={{ backgroundImage: "url('/images/BGlogin.png')" }}
     >
-      {/* KIRI - area background kosong (flex 1) */}
-      <div className="hidden lg:flex flex-1" aria-hidden />
+      {/* KIRI - 50% layar di desktop, hidden di HP */}
+      <div className="hidden lg:flex flex-1 lg:basis-1/2" aria-hidden />
 
-      {/* KANAN - form center, ukuran tetap di semua laptop (flex 1) */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12 overflow-y-auto">
-        <div className="w-full max-w-[420px] sm:max-w-md lg:max-w-[480px] my-auto flex flex-col">
+      {/* KANAN - full di HP, 50% di desktop, form center simetris */}
+      <div className="flex-1 lg:basis-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12 overflow-y-auto">
+        <div className="w-full max-w-[480px] my-auto flex flex-col">
         <div className="text-center mb-4 sm:mb-6 px-1">
           <Link href="/" className="inline-flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 group">
             <div className="w-10 h-10 sm:w-12 sm:h-12 relative flex items-center justify-center transition-transform group-hover:scale-105 shrink-0">
