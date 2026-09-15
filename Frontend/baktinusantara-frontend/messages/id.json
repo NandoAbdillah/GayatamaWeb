@@ -54,26 +54,38 @@
     "searchBtn": "Jelajahi Pos KKN",
     "mapBtn": "Lihat Peta Nusantara"
   },
+  "geographic": {
+    "badge": "SEBARAN GEOGRAFIS",
+    "title": "Jelajahi Sebaran Pengabdian di Seluruh Nusantara",
+    "subtitle": "Pos pengabdian masyarakat aktif tersebar di 38 provinsi dari Sabang sampai Merauke.",
+    "allRegions": "Semua Wilayah",
+    "tabs": {
+      "all": "Semua Wilayah",
+      "jawa_bali": "Jawa & Bali",
+      "sumatera": "Sumatera",
+      "kalimantan": "Kalimantan",
+      "sulawesi": "Sulawesi",
+      "nusra": "Nusa Tenggara",
+      "maluku_papua": "Maluku & Papua"
+    },
+    "stats": {
+      "provinces": "Seluruh Nusantara (38 Provinsi)",
+      "posCount": "1.280+ Pos KKN Terbuka",
+      "villages": "128 Desa Binaan",
+      "priority": "Sektor Prioritas: Digitalisasi & Pertanian"
+    },
+    "carousel": {
+      "prev": "Sebelumnya",
+      "next": "Selanjutnya",
+      "viewPosts": "Jelajahi Pos",
+      "students": "Mahasiswa",
+      "desa": "Desa Mitra"
+    }
+  },
   "problem": {
-    "badge": "TANTANGAN SAAT INI",
-    "title": "KKN Masih Terfragmentasi",
-    "subtitle": "Mengapa ekosistem pengabdian masyarakat tradisional perlu ditransformasi menjadi platform digital terpadu.",
-    "card1": {
-      "title": "Kebutuhan Desa Sulit Ditemukan",
-      "desc": "Aspirasi dan potensi desa sering tersebar di berbagai dokumen fisik dan tidak mudah diakses mahasiswa."
-    },
-    "card2": {
-      "title": "Program Belum Selalu Tepat Sasaran",
-      "desc": "Ide pengabdian mahasiswa sering kali belum selaras dengan urgensi dan kebutuhan riil masyarakat desa."
-    },
-    "card3": {
-      "title": "Data & Dokumentasi Tersebar",
-      "desc": "Hasil, luaran, dan keberlanjutan program pengabdian sulit ditelusuri dan diukur setelah masa KKN selesai."
-    },
-    "card4": {
-      "title": "Kolaborasi Masih Manual",
-      "desc": "Informasi, pengajuan, perizinan, validasi, dan tindak lanjut berada di banyak kanal terpisah tanpa standar baku."
-    },
+    "badge": "SEBARAN GEOGRAFIS",
+    "title": "Jelajahi Sebaran Pengabdian di Seluruh Nusantara",
+    "subtitle": "Pos pengabdian masyarakat aktif tersebar di 38 provinsi dari Sabang sampai Merauke.",
     "transition": "BaktiNusantara menyatukan seluruh proses tersebut dalam satu ekosistem digital terpadu."
   },
   "workflow": {

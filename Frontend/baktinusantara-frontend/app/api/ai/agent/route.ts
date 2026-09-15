@@ -59,7 +59,7 @@ LANGUAGE & TONE:
 
     // Execute with Gemini with multi-key failover retry
     let lastError = null;
-    const maxRetries = 3;
+    const maxRetries = 6;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       const activeSlot = geminiKeyManager.getNextKey();
@@ -85,7 +85,10 @@ LANGUAGE & TONE:
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeSlot.key}`,
           {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'X-goog-api-key': activeSlot.key,
+            },
             body: JSON.stringify(payload),
           }
         );
@@ -130,7 +133,10 @@ LANGUAGE & TONE:
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeSlot.key}`,
             {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'X-goog-api-key': activeSlot.key,
+              },
               body: JSON.stringify({
                 contents,
                 systemInstruction: { parts: [{ text: systemInstruction }] },
