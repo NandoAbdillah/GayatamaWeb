@@ -25,8 +25,10 @@ import {
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export default function AspirasiPage() {
+  const t = useTranslations('aspirasi');
   const [ticketQuery, setTicketQuery] = useState('');
   const [searchedTicket, setSearchedTicket] = useState<Aspirasi | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -52,7 +54,7 @@ export default function AspirasiPage() {
       const res = await api.aspirasi.getByTicket(ticketId);
       if (res) {
         setSearchedTicket(res);
-        toast.success('Status tiket aspirasi ditemukan!');
+        toast.success(t('toast.found'));
       } else {
         throw new Error('Not found');
       }
@@ -63,9 +65,9 @@ export default function AspirasiPage() {
       );
       if (found) {
         setSearchedTicket(found);
-        toast.success('Status tiket aspirasi ditemukan!');
+        toast.success(t('toast.found'));
       } else {
-        toast.error('Nomor tiket tidak ditemukan. Pastikan nomor tiket benar.');
+        toast.error(t('toast.notFound'));
         setSearchedTicket(null);
       }
     } finally {
@@ -93,12 +95,12 @@ export default function AspirasiPage() {
       const res = await api.aspirasi.submitAspirasi(payload);
       const ticket = res.nomor_tiket || (res.data as any)?.id || `ASP-${Date.now().toString().slice(-4)}`;
       setSubmittedTicket(ticket);
-      toast.success(`Aspirasi berhasil dikirim! Nomor Tiket Anda: #${ticket}`);
+      toast.success(t('toast.successWithTicket', { ticket: String(ticket) }));
     } catch (err: any) {
       console.warn('Backend submit error, using client fallback ticket:', err);
       const fallbackTicket = `ASP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
       setSubmittedTicket(fallbackTicket);
-      toast.success(`Aspirasi tercatat! Nomor Tiket Anda: ${fallbackTicket}`);
+      toast.success(t('toast.recordedWithTicket', { ticket: fallbackTicket }));
     } finally {
       setIsSubmitting(false);
     }
@@ -111,14 +113,13 @@ export default function AspirasiPage() {
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <span className="text-xs font-bold text-tertiary-700 uppercase tracking-wider">
-            Kanal Partisipasi Publik
+            {t('badge')}
           </span>
           <h1 className="text-3xl font-extrabold text-navy-950 font-epilogue">
-            Sampaikan Usulan & Masalah Desa Anda
+            {t('title')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-600">
-            Warga masyarakat dapat menyampaikan usulan kebutuhan wilayah secara terbuka. Usulan yang
-            diverifikasi akan diteruskan menjadi pos kebutuhan KKN mahasiswa.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -129,10 +130,10 @@ export default function AspirasiPage() {
             <Card className="p-6 sm:p-8 border-slate-200 shadow-card space-y-5">
               <div className="space-y-1">
                 <h2 className="text-base font-bold text-navy-950 font-epilogue">
-                  Formulir Aspirasi Warga Desa
+                  {t('form.title')}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Data Anda akan diteruskan ke perangkat desa dan tim LPPM pengabdian masyarakat.
+                  {t('form.subtitle')}
                 </p>
               </div>
 
@@ -142,10 +143,10 @@ export default function AspirasiPage() {
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <h3 className="text-base font-bold text-emerald-950 font-epilogue">
-                    Aspirasi Berhasil Diterima!
+                    {t('form.successTitle')}
                   </h3>
                   <p className="text-xs text-emerald-800 leading-relaxed">
-                    Simpan nomor tiket ini untuk memantau proses verifikasi oleh perangkat desa:
+                    {t('form.successDesc')}
                   </p>
                   <div className="p-3 rounded-xl bg-white border border-emerald-300 font-mono font-bold text-sm text-emerald-900 tracking-wider">
                     {submittedTicket}
@@ -160,7 +161,7 @@ export default function AspirasiPage() {
                     size="sm"
                     className="mt-2 text-xs"
                   >
-                    Kirim Aspirasi Lainnya
+                    {t('form.submitAnother')}
                   </Button>
                 </div>
               ) : (
@@ -168,27 +169,27 @@ export default function AspirasiPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-navy-900 mb-1">
-                        Nama Pengusul / Warga
+                        {t('form.labels.name')}
                       </label>
                       <input
                         type="text"
                         required
                         value={nama}
                         onChange={(e) => setNama(e.target.value)}
-                        placeholder="Contoh: Pak Joko (RT 03)"
+                        placeholder={t('form.labels.namePlaceholder')}
                         className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-navy-900 mb-1">
-                        Nomor WhatsApp / Kontak
+                        {t('form.labels.contact')}
                       </label>
                       <input
                         type="text"
                         required
                         value={kontak}
                         onChange={(e) => setKontak(e.target.value)}
-                        placeholder="0812xxxxxxx"
+                        placeholder={t('form.labels.contactPlaceholder')}
                         className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -196,47 +197,47 @@ export default function AspirasiPage() {
 
                   <div>
                     <label className="block text-xs font-semibold text-navy-900 mb-1">
-                      Pilih Wilayah Desa Sasaran
+                      {t('form.labels.village')}
                     </label>
                     <select
                       value={desaId}
                       onChange={(e) => setDesaId(Number(e.target.value))}
                       className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
                     >
-                      <option value={1}>Desa Sukamaju, Kec. Ciawi, Kab. Bogor (Jawa Barat)</option>
-                      <option value={2}>Desa Berkah Makmur, Kec. Purwodadi, Kab. Pasuruan (Jawa Timur)</option>
-                      <option value={3}>Desa Cempaka Putih, Kec. Pacet, Kab. Mojokerto (Jawa Timur)</option>
+                      <option value={1}>{t('form.labels.villages.village1')}</option>
+                      <option value={2}>{t('form.labels.villages.village2')}</option>
+                      <option value={3}>{t('form.labels.villages.village3')}</option>
                     </select>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="sm:col-span-2">
                       <label className="block text-xs font-semibold text-navy-900 mb-1">
-                        Judul Kebutuhan / Masalah
+                        {t('form.labels.titleField')}
                       </label>
                       <input
                         type="text"
                         required
                         value={judul}
                         onChange={(e) => setJudul(e.target.value)}
-                        placeholder="Contoh: Pelatihan Digitalisasi & Foto Produk UMKM"
+                        placeholder={t('form.labels.titlePlaceholder')}
                         className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-navy-900 mb-1">
-                        Kategori
+                        {t('form.labels.category')}
                       </label>
                       <select
                         value={kategori}
                         onChange={(e) => setKategori(e.target.value as any)}
                         className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
                       >
-                        <option value="umkm">Pemberdayaan UMKM</option>
-                        <option value="kesehatan">Kesehatan & Sanitasi</option>
-                        <option value="lingkungan">Lingkungan & Energi</option>
-                        <option value="pendidikan">Pendidikan & Literasi</option>
-                        <option value="fasilitas">Infrastruktur & Fasilitas</option>
+                        <option value="umkm">{t('form.labels.categories.umkm')}</option>
+                        <option value="kesehatan">{t('form.labels.categories.kesehatan')}</option>
+                        <option value="lingkungan">{t('form.labels.categories.lingkungan')}</option>
+                        <option value="pendidikan">{t('form.labels.categories.pendidikan')}</option>
+                        <option value="fasilitas">{t('form.labels.categories.fasilitas')}</option>
                       </select>
                     </div>
                   </div>
@@ -244,21 +245,21 @@ export default function AspirasiPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-navy-900 mb-1">
-                        Tingkat Urgensi
+                        {t('form.labels.urgency')}
                       </label>
                       <select
                         value={urgensi}
                         onChange={(e) => setUrgensi(e.target.value as any)}
                         className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
                       >
-                        <option value="rendah">Rendah (Rencana Jangka Panjang)</option>
-                        <option value="sedang">Sedang (Dibutuhkan Musim Ini)</option>
-                        <option value="mendesak">Mendesak (Prioritas Utama Warga)</option>
+                        <option value="rendah">{t('form.labels.urgencies.rendah')}</option>
+                        <option value="sedang">{t('form.labels.urgencies.sedang')}</option>
+                        <option value="mendesak">{t('form.labels.urgencies.mendesak')}</option>
                       </select>
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-navy-900 mb-1">
-                        Foto Bukti Lapangan (Opsional)
+                        {t('form.labels.photo')}
                       </label>
                       <input
                         type="file"
@@ -271,14 +272,14 @@ export default function AspirasiPage() {
 
                   <div>
                     <label className="block text-xs font-semibold text-navy-900 mb-1">
-                      Uraian Kebutuhan & Lokasi
+                      {t('form.labels.description')}
                     </label>
                     <textarea
                       rows={4}
                       required
                       value={deskripsi}
                       onChange={(e) => setDeskripsi(e.target.value)}
-                      placeholder="Jelaskan kondisi di lapangan dan harapan dari warga..."
+                      placeholder={t('form.labels.descriptionPlaceholder')}
                       className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed"
                     />
                   </div>
@@ -293,12 +294,12 @@ export default function AspirasiPage() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        <span>Mengirimkan Aspirasi...</span>
+                        <span>{t('form.submittingBtn')}</span>
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        <span>Kirimkan Aspirasi ke Perangkat Desa</span>
+                        <span>{t('form.submitBtn')}</span>
                       </>
                     )}
                   </Button>
@@ -312,10 +313,10 @@ export default function AspirasiPage() {
             <Card className="p-6 border-slate-200 bg-white space-y-4 shadow-card">
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-navy-950 font-epilogue">
-                  Lacak Status Tiket Aspirasi
+                  {t('track.title')}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Masukkan nomor tiket yang Anda dapatkan saat mengirim aspirasi.
+                  {t('track.subtitle')}
                 </p>
               </div>
 
@@ -326,17 +327,17 @@ export default function AspirasiPage() {
                     type="text"
                     value={ticketQuery}
                     onChange={(e) => setTicketQuery(e.target.value)}
-                    placeholder="Contoh: ASP-2026-SKM-0089"
+                    placeholder={t('track.placeholder')}
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
                 <Button type="submit" size="md" variant="secondary" className="w-full text-xs font-semibold">
-                  Cek Status Tindak Lanjut
+                  {t('track.checkBtn')}
                 </Button>
               </form>
 
               <div className="text-[11px] text-slate-500 flex items-center justify-between pt-2 border-t border-slate-100">
-                <span>Coba tiket demo:</span>
+                <span>{t('track.demoLabel')}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -366,7 +367,7 @@ export default function AspirasiPage() {
                   {searchedTicket.tanggapan_desa && (
                     <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-950 space-y-1">
                       <span className="font-bold flex items-center gap-1 text-emerald-800">
-                        <Building className="w-3.5 h-3.5" /> Tanggapan Desa:
+                        <Building className="w-3.5 h-3.5" /> {t('track.responseLabel')}
                       </span>
                       <p>{searchedTicket.tanggapan_desa}</p>
                     </div>
