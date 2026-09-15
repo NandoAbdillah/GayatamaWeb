@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { HeroFireflies } from '@/components/ui/HeroFireflies';
 import { useDashboardMetrics, usePosKebutuhan } from '@/hooks';
 import { useTranslations } from 'next-intl';
 import {
@@ -90,10 +91,14 @@ export default function HomePage() {
       >
         {/* BGhero background overlay for readability */}
         <div aria-hidden className="absolute inset-0 bg-white/25 dark:bg-[#071629]/75 pointer-events-none" />
+        
+        {/* Ultra-realistic bioluminescent fireflies effect */}
+        <HeroFireflies count={28} />
+
         {/* Subtle Ambient Radial Glow (Clean, Non-Intrusive) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[850px] h-[400px] sm:h-[500px] bg-gradient-to-tr from-primary/8 via-emerald-500/6 to-sky-400/8 blur-[120px] pointer-events-none rounded-full" />
 
-        <div className="relative w-full max-w-5xl xl:max-w-[1100px] 2xl:max-w-[1200px] mx-auto text-center space-y-6 sm:space-y-7 my-auto px-4 sm:px-0">
+        <div className="relative z-10 w-full max-w-5xl xl:max-w-[1100px] 2xl:max-w-[1200px] mx-auto text-center space-y-6 sm:space-y-7 my-auto px-4 sm:px-0">
           {/* Top Pill Announcement */}
 
           {/* Big Authoritative Headline with Epilogue Font */}
@@ -112,8 +117,8 @@ export default function HomePage() {
           {/* ========================================================================= */}
           {/* SEARCH CARD (Clean multi-input card) */}
           {/* ========================================================================= */}
-          <div className="max-w-4xl mx-auto pt-2 sm:pt-4 text-left">
-            <div className="bg-white dark:bg-navy-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-navy-800 shadow-xl p-3.5 sm:p-5 space-y-4">
+          <div className="relative z-20 max-w-4xl mx-auto pt-2 sm:pt-4 text-left">
+            <div className="relative z-20 bg-white dark:bg-navy-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-navy-800 shadow-2xl p-3.5 sm:p-5 space-y-4">
               {/* Category selector tabs */}
               <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-slate-100 dark:border-navy-800">
                 {[
