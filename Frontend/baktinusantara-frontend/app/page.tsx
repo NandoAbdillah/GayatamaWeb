@@ -284,12 +284,12 @@ export default function HomePage() {
         <div className="relative z-10 w-full max-w-5xl xl:max-w-[1100px] 2xl:max-w-[1200px] mx-auto text-center space-y-6 sm:space-y-7 my-auto px-4 sm:px-0">
           
           {/* Top Badge: Platform Kolaborasi KKN Nasional */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-navy-900/95 border border-emerald-500/40 shadow-sm backdrop-blur-md">
+          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-navy-900/95 border border-emerald-500/40 shadow-sm backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 font-jakarta tracking-wide uppercase">
               {tHero('badge')}
             </span>
-          </div>
+          </div> */}
 
           {/* Headline with Epilogue Font */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight leading-[1.12]">
@@ -773,11 +773,10 @@ export default function HomePage() {
       {/* WRAPPER 1: IMAGE2.PNG (Gunung & Burung-burung Panorama Latar Belakang) */}
       {/* ========================================================================= */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden w-full bg-cover sm:bg-[length:100%_auto] lg:bg-cover xl:bg-[length:100%_auto] bg-top bg-no-repeat"
         style={{
           backgroundImage: "url('/images/image2.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 60%',
+          backgroundPosition: 'top center',
           backgroundRepeat: 'no-repeat',
         }}
       >
@@ -1363,11 +1362,10 @@ export default function HomePage() {
       {/* WRAPPER 2: IMAGE3.PNG (Landscape Alam Nusantara Latar Belakang) */}
       {/* ========================================================================= */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden w-full bg-cover sm:bg-[length:100%_auto] lg:bg-cover xl:bg-[length:100%_auto] bg-top bg-no-repeat"
         style={{
           backgroundImage: "url('/images/image3.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 10%',
+          backgroundPosition: 'top center',
           backgroundRepeat: 'no-repeat',
         }}
       >
