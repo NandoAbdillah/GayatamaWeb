@@ -132,6 +132,10 @@ export interface SelectedWilayahHierarchy {
 export interface WilayahSearchItem {
   kode: string;
   nama: string;
+  nama_lengkap?: string;
+  provinsi?: string;
+  kabupaten?: string;
+  kecamatan?: string;
   level: string; // "Provinsi" | "Kabupaten/Kota" | "Kecamatan" | "Desa/Kelurahan"
   level_code: number; // 1: Prov, 2: Kab/Kota, 3: Kec, 4: Kel/Desa
   logo_url: string | null;

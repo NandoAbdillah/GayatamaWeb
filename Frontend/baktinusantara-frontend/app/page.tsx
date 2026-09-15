@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { HeroFireflies } from '@/components/ui/HeroFireflies';
+import { IndonesiaMapBackdrop } from '@/components/ui/IndonesiaMapBackdrop';
 import { RegionLogo } from '@/components/ui/RegionLogo';
 import { INDONESIA_POPULAR_MAJORS } from '@/data/indonesia-majors';
 import { useDashboardMetrics, usePosKebutuhan } from '@/hooks';
@@ -38,15 +39,27 @@ import {
   Layers,
 } from 'lucide-react';
 
+const SECTOR_OPTIONS = [
+  { key: 'agrikultur', label: 'Agrikultur & Ketahanan Pangan', shortLabel: 'Agrikultur & Pangan', icon: Sprout, count: 42 },
+  { key: 'digitalisasi', label: 'Digitalisasi UMKM & Ekonomi Desa', shortLabel: 'Digitalisasi UMKM', icon: Laptop, count: 38 },
+  { key: 'kesehatan', label: 'Kesehatan Masyarakat & Gizi', shortLabel: 'Kesehatan & Gizi', icon: HeartPulse, count: 29 },
+  { key: 'pendidikan', label: 'Pendidikan & Literasi Desa', shortLabel: 'Pendidikan & Literasi', icon: BookOpen, count: 19 },
+  { key: 'infrastruktur', label: 'Tata Kelola & Infrastruktur', shortLabel: 'Tata Kelola & Infrastruktur', icon: Building, count: 15 },
+  { key: 'lingkungan', label: 'Lingkungan Hidup & Ekowisata', shortLabel: 'Lingkungan & Wisata', icon: Globe2, count: 12 },
+];
+
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState('all');
+  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
+  const [showSectorDropdown, setShowSectorDropdown] = useState(false);
+  const sectorContainerRef = useRef<HTMLDivElement>(null);
+
   const [selectedProgramType, setSelectedProgramType] = useState('all');
   const [selectedDuration, setSelectedDuration] = useState('all');
   const [isExpandModalOpen, setIsExpandModalOpen] = useState(false);
   const [searchLocation, setSearchLocation] = useState('');
   const [searchJurusan, setSearchJurusan] = useState('');
 
-  // Location Autocomplete State (Emsifa / API Indonesia)
+  // Location Autocomplete State (Kemendagri / API Indonesia with Full Hierarchy)
   const [locationSuggestions, setLocationSuggestions] = useState<any[]>([]);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
@@ -80,7 +93,7 @@ export default function HomePage() {
         const res = await fetch(`/api/wilayah/search?q=${encodeURIComponent(searchLocation.trim())}`);
         const data = await res.json();
         if (data && data.success && Array.isArray(data.data)) {
-          setLocationSuggestions(data.data.slice(0, 7));
+          setLocationSuggestions(data.data.slice(0, 8));
           setShowLocationDropdown(true);
         } else {
           setLocationSuggestions([]);
@@ -101,6 +114,9 @@ export default function HomePage() {
       if (locationContainerRef.current && !locationContainerRef.current.contains(e.target as Node)) {
         setShowLocationDropdown(false);
       }
+      if (sectorContainerRef.current && !sectorContainerRef.current.contains(e.target as Node)) {
+        setShowSectorDropdown(false);
+      }
       if (jurusanContainerRef.current && !jurusanContainerRef.current.contains(e.target as Node)) {
         setShowJurusanDropdown(false);
       }
@@ -109,17 +125,28 @@ export default function HomePage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Filtered academic majors based on input & active sector
+  // Toggle multiple sector selection
+  const toggleSector = (key: string) => {
+    if (selectedSectors.includes(key)) {
+      setSelectedSectors(selectedSectors.filter((s) => s !== key));
+    } else {
+      setSelectedSectors([...selectedSectors, key]);
+    }
+  };
+
+  // Filtered academic majors based on input & sector
   const filteredMajors = useMemo(() => {
     const q = searchJurusan.toLowerCase().trim();
     return INDONESIA_POPULAR_MAJORS.filter((m) => {
-      const matchSector = activeTab === 'all' || m.sectorKey === activeTab || m.sectorKey === 'all';
+      const matchSector =
+        selectedSectors.length === 0 ||
+        selectedSectors.some((sec) => m.sectorKey === sec || m.sectorKey === 'all');
       if (!q) return matchSector;
       const matchName = m.name.toLowerCase().includes(q) || m.category.toLowerCase().includes(q);
       const matchKeyword = m.keywords.some((k) => k.toLowerCase().includes(q));
       return matchName || matchKeyword;
-    }).slice(0, 6);
-  }, [searchJurusan, activeTab]);
+    }).slice(0, 7);
+  }, [searchJurusan, selectedSectors]);
 
   const exploreRegions = [
     {
@@ -172,6 +199,9 @@ export default function HomePage() {
       >
         {/* BGhero background overlay for readability */}
         <div aria-hidden className="absolute inset-0 bg-white/25 dark:bg-[#071629]/75 pointer-events-none" />
+
+        {/* Indonesia Vector Map Backdrop with Glowing Hubs and Network Arcs */}
+        <IndonesiaMapBackdrop />
         
         {/* Ultra-realistic bioluminescent fireflies effect (Dark Mode Only) */}
         <HeroFireflies count={28} />
@@ -207,9 +237,14 @@ export default function HomePage() {
                   <span className="text-xs sm:text-sm font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight truncate">
                     Eksplorasi Pos KKN Mahasiswa
                   </span>
-                  {activeTab !== 'all' && (
-                    <span className="hidden sm:inline-flex items-center text-[10px] font-bold bg-primary-50 dark:bg-primary-950/80 text-primary dark:text-primary-300 px-2 py-0.5 rounded-full border border-primary-200 dark:border-primary-800 capitalize">
-                      Sektor: {activeTab}
+                  {selectedSectors.length > 0 && (
+                    <span className="hidden sm:inline-flex items-center text-[10px] font-bold bg-primary-50 dark:bg-primary-950/80 text-primary dark:text-primary-300 px-2 py-0.5 rounded-full border border-primary-200 dark:border-primary-800">
+                      {selectedSectors.length} Sektor Dipilih
+                    </span>
+                  )}
+                  {searchJurusan && (
+                    <span className="hidden md:inline-flex items-center text-[10px] font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 truncate max-w-[150px]">
+                      Prodi: {searchJurusan}
                     </span>
                   )}
                 </div>
@@ -229,7 +264,7 @@ export default function HomePage() {
                   >
                     <SlidersHorizontal className="w-3.5 h-3.5" />
                     <span>Expand Filter</span>
-                    {(activeTab !== 'all' || selectedProgramType !== 'all' || selectedDuration !== 'all') && (
+                    {(selectedSectors.length > 0 || searchJurusan || selectedProgramType !== 'all' || selectedDuration !== 'all') && (
                       <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                     )}
                   </button>
@@ -238,7 +273,7 @@ export default function HomePage() {
 
               {/* Main Compact Input Fields Grid */}
               <div className="relative z-10 grid grid-cols-1 sm:grid-cols-12 gap-2.5 sm:gap-3 items-stretch">
-                {/* 1. Wilayah / Target Desa (With Emsifa / API Indonesia Autocomplete Dropdown) */}
+                {/* 1. Wilayah / Target Desa (With Full Hierarchy Autocomplete Dropdown) */}
                 <div
                   ref={locationContainerRef}
                   className="sm:col-span-5 relative bg-slate-50/90 dark:bg-navy-950 p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between"
@@ -270,27 +305,27 @@ export default function HomePage() {
                       onFocus={() => {
                         if (locationSuggestions.length > 0) setShowLocationDropdown(true);
                       }}
-                      placeholder="Ketik desa, kec, atau kab/kota..."
-                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none pr-6"
+                      placeholder="Ketik nama desa, kec, kab/kota..."
+                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none pr-6 truncate"
                     />
                     {isLoadingLocation && (
                       <Loader2 className="w-3.5 h-3.5 text-primary animate-spin absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
                     )}
                   </div>
 
-                  {/* Dropdown Suggestions for Wilayah */}
+                  {/* Dropdown Suggestions for Wilayah with Full Hierarchy */}
                   {showLocationDropdown && locationSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-64 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
                       <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
                         <span>PILIH WILAYAH RESMI KEMENDAGRI</span>
-                        <span className="text-primary font-mono">emsifa / apiindonesia</span>
+                        <span className="text-emerald-600 font-mono">38 Provinsi</span>
                       </div>
                       {locationSuggestions.map((item) => (
                         <button
                           key={item.kode}
                           type="button"
                           onClick={() => {
-                            setSearchLocation(item.nama);
+                            setSearchLocation(item.nama_lengkap || item.nama);
                             setShowLocationDropdown(false);
                           }}
                           className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
@@ -305,10 +340,10 @@ export default function HomePage() {
                             />
                             <div className="truncate">
                               <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors truncate">
-                                {item.nama}
+                                {item.nama_lengkap || item.nama}
                               </h5>
                               <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                                {item.level} • Kode: {item.kode} {item.kodepos ? `• Pos: ${item.kodepos}` : ''}
+                                {item.level} {item.kodepos ? `• Pos: ${item.kodepos}` : ''}
                               </p>
                             </div>
                           </div>
@@ -319,67 +354,91 @@ export default function HomePage() {
                   )}
                 </div>
 
-                {/* 2. Program Studi / Jurusan (With Major Autocomplete Dropdown) */}
+                {/* 2. Tema / Sektor Pengabdian (Multi-Sektor Selection) */}
                 <div
-                  ref={jurusanContainerRef}
+                  ref={sectorContainerRef}
                   className="sm:col-span-4 relative bg-slate-50/90 dark:bg-navy-950 p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between">
                     <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-amber-500" />
-                      Program Studi / Jurusan
+                      <Layers className="w-3 h-3 text-emerald-500" />
+                      Tema / Sektor Pengabdian
                     </span>
-                    {searchJurusan && (
+                    {selectedSectors.length > 0 && (
                       <button
                         type="button"
-                        onClick={() => {
-                          setSearchJurusan('');
-                          setShowJurusanDropdown(false);
-                        }}
-                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                        title="Hapus jurusan"
+                        onClick={() => setSelectedSectors([])}
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-[10px] font-semibold"
+                        title="Reset sektor"
                       >
                         <X className="w-3 h-3" />
                       </button>
                     )}
                   </div>
-                  <input
-                    type="text"
-                    value={searchJurusan}
-                    onChange={(e) => setSearchJurusan(e.target.value)}
-                    onFocus={() => setShowJurusanDropdown(true)}
-                    placeholder="Contoh: Informatika, Gizi, Pertanian..."
-                    className="w-full bg-transparent text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none mt-0.5"
-                  />
+                  
+                  <button
+                    type="button"
+                    onClick={() => setShowSectorDropdown(!showSectorDropdown)}
+                    className="w-full text-left flex items-center justify-between mt-0.5 focus:outline-none"
+                  >
+                    <span className="text-xs sm:text-sm font-semibold text-navy-950 dark:text-white truncate">
+                      {selectedSectors.length === 0
+                        ? 'Semua Sektor (Bisa Pilih Banyak)'
+                        : selectedSectors.length === 1
+                        ? SECTOR_OPTIONS.find((s) => s.key === selectedSectors[0])?.shortLabel || selectedSectors[0]
+                        : `${selectedSectors.length} Sektor Terpilih`}
+                    </span>
+                    <span className="text-slate-400 dark:text-slate-500 text-[10px] ml-1 shrink-0">
+                      ▼
+                    </span>
+                  </button>
 
-                  {/* Dropdown Suggestions for Jurusan */}
-                  {showJurusanDropdown && filteredMajors.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-64 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
+                  {/* Multi-Sector Dropdown Selection Menu */}
+                  {showSectorDropdown && (
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
                       <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
-                        <span>PROGRAM STUDI STANDAR NASIONAL</span>
-                        <span className="text-emerald-600 font-mono">PDDikti / Kemdiktisaintek</span>
-                      </div>
-                      {filteredMajors.map((major) => (
+                        <span>PILIH SEKTOR (MULTI-PILIHAN)</span>
                         <button
-                          key={major.id}
                           type="button"
-                          onClick={() => {
-                            setSearchJurusan(major.name);
-                            setShowJurusanDropdown(false);
-                          }}
-                          className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
+                          onClick={() => setSelectedSectors([])}
+                          className="text-primary hover:underline"
                         >
-                          <div>
-                            <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors">
-                              {major.name}
-                            </h5>
-                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                              Bidang: {major.category}
-                            </span>
-                          </div>
-                          <Check className="w-3.5 h-3.5 text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          Semua Sektor
                         </button>
-                      ))}
+                      </div>
+                      {SECTOR_OPTIONS.map((sec) => {
+                        const Icon = sec.icon;
+                        const isChecked = selectedSectors.includes(sec.key);
+                        return (
+                          <button
+                            key={sec.key}
+                            type="button"
+                            onClick={() => toggleSector(sec.key)}
+                            className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between transition-colors ${
+                              isChecked
+                                ? 'bg-primary-50/70 dark:bg-primary-950/40 text-primary dark:text-primary-300'
+                                : 'hover:bg-slate-50 dark:hover:bg-navy-800 text-slate-700 dark:text-slate-300'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div
+                                className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                                  isChecked
+                                    ? 'bg-primary border-primary text-white'
+                                    : 'border-slate-300 dark:border-navy-600 bg-white dark:bg-navy-950'
+                                }`}
+                              >
+                                {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                              </div>
+                              <Icon className="w-4 h-4 shrink-0 text-slate-400 group-hover:text-primary" />
+                              <span className="text-xs font-semibold truncate">{sec.label}</span>
+                            </div>
+                            <span className="text-[10px] px-1.5 py-0.2 rounded-md font-mono bg-slate-100 dark:bg-navy-800 text-slate-500 dark:text-slate-400 shrink-0 ml-2">
+                              {sec.count}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -390,8 +449,8 @@ export default function HomePage() {
                     href={`/search?q=${encodeURIComponent(
                       [
                         searchLocation,
+                        selectedSectors.join(' '),
                         searchJurusan,
-                        activeTab !== 'all' ? activeTab : '',
                         selectedProgramType !== 'all' ? selectedProgramType : '',
                         selectedDuration !== 'all' ? selectedDuration : '',
                       ]
@@ -417,7 +476,7 @@ export default function HomePage() {
           </div>
 
           {/* ========================================================================= */}
-          {/* EXPAND FILTER POPUP MODAL */}
+          {/* EXPAND FILTER POPUP MODAL (With Program Studi / Jurusan & Advance Options) */}
           {/* ========================================================================= */}
           {isExpandModalOpen && (
             <div
@@ -439,7 +498,7 @@ export default function HomePage() {
                         Filter Lengkap Pos KKN
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Sesuaikan kriteria pencarian pos KKN sesuai kebutuhan
+                        Sesuaikan jurusan akademik dan parameter pengabdian
                       </p>
                     </div>
                   </div>
@@ -452,47 +511,90 @@ export default function HomePage() {
                   </button>
                 </div>
 
-                {/* Section 1: Tema / Sektor Pengabdian */}
+                {/* Section 1: Program Studi / Jurusan (Autocomplete PDDikti) */}
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider block">
-                    Tema / Sektor Pengabdian:
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    Program Studi / Jurusan Akademik:
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {[
-                      { key: 'all', label: 'Semua Sektor', icon: Globe2, badge: '128' },
-                      { key: 'agrikultur', label: 'Agrikultur & Pangan', icon: Sprout, badge: '42' },
-                      { key: 'digitalisasi', label: 'Digitalisasi UMKM', icon: Laptop, badge: '38' },
-                      { key: 'kesehatan', label: 'Kesehatan & Gizi', icon: HeartPulse, badge: '29' },
-                      { key: 'pendidikan', label: 'Pendidikan & Literasi', icon: BookOpen, badge: '19' },
-                      { key: 'infrastruktur', label: 'Tata Kelola & Infrastruktur', icon: Building, badge: '15' },
-                    ].map((tab) => {
-                      const Icon = tab.icon;
-                      const isSelected = activeTab === tab.key;
-                      return (
+                  <div ref={jurusanContainerRef} className="relative">
+                    <div className="relative bg-slate-50 dark:bg-navy-950 p-2.5 rounded-2xl border border-slate-200 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex items-center justify-between">
+                      <input
+                        type="text"
+                        value={searchJurusan}
+                        onChange={(e) => setSearchJurusan(e.target.value)}
+                        onFocus={() => setShowJurusanDropdown(true)}
+                        placeholder="Ketik jurusan (contoh: Informatika, Gizi, Pertanian, Hukum...)"
+                        className="w-full bg-transparent text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none pr-6"
+                      />
+                      {searchJurusan && (
                         <button
-                          key={tab.key}
                           type="button"
-                          onClick={() => setActiveTab(tab.key)}
-                          className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-semibold text-left transition-all border ${
-                            isSelected
-                              ? 'bg-navy-900 dark:bg-primary text-white border-navy-900 dark:border-primary shadow-sm'
-                              : 'bg-slate-50 dark:bg-navy-950 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-navy-800 hover:bg-slate-100 dark:hover:bg-navy-800'
-                          }`}
+                          onClick={() => setSearchJurusan('')}
+                          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
                         >
-                          <Icon className="w-4 h-4 shrink-0" />
-                          <span className="truncate flex-1">{tab.label}</span>
-                          <span
-                            className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
-                              isSelected
-                                ? 'bg-white/20 text-white font-bold'
-                                : 'bg-slate-200/80 dark:bg-navy-800 text-slate-500 dark:text-slate-400'
-                            }`}
-                          >
-                            {tab.badge}
-                          </span>
+                          <X className="w-3.5 h-3.5" />
                         </button>
-                      );
-                    })}
+                      )}
+                    </div>
+
+                    {/* Autocomplete Dropdown for Jurusan */}
+                    {showJurusanDropdown && filteredMajors.length > 0 && (
+                      <div className="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-56 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
+                        <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
+                          <span>STANDAR PDDikti / KEMDIKTISAINTEK</span>
+                          <span className="text-emerald-600 font-mono">Resmi</span>
+                        </div>
+                        {filteredMajors.map((major) => (
+                          <button
+                            key={major.id}
+                            type="button"
+                            onClick={() => {
+                              setSearchJurusan(major.name);
+                              setShowJurusanDropdown(false);
+                            }}
+                            className="w-full text-left px-3.5 py-2 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
+                          >
+                            <div>
+                              <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors">
+                                {major.name}
+                              </h5>
+                              <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                                Bidang: {major.category}
+                              </span>
+                            </div>
+                            <Check className="w-3.5 h-3.5 text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Chips for Popular Majors */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {[
+                      'Teknik Informatika',
+                      'Agribisnis',
+                      'Ilmu Gizi',
+                      'Manajemen Bisnis',
+                      'Pendidikan SD',
+                      'DKV & Desain',
+                      'Ilmu Hukum',
+                      'Teknik Sipil',
+                    ].map((chip) => (
+                      <button
+                        key={chip}
+                        type="button"
+                        onClick={() => setSearchJurusan(chip)}
+                        className={`text-[11px] px-2.5 py-1 rounded-lg border transition-colors ${
+                          searchJurusan === chip
+                            ? 'bg-primary text-white border-primary font-bold'
+                            : 'bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-navy-700 hover:bg-slate-200 dark:hover:bg-navy-700'
+                        }`}
+                      >
+                        {chip}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
@@ -563,7 +665,8 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setActiveTab('all');
+                      setSelectedSectors([]);
+                      setSearchJurusan('');
                       setSelectedProgramType('all');
                       setSelectedDuration('all');
                     }}
@@ -584,8 +687,8 @@ export default function HomePage() {
                       href={`/search?q=${encodeURIComponent(
                         [
                           searchLocation,
+                          selectedSectors.join(' '),
                           searchJurusan,
-                          activeTab !== 'all' ? activeTab : '',
                           selectedProgramType !== 'all' ? selectedProgramType : '',
                           selectedDuration !== 'all' ? selectedDuration : '',
                         ]
