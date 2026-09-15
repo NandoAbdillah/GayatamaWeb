@@ -272,9 +272,6 @@ export default function HomePage() {
         {/* Background Overlay */}
         <div aria-hidden className="absolute inset-0 bg-white/20 dark:bg-[#071629]/75 pointer-events-none" />
 
-        {/* Indonesia Vector Map Backdrop with Glowing Hubs and Network Arcs */}
-        <IndonesiaMapBackdrop />
-
         {/* Bioluminescent fireflies effect (Dark Mode Only) */}
         <HeroFireflies count={28} />
 
@@ -786,8 +783,11 @@ export default function HomePage() {
         {/* ========================================================================= */}
         {/* 2. PROBLEM SECTION ("KKN Masih Terfragmentasi") */}
         {/* ========================================================================= */}
-        <section className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12 sm:space-y-14">
-          <div className="text-center max-w-3xl mx-auto space-y-3">
+        <section className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-full mx-auto space-y-12 sm:space-y-14">
+          {/* Indonesia Vector Map Backdrop - Shifted to Top-Right with Seamless Feathering */}
+          <IndonesiaMapBackdrop position="top-right" className="opacity-95" />
+
+          <div className="relative z-10 text-center max-w-3xl mx-auto space-y-3">
             <span className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
               {tProblem('badge')}
             </span>
@@ -799,7 +799,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
                 icon: AlertCircle,
@@ -853,7 +853,7 @@ export default function HomePage() {
           </div>
 
           {/* Transition Banner */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-50/95 via-teal-50/95 to-sky-50/95 dark:from-navy-900/95 dark:via-navy-900/95 dark:to-navy-950/95 border border-emerald-200/80 dark:border-emerald-800/60 shadow-md text-center max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md">
+          <div className="relative z-10 p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-50/95 via-teal-50/95 to-sky-50/95 dark:from-navy-900/95 dark:via-navy-900/95 dark:to-navy-950/95 border border-emerald-200/80 dark:border-emerald-800/60 shadow-md text-center max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md">
             <div className="flex items-center gap-3.5 text-left">
               <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
                 <CheckCircle2 className="w-5 h-5" />
@@ -863,7 +863,7 @@ export default function HomePage() {
                   {tProblem('transition')}
                 </h4>
                 <p className="text-xs text-slate-600 dark:text-slate-400 font-jakarta">
-                  Dari aspirasi warga desa $\rightarrow$ pencarian cerdas $\rightarrow$ validasi $\rightarrow$ pelaksanaan $\rightarrow$ pembuktian dampak.
+                  Dari aspirasi warga desa → pencarian cerdas → validasi → pelaksanaan → pembuktian dampak.
                 </p>
               </div>
             </div>
