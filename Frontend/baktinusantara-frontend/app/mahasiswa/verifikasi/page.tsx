@@ -75,7 +75,7 @@ export default function MahasiswaVerifikasiIdentitasPage() {
 
   return (
     <DashboardLayout title="Verifikasi Identitas & Biometrik Mahasiswa">
-      <div className="space-y-6 max-w-4xl">
+      <div className="space-y-6 w-full">
         <div>
           <h1 className="text-2xl font-black text-navy-950 dark:text-white font-epilogue">
             Verifikasi Identitas Resmi Mahasiswa

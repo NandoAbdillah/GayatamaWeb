@@ -106,7 +106,7 @@ export default function MahasiswaLokasiPage() {
 
   return (
     <DashboardLayout title="Presensi & Verifikasi Spasial Mahasiswa">
-      <div className="space-y-6 max-w-5xl">
+      <div className="space-y-6 w-full">
         <div>
           <h1 className="text-2xl font-black text-navy-950 dark:text-white font-epilogue">
             Verifikasi Lokasi & Check-In Posko KKN

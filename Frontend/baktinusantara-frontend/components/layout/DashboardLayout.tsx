@@ -76,13 +76,22 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: stri
         </main>
       </div>
 
-      {/* Toggle button di perbatasan garis sidebar - GPU accelerated transform, tidak memengaruhi layout */}
+      {/* Backdrop untuk mobile - tutup sidebar saat klik di luar */}
+      {!collapsed && (
+        <div
+          className="fixed inset-0 top-[61px] bg-black/40 backdrop-blur-sm z-10 lg:hidden"
+          onClick={() => setCollapsed(true)}
+          aria-hidden
+        />
+      )}
+
+      {/* Toggle button di perbatasan garis sidebar - menempel, responsive semua ukuran */}
       <button
         onClick={() => setCollapsed((v) => !v)}
         aria-label={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
         title={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
-        className={`hidden lg:flex fixed top-[72px] left-0 z-30 w-8 h-8 items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 shadow-md text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-navy-800 hover:text-navy-900 dark:hover:text-white will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-          collapsed ? 'translate-x-[56px]' : 'translate-x-[240px]'
+        className={`flex fixed top-[72px] left-0 z-30 w-8 h-8 items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 shadow-md text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-navy-800 hover:text-navy-900 dark:hover:text-white will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          collapsed ? 'translate-x-[12px] lg:translate-x-[56px]' : 'translate-x-[240px]'
         }`}
       >
         <PanelLeftClose

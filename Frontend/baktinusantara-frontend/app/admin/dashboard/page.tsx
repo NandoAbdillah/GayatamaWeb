@@ -31,7 +31,7 @@ export default function AdminDashboard() {
         <div className="rounded-3xl bg-gradient-to-r from-navy-950 via-slate-900 to-primary-950 text-white p-6 sm:p-8 shadow-ambient-lg relative overflow-hidden">
           <div className="relative z-10 max-w-2xl space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-primary-200">
-              <Sparkles className="w-3.5 h-3.5" /> Dashboard Monev LPPM Universitas
+              Dashboard Monev LPPM Universitas
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold font-epilogue">
               Sistem Monitoring & Evaluasi KKN
