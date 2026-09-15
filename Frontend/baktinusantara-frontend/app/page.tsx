@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { HeroFireflies } from '@/components/ui/HeroFireflies';
+import { RegionLogo } from '@/components/ui/RegionLogo';
+import { INDONESIA_POPULAR_MAJORS } from '@/data/indonesia-majors';
 import { useDashboardMetrics, usePosKebutuhan } from '@/hooks';
 import { useTranslations } from 'next-intl';
 import {
@@ -24,16 +26,35 @@ import {
   Globe2,
   FileCheck2,
   GraduationCap,
-  Target,
   BookOpen,
   Compass,
   X,
+  Loader2,
+  ChevronRight,
+  Check,
+  SlidersHorizontal,
+  Sliders,
+  Clock,
+  Layers,
 } from 'lucide-react';
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState('Semua');
+  const [activeTab, setActiveTab] = useState('all');
+  const [selectedProgramType, setSelectedProgramType] = useState('all');
+  const [selectedDuration, setSelectedDuration] = useState('all');
+  const [isExpandModalOpen, setIsExpandModalOpen] = useState(false);
   const [searchLocation, setSearchLocation] = useState('');
   const [searchJurusan, setSearchJurusan] = useState('');
+
+  // Location Autocomplete State (Emsifa / API Indonesia)
+  const [locationSuggestions, setLocationSuggestions] = useState<any[]>([]);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const locationContainerRef = useRef<HTMLDivElement>(null);
+
+  // Major / Jurusan Autocomplete State (PDDikti / API Indonesia Standard)
+  const [showJurusanDropdown, setShowJurusanDropdown] = useState(false);
+  const jurusanContainerRef = useRef<HTMLDivElement>(null);
 
   const { metrics } = useDashboardMetrics();
   const { items: posKebutuhanList } = usePosKebutuhan();
@@ -44,6 +65,61 @@ export default function HomePage() {
   const tTechnology = useTranslations('technology');
   const tOpportunities = useTranslations('opportunities');
   const tCta = useTranslations('cta');
+
+  // Debounced live search for Indonesian regions (Desa, Kec, Kab, Prov)
+  useEffect(() => {
+    if (!searchLocation || searchLocation.trim().length < 2) {
+      setLocationSuggestions([]);
+      setIsLoadingLocation(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsLoadingLocation(true);
+      try {
+        const res = await fetch(`/api/wilayah/search?q=${encodeURIComponent(searchLocation.trim())}`);
+        const data = await res.json();
+        if (data && data.success && Array.isArray(data.data)) {
+          setLocationSuggestions(data.data.slice(0, 7));
+          setShowLocationDropdown(true);
+        } else {
+          setLocationSuggestions([]);
+        }
+      } catch (err) {
+        console.warn('Location search error:', err);
+      } finally {
+        setIsLoadingLocation(false);
+      }
+    }, 280);
+
+    return () => clearTimeout(timer);
+  }, [searchLocation]);
+
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (locationContainerRef.current && !locationContainerRef.current.contains(e.target as Node)) {
+        setShowLocationDropdown(false);
+      }
+      if (jurusanContainerRef.current && !jurusanContainerRef.current.contains(e.target as Node)) {
+        setShowJurusanDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Filtered academic majors based on input & active sector
+  const filteredMajors = useMemo(() => {
+    const q = searchJurusan.toLowerCase().trim();
+    return INDONESIA_POPULAR_MAJORS.filter((m) => {
+      const matchSector = activeTab === 'all' || m.sectorKey === activeTab || m.sectorKey === 'all';
+      if (!q) return matchSector;
+      const matchName = m.name.toLowerCase().includes(q) || m.category.toLowerCase().includes(q);
+      const matchKeyword = m.keywords.some((k) => k.toLowerCase().includes(q));
+      return matchName || matchKeyword;
+    }).slice(0, 6);
+  }, [searchJurusan, activeTab]);
 
   const exploreRegions = [
     {
@@ -97,22 +173,18 @@ export default function HomePage() {
         {/* BGhero background overlay for readability */}
         <div aria-hidden className="absolute inset-0 bg-white/25 dark:bg-[#071629]/75 pointer-events-none" />
         
-        {/* Ultra-realistic bioluminescent fireflies effect */}
+        {/* Ultra-realistic bioluminescent fireflies effect (Dark Mode Only) */}
         <HeroFireflies count={28} />
 
         {/* Subtle Ambient Radial Glow (Clean, Non-Intrusive) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[850px] h-[400px] sm:h-[500px] bg-gradient-to-tr from-primary/8 via-emerald-500/6 to-sky-400/8 blur-[120px] pointer-events-none rounded-full" />
 
         <div className="relative z-10 w-full max-w-5xl xl:max-w-[1100px] 2xl:max-w-[1200px] mx-auto text-center space-y-6 sm:space-y-7 my-auto px-4 sm:px-0">
-          {/* Top Pill Announcement */}
-
           {/* Big Authoritative Headline with Epilogue Font */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight leading-[1.12]">
             {tHero('titleLine1')} <br />
-            {/* <span className="text-primary-600 dark:text-primary-400">{tHero('titleAction')}</span> {tHero('titleWith')}{' '} */}
             <span className="text-secondary-600 dark:text-secondary-400">{tHero('titleAction')}</span> {tHero('titleWith')}{' '}
             <span className="text-primary-600 dark:text-primary-400">{tHero('titleImpact')}</span>
-            {/* <span className="text-secondary-600 dark:text-secondary-400">{tHero('titleImpact')}</span> */}
           </h1>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-600 dark:text-slate-300 font-jakarta leading-relaxed">
@@ -120,104 +192,69 @@ export default function HomePage() {
           </p>
 
           {/* ========================================================================= */}
-          {/* SEARCH CARD (Clean multi-input card) */}
           {/* ========================================================================= */}
+          {/* SEARCH & DISCOVERY CARD (Sleek, Compact Low-Profile with Expand Filter) */}
           {/* ========================================================================= */}
-          {/* SEARCH & DISCOVERY CARD (Student-Centric KKN Exploration Box) */}
-          {/* ========================================================================= */}
-          <div className="relative z-20 max-w-4xl xl:max-w-5xl mx-auto pt-2 sm:pt-4 text-left">
-            <div className="relative z-20 bg-white/95 dark:bg-navy-900/95 rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl p-4 sm:p-6 space-y-4 sm:space-y-5 backdrop-blur-xl">
+          <div className="relative z-20 max-w-4xl xl:max-w-5xl mx-auto pt-1 sm:pt-2 text-left">
+            <div className="relative z-20 bg-white/95 dark:bg-navy-900/95 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-xl p-3.5 sm:p-4.5 lg:p-5 space-y-3 sm:space-y-3.5 backdrop-blur-xl">
               
-              {/* Top Student Context Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-navy-800">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 dark:bg-emerald-400/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                    <GraduationCap className="w-4 h-4" />
+              {/* Slim Top Header Bar */}
+              <div className="relative z-10 flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-navy-800/80">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-6 h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-400/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <GraduationCap className="w-3.5 h-3.5" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-navy-950 dark:text-white font-epilogue">
-                        Eksplorasi Pos KKN Mahasiswa
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-300/60 dark:border-emerald-700/60">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        128+ Pos Terbuka
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                      Cari kebutuhan desa berdasarkan lokasi dan jurusanmu untuk rekomendasi terbaik
-                    </p>
-                  </div>
-                </div>
-
-                <Link
-                  href="/maps"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-600 transition-colors bg-primary-50 dark:bg-primary-950/60 px-3 py-1.5 rounded-xl border border-primary-200/60 dark:border-primary-800/60 shrink-0 self-start sm:self-auto"
-                >
-                  <Compass className="w-3.5 h-3.5" />
-                  <span>Lihat di Peta Interaktif</span>
-                  <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-
-              {/* Category Selector Tabs */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                    Pilih Tema / Sektor Pengabdian:
+                  <span className="text-xs sm:text-sm font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight truncate">
+                    Eksplorasi Pos KKN Mahasiswa
                   </span>
+                  {activeTab !== 'all' && (
+                    <span className="hidden sm:inline-flex items-center text-[10px] font-bold bg-primary-50 dark:bg-primary-950/80 text-primary dark:text-primary-300 px-2 py-0.5 rounded-full border border-primary-200 dark:border-primary-800 capitalize">
+                      Sektor: {activeTab}
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  {[
-                    { key: 'all', label: 'Semua Sektor', icon: Globe2, badge: '128' },
-                    { key: 'agrikultur', label: 'Agrikultur & Pangan', icon: Sprout, badge: '42' },
-                    { key: 'digitalisasi', label: 'Digitalisasi UMKM', icon: Laptop, badge: '38' },
-                    { key: 'kesehatan', label: 'Kesehatan & Gizi', icon: HeartPulse, badge: '29' },
-                    { key: 'pendidikan', label: 'Pendidikan & Literasi', icon: BookOpen, badge: '19' },
-                  ].map((tab) => {
-                    const Icon = tab.icon;
-                    const isActive = activeTab === tab.key;
-                    return (
-                      <button
-                        key={tab.key}
-                        type="button"
-                        onClick={() => setActiveTab(tab.key)}
-                        className={`flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
-                          isActive
-                            ? 'bg-navy-900 dark:bg-primary text-white border-navy-900 dark:border-primary shadow-md'
-                            : 'bg-slate-50 dark:bg-navy-950/80 text-slate-600 dark:text-slate-300 border-slate-200/80 dark:border-navy-800 hover:bg-slate-100 dark:hover:bg-navy-800 hover:text-navy-900 dark:hover:text-white'
-                        }`}
-                      >
-                        <Icon className="w-3.5 h-3.5 shrink-0" />
-                        <span>{tab.label}</span>
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
-                            isActive
-                              ? 'bg-white/20 text-white font-bold'
-                              : 'bg-slate-200/80 dark:bg-navy-800 text-slate-500 dark:text-slate-400'
-                          }`}
-                        >
-                          {tab.badge}
-                        </span>
-                      </button>
-                    );
-                  })}
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <Link
+                    href="/maps"
+                    className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary-400 transition-colors px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-navy-800"
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    <span>Peta</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setIsExpandModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-primary dark:text-primary-400 bg-primary-50/90 dark:bg-primary-950/70 hover:bg-primary-100 dark:hover:bg-primary-900/90 border border-primary-200/80 dark:border-primary-800/80 transition-all shadow-xs"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                    <span>Expand Filter</span>
+                    {(activeTab !== 'all' || selectedProgramType !== 'all' || selectedDuration !== 'all') && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    )}
+                  </button>
                 </div>
               </div>
 
-              {/* Main Input Fields Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-stretch">
-                {/* 1. Lokasi Target */}
-                <div className="sm:col-span-5 bg-slate-50/90 dark:bg-navy-950 p-3 sm:p-3.5 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between">
+              {/* Main Compact Input Fields Grid */}
+              <div className="relative z-10 grid grid-cols-1 sm:grid-cols-12 gap-2.5 sm:gap-3 items-stretch">
+                {/* 1. Wilayah / Target Desa (With Emsifa / API Indonesia Autocomplete Dropdown) */}
+                <div
+                  ref={locationContainerRef}
+                  className="sm:col-span-5 relative bg-slate-50/90 dark:bg-navy-950 p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between"
+                >
                   <div className="flex items-center justify-between">
                     <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-rose-500" />
-                      1. Wilayah / Target Desa
+                      Wilayah / Target Desa
                     </span>
                     {searchLocation && (
                       <button
                         type="button"
-                        onClick={() => setSearchLocation('')}
+                        onClick={() => {
+                          setSearchLocation('');
+                          setLocationSuggestions([]);
+                        }}
                         className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         title="Hapus lokasi"
                       >
@@ -225,26 +262,80 @@ export default function HomePage() {
                       </button>
                     )}
                   </div>
-                  <input
-                    type="text"
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                    placeholder="Ketik desa, kec, atau kab/kota..."
-                    className="w-full bg-transparent text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none mt-1"
-                  />
+                  <div className="relative mt-0.5">
+                    <input
+                      type="text"
+                      value={searchLocation}
+                      onChange={(e) => setSearchLocation(e.target.value)}
+                      onFocus={() => {
+                        if (locationSuggestions.length > 0) setShowLocationDropdown(true);
+                      }}
+                      placeholder="Ketik desa, kec, atau kab/kota..."
+                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none pr-6"
+                    />
+                    {isLoadingLocation && (
+                      <Loader2 className="w-3.5 h-3.5 text-primary animate-spin absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    )}
+                  </div>
+
+                  {/* Dropdown Suggestions for Wilayah */}
+                  {showLocationDropdown && locationSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-64 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
+                      <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
+                        <span>PILIH WILAYAH RESMI KEMENDAGRI</span>
+                        <span className="text-primary font-mono">emsifa / apiindonesia</span>
+                      </div>
+                      {locationSuggestions.map((item) => (
+                        <button
+                          key={item.kode}
+                          type="button"
+                          onClick={() => {
+                            setSearchLocation(item.nama);
+                            setShowLocationDropdown(false);
+                          }}
+                          className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <RegionLogo
+                              code={item.kode}
+                              name={item.nama}
+                              size="xs"
+                              showBadge={true}
+                              customUrl={item.logo_url || undefined}
+                            />
+                            <div className="truncate">
+                              <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors truncate">
+                                {item.nama}
+                              </h5>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                                {item.level} • Kode: {item.kode} {item.kodepos ? `• Pos: ${item.kodepos}` : ''}
+                              </p>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-primary shrink-0 transition-colors" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* 2. Jurusan / Keahlian Mahasiswa */}
-                <div className="sm:col-span-4 bg-slate-50/90 dark:bg-navy-950 p-3 sm:p-3.5 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between">
+                {/* 2. Program Studi / Jurusan (With Major Autocomplete Dropdown) */}
+                <div
+                  ref={jurusanContainerRef}
+                  className="sm:col-span-4 relative bg-slate-50/90 dark:bg-navy-950 p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between"
+                >
                   <div className="flex items-center justify-between">
                     <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
                       <Sparkles className="w-3 h-3 text-amber-500" />
-                      2. Jurusan / Prodi Kamu
+                      Program Studi / Jurusan
                     </span>
                     {searchJurusan && (
                       <button
                         type="button"
-                        onClick={() => setSearchJurusan('')}
+                        onClick={() => {
+                          setSearchJurusan('');
+                          setShowJurusanDropdown(false);
+                        }}
                         className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         title="Hapus jurusan"
                       >
@@ -256,16 +347,54 @@ export default function HomePage() {
                     type="text"
                     value={searchJurusan}
                     onChange={(e) => setSearchJurusan(e.target.value)}
-                    placeholder="Contoh: Informatika, Gizi, Agribisnis..."
-                    className="w-full bg-transparent text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none mt-1"
+                    onFocus={() => setShowJurusanDropdown(true)}
+                    placeholder="Contoh: Informatika, Gizi, Pertanian..."
+                    className="w-full bg-transparent text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none mt-0.5"
                   />
+
+                  {/* Dropdown Suggestions for Jurusan */}
+                  {showJurusanDropdown && filteredMajors.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-64 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
+                      <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
+                        <span>PROGRAM STUDI STANDAR NASIONAL</span>
+                        <span className="text-emerald-600 font-mono">PDDikti / Kemdiktisaintek</span>
+                      </div>
+                      {filteredMajors.map((major) => (
+                        <button
+                          key={major.id}
+                          type="button"
+                          onClick={() => {
+                            setSearchJurusan(major.name);
+                            setShowJurusanDropdown(false);
+                          }}
+                          className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
+                        >
+                          <div>
+                            <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors">
+                              {major.name}
+                            </h5>
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                              Bidang: {major.category}
+                            </span>
+                          </div>
+                          <Check className="w-3.5 h-3.5 text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* 3. Tombol Cari Pos KKN */}
                 <div className="sm:col-span-3 flex items-center">
                   <Link
                     href={`/search?q=${encodeURIComponent(
-                      [searchLocation, searchJurusan, activeTab !== 'all' ? activeTab : '']
+                      [
+                        searchLocation,
+                        searchJurusan,
+                        activeTab !== 'all' ? activeTab : '',
+                        selectedProgramType !== 'all' ? selectedProgramType : '',
+                        selectedDuration !== 'all' ? selectedDuration : '',
+                      ]
                         .filter(Boolean)
                         .join(' ')
                     )}`}
@@ -274,7 +403,7 @@ export default function HomePage() {
                     <Button
                       size="lg"
                       variant="primary"
-                      className="w-full h-full min-h-[52px] rounded-2xl text-xs sm:text-sm font-bold gap-2 shadow-glow-primary justify-center whitespace-nowrap"
+                      className="w-full h-full min-h-[48px] sm:min-h-[50px] rounded-2xl text-xs sm:text-sm font-bold gap-2 shadow-glow-primary justify-center whitespace-nowrap"
                     >
                       <Search className="w-4 h-4" />
                       <span>Cari Pos KKN</span>
@@ -284,33 +413,197 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Quick Tags / Rekomendasi Pintar untuk Mahasiswa */}
-              <div className="pt-2 border-t border-slate-100 dark:border-navy-800/80 flex flex-wrap items-center gap-1.5 text-xs">
-                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 shrink-0 mr-1">
-                  <Target className="w-3.5 h-3.5 text-emerald-500" />
-                  Jurusan Populer:
-                </span>
-                {[
-                  'Teknik Informatika',
-                  'Agribisnis',
-                  'Gizi & Kesehatan',
-                  'Manajemen Bisnis',
-                  'Pendidikan',
-                  'DKV & Desain',
-                ].map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => setSearchJurusan(tag)}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 hover:text-emerald-700 dark:hover:text-emerald-300 hover:border-emerald-300 transition-all text-[11px] font-medium border border-transparent"
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-
             </div>
           </div>
+
+          {/* ========================================================================= */}
+          {/* EXPAND FILTER POPUP MODAL */}
+          {/* ========================================================================= */}
+          {isExpandModalOpen && (
+            <div
+              className="fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+              onClick={() => setIsExpandModalOpen(false)}
+            >
+              <div
+                className="relative bg-white dark:bg-navy-900 rounded-3xl border border-slate-200 dark:border-navy-700 shadow-2xl max-w-2xl w-full p-5 sm:p-6 space-y-5 my-8 text-left animate-in fade-in zoom-in-95 duration-150"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-navy-800">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-primary-50 dark:bg-primary-950/80 border border-primary-200 dark:border-primary-800 text-primary flex items-center justify-center">
+                      <SlidersHorizontal className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight">
+                        Filter Lengkap Pos KKN
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Sesuaikan kriteria pencarian pos KKN sesuai kebutuhan
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsExpandModalOpen(false)}
+                    className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-navy-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Section 1: Tema / Sektor Pengabdian */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider block">
+                    Tema / Sektor Pengabdian:
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {[
+                      { key: 'all', label: 'Semua Sektor', icon: Globe2, badge: '128' },
+                      { key: 'agrikultur', label: 'Agrikultur & Pangan', icon: Sprout, badge: '42' },
+                      { key: 'digitalisasi', label: 'Digitalisasi UMKM', icon: Laptop, badge: '38' },
+                      { key: 'kesehatan', label: 'Kesehatan & Gizi', icon: HeartPulse, badge: '29' },
+                      { key: 'pendidikan', label: 'Pendidikan & Literasi', icon: BookOpen, badge: '19' },
+                      { key: 'infrastruktur', label: 'Tata Kelola & Infrastruktur', icon: Building, badge: '15' },
+                    ].map((tab) => {
+                      const Icon = tab.icon;
+                      const isSelected = activeTab === tab.key;
+                      return (
+                        <button
+                          key={tab.key}
+                          type="button"
+                          onClick={() => setActiveTab(tab.key)}
+                          className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-semibold text-left transition-all border ${
+                            isSelected
+                              ? 'bg-navy-900 dark:bg-primary text-white border-navy-900 dark:border-primary shadow-sm'
+                              : 'bg-slate-50 dark:bg-navy-950 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-navy-800 hover:bg-slate-100 dark:hover:bg-navy-800'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4 shrink-0" />
+                          <span className="truncate flex-1">{tab.label}</span>
+                          <span
+                            className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
+                              isSelected
+                                ? 'bg-white/20 text-white font-bold'
+                                : 'bg-slate-200/80 dark:bg-navy-800 text-slate-500 dark:text-slate-400'
+                            }`}
+                          >
+                            {tab.badge}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Section 2: Tipe Program KKN */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider block">
+                    Tipe Program KKN:
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { key: 'all', label: 'Semua Tipe' },
+                      { key: 'tematik', label: 'KKN Tematik' },
+                      { key: 'reguler', label: 'KKN Reguler' },
+                      { key: 'mbkm', label: 'KKN MBKM / Mandiri' },
+                    ].map((item) => {
+                      const isSelected = selectedProgramType === item.key;
+                      return (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => setSelectedProgramType(item.key)}
+                          className={`px-3 py-2 rounded-xl text-xs font-semibold text-center transition-all border ${
+                            isSelected
+                              ? 'bg-navy-900 dark:bg-primary text-white border-navy-900 dark:border-primary font-bold'
+                              : 'bg-slate-50 dark:bg-navy-950 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-navy-800 hover:bg-slate-100 dark:hover:bg-navy-800'
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Section 3: Durasi Pelaksanaan */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider block">
+                    Durasi Pelaksanaan:
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { key: 'all', label: 'Semua Durasi' },
+                      { key: '1-bulan', label: '1 Bulan' },
+                      { key: '2-bulan', label: '2 Bulan' },
+                      { key: '1-semester', label: '1 Semester (MBKM)' },
+                    ].map((item) => {
+                      const isSelected = selectedDuration === item.key;
+                      return (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => setSelectedDuration(item.key)}
+                          className={`px-3 py-2 rounded-xl text-xs font-semibold text-center transition-all border ${
+                            isSelected
+                              ? 'bg-navy-900 dark:bg-primary text-white border-navy-900 dark:border-primary font-bold'
+                              : 'bg-slate-50 dark:bg-navy-950 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-navy-800 hover:bg-slate-100 dark:hover:bg-navy-800'
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Modal Footer Actions */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-navy-800">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('all');
+                      setSelectedProgramType('all');
+                      setSelectedDuration('all');
+                    }}
+                    className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 underline"
+                  >
+                    Reset Filter
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsExpandModalOpen(false)}
+                      className="rounded-xl text-xs"
+                    >
+                      Batal
+                    </Button>
+                    <Link
+                      href={`/search?q=${encodeURIComponent(
+                        [
+                          searchLocation,
+                          searchJurusan,
+                          activeTab !== 'all' ? activeTab : '',
+                          selectedProgramType !== 'all' ? selectedProgramType : '',
+                          selectedDuration !== 'all' ? selectedDuration : '',
+                        ]
+                          .filter(Boolean)
+                          .join(' ')
+                      )}`}
+                      onClick={() => setIsExpandModalOpen(false)}
+                    >
+                      <Button variant="primary" size="sm" className="rounded-xl text-xs font-bold gap-1.5 shadow-md">
+                        <span>Terapkan Filter</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
