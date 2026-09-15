@@ -252,7 +252,8 @@ export default function WilayahLeafletMap({
         {/* Modern Map Tile Layer (CartoDB Positron / OSM) */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          // url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         {/* Radius Circle from Campus */}
@@ -417,9 +418,6 @@ export default function WilayahLeafletMap({
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" /> {tLeaflet('legendLogo')}
           </span>
         </div>
-        <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-amber-500" /> API: edopandoyo/wilayah-indonesia-api & emsifa v2
-        </span>
       </div>
     </div>
   );
