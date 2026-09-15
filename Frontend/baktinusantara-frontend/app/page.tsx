@@ -34,37 +34,41 @@ export default function HomePage() {
 
   const tHero = useTranslations('hero');
   const tShowcase = useTranslations('showcase');
+  const tExplore = useTranslations('explore');
+  const tTechnology = useTranslations('technology');
+  const tOpportunities = useTranslations('opportunities');
+  const tCta = useTranslations('cta');
 
   const exploreRegions = [
     {
       name: 'Jawa Barat & Banten',
-      desc: '480 Pos Kebutuhan',
-      img: 'https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?w=300&auto=format&fit=crop&q=80',
+      count: 480,
+      img: 'https://images.unsplash.com/photo-1611638281871-1063d3e76e1f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YmFuZHVuZ3xlbnwwfHwwfHx8MA%3D%3D',
     },
     {
       name: 'Jawa Tengah & DIY',
-      desc: '320 Pos Kebutuhan',
-      img: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=300&auto=format&fit=crop&q=80',
+      count: 320,
+      img: 'https://images.unsplash.com/photo-1723860795880-31325500d02d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGphd2ElMjB0ZW5nYWh8ZW58MHx8MHx8fDA%3D',
     },
     {
       name: 'Sumatera',
-      desc: '240 Pos Kebutuhan',
-      img: 'https://images.unsplash.com/photo-1609137144822-0a18e97f6c77?w=300&auto=format&fit=crop&q=80',
+      count: 240,
+      img: 'https://images.unsplash.com/photo-1693341195831-742a7b6f11ee?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
       name: 'Sulawesi & Maluku',
-      desc: '160 Pos Kebutuhan',
-      img: 'https://images.unsplash.com/photo-1516690561799-46d8f74f9abf?w=300&auto=format&fit=crop&q=80',
+      count: 160,
+      img: 'https://images.unsplash.com/photo-1582426007790-f5a2e2392dd3?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
       name: 'Bali & Nusa Tenggara',
-      desc: '130 Pos Kebutuhan',
+      count: 130,
       img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=300&auto=format&fit=crop&q=80',
     },
     {
       name: 'Kalimantan',
-      desc: '90 Pos Kebutuhan',
-      img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&auto=format&fit=crop&q=80',
+      count: 90,
+      img: 'https://images.unsplash.com/photo-1606444717545-7f5d882031cb?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
   ];
 
@@ -296,25 +300,25 @@ export default function HomePage() {
           {[
             {
               num: `${metrics.total_desa_terbantu || 128}+`,
-              label: 'Desa Terbantu & Aktif',
+              label: tShowcase('stats.stat1'),
               icon: Building,
               color: 'text-primary-600 dark:text-primary-400',
             },
             {
               num: `${metrics.total_mahasiswa_terlibat || 850}+`,
-              label: 'Mahasiswa Berkontribusi',
+              label: tShowcase('stats.stat2'),
               icon: Users,
               color: 'text-secondary-600 dark:text-secondary-400',
             },
             {
               num: `${metrics.total_luaran_terverifikasi || 37}+`,
-              label: 'Luaran Terverifikasi & BAST',
+              label: tShowcase('stats.stat3'),
               icon: FileCheck2,
               color: 'text-tertiary-600 dark:text-tertiary-400',
             },
             {
               num: `${metrics.total_jam_pengabdian ? metrics.total_jam_pengabdian.toLocaleString('id-ID') : '40.800'}+`,
-              label: 'Jam Pengabdian Nasional',
+              label: tShowcase('stats.stat4'),
               icon: Award,
               color: 'text-indigo-600 dark:text-indigo-400',
             },
@@ -342,10 +346,10 @@ export default function HomePage() {
         <div className="w-full max-w-7xl xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto space-y-6 sm:space-y-8 text-center">
           <div className="space-y-1 max-w-xl mx-auto">
             <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
-              Sebaran Geografis KKN
+              {tExplore('badge')}
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              Jelajahi Pengabdian di Seluruh Nusantara
+              {tExplore('title')}
             </h2>
           </div>
 
@@ -363,7 +367,7 @@ export default function HomePage() {
                   <p className="text-xs font-bold text-navy-950 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                     {reg.name}
                   </p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400">{reg.desc}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">{tExplore('postsCount', { count: reg.count })}</p>
                 </div>
               </Link>
             ))}
@@ -379,14 +383,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto space-y-14 relative z-10">
           <div className="max-w-2xl space-y-2">
             <span className="text-xs font-bold text-primary-400 uppercase tracking-wider">
-              Arsitektur Terpadu
+              {tTechnology('badge')}
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold font-epilogue leading-snug">
-              Teknologi Tepat Guna untuk Tata Kelola KKN yang Transparan
+              {tTechnology('title')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-jakarta">
-              Setiap tahapan pengabdian terekam secara digital, mulai dari perumusan kebutuhan warga hingga
-              pengesahan Berita Acara Serah Terima resmi (BAST).
+              {tTechnology('subtitle')}
             </p>
           </div>
 
@@ -394,23 +397,23 @@ export default function HomePage() {
             {[
               {
                 step: '01',
-                title: 'Aspirasi Masuk',
-                desc: 'Warga desa melaporkan kebutuhan riil secara langsung melalui web.',
+                title: tTechnology('steps.step1.title'),
+                desc: tTechnology('steps.step1.desc'),
               },
               {
                 step: '02',
-                title: 'Kurasi & Validasi',
-                desc: 'Kepala Desa memvalidasi aspirasi menjadi pos KKN terdaftar resmi.',
+                title: tTechnology('steps.step2.title'),
+                desc: tTechnology('steps.step2.desc'),
               },
               {
                 step: '03',
-                title: 'Pelaksanaan Terpadu',
-                desc: 'Mahasiswa & DPL mencatat logbook terverifikasi GPS mingguan.',
+                title: tTechnology('steps.step3.title'),
+                desc: tTechnology('steps.step3.desc'),
               },
               {
                 step: '04',
-                title: 'Pengesahan BAST',
-                desc: 'Serah terima luaran akhir ber-QR Code dan sertifikat digital.',
+                title: tTechnology('steps.step4.title'),
+                desc: tTechnology('steps.step4.desc'),
               },
             ].map((step, idx) => (
               <div
@@ -444,19 +447,19 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1">
             <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
-              Peluang Pengabdian Terverifikasi
+              {tOpportunities('badge')}
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              Pos Kebutuhan Siap Dilamar Mahasiswa
+              {tOpportunities('title')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-              Pilih program pengabdian yang telah disahkan oleh perangkat desa dan tim LPPM.
+              {tOpportunities('subtitle')}
             </p>
           </div>
 
           <Link href="/search">
             <Button variant="outline" size="sm" className="text-xs font-semibold gap-1.5">
-              <span>Buka Katalog Lengkap</span>
+              <span>{tOpportunities('viewCatalog')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </Link>
@@ -487,7 +490,7 @@ export default function HomePage() {
                   </div>
                   {pos.matching_score && (
                     <div className="absolute top-3 right-3 bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">
-                      {pos.matching_score}% Cocok
+                      {tOpportunities('matchBadge', { score: pos.matching_score })}
                     </div>
                   )}
                 </div>
@@ -515,15 +518,15 @@ export default function HomePage() {
 
               <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-100 dark:border-navy-800 mt-2">
                 <div className="text-xs">
-                  <span className="text-slate-400 dark:text-slate-500">Kuota: </span>
+                  <span className="text-slate-400 dark:text-slate-500">{tOpportunities('quotaLabel')} </span>
                   <strong className="text-navy-950 dark:text-slate-200">
-                    {pos.terisi_mahasiswa}/{pos.kuota_mahasiswa} Mahasiswa
+                    {tOpportunities('quotaValue', { filled: pos.terisi_mahasiswa, quota: pos.kuota_mahasiswa })}
                   </strong>
                 </div>
 
                 <Link href={`/search/${pos.id}`}>
                   <Button size="sm" variant="primary" className="text-xs font-semibold">
-                    Detail Pos
+                    {tOpportunities('detailBtn')}
                   </Button>
                 </Link>
               </div>
@@ -539,22 +542,22 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto rounded-3xl bg-navy-900 dark:bg-navy-900/90 text-white p-8 sm:p-12 border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-2 max-w-xl text-left">
             <h2 className="text-2xl sm:text-3xl font-extrabold font-epilogue">
-              Siap Mendedikasikan Ilmu untuk Kemajuan Desa?
+              {tCta('title')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 font-jakarta leading-relaxed">
-              Bergabunglah bersama ribuan mahasiswa dan dosen pembimbing dalam memajukan desa-desa di Indonesia.
+              {tCta('subtitle')}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Link href="/register">
               <Button size="lg" variant="primary" className="font-bold text-xs sm:text-sm">
-                Daftar KKN Sekarang
+                {tCta('registerBtn')}
               </Button>
             </Link>
             <Link href="/aspirasi">
               <Button size="lg" variant="outline" className="border-slate-600 text-navy-950 dark:text-white bg-white dark:bg-navy-800 hover:bg-slate-100 dark:hover:bg-navy-700 font-bold text-xs sm:text-sm">
-                Kirim Aspirasi Desa
+                {tCta('aspirasiBtn')}
               </Button>
             </Link>
           </div>

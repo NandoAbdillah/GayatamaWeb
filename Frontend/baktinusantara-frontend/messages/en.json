@@ -67,11 +67,118 @@
     "badge": "FIELD ACTION DOCUMENTATION",
     "title": "Real Synergy Between Students & Village Citizens",
     "subtitle": "From modernizing agricultural irrigation to strengthening local MSMEs, community service answers real challenges.",
-    "viewDoc": "View Documentation"
+    "viewDoc": "View Documentation",
+    "stats": {
+      "stat1": "Villages Supported & Active",
+      "stat2": "Contributing Students",
+      "stat3": "Verified Outcomes & BAST",
+      "stat4": "National Community Service Hours"
+    }
+  },
+  "explore": {
+    "badge": "KKN Geographic Distribution",
+    "title": "Explore Community Service Across the Archipelago",
+    "postsCount": "{count} Available Posts"
+  },
+  "technology": {
+    "badge": "Integrated Architecture",
+    "title": "Appropriate Technology for Transparent KKN Governance",
+    "subtitle": "Every stage of community service is digitally recorded — from identifying community needs to the official Handover Minutes (BAST) endorsement.",
+    "steps": {
+      "step1": {
+        "title": "Aspirations Submitted",
+        "desc": "Village residents report real needs directly through the web platform."
+      },
+      "step2": {
+        "title": "Curation & Validation",
+        "desc": "Village Heads validate aspirations into officially registered KKN posts."
+      },
+      "step3": {
+        "title": "Integrated Implementation",
+        "desc": "Students & Field Supervisors record weekly GPS-verified logbooks."
+      },
+      "step4": {
+        "title": "BAST Endorsement",
+        "desc": "Final output handover with QR code and digital certificate."
+      }
+    }
+  },
+  "opportunities": {
+    "badge": "Verified Service Opportunities",
+    "title": "Ready-to-Apply Posts for Students",
+    "subtitle": "Choose community service programs endorsed by village officials and the LPPM team.",
+    "viewCatalog": "Browse Full Catalog",
+    "matchBadge": "{score}% Match",
+    "quotaLabel": "Quota:",
+    "quotaValue": "{filled}/{quota} Students",
+    "detailBtn": "View Details"
+  },
+  "cta": {
+    "title": "Ready to Dedicate Your Knowledge for Village Progress?",
+    "subtitle": "Join thousands of students and field supervisors advancing villages across Indonesia.",
+    "registerBtn": "Register for KKN Now",
+    "aspirasiBtn": "Submit Village Aspiration"
+  },
+  "footer": {
+    "description": "Integrated collaboration platform for Thematic Community Service (KKN) in Indonesia. Connecting village aspirations, student innovation, supervisor guidance, and university service.",
+    "portalUsers": "User Portal",
+    "openServices": "Open Services",
+    "secretariat": "KKN Secretariat",
+    "links": {
+      "portalMahasiswa": "Student Portal",
+      "portalMitraDesa": "Village Partner Portal",
+      "portalDpl": "Field Supervisor Portal (DPL)",
+      "portalLppm": "LPPM Campus M&E Portal",
+      "katalog": "Village Needs Catalog",
+      "maps": "Distribution Map & KKN Radius",
+      "aspirasiForm": "Community Aspiration Form",
+      "gallery": "KKN Works & Outputs Gallery"
+    },
+    "contact": {
+      "address": "LPPM Building 3rd Floor, Nusantara Integrated Campus"
+    },
+    "bottom": {
+      "copyright": "© 2026 BaktiNusantara — Gayatama Web Platform. All rights reserved.",
+      "tagline": "Dedicated to the progress of villages in Indonesia"
+    }
+  },
+  "katalog": {
+    "badge": "Official Open KKN Catalog 2025/2026",
+    "title": "Village KKN Needs Catalog Across Indonesia",
+    "subtitle": "Discover thousands of village service posts that need student academic contributions. Curated directly from real community aspirations.",
+    "searchPlaceholder": "Search post name, village, program, or district...",
+    "filters": {
+      "sectors": {
+        "all": "All SDG Sectors",
+        "agrikultur": "Agriculture & Food Security",
+        "kesehatan": "Health & Sanitation",
+        "digitalisasi": "Village Digitalization",
+        "umkm": "MSME Empowerment",
+        "pendidikan": "Education & Literacy"
+      },
+      "majors": {
+        "all": "All Academic Clusters",
+        "informatika": "Informatics Engineering",
+        "pertanian": "Agriculture / Agrotechnology",
+        "gizi": "Nutrition / Health",
+        "manajemen": "Management / Economics",
+        "sipil": "Civil Engineering"
+      }
+    },
+    "resultsPrefix": "Showing",
+    "resultsSuffix": "Active Needs Posts",
+    "openMap": "Open Interactive Map View",
+    "criteriaLabel": "Required Majors:",
+    "quotaLabel": "Quota:",
+    "quotaValue": "{filled}/{quota} Students",
+    "detailBtn": "View Details",
+    "footer": "© 2025 BaktiNusantara & Gayatama Web. Integrated KKN Governance Platform."
   },
   "maps": {
     "badge": "Haversine Geospatial Radius",
     "title": "Community Service Distribution Map & Regional Reach",
+    "headerBadge": "GIS Geospatial & Regional Emblem • Indonesia Territory API",
+    "headerTitle": "Regional Distribution Map & Official Regional Emblems",
     "filterDistance": "Distance Filter",
     "lessThan20": "< 20 km",
     "lessThan50": "< 50 km",
@@ -87,7 +194,72 @@
     "elevation": "Elevation",
     "fromCampus": "from campus",
     "targetOutputs": "Expected Post Outputs",
-    "viewDetailsAndApply": "View Details & Apply"
+    "viewDetailsAndApply": "View Details & Apply",
+    "header": {
+      "badge": "GIS Geospatial & Regional Emblem • Indonesia Territory API",
+      "title": "Regional Distribution Map & Official Regional Emblems",
+      "statsProv": "Prov",
+      "statsRegencies": "Regencies",
+      "statsDistricts": "Districts"
+    },
+    "search": {
+      "placeholder": "Search regions across Indonesia (e.g., 'Bogor', 'Bandung', 'Surabaya', 'Denpasar', 'Malang')...",
+      "resultsTitle": "Search Results ({count} Regions)",
+      "apiLabel": "edopandoyo/wilayah-indonesia-api"
+    },
+    "quick": {
+      "label": "Quick:"
+    },
+    "filters": {
+      "provinceLabel": "Select Province",
+      "regencyLabel": "Filter Regency / City",
+      "radiusLabel": "Radius Distance from Campus",
+      "allRegencies": "All Regencies/Cities in {province}",
+      "all": "All"
+    },
+    "mapLoading": "Preparing Geospatial Map Engine & Regional Emblems...",
+    "region": {
+      "provinceGov": "Provincial Government",
+      "regencyGov": "Regional Government",
+      "logoBoundary": "Official Logo & Boundaries by Ministry of Home Affairs & BIG",
+      "capital": "Capital:",
+      "population": "Population:",
+      "area": "Area:",
+      "elevation": "Elevation:",
+      "populationUnit": "people",
+      "areaUnit": "km²",
+      "elevationUnit": "masl",
+      "capitalWithPrefix": "(Capital: {capital})"
+    },
+    "posCard": {
+      "distanceFromCampus": "{distance} km from campus",
+      "targetOutputs": "Expected Post Outputs:",
+      "viewDetails": "View Post Details & Apply"
+    },
+    "leaflet": {
+      "campusLabel": "Campus Center",
+      "loadingBoundary": "Loading Regional Boundary ({regionName})...",
+      "province": "Province",
+      "regencyCity": "Regency / City",
+      "campusCoordinate": "Campus Center: Univ. Nusantara ({lat}, {lng})",
+      "provinceGov": "Provincial Government",
+      "regencyGov": "Regional Government",
+      "code": "Code:",
+      "capital": "Capital:",
+      "population": "Population:",
+      "area": "Area:",
+      "officialBoundary": "✓ Official Boundary & Data by Ministry of Home Affairs & BIG",
+      "centroidPoint": "Geospatial Region Center Point",
+      "campusTitle": "Nusantara University Campus Center",
+      "campusDesc": "Reference point for Haversine radius calculation of KKN posts.",
+      "posNeed": "KKN Needs Post",
+      "distanceFromCampus": "Distance from campus: {distance} km",
+      "legendCampus": "Campus Center",
+      "legendSelectedPos": "Selected Post",
+      "legendPolygon": "Regional Polygon Boundary",
+      "legendLogo": "Active Local Government Logo",
+      "wilayahTerpilih": "Selected Region"
+    }
   },
   "pos": {
     "quota": "Quota",
