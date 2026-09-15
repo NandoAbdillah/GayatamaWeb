@@ -383,10 +383,10 @@
     "bast": "Berita Acara (BAST)"
   },
   "copilot": {
-    "name": "Bakti AI Agent",
+    "name": "Aira - AI Nusantara",
     "badge": "Agentic Copilot",
     "tagline": "Asisten Cerdas & Agen Aksi Terpadu",
-    "floatingPrompt": "Ada yang perlu AI bantu/eksekusi?",
+    "floatingPrompt": "Butuh bantuan? Aira siap bantu",
     "inputPlaceholder": "Tanya atau minta tindakan AI...",
     "thinking": "AI Agent sedang berpikir & menyiapkan tindakan...",
     "openPage": "Buka Halaman",

@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from 'next-intl';
+import { MarkdownRenderer } from './MarkdownRenderer';
 import {
-  Bot,
   Sparkles,
   X,
   Send,
@@ -60,15 +61,23 @@ export function BaktiAiCopilot() {
     {
       id: 'welcome',
       role: 'assistant',
-      content: `Halo! Saya **Bakti AI Agent** — Asisten Cerdas & Agen Aksi Terpadu GayatamaWeb.
+      content: `Halo! Aku Aira, AI Nusantara yang siap menemani kamu di GayatamaWeb.
 
-Saya dapat **melakukan tindakan langsung** di website, seperti:
-- 🗺️ **Membuka halaman peta** & mencari pos KKN berdasarkan radius jarak
-- 📝 **Menyusun draf proposal KKN** atau draf pos kebutuhan desa
-- 📊 **Menganalisis skor kecocokan jurusan** dengan kebutuhan desa
-- 🗺️ **Memeriksa data geospasial** & demografi 38 provinsi di Indonesia
+Senang banget kamu mampir. Aku bisa bantu kamu mencari informasi, menemukan potensi desa, sampai membantu menyiapkan berbagai kebutuhan KKN. Jadi, kalau kamu lagi bingung mau mulai dari mana, tenang saja. Kita bisa cari dan kerjakan bareng-bareng.
 
-Ada yang bisa saya bantu atau eksekusi untuk Anda hari ini?`,
+Aku bisa membantu kamu untuk:
+- Mencari informasi dan kegiatan KKN berdasarkan wilayah
+- Menemukan desa yang sesuai dengan kebutuhan atau programmu
+- Membantu menyusun ide dan draft proposal KKN
+- Menganalisis kebutuhan dan potensi suatu desa
+- Melihat informasi geografis dan demografi wilayah di Indonesia
+- Menemukan dan memahami informasi yang tersedia di GayatamaWeb
+
+Kamu juga tidak perlu menggunakan perintah khusus. Ceritakan saja apa yang sedang kamu cari atau ingin kamu kerjakan, nanti aku bantu dari sana.
+
+Jadi, mau mulai dari mencari desa, menyusun program KKN, atau sekadar ingin mencari tahu sesuatu?
+
+Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -185,17 +194,23 @@ Ada yang bisa saya bantu atau eksekusi untuk Anda hari ini?`,
         <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3">
           <button
             onClick={() => setIsOpen(true)}
-            aria-label="Buka Bakti AI Copilot"
-            className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-primary via-primary-600 to-emerald-500 text-white shadow-glow-primary hover:scale-105 active:scale-95 transition-all duration-300"
+            aria-label="Buka Aira - AI Nusantara"
+            className="group relative flex items-center justify-center w-14 h-14 bg-transparent hover:scale-110 active:scale-95 transition-all duration-300 "
           >
-            <div className="absolute inset-0 rounded-2xl bg-primary/40 animate-ping -z-10 opacity-75" />
-            <Bot className="w-7 h-7 group-hover:rotate-12 transition-transform duration-300" />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-white dark:border-navy-950 rounded-full" />
+            <Image
+              src="/icons/logochat.svg"
+              alt="Aira - AI Nusantara"
+              width={56}
+              height={56}
+              className="w-14 h-14 rounded-2xl object-contain drop-shadow-md group-hover:rotate-6 transition-transform duration-300"
+              priority
+            />
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-white dark:border-navy-950 rounded-full z-10 shadow-sm" />
           </button>
 
           <div className="hidden sm:flex items-center gap-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-navy-700 shadow-lg text-xs font-bold text-navy-950 dark:text-white animate-bounce">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Ada yang perlu AI bantu/eksekusi?</span>
+            <span>Butuh bantuan? Aira siap bantu</span>
           </div>
         </div>
       )}
@@ -203,22 +218,27 @@ Ada yang bisa saya bantu atau eksekusi untuk Anda hari ini?`,
       {/* Interactive AI Copilot Modal / Drawer */}
       {isOpen && (
         <div
-          className={`fixed z-50 transition-all duration-300 flex flex-col shadow-2xl rounded-3xl overflow-hidden border border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-950 font-jakarta ${
-            isExpanded
+          className={`fixed z-50 transition-all duration-300 flex flex-col shadow-2xl rounded-3xl overflow-hidden border border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-950 font-jakarta ${isExpanded
               ? 'inset-4 sm:inset-10'
               : 'bottom-6 left-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
-          }`}
+            }`}
         >
           {/* Header */}
           <div className="px-5 py-3.5 bg-gradient-to-r from-navy-950 via-slate-900 to-navy-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-emerald-400 flex items-center justify-center text-white shadow-md">
-                <Bot className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm flex items-center justify-center bg-transparent">
+                <Image
+                  src="/icons/logochat.svg"
+                  alt="Aira - AI Nusantara"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-contain rounded-xl"
+                />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-extrabold font-epilogue tracking-tight text-white">
-                    Bakti AI Agent
+                    Aira - AI Nusantara
                   </h3>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-[10px] font-bold text-emerald-300 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -259,15 +279,12 @@ Ada yang bisa saya bantu atau eksekusi untuk Anda hari ini?`,
                   className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
                 >
                   <div
-                    className={`max-w-[90%] sm:max-w-[85%] rounded-2xl p-4 text-xs sm:text-[13px] leading-relaxed shadow-sm space-y-3 ${
-                      isUser
-                        ? 'bg-primary text-white rounded-br-none'
-                        : 'bg-white dark:bg-navy-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-navy-800 rounded-bl-none'
-                    }`}
+                    className={`max-w-[90%] sm:max-w-[85%] rounded-2xl p-4 text-xs sm:text-[13px] leading-relaxed shadow-sm space-y-3 ${isUser
+                        ? 'bg-primary text-white rounded-br-none shadow-primary/20'
+                        : 'bg-white dark:bg-navy-900 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-navy-800 rounded-bl-none shadow-slate-200/50 dark:shadow-none'
+                      }`}
                   >
-                    <div className="whitespace-pre-wrap font-sans">
-                      {msg.content}
-                    </div>
+                    <MarkdownRenderer content={msg.content} isUser={isUser} />
 
                     {/* RENDER INTERACTIVE ACTION CARDS (TOOL RESULTS) */}
                     {msg.executedTool && msg.executedTool.result && (

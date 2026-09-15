@@ -383,10 +383,10 @@
     "bast": "Handover Official Report (BAST)"
   },
   "copilot": {
-    "name": "Bakti AI Agent",
+    "name": "Aira - AI Nusantara",
     "badge": "Agentic Copilot",
     "tagline": "Intelligent Assistant & Action Agent",
-    "floatingPrompt": "Need AI to assist or execute an action?",
+    "floatingPrompt": "Need help? Aira is here to help",
     "inputPlaceholder": "Ask or command AI agent...",
     "thinking": "AI Agent is reasoning and preparing actions...",
     "openPage": "Open Page",
