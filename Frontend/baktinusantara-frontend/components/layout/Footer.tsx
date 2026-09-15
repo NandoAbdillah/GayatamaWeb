@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Heart, MapPin, Mail, Phone, Sprout } from 'lucide-react';
+import Image from 'next/image';
+import { Heart, MapPin, Mail, Phone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export const Footer: React.FC = () => {
@@ -14,8 +15,14 @@ export const Footer: React.FC = () => {
           {/* Col 1: Brand */}
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm">
-                <Sprout className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src="/logo.svg"
+                  alt="BaktiNusantara Logo"
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 object-contain drop-shadow-sm"
+                />
               </div>
               <span className="font-epilogue font-bold text-lg text-white">BaktiNusantara</span>
             </div>

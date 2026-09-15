@@ -57,3 +57,26 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Archipelago Radar / Map Sweep Animation */
+@keyframes mapSweep {
+  0% {
+    transform: translateX(-100%) skewX(-20deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.75;
+  }
+  85% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateX(200%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+.animate-map-sweep {
+  animation: mapSweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+

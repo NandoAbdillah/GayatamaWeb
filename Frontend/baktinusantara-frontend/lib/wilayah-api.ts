@@ -193,8 +193,35 @@ export const WilayahService = {
   },
 
   /**
+   * Helper: Mengambil nama wilayah berdasarkan kode Kemendagri dengan caching memori
+   */
+  async getWilayahNameByCode(code: string): Promise<string> {
+    if (!code) return '';
+    const cacheKey = `wilayah_name:${code.trim()}`;
+    const cached = memoryCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data as string;
+    }
+
+    try {
+      const url = `${EDOPANDOYO_API_URL}/wilayah/${code.trim()}`;
+      const res = await fetch(url, {
+        headers: { Accept: 'application/json' },
+        next: { revalidate: 86400 },
+      });
+      if (!res.ok) return '';
+      const json = await res.json();
+      const name = (json && json.nama) ? json.nama : '';
+      memoryCache.set(cacheKey, { data: name, timestamp: Date.now() });
+      return name;
+    } catch {
+      return '';
+    }
+  },
+
+  /**
    * Pencarian wilayah live se-Indonesia dari edopandoyo/wilayah-indonesia-api
-   * Menghasilkan list wilayah (Provinsi, Kab/Kota, Kecamatan, Desa) lengkap dengan logo dan kodepos
+   * Menghasilkan list wilayah (Provinsi, Kab/Kota, Kecamatan, Desa) lengkap dengan hirarki nama lengkap dan kodepos
    */
   async searchWilayahFromApi(query: string): Promise<WilayahSearchResult> {
     if (!query || query.trim().length < 2) {
@@ -219,8 +246,62 @@ export const WilayahService = {
       }
 
       const json = await res.json();
+      const rawData: any[] = Array.isArray(json) ? json : json.data || [];
+
+      // Resolusi hirarki nama lengkap untuk setiap entitas wilayah
+      const enrichedData = await Promise.all(
+        rawData.slice(0, 10).map(async (item) => {
+          const code = item.kode || '';
+          const parts = code.split('.');
+
+          let provName = '';
+          let regName = '';
+          let distName = '';
+          let namaLengkap = item.nama;
+
+          try {
+            if (parts.length === 4) {
+              // Level 4: Desa/Kelurahan
+              [provName, regName, distName] = await Promise.all([
+                WilayahService.getWilayahNameByCode(parts[0]),
+                WilayahService.getWilayahNameByCode(`${parts[0]}.${parts[1]}`),
+                WilayahService.getWilayahNameByCode(`${parts[0]}.${parts[1]}.${parts[2]}`),
+              ]);
+              const regLabel = regName.toLowerCase().startsWith('kabupaten') || regName.toLowerCase().startsWith('kota')
+                ? regName
+                : `Kab. ${regName}`;
+              namaLengkap = `${item.nama}, Kec. ${distName}, ${regLabel}, ${provName}`;
+            } else if (parts.length === 3) {
+              // Level 3: Kecamatan
+              [provName, regName] = await Promise.all([
+                WilayahService.getWilayahNameByCode(parts[0]),
+                WilayahService.getWilayahNameByCode(`${parts[0]}.${parts[1]}`),
+              ]);
+              const regLabel = regName.toLowerCase().startsWith('kabupaten') || regName.toLowerCase().startsWith('kota')
+                ? regName
+                : `Kab. ${regName}`;
+              namaLengkap = `Kec. ${item.nama}, ${regLabel}, ${provName}`;
+            } else if (parts.length === 2) {
+              // Level 2: Kabupaten/Kota
+              provName = await WilayahService.getWilayahNameByCode(parts[0]);
+              namaLengkap = `${item.nama}, ${provName}`;
+            }
+          } catch (e) {
+            console.warn(`Error resolving hierarchy for ${code}:`, e);
+          }
+
+          return {
+            ...item,
+            nama_lengkap: namaLengkap || item.nama,
+            provinsi: provName,
+            kabupaten: regName,
+            kecamatan: distName,
+          };
+        })
+      );
+
       const result: WilayahSearchResult = {
-        data: Array.isArray(json) ? json : json.data || [],
+        data: enrichedData,
         meta: json.meta,
       };
 

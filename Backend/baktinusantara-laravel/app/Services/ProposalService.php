@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SendWhatsAppNotificationJob;
 use App\Models\Kelompok;
 use App\Models\PosKebutuhan;
 use App\Models\Proposal;
@@ -66,7 +67,7 @@ class ProposalService
     public function create(User $user, array $data, $fileProposal, $suratPengantar = null): Proposal
     {
         $kelompok = $this->getKelompokAsKetua($user);
-        $pos = PosKebutuhan::with('desa')->findOrFail($data['pos_kebutuhan_id']);
+        $pos = PosKebutuhan::with('desa.user')->findOrFail($data['pos_kebutuhan_id']);
 
         if ($pos->status !== 'open') {
             throw ValidationException::withMessages([
@@ -131,6 +132,11 @@ class ProposalService
                 $pos->desa->user_id,
                 "Proposal baru diajukan oleh kelompok '{$kelompok->nama_kelompok}' untuk pos kebutuhan '{$pos->judul}'."
             );
+
+            if ($pos->desa->user && ! empty($pos->desa->user->phone_wa)) {
+                $pesan = "Halo Perangkat *{$pos->desa->nama_desa}*,\n\nAda pengajuan proposal KKN baru yang masuk:\n👥 *Kelompok*: {$kelompok->nama_kelompok}\n📌 *Pos Kebutuhan*: {$pos->judul}\n🎯 *Matching Score*: {$matchingScore}%\n📍 *Estimasi Jarak*: {$jarakKm} km\n\nSilakan tinjau draf program kerja dan tentukan persetujuan melalui dashboard BaktiNusantara.\n\n_Salam hangat,_\n*Tim BaktiNusantara*";
+                SendWhatsAppNotificationJob::dispatch($pos->desa->user->phone_wa, $pesan);
+            }
         }
 
         return $proposal;
@@ -141,6 +147,8 @@ class ProposalService
         if ($proposal->posKebutuhan->desa_id !== $user->profilDesa->id) {
             abort(403, 'Proposal ini bukan ditujukan ke desa Anda');
         }
+
+        $proposal->load(['kelompok.ketua', 'posKebutuhan.desa']);
 
         if ($data['action'] === 'reject') {
             $proposal->update([
@@ -153,6 +161,13 @@ class ProposalService
                     $proposal->kelompok->ketua_id,
                     "Proposal kelompok Anda untuk pos kebutuhan '{$proposal->posKebutuhan->judul}' telah ditolak oleh pihak desa."
                 );
+
+                $ketua = $proposal->kelompok->ketua;
+                if ($ketua && ! empty($ketua->phone_wa)) {
+                    $desaNama = $proposal->posKebutuhan?->desa?->nama_desa ?? 'Pihak Desa';
+                    $pesan = "Halo *{$ketua->name}* (Ketua {$proposal->kelompok->nama_kelompok}),\n\nUpdate proposal KKN untuk pos *\"{$proposal->posKebutuhan->judul}\"* di *{$desaNama}*:\n❌ *Status*: DITOLAK oleh Perangkat Desa\n📋 *Catatan*: {$data['catatan_desa']}\n\nJangan berkecil hati, Anda masih dapat mengeksplorasi dan mengajukan proposal ke Pos Kebutuhan desa lainnya di BaktiNusantara.\n\n_Salam semangat,_\n*Tim BaktiNusantara*";
+                    SendWhatsAppNotificationJob::dispatch($ketua->phone_wa, $pesan);
+                }
             }
 
             return $proposal;
@@ -182,6 +197,14 @@ class ProposalService
                 $proposal->kelompok->ketua_id,
                 "Proposal kelompok Anda untuk pos kebutuhan '{$proposal->posKebutuhan->judul}' telah disetujui (diterima) oleh pihak desa."
             );
+
+            $ketua = $proposal->kelompok->ketua;
+            if ($ketua && ! empty($ketua->phone_wa)) {
+                $desaNama = $proposal->posKebutuhan?->desa?->nama_desa ?? 'Pihak Desa';
+                $catatan = ! empty($data['catatan_desa']) ? "\n📋 *Catatan Desa*: {$data['catatan_desa']}" : "";
+                $pesan = "Halo *{$ketua->name}* (Ketua {$proposal->kelompok->nama_kelompok}),\n\n🎉 Selamat! Proposal KKN kelompok Anda untuk pos *\"{$proposal->posKebutuhan->judul}\"* di *{$desaNama}* telah ✅ *DISETUJUI (DITERIMA)* oleh Perangkat Desa.{$catatan}\n\nLangkah selanjutnya:\n1. Mulai jalankan program kerja di desa sesuai jadwal.\n2. Laporkan kemajuan secara berkala melalui menu Progress Mingguan (Minggu 1 s/d 4).\n\n_Semangat mengabdi!_\n*Tim BaktiNusantara*";
+                SendWhatsAppNotificationJob::dispatch($ketua->phone_wa, $pesan);
+            }
         }
 
         return $proposal;

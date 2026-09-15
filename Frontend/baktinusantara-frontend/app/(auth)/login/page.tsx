@@ -2,6 +2,7 @@
 
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, SEEDED_ACCOUNTS } from '@/context/AuthContext';
 import { UserRole } from '@/lib/types';
@@ -248,9 +249,16 @@ export default function LoginPage() {
     >
       <div className="w-full max-w-xl lg:mr-8 xl:mr-16 bg-transparent">
         <div className="text-center mb-6">
-          <Link href="/" className="inline-flex items-center gap-2.5 mb-4 group">
-            <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center text-white font-epilogue font-bold text-xl shadow-glow-primary group-hover:scale-105 transition-transform">
-              BN
+          <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
+            <div className="w-12 h-12 relative flex items-center justify-center transition-transform group-hover:scale-105 shrink-0">
+              <Image
+                src="/logo.svg"
+                alt="BaktiNusantara Logo"
+                width={48}
+                height={48}
+                priority
+                className="w-12 h-12 object-contain drop-shadow-md"
+              />
             </div>
             <span className="font-epilogue font-extrabold text-2xl text-navy-950 dark:text-white drop-shadow-sm">
               BaktiNusantara

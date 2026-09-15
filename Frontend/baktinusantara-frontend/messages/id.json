@@ -44,67 +44,146 @@
   },
   "hero": {
     "announcement": "Pendaftaran KKN Tematik Semester Ganjil 2026/2027 Dibuka",
-    "titleLine1": "Membangun Desa,",
-    "titleAction": "Mengabdi",
-    "titleWith": "dengan",
-    "titleImpact": "Karya Nyata.",
-    "subtitle": "Platform terpadu yang menghubungkan mahasiswa perguruan tinggi dengan ribuan pos kebutuhan riil pemerintah desa di seluruh Indonesia secara transparan dan terukur.",
-    "tabs": {
-      "all": "Semua Pos",
-      "agrikultur": "Agrikultur & Pangan",
-      "digitalisasi": "Digitalisasi UMKM",
-      "kesehatan": "Kesehatan Posyandu"
+    "badge": "PLATFORM KOLABORASI KKN NASIONAL",
+    "titleLine1": "Temukan Kebutuhan Desa.",
+    "titleLine2": "Salurkan Keahlian Mahasiswa.",
+    "titleLine3": "Ciptakan Dampak Nyata.",
+    "subtitle": "BaktiNusantara mempertemukan kebutuhan nyata desa dengan kompetensi mahasiswa melalui satu platform terintegrasi — dari pencarian program, pengajuan aspirasi, pelaksanaan hingga dokumentasi dampak.",
+    "searchHeader": "Eksplorasi Pos KKN Mahasiswa",
+    "searchMicrocopy": "Temukan program pengabdian yang sesuai dengan lokasi, bidang, dan kebutuhan desa.",
+    "searchBtn": "Jelajahi Pos KKN",
+    "mapBtn": "Lihat Peta Nusantara"
+  },
+  "problem": {
+    "badge": "TANTANGAN SAAT INI",
+    "title": "KKN Masih Terfragmentasi",
+    "subtitle": "Mengapa ekosistem pengabdian masyarakat tradisional perlu ditransformasi menjadi platform digital terpadu.",
+    "card1": {
+      "title": "Kebutuhan Desa Sulit Ditemukan",
+      "desc": "Aspirasi dan potensi desa sering tersebar di berbagai dokumen fisik dan tidak mudah diakses mahasiswa."
     },
-    "inputs": {
-      "locationLabel": "Lokasi Wilayah",
-      "locationPlaceholder": "Cari desa, kecamatan, kabupaten...",
-      "majorLabel": "Keahlian / Jurusan",
-      "majorPlaceholder": "Teknik, Agribisnis, Gizi, DKV...",
-      "searchBtn": "Cari Pos KKN"
+    "card2": {
+      "title": "Program Belum Selalu Tepat Sasaran",
+      "desc": "Ide pengabdian mahasiswa sering kali belum selaras dengan urgensi dan kebutuhan riil masyarakat desa."
+    },
+    "card3": {
+      "title": "Data & Dokumentasi Tersebar",
+      "desc": "Hasil, luaran, dan keberlanjutan program pengabdian sulit ditelusuri dan diukur setelah masa KKN selesai."
+    },
+    "card4": {
+      "title": "Kolaborasi Masih Manual",
+      "desc": "Informasi, pengajuan, perizinan, validasi, dan tindak lanjut berada di banyak kanal terpisah tanpa standar baku."
+    },
+    "transition": "BaktiNusantara menyatukan seluruh proses tersebut dalam satu ekosistem digital terpadu."
+  },
+  "workflow": {
+    "badge": "ALUR KERJA TERPADU",
+    "title": "Bagaimana BaktiNusantara Bekerja?",
+    "subtitle": "Alur terintegrasi dari aspirasi warga desa hingga pengukuran dampak nyata di lapangan.",
+    "steps": [
+      {
+        "step": "01",
+        "title": "Desa Menyampaikan Kebutuhan",
+        "desc": "Pemerintah & warga desa mendaftarkan permasalahan riil dan potensi lokal melalui form aspirasi terverifikasi."
+      },
+      {
+        "step": "02",
+        "title": "Mahasiswa Menemukan Program",
+        "desc": "Mahasiswa mencari pos yang cocok dengan filter cerdas berdasarkan jurusan, keahlian, dan wilayah target."
+      },
+      {
+        "step": "03",
+        "title": "Pengajuan Rencana Kerja",
+        "desc": "Tim mahasiswa mengajukan proposal rencana aksi pengabdian terstruktur dan pembagian tugas kelompok."
+      },
+      {
+        "step": "04",
+        "title": "Validasi & Koordinasi",
+        "desc": "Kepala Desa bersama Dosen Pembimbing Lapangan (DPL) memvalidasi kesiapan tim dan target luaran."
+      },
+      {
+        "step": "05",
+        "title": "Pelaksanaan & Presensi GPS",
+        "desc": "Mahasiswa mencatat logbook harian terverifikasi geolokasi GPS serta pemantauan monev berkala."
+      },
+      {
+        "step": "06",
+        "title": "Dokumentasi & Dampak Nyata",
+        "desc": "Penerbitan BAST resmi ber-QR Code dan portofolio publik sebagai rekam jejak dampak berkelanjutan."
+      }
+    ]
+  },
+  "roles": {
+    "badge": "MULTI-STAKEHOLDER",
+    "title": "Satu Platform, Tiga Peran Ekosistem",
+    "subtitle": "Dirancang spesifik untuk menghubungkan tiga pemangku kepentingan utama dalam siklus pengabdian.",
+    "mahasiswa": {
+      "role": "UNTUK MAHASISWA",
+      "tagline": "Pencari Pengabdian & Eksekutor Dampak",
+      "desc": "Temukan pos dan kebutuhan desa yang sesuai dengan kompetensi keilmuan Anda. Lamar pos secara transparan, catat logbook GPS, dan bangun portofolio publik.",
+      "cta": "Cari Program KKN"
+    },
+    "desa": {
+      "role": "UNTUK PEMERINTAH & WARGA DESA",
+      "tagline": "Sumber Aspirasi & Mitra Lapangan",
+      "desc": "Sampaikan kebutuhan riil desa dan temukan kelompok mahasiswa berkeahlian yang siap membantu menyelesaikan masalah di sektor agrikultur, UMKM, kesehatan, hingga digitalisasi.",
+      "cta": "Ajukan Kebutuhan Desa"
+    },
+    "dpl": {
+      "role": "UNTUK PENGELOLA & DOSEN (DPL)",
+      "tagline": "Penjamin Mutu & Verifikator Luaran",
+      "desc": "Kelola, validasi, dan pantau seluruh aktivitas pengabdian dalam satu sistem transparan dengan pelaporan otomatis, validasi logbook, dan pengesahan BAST digital.",
+      "cta": "Masuk Portal Pengelola"
     }
   },
   "showcase": {
-    "badge": "DOKUMENTASI AKSI LAPANGAN",
-    "title": "Sinergi Nyata Mahasiswa & Warga Desa",
-    "subtitle": "Dari modernisasi irigasi pertanian hingga penguatan UMKM lokal, KKN hadir menjawab tantangan riil desa.",
+    "badge": "BUKTI DAMPAK NYATA",
+    "title": "Dari Masalah Riil Menjadi Solusi Berkelanjutan",
+    "subtitle": "Bukan sekadar kegiatan seremonial, tetapi program nyata dengan luaran konkret dan dampak terukur bagi kemandirian desa.",
     "viewDoc": "Lihat Dokumentasi",
     "stats": {
-      "stat1": "Desa Terbantu & Aktif",
-      "stat2": "Mahasiswa Berkontribusi",
-      "stat3": "Luaran Terverifikasi & BAST",
-      "stat4": "Jam Pengabdian Nasional"
+      "stat1": "Desa Terdaftar & Terbantu",
+      "stat2": "Mahasiswa Aktif Mengabdi",
+      "stat3": "Program Prioritas Terlaksana",
+      "stat4": "Masyarakat Terdampak Langsung"
     }
   },
   "explore": {
-    "badge": "Sebaran Geografis KKN",
-    "title": "Jelajahi Pengabdian di Seluruh Nusantara",
+    "badge": "SEBARAN GEOGRAFIS KKN",
+    "title": "Jelajahi Sebaran Pengabdian di Seluruh Nusantara",
+    "subtitle": "Sebaran pos KKN aktif di 38 provinsi dari Sabang sampai Merauke.",
     "postsCount": "{count} Pos Kebutuhan"
   },
+  "dashboardPreview": {
+    "badge": "PREVIEW APLIKASI WEB",
+    "title": "BaktiNusantara dalam Satu Dashboard Terpadu",
+    "subtitle": "Pengalaman produk modern untuk memantau program, logbook lapangan, aspirasi desa, dan validasi BAST secara real-time."
+  },
   "technology": {
-    "badge": "Arsitektur Terpadu",
-    "title": "Teknologi Tepat Guna untuk Tata Kelola KKN yang Transparan",
-    "subtitle": "Setiap tahapan pengabdian terekam secara digital, mulai dari perumusan kebutuhan warga hingga pengesahan Berita Acara Serah Terima resmi (BAST).",
+    "badge": "SISTEM & TRANSPARANSI DATA",
+    "title": "Setiap Program Terlacak. Setiap Dampak Terdokumentasi.",
+    "subtitle": "Sistem akuntabilitas digital memastikan setiap tahapan pengabdian dan kontribusi mahasiswa terekam secara terpercaya dari awal hingga akhir.",
     "steps": {
       "step1": {
         "title": "Aspirasi Masuk",
-        "desc": "Warga desa melaporkan kebutuhan riil secara langsung melalui web."
+        "desc": "Warga desa melaporkan kebutuhan riil secara langsung melalui form web terstandar."
       },
       "step2": {
         "title": "Kurasi & Validasi",
-        "desc": "Kepala Desa memvalidasi aspirasi menjadi pos KKN terdaftar resmi."
+        "desc": "Kepala Desa & LPPM memvalidasi aspirasi menjadi pos KKN terdaftar resmi."
       },
       "step3": {
         "title": "Pelaksanaan Terpadu",
-        "desc": "Mahasiswa & DPL mencatat logbook terverifikasi GPS mingguan."
+        "desc": "Mahasiswa & DPL mencatat logbook harian terverifikasi GPS mingguan."
       },
       "step4": {
         "title": "Pengesahan BAST",
-        "desc": "Serah terima luaran akhir ber-QR Code dan sertifikat digital."
+        "desc": "Serah terima luaran akhir ber-QR Code dan sertifikat digital resmi."
       }
     }
   },
   "opportunities": {
-    "badge": "Peluang Pengabdian Terverifikasi",
+    "badge": "PELUANG PENGABDIAN TERVERIFIKASI",
     "title": "Pos Kebutuhan Siap Dilamar Mahasiswa",
     "subtitle": "Pilih program pengabdian yang telah disahkan oleh perangkat desa dan tim LPPM.",
     "viewCatalog": "Buka Katalog Lengkap",
@@ -113,11 +192,17 @@
     "quotaValue": "{filled}/{quota} Mahasiswa",
     "detailBtn": "Detail Pos"
   },
+  "impactPortfolio": {
+    "badge": "REKAM JEJAK DAMPAK",
+    "title": "Setiap Program Meninggalkan Jejak Nyata",
+    "subtitle": "Dokumentasi komprehensif yang dapat diakses publik untuk menjamin keberlanjutan hasil karya mahasiswa di seluruh desa.",
+    "cta": "Lihat Portofolio Publik"
+  },
   "cta": {
-    "title": "Siap Mendedikasikan Ilmu untuk Kemajuan Desa?",
-    "subtitle": "Bergabunglah bersama ribuan mahasiswa dan dosen pembimbing dalam memajukan desa-desa di Indonesia.",
-    "registerBtn": "Daftar KKN Sekarang",
-    "aspirasiBtn": "Kirim Aspirasi Desa"
+    "title": "Desa punya kebutuhan. Mahasiswa punya kemampuan. BaktiNusantara mempertemukannya.",
+    "subtitle": "Bergabunglah dalam ekosistem kolaborasi pengabdian masyarakat terbesar di Indonesia. Wujudkan pengabdian terukur dan berdampak nyata.",
+    "registerBtn": "Jelajahi Pos KKN",
+    "aspirasiBtn": "Ajukan Kebutuhan Desa"
   },
   "footer": {
     "description": "Platform kolaborasi terpadu Kuliah Kerja Nyata (KKN) Tematik Indonesia. Menghubungkan aspirasi warga desa, inovasi mahasiswa, bimbingan dosen, dan pengabdian universitas.",
