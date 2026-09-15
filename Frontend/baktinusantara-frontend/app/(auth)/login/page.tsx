@@ -245,7 +245,7 @@ export default function LoginPage() {
   return (
     // === BACKGROUND & POSISI IMAGE: ubah bg-[position:...] di bawah untuk geser (30%=kiri, 70%=kanan) ===
     <div
-      className="min-h-[100dvh] min-h-screen w-full bg-cover bg-center lg:bg-[position:60%_center] bg-no-repeat flex font-jakarta overflow-hidden"
+      className="relative min-h-[100dvh] min-h-screen w-full bg-cover bg-[position:30%_center] lg:bg-[position:60%_center] bg-no-repeat flex font-jakarta overflow-hidden"
       style={{ backgroundImage: "url('/images/BGlogin.png')" }}
     >
       {/* KIRI - 50% layar di desktop, hidden di HP */}
