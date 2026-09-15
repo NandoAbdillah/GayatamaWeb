@@ -47,9 +47,11 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: stri
       </header>
 
       {/* Main App Canvas */}
-      <div className="flex-1 max-w-7xl w-full mx-auto flex">
+      <div className="flex-1 max-w-7xl w-full mx-auto flex items-start">
         <Sidebar />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        {/* Spacer agar konten tidak tertutup sidebar fixed */}
+        <div className="hidden lg:block w-64 shrink-0" aria-hidden />
+        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

@@ -301,5 +301,64 @@
       "matching": "📊 Cek Kecocokan Jurusan",
       "logbook": "📋 Draf Catatan Logbook"
     }
+  },
+  "aspirasi": {
+    "badge": "Kanal Partisipasi Publik",
+    "title": "Sampaikan Usulan & Masalah Desa Anda",
+    "subtitle": "Warga masyarakat dapat menyampaikan usulan kebutuhan wilayah secara terbuka. Usulan yang diverifikasi akan diteruskan menjadi pos kebutuhan KKN mahasiswa.",
+    "form": {
+      "title": "Formulir Aspirasi Warga Desa",
+      "subtitle": "Data Anda akan diteruskan ke perangkat desa dan tim LPPM pengabdian masyarakat.",
+      "successTitle": "Aspirasi Berhasil Diterima!",
+      "successDesc": "Simpan nomor tiket ini untuk memantau proses verifikasi oleh perangkat desa:",
+      "submitAnother": "Kirim Aspirasi Lainnya",
+      "labels": {
+        "name": "Nama Pengusul / Warga",
+        "namePlaceholder": "Contoh: Pak Joko (RT 03)",
+        "contact": "Nomor WhatsApp / Kontak",
+        "contactPlaceholder": "0812xxxxxxx",
+        "village": "Pilih Wilayah Desa Sasaran",
+        "villages": {
+          "village1": "Desa Sukamaju, Kec. Ciawi, Kab. Bogor (Jawa Barat)",
+          "village2": "Desa Berkah Makmur, Kec. Purwodadi, Kab. Pasuruan (Jawa Timur)",
+          "village3": "Desa Cempaka Putih, Kec. Pacet, Kab. Mojokerto (Jawa Timur)"
+        },
+        "titleField": "Judul Kebutuhan / Masalah",
+        "titlePlaceholder": "Contoh: Pelatihan Digitalisasi & Foto Produk UMKM",
+        "category": "Kategori",
+        "categories": {
+          "umkm": "Pemberdayaan UMKM",
+          "kesehatan": "Kesehatan & Sanitasi",
+          "lingkungan": "Lingkungan & Energi",
+          "pendidikan": "Pendidikan & Literasi",
+          "fasilitas": "Infrastruktur & Fasilitas"
+        },
+        "urgency": "Tingkat Urgensi",
+        "urgencies": {
+          "rendah": "Rendah (Rencana Jangka Panjang)",
+          "sedang": "Sedang (Dibutuhkan Musim Ini)",
+          "mendesak": "Mendesak (Prioritas Utama Warga)"
+        },
+        "photo": "Foto Bukti Lapangan (Opsional)",
+        "description": "Uraian Kebutuhan & Lokasi",
+        "descriptionPlaceholder": "Jelaskan kondisi di lapangan dan harapan dari warga..."
+      },
+      "submitBtn": "Kirimkan Aspirasi ke Perangkat Desa",
+      "submittingBtn": "Mengirimkan Aspirasi..."
+    },
+    "track": {
+      "title": "Lacak Status Tiket Aspirasi",
+      "subtitle": "Masukkan nomor tiket yang Anda dapatkan saat mengirim aspirasi.",
+      "placeholder": "Contoh: ASP-2026-SKM-0089",
+      "checkBtn": "Cek Status Tindak Lanjut",
+      "demoLabel": "Coba tiket demo:",
+      "responseLabel": "Tanggapan Desa:"
+    },
+    "toast": {
+      "found": "Status tiket aspirasi ditemukan!",
+      "notFound": "Nomor tiket tidak ditemukan. Pastikan nomor tiket benar.",
+      "successWithTicket": "Aspirasi berhasil dikirim! Nomor Tiket Anda: #{ticket}",
+      "recordedWithTicket": "Aspirasi tercatat! Nomor Tiket Anda: {ticket}"
+    }
   }
 }

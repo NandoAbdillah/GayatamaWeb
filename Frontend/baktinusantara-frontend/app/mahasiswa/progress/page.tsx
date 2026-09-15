@@ -41,11 +41,34 @@ export default function MahasiswaProgressPage() {
   const [deskripsi, setDeskripsi] = useState<string>('');
   const [fotoFile, setFotoFile] = useState<File | null>(null);
 
+  // Normalize ensures foto_dokumentasi_urls is always array (prevents "reading 'length'" crash)
+  const normalizeLogbook = (raw: any): LogbookEntry => {
+    const fotos: string[] = (() => {
+      if (Array.isArray(raw?.foto_dokumentasi_urls)) return raw.foto_dokumentasi_urls;
+      if (Array.isArray(raw?.foto_dokumentasi)) return raw.foto_dokumentasi;
+      if (Array.isArray(raw?.fotos)) return raw.fotos;
+      if (typeof raw?.foto === 'string' && raw.foto) return [raw.foto];
+      if (typeof raw?.foto_url === 'string' && raw.foto_url) return [raw.foto_url];
+      return [];
+    })();
+    return {
+      ...raw,
+      foto_dokumentasi_urls: fotos,
+      deskripsi: raw?.deskripsi ?? '',
+      judul_kegiatan: raw?.judul_kegiatan ?? raw?.judul ?? '',
+      target_program_terkait: raw?.target_program_terkait ?? '-',
+      status: raw?.status ?? 'submitted',
+    } as LogbookEntry;
+  };
+
   useEffect(() => {
-    api.progress.getByProposal(1)
+    api.progress
+      .getByProposal(1)
       .then((res) => {
-        if (Array.isArray(res) && res.length > 0) {
-          setLogbooks(res);
+        // progressService already normalizes, but double-guard for any shape
+        const list: any[] = Array.isArray(res) ? res : Array.isArray((res as any)?.data) ? (res as any).data : [];
+        if (list.length > 0) {
+          setLogbooks(list.map(normalizeLogbook));
         }
       })
       .catch(() => {});
@@ -223,13 +246,13 @@ export default function MahasiswaProgressPage() {
               )}
 
               {/* Photos attached */}
-              {log.foto_dokumentasi_urls.length > 0 && (
+              {(log.foto_dokumentasi_urls?.length ?? 0) > 0 && (
                 <div className="pt-2">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
                     Dokumentasi Kegiatan:
                   </span>
                   <div className="flex gap-3 overflow-x-auto pb-2">
-                    {log.foto_dokumentasi_urls.map((url, i) => (
+                    {(log.foto_dokumentasi_urls ?? []).map((url, i) => (
                       <img
                         key={i}
                         src={url}

@@ -42,7 +42,7 @@ export const Sidebar: React.FC = () => {
         return [
           { href: '/mahasiswa/dashboard', label: 'Dashboard', icon: LayoutDashboard },
           { href: '/mahasiswa/progress', label: 'Logbook Harian', icon: BookOpen, badge: 'Aktif' },
-          { href: '/mahasiswa/lokasi', label: 'Presensi Lokasi GPS', icon: MapPin, badge: 'GPS' },
+          { href: '/mahasiswa/lokasi', label: 'Presensi Lokasi', icon: MapPin, badge: 'GPS' },
           { href: '/mahasiswa/kelompok', label: 'Kelompok KKN', icon: Users },
           { href: '/mahasiswa/proposal', label: 'Proposal Program', icon: FileText },
           { href: '/mahasiswa/izin', label: 'Surat Izin Orang Tua', icon: FileCheck2, badge: '>50km' },
@@ -90,7 +90,7 @@ export const Sidebar: React.FC = () => {
   const navItems = getRoleNavItems();
 
   return (
-    <aside className="w-64 shrink-0 hidden lg:flex flex-col bg-white dark:bg-navy-950 border-r border-slate-200 dark:border-navy-800 min-h-[calc(100vh-4rem)] p-4 justify-between select-none transition-colors duration-200">
+    <aside className="w-64 shrink-0 hidden lg:flex flex-col bg-white dark:bg-navy-950 border-r border-slate-200 dark:border-navy-800 fixed top-[61px] left-[max(0px,calc((100vw-80rem)/2))] bottom-0 overflow-hidden p-4 justify-between select-none transition-colors duration-200 overscroll-none z-20">
       <div className="space-y-6">
         {/* User Card */}
         <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-navy-900 border border-slate-200 dark:border-navy-800">
@@ -106,7 +106,6 @@ export const Sidebar: React.FC = () => {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-navy-950 dark:text-white truncate">{user?.name}</p>
               <p className="text-xs text-primary dark:text-primary-400 font-semibold capitalize flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
                 {user?.role?.replace('_', ' ')}
               </p>
             </div>

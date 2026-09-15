@@ -40,7 +40,7 @@ export default function MahasiswaDashboard() {
         <div className="rounded-3xl bg-gradient-to-r from-navy-950 via-primary-900 to-navy-900 text-white p-6 sm:p-8 shadow-ambient-lg relative overflow-hidden">
           <div className="relative z-10 max-w-2xl space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-primary-200">
-              <Sparkles className="w-3.5 h-3.5" /> KKN Tematik Semester Ganjil 2026
+              KKN Tematik Semester Ganjil 2026
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold font-epilogue">
               Semangat Mengabdi, {user?.name || 'M. Rian Pratama'}!
