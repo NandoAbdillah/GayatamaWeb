@@ -44,16 +44,20 @@ const KKN_HUBS: HubPoint[] = [
  */
 export const IndonesiaMapBackdrop: React.FC<{
   className?: string;
-  position?: 'top-right' | 'top-left' | 'center';
-}> = ({ className = '', position = 'top-right' }) => {
+  position?: 'top-right' | 'top-left' | 'center' | 'inline-right';
+}> = ({ className = '', position = 'inline-right' }) => {
   const [activeHub, setActiveHub] = useState<HubPoint | null>(null);
+
+  const isInline = position === 'inline-right';
 
   const getPositionStyles = () => {
     switch (position) {
+      case 'inline-right':
+        return 'inset-0 w-full h-full';
       case 'top-right':
-        return 'top-[-20px] sm:top-[-30px] lg:top-[-40px] right-[-20px] sm:right-0 lg:right-4 w-[340px] sm:w-[480px] md:w-[580px] lg:w-[680px] xl:w-[760px] h-[200px] sm:h-[270px] md:h-[320px] lg:h-[380px]';
+        return 'top-0 right-0 lg:right-4 xl:right-8 w-[280px] sm:w-[380px] md:w-[460px] lg:w-[520px] xl:w-[580px] h-[160px] sm:h-[220px] md:h-[260px] lg:h-[300px] xl:h-[330px]';
       case 'top-left':
-        return 'top-[-20px] sm:top-[-30px] lg:top-[-40px] left-[-20px] sm:left-0 lg:left-4 w-[340px] sm:w-[480px] md:w-[580px] lg:w-[680px] xl:w-[760px] h-[200px] sm:h-[270px] md:h-[320px] lg:h-[380px]';
+        return 'top-0 left-0 lg:left-4 xl:left-8 w-[280px] sm:w-[380px] md:w-[460px] lg:w-[520px] xl:w-[580px] h-[160px] sm:h-[220px] md:h-[260px] lg:h-[300px] xl:h-[330px]';
       case 'center':
       default:
         return 'top-0 left-1/2 -translate-x-1/2 w-full max-w-[1500px] h-[520px] sm:h-[600px] lg:h-[680px]';
@@ -63,27 +67,28 @@ export const IndonesiaMapBackdrop: React.FC<{
   return (
     <div
       aria-hidden="false"
-      className={`absolute inset-0 overflow-hidden select-none z-0 pointer-events-none ${className}`}
+      className={`${
+        isInline ? 'relative w-full h-full' : 'absolute inset-0'
+      } overflow-visible select-none z-0 pointer-events-none ${className}`}
     >
-      {/* 1. Ambient Diffuse Halo Glow (Sangat halus, tanpa batas kotak, 100% menyatu dengan canvas) */}
+      {/* 1. Ambient Circular / Diffuse Halo Glow (100% Bulat & Menyebar Alami, Tanpa Batas Kotak) */}
       <div
-        className={`absolute w-[360px] sm:w-[520px] lg:w-[700px] h-[220px] sm:h-[320px] lg:h-[420px] bg-gradient-to-r from-emerald-500/20 via-teal-400/15 to-sky-400/20 dark:from-emerald-400/30 dark:via-cyan-400/25 dark:to-blue-500/30 blur-[100px] rounded-full pointer-events-none ${
-          position === 'top-right'
-            ? 'top-[-40px] right-[-10px]'
-            : position === 'top-left'
-            ? 'top-[-40px] left-[-10px]'
-            : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-        }`}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[115%] h-[120%] max-w-[650px] max-h-[380px] rounded-full pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 70% at 50% 50%, rgba(16, 185, 129, 0.18) 0%, rgba(13, 148, 136, 0.10) 45%, rgba(6, 182, 212, 0.04) 70%, transparent 100%)',
+          filter: 'blur(40px)',
+        }}
       />
 
-      {/* 2. Container Utama Peta dengan Masking Ultra-Halus (Zero Box Border) */}
+      {/* 2. Container Utama Peta dengan Masking Melingkar / Oval Menyebar (Zero Rectangle Cutoff) */}
       <div
         className={`absolute ${getPositionStyles()} transition-all duration-300`}
         style={{
           maskImage:
-            'radial-gradient(ellipse 95% 90% at 60% 40%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.5) 75%, transparent 100%)',
+            'radial-gradient(ellipse 92% 82% at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.7) 75%, transparent 100%)',
           WebkitMaskImage:
-            'radial-gradient(ellipse 95% 90% at 60% 40%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.5) 75%, transparent 100%)',
+            'radial-gradient(ellipse 92% 82% at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.7) 75%, transparent 100%)',
         }}
       >
         {/* 3. LAYER A: Rich Gradient Map Mask (Bentuk pulau berkontras tinggi & menonjol) */}
