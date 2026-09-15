@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import {
@@ -10,7 +11,6 @@ import {
   ShieldCheck,
   BookOpen,
   ArrowRight,
-  Sprout,
   CheckCircle2,
   FileCheck2,
 } from 'lucide-react';
@@ -57,9 +57,16 @@ export default function RegisterHubPage() {
       <div className="max-w-4xl mx-auto w-full space-y-8">
         {/* Brand & Header */}
         <div className="text-center space-y-3">
-          <Link href="/" className="inline-flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
-              <Sprout className="w-6 h-6" />
+          <Link href="/" className="inline-flex items-center gap-3 group">
+            <div className="w-11 h-11 relative flex items-center justify-center transition-transform group-hover:scale-105 shrink-0">
+              <Image
+                src="/logo.svg"
+                alt="BaktiNusantara Logo"
+                width={44}
+                height={44}
+                priority
+                className="w-11 h-11 object-contain drop-shadow-md"
+              />
             </div>
             <span className="font-epilogue font-extrabold text-2xl text-navy-950 dark:text-white">
               BaktiNusantara

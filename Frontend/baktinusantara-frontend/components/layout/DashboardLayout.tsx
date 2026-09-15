@@ -7,7 +7,8 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { NotificationCenter } from '@/components/ui/NotificationCenter';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import { Sprout, PanelLeftClose } from 'lucide-react';
+import Image from 'next/image';
+import { PanelLeftClose } from 'lucide-react';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: string }> = ({
   children,
@@ -32,8 +33,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: stri
         <div className="flex items-center justify-between gap-4 w-full">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white font-epilogue font-bold text-sm shadow-sm transition-transform group-hover:scale-105">
-                <Sprout className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 relative flex items-center justify-center shrink-0 transition-transform group-hover:scale-105">
+                <Image
+                  src="/logo.svg"
+                  alt="BaktiNusantara Logo"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 object-contain drop-shadow-sm"
+                />
               </div>
               <span className="font-epilogue font-bold text-navy-950 dark:text-white text-base hidden sm:inline">
                 BaktiNusantara

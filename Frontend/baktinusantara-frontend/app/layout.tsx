@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     title: 'Gayatama',
   },
   icons: {
-    icon: '/icons/icon-192x192.png',
-    shortcut: '/icons/icon-192x192.png',
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
     apple: '/icons/icon-192x192.png',
   },
 };

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
@@ -11,7 +12,6 @@ import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { NotificationCenter } from '@/components/ui/NotificationCenter';
 import { useTranslations } from 'next-intl';
 import {
-  Sprout,
   LayoutDashboard,
   Menu,
   X,
@@ -73,12 +73,19 @@ export const Navbar: React.FC = () => {
       <div className="max-w-[1500px] mx-auto px-4 sm:px-8 lg:px-12">
         <div className="flex items-center h-20 gap-3 sm:gap-4 lg:gap-6">
           {/* Logo Brand (Farmvest / IKN Style) - fixed, never shrinks */}
-          <Link href="/" className="flex items-center gap-3.5 shrink-0 group">
-            <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center text-white shadow-sm transition-transform duration-200 group-hover:scale-105 shrink-0">
-              <Sprout className="w-6 h-6 text-white" />
+          <Link href="/" className="flex items-center gap-3 shrink-0 group">
+            <div className="w-11 h-11 relative flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shrink-0">
+              <Image
+                src="/logo.svg"
+                alt={tCommon('appName')}
+                width={44}
+                height={44}
+                priority
+                className="w-11 h-11 object-contain drop-shadow-sm"
+              />
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="font-epilogue font-extrabold text-navy-950 dark:text-white text-xl leading-none tracking-tight whitespace-nowrap">
+            <div className="flex flex-col justify-center items-center min-w-0 mt-3">
+              <span className="font-epilogue font-extrabold text-navy-950 dark:text-white text-xl leading-none tracking-tight whitespace-nowrap justify-center ">
                 {tCommon('appName')}
               </span>
             </div>
