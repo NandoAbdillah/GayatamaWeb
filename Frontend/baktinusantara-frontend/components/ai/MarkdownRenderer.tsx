@@ -21,7 +21,7 @@ function CodeBlock({ code, language, isUser }: { code: string; language?: string
   };
 
   return (
-    <div className={`my-2.5 rounded-xl overflow-hidden border shadow-sm ${
+    <div className={`my-2.5 rounded-xl overflow-hidden border shadow-sm max-w-full ${
       isUser
         ? 'bg-black/30 border-white/20 text-white'
         : 'bg-navy-950 dark:bg-[#030d1a] border-slate-800 text-slate-100'
@@ -52,7 +52,7 @@ function CodeBlock({ code, language, isUser }: { code: string; language?: string
       </div>
 
       {/* Code Content */}
-      <pre className="p-3.5 overflow-x-auto text-[11px] sm:text-xs font-mono leading-relaxed text-emerald-300 dark:text-emerald-400 scrollbar-thin scrollbar-thumb-white/10">
+      <pre className="p-3.5 overflow-x-auto text-xs font-mono leading-relaxed text-emerald-300 dark:text-emerald-400 scrollbar-thin scrollbar-thumb-white/10">
         <code>{code}</code>
       </pre>
     </div>
@@ -61,15 +61,7 @@ function CodeBlock({ code, language, isUser }: { code: string; language?: string
 
 // Inline Markdown Parser
 function parseInline(text: string, isUser: boolean = false): React.ReactNode[] {
-  // Regex to match markdown inline tokens:
-  // 1: Code `...`
-  // 2: Bold-Italic ***...***
-  // 3: Bold **...**
-  // 4: Italic *...*
-  // 5: Strikethrough ~~...~~
-  // 6: Links [text](url)
   const tokenRegex = /(`[^`]+`|\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*|~~[^~]+~~|\[[^\]]+\]\([^)]+\))/g;
-
   const parts = text.split(tokenRegex);
 
   return parts.map((part, index) => {
@@ -81,7 +73,7 @@ function parseInline(text: string, isUser: boolean = false): React.ReactNode[] {
       return (
         <code
           key={index}
-          className={`px-1.5 py-0.5 rounded-md font-mono text-[11px] sm:text-xs font-semibold mx-0.5 ${
+          className={`px-1.5 py-0.5 rounded-md font-mono text-[11.5px] sm:text-xs font-semibold mx-0.5 ${
             isUser
               ? 'bg-white/20 text-white border border-white/25'
               : 'bg-slate-100 dark:bg-navy-950 text-primary-700 dark:text-primary-300 border border-slate-200 dark:border-navy-800'
@@ -106,8 +98,8 @@ function parseInline(text: string, isUser: boolean = false): React.ReactNode[] {
       return (
         <strong
           key={index}
-          className={`font-bold ${
-            isUser ? 'text-white' : 'text-navy-950 dark:text-white font-extrabold'
+          className={`font-semibold ${
+            isUser ? 'text-white' : 'text-navy-950 dark:text-white font-bold'
           }`}
         >
           {parseInline(part.slice(2, -2), isUser)}
@@ -166,7 +158,6 @@ function parseInline(text: string, isUser: boolean = false): React.ReactNode[] {
 export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererProps) {
   if (!content) return null;
 
-  // Split content into lines and process blocks
   const lines = content.split('\n');
   const blocks: React.ReactNode[] = [];
 
@@ -190,14 +181,14 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
         blocks.push(
           <ul
             key={listKey}
-            className={`my-2 space-y-1.5 pl-4 sm:pl-5 list-disc ${
+            className={`my-2 space-y-1 pl-4 sm:pl-5 list-disc ${
               isUser
                 ? 'marker:text-white/80'
                 : 'marker:text-primary dark:marker:text-primary-400 text-slate-800 dark:text-slate-200'
             }`}
           >
             {currentItems.map((item, idx) => (
-              <li key={idx} className="leading-relaxed pl-1 text-xs sm:text-[13px]">
+              <li key={idx} className="leading-[1.65] pl-1 text-[13.5px] sm:text-[14px]">
                 {parseInline(item, isUser)}
               </li>
             ))}
@@ -207,14 +198,14 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
         blocks.push(
           <ol
             key={listKey}
-            className={`my-2 space-y-1.5 pl-4 sm:pl-5 list-decimal ${
+            className={`my-2 space-y-1 pl-4 sm:pl-5 list-decimal ${
               isUser
                 ? 'marker:text-white/80'
-                : 'marker:text-primary dark:marker:text-primary-400 marker:font-bold text-slate-800 dark:text-slate-200'
+                : 'marker:text-primary dark:marker:text-primary-400 marker:font-semibold text-slate-800 dark:text-slate-200'
             }`}
           >
             {currentItems.map((item, idx) => (
-              <li key={idx} className="leading-relaxed pl-1 text-xs sm:text-[13px]">
+              <li key={idx} className="leading-[1.65] pl-1 text-[13.5px] sm:text-[14px]">
                 {parseInline(item, isUser)}
               </li>
             ))}
@@ -237,7 +228,6 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
           .map((c) => c.trim())
       );
 
-      // Filter out divider rows like |---|---|
       const isDivider = (row: string[]) => row.every((c) => /^:?-+:?$/.test(c));
       const validRows = rawRows.filter((row) => !isDivider(row));
 
@@ -249,13 +239,13 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
         blocks.push(
           <div
             key={tableKey}
-            className="my-3 overflow-x-auto rounded-xl border border-slate-200 dark:border-navy-800 shadow-2xs"
+            className="my-2.5 overflow-x-auto rounded-xl border border-slate-200 dark:border-navy-800 shadow-2xs max-w-full"
           >
             <table className="min-w-full text-xs text-left divide-y divide-slate-200 dark:divide-navy-800 font-sans">
               <thead className="bg-slate-100 dark:bg-navy-950 font-bold text-navy-950 dark:text-white">
                 <tr>
                   {headerRow.map((cell, cIdx) => (
-                    <th key={cIdx} className="px-3 py-2 text-xs font-bold">
+                    <th key={cIdx} className="px-3 py-2 text-xs font-semibold">
                       {parseInline(cell, isUser)}
                     </th>
                   ))}
@@ -339,10 +329,10 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
           blocks.push(
             <h1
               key={hKey}
-              className={`text-sm sm:text-base font-extrabold tracking-tight mt-3.5 mb-1.5 pb-1 border-b ${
+              className={`text-[15.5px] sm:text-[16px] font-bold tracking-tight mt-3 mb-1.5 pb-1 border-b ${
                 isUser
                   ? 'text-white border-white/20'
-                  : 'text-navy-950 dark:text-white border-slate-200 dark:border-navy-800'
+                  : 'text-navy-950 dark:text-white border-slate-200/80 dark:border-navy-800'
               }`}
             >
               {parseInline(text, isUser)}
@@ -352,7 +342,7 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
           blocks.push(
             <h2
               key={hKey}
-              className={`text-xs sm:text-sm font-bold tracking-tight mt-3 mb-1.5 ${
+              className={`text-[14px] sm:text-[15px] font-bold tracking-tight mt-2.5 mb-1 ${
                 isUser ? 'text-white' : 'text-navy-950 dark:text-white'
               }`}
             >
@@ -363,8 +353,8 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
           blocks.push(
             <h3
               key={hKey}
-              className={`text-xs font-bold mt-2.5 mb-1 ${
-                isUser ? 'text-white/95' : 'text-primary dark:text-primary-400 font-extrabold'
+              className={`text-[13.5px] sm:text-[14px] font-semibold mt-2 mb-1 ${
+                isUser ? 'text-white/95' : 'text-primary dark:text-primary-400'
               }`}
             >
               {parseInline(text, isUser)}
@@ -374,7 +364,7 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
           blocks.push(
             <h4
               key={hKey}
-              className={`text-xs font-semibold mt-2 mb-1 ${
+              className={`text-[13px] font-semibold mt-1.5 mb-1 ${
                 isUser ? 'text-white/90' : 'text-slate-800 dark:text-slate-200'
               }`}
             >
@@ -393,7 +383,7 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
       blocks.push(
         <hr
           key={`hr-${blocks.length}`}
-          className={`my-3 ${isUser ? 'border-white/20' : 'border-slate-200 dark:border-navy-800'}`}
+          className={`my-2.5 ${isUser ? 'border-white/20' : 'border-slate-200 dark:border-navy-800'}`}
         />
       );
       continue;
@@ -407,10 +397,10 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
       blocks.push(
         <blockquote
           key={`quote-${blocks.length}`}
-          className={`border-l-3 pl-3 py-1 my-2 italic text-xs leading-relaxed rounded-r-lg ${
+          className={`border-l-3 pl-3 py-1.5 my-2 italic text-[13px] leading-relaxed rounded-r-lg ${
             isUser
               ? 'border-white/40 bg-white/10 text-white/90'
-              : 'border-primary/60 dark:border-primary-400 bg-slate-50 dark:bg-navy-950/60 text-slate-700 dark:text-slate-300'
+              : 'border-primary/60 dark:border-primary-400 bg-slate-50/80 dark:bg-navy-950/50 text-slate-700 dark:text-slate-300'
           }`}
         >
           {parseInline(quoteText, isUser)}
@@ -441,19 +431,17 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
       continue;
     }
 
-    // If not a list item, flush any pending list
     flushList();
 
-    // 8. Empty line -> spacer
     if (!trimmed) {
       continue;
     }
 
-    // 9. Standard Paragraph
+    // 8. Standard Paragraph
     blocks.push(
       <p
         key={`p-${blocks.length}`}
-        className={`leading-relaxed my-1.5 text-xs sm:text-[13px] ${
+        className={`leading-[1.65] my-1.5 text-[13.5px] sm:text-[14px] ${
           isUser ? 'text-white' : 'text-slate-800 dark:text-slate-100'
         }`}
       >
@@ -462,7 +450,6 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
     );
   }
 
-  // Final flush for remaining buffers
   flushList();
   flushTable();
 
@@ -477,5 +464,5 @@ export function MarkdownRenderer({ content, isUser = false }: MarkdownRendererPr
     );
   }
 
-  return <div className="space-y-1 font-sans">{blocks}</div>;
+  return <div className="space-y-0.5 font-sans break-words">{blocks}</div>;
 }
