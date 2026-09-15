@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api-client';
+import api from '@/lib/services';
 
 export default function RegisterUniversitasPage() {
   const router = useRouter();
@@ -34,6 +35,7 @@ export default function RegisterUniversitasPage() {
     name: '',
     email: '',
     password: '',
+    password_confirmation: '',
     nip_admin: '',
     jabatan: 'Kepala Pusat Pengabdian Masyarakat (LPPM)',
     nama_universitas: 'Universitas Bakti Nusantara',
@@ -88,27 +90,19 @@ export default function RegisterUniversitasPage() {
       return;
     }
 
-    if (!mouFile && !mouUploadedUrl) {
-      toast.error('Harap sertakan dokumen legalitas/SK LPPM');
-      return;
-    }
-
     setLoading(true);
     try {
-      try {
-        await apiClient.post('/api/register/universitas', {
-          ...formData,
-          role: 'universitas',
-          mou_file_url: mouUploadedUrl || 'https://storage.gayatama.ac.id/mou/preview_mou.pdf',
-        });
-      } catch (apiErr) {
-        // Fallback demo
-      }
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.password_confirmation || formData.password,
+        phone_wa: formData.no_telp_lppm || '081234567890',
+        nama_universitas: formData.nama_universitas,
+        kode_univ: formData.kode_pt || `UNIV-${Date.now().toString().slice(-4)}`,
+      };
 
-      await register('universitas', {
-        ...formData,
-        mou_file_url: mouUploadedUrl || 'https://storage.gayatama.ac.id/mou/preview_mou.pdf',
-      });
+      await register('universitas', payload);
       toast.success('Pendaftaran Institusi Kampus Berhasil! Selamat datang di Portal Monev LPPM.');
       router.push('/admin/dashboard');
     } catch (err: any) {

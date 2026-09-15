@@ -115,13 +115,13 @@ export default function DosenLogbookPage() {
               )}
 
               {/* Photos */}
-              {log.foto_dokumentasi_urls.length > 0 && (
+              {(log.foto_dokumentasi_urls?.length ?? 0) > 0 && (
                 <div className="pt-2">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
                     Lampiran Dokumentasi Foto:
                   </span>
                   <div className="flex gap-3 overflow-x-auto pb-2">
-                    {log.foto_dokumentasi_urls.map((url, i) => (
+                    {(log.foto_dokumentasi_urls ?? []).map((url, i) => (
                       <img
                         key={i}
                         src={url}

@@ -35,20 +35,23 @@ import {
   ShieldCheck,
   ChevronRight,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 // Dynamic import for Leaflet (CSR only to avoid SSR window is not defined error)
-const WilayahLeafletMap = dynamic(
-  () => import('@/components/maps/WilayahLeafletMap'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-full min-h-[550px] bg-slate-900 rounded-3xl flex flex-col items-center justify-center text-white space-y-3">
-        <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs font-semibold text-slate-300">Menyiapkan Engine Peta Geospasial & Lambang Daerah...</p>
-      </div>
-    ),
-  }
-);
+function MapLoadingFallback() {
+  const tmaps = useTranslations('maps');
+  return (
+    <div className="w-full h-full min-h-[550px] bg-slate-900 rounded-3xl flex flex-col items-center justify-center text-white space-y-3">
+      <div className="w-8 h-8 border-3 border-primary border-tmaps-transparent rounded-full animate-spin" />
+      <p className="text-xs font-semibold text-slate-300">{tmaps('mapLoading')}</p>
+    </div>
+  );
+}
+
+const WilayahLeafletMap = dynamic(() => import('@/components/maps/WilayahLeafletMap'), {
+  ssr: false,
+  loading: () => <MapLoadingFallback />,
+});
 
 // Featured quick provinces for instant preview
 const FEATURED_PROVINCES = [
@@ -63,6 +66,7 @@ const FEATURED_PROVINCES = [
 ];
 
 export default function MapsPage() {
+  const tmaps = useTranslations('maps');
   // Pos KKN selection & filtering
   const [selectedPos, setSelectedPos] = useState(MOCK_POS_KEBUTUHAN[0]);
   const [radiusFilter, setRadiusFilter] = useState<number>(50);
@@ -310,10 +314,10 @@ export default function MapsPage() {
           <div>
             <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
               <Compass className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>GIS Geospasial & Lambang Daerah • API Wilayah Indonesia</span>
+              <span>{tmaps('header.badge')}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue mt-1">
-              Peta Sebaran Wilayah & Lambang Resmi Daerah
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue mt-5">
+              {tmaps('header.title')}
             </h1>
           </div>
 
@@ -322,9 +326,9 @@ export default function MapsPage() {
             <div className="flex items-center gap-3 bg-white dark:bg-navy-900 px-4 py-2 rounded-2xl border border-slate-200 dark:border-navy-800 shadow-sm text-xs font-semibold text-slate-600 dark:text-slate-300">
               <Globe2 className="w-4 h-4 text-primary shrink-0" />
               <span>
-                <strong className="text-navy-950 dark:text-white">{stats.total_provinces}</strong> Prov •{' '}
-                <strong className="text-navy-950 dark:text-white">{stats.total_regencies}</strong> Kab/Kota •{' '}
-                <strong className="text-navy-950 dark:text-white">{stats.total_districts.toLocaleString()}</strong> Kec
+                <strong className="text-navy-950 dark:text-white">{stats.total_provinces}</strong> {tmaps('header.statsProv')} •{' '}
+                <strong className="text-navy-950 dark:text-white">{stats.total_regencies}</strong> {tmaps('header.statsRegencies')} •{' '}
+                <strong className="text-navy-950 dark:text-white">{stats.total_districts.toLocaleString()}</strong> {tmaps('header.statsDistricts')}
               </span>
             </div>
           )}
@@ -341,7 +345,7 @@ export default function MapsPage() {
               onFocus={() => {
                 if (searchResults.length > 0) setShowSearchResults(true);
               }}
-              placeholder="Cari wilayah se-Indonesia (contoh: 'Bogor', 'Bandung', 'Surabaya', 'Denpasar', 'Malang')..."
+              placeholder={tmaps('search.placeholder')}
               className="w-full pl-11 pr-10 py-3 rounded-2xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
             />
             {isSearching ? (
@@ -364,8 +368,8 @@ export default function MapsPage() {
           {showSearchResults && searchResults.length > 0 && (
             <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-80 overflow-y-auto z-50">
               <div className="p-2 border-b border-slate-100 dark:border-navy-800 bg-slate-50 dark:bg-navy-950/60 flex items-center justify-between text-[11px] text-slate-500 font-semibold px-3">
-                <span>Hasil Pencarian ({searchResults.length} Wilayah)</span>
-                <span className="text-primary font-mono text-[10px]">edopandoyo/wilayah-indonesia-api</span>
+                <span>{tmaps('search.resultsTitle', { count: searchResults.length })}</span>
+                <span className="text-primary font-mono text-[10px]">{tmaps('search.apiLabel')}</span>
               </div>
               <div className="divide-y divide-slate-100 dark:divide-navy-800">
                 {searchResults.map((item) => (
@@ -403,7 +407,7 @@ export default function MapsPage() {
         {/* Quick Province Selector Ribbons with Mini Logos */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           <span className="text-xs font-bold text-slate-500 shrink-0 mr-1 flex items-center gap-1">
-            <Landmark className="w-3.5 h-3.5 text-primary" /> Cepat:
+            <Landmark className="w-3.5 h-3.5 text-primary" /> {tmaps('quick.label')}
           </span>
           {FEATURED_PROVINCES.map((prov) => (
             <button
@@ -430,7 +434,7 @@ export default function MapsPage() {
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <Landmark className="w-3.5 h-3.5 text-primary" />
-                  Pilih Provinsi
+                  {tmaps('filters.provinceLabel')}
                 </span>
                 {selectedProvinceId && (
                   <span className="text-[10px] text-emerald-600 font-mono font-bold">
@@ -447,7 +451,7 @@ export default function MapsPage() {
                 >
                   {provinces.map((prov) => (
                     <option key={prov.id} value={prov.id}>
-                      {prov.name} {prov.capital ? `(Ibukota: ${prov.capital})` : ''}
+                      {prov.name} {prov.capital ? tmaps('region.capitalWithPrefix', { capital: prov.capital }) : ''}
                     </option>
                   ))}
                 </select>
@@ -459,7 +463,7 @@ export default function MapsPage() {
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <Building className="w-3.5 h-3.5 text-emerald-600" />
-                  Filter Kabupaten / Kota
+                  {tmaps('filters.regencyLabel')}
                 </span>
                 {selectedRegencyId && (
                   <span className="text-[10px] text-emerald-600 font-mono font-bold">
@@ -476,7 +480,7 @@ export default function MapsPage() {
                   onChange={(e) => handleRegencyChange(e.target.value)}
                   className="flex-1 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
-                  <option value="">Semua Kab/Kota di {currentRegion?.name || 'Provinsi'}</option>
+                  <option value="">{tmaps('filters.allRegencies', { province: currentRegion?.name || 'Provinsi' })}</option>
                   {regencies.map((reg) => (
                     <option key={reg.id} value={reg.id}>
                       {reg.name}
@@ -490,7 +494,7 @@ export default function MapsPage() {
             <div className="md:col-span-4 space-y-1">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                 <Compass className="w-3.5 h-3.5 text-sky-600" />
-                Radius Jarak dari Kampus
+                {tmaps('filters.radiusLabel')}
               </label>
               <div className="flex items-center gap-2">
                 {[20, 50, 100].map((dist) => (
@@ -504,7 +508,7 @@ export default function MapsPage() {
                         : 'bg-slate-100 dark:bg-navy-950 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-navy-800'
                     }`}
                   >
-                    {dist === 100 ? 'Semua' : `< ${dist} km`}
+                    {dist === 100 ? tmaps('filters.all') : dist === 20 ? tmaps('lessThan20') : tmaps('lessThan50')}
                   </button>
                 ))}
               </div>
@@ -554,7 +558,7 @@ export default function MapsPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
                         <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                        {currentRegion.id.length === 2 ? 'Pemerintah Provinsi' : 'Pemerintah Daerah'}
+                        {currentRegion.id.length === 2 ? tmaps('region.provinceGov') : tmaps('region.regencyGov')}
                       </span>
                       <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-navy-950 text-slate-500 font-mono font-bold text-[10px]">
                         ID: {currentRegion.id}
@@ -564,7 +568,7 @@ export default function MapsPage() {
                       {currentRegion.name}
                     </h3>
                     <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      Logo & Batas Resmi Kemendagri & BIG
+                      {tmaps('region.logoBoundary')}
                     </p>
                   </div>
                 </div>
@@ -572,7 +576,7 @@ export default function MapsPage() {
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   {currentRegion.capital && (
                     <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800">
-                      <span className="text-[10px] text-slate-500 block">Ibukota:</span>
+                      <span className="text-[10px] text-slate-500 block">{tmaps('region.capital')}</span>
                       <strong className="text-navy-950 dark:text-white font-semibold block truncate">
                         {currentRegion.capital}
                       </strong>
@@ -581,27 +585,27 @@ export default function MapsPage() {
 
                   {currentRegion.population && (
                     <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800">
-                      <span className="text-[10px] text-slate-500 block">Populasi:</span>
+                      <span className="text-[10px] text-slate-500 block">{tmaps('region.population')}</span>
                       <strong className="text-navy-950 dark:text-white font-semibold block truncate">
-                        {currentRegion.population.toLocaleString('id-ID')} jiwa
+                        {currentRegion.population.toLocaleString('id-ID')} {tmaps('region.populationUnit')}
                       </strong>
                     </div>
                   )}
 
                   {currentRegion.total_area && (
                     <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800">
-                      <span className="text-[10px] text-slate-500 block">Luas Wilayah:</span>
+                      <span className="text-[10px] text-slate-500 block">{tmaps('region.area')}</span>
                       <strong className="text-navy-950 dark:text-white font-semibold block truncate">
-                        {currentRegion.total_area.toLocaleString('id-ID')} km²
+                        {currentRegion.total_area.toLocaleString('id-ID')} {tmaps('region.areaUnit')}
                       </strong>
                     </div>
                   )}
 
                   {currentRegion.elv !== undefined && (
                     <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800">
-                      <span className="text-[10px] text-slate-500 block">Ketinggian:</span>
+                      <span className="text-[10px] text-slate-500 block">{tmaps('region.elevation')}</span>
                       <strong className="text-navy-950 dark:text-white font-semibold block truncate">
-                        {currentRegion.elv} mdpl
+                        {currentRegion.elv} {tmaps('region.elevationUnit')}
                       </strong>
                     </div>
                   )}
@@ -615,7 +619,7 @@ export default function MapsPage() {
                 <div className="flex items-center justify-between">
                   <StatusBadge status={selectedPos.status} size="sm" />
                   <span className="text-xs font-bold text-primary bg-primary-50 dark:bg-primary-950/80 px-2.5 py-1 rounded-full">
-                    {selectedPos.distance_km} km dari kampus
+                    {tmaps('posCard.distanceFromCampus', { distance: selectedPos.distance_km ?? 0 })}
                   </span>
                 </div>
 
@@ -636,8 +640,8 @@ export default function MapsPage() {
                   {selectedPos.deskripsi}
                 </p>
 
-                <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-navy-800">
-                  <span className="text-xs font-bold text-navy-900 dark:text-slate-200">Target Luaran Pos:</span>
+                <div className="space-y-1.5 pt-2 border-tmaps border-slate-100 dark:border-navy-800">
+                  <span className="text-xs font-bold text-navy-900 dark:text-slate-200">{tmaps('posCard.targetOutputs')}</span>
                   <div className="space-y-1">
                     {selectedPos.target_luaran.slice(0, 2).map((tgt, i) => (
                       <div key={i} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
@@ -649,10 +653,10 @@ export default function MapsPage() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-navy-800 space-y-2">
+              <div className="pt-3 border-tmaps border-slate-100 dark:border-navy-800 space-y-2">
                 <Link href={`/search/${selectedPos.id}`}>
                   <Button size="lg" variant="primary" className="w-full shadow-glow-primary justify-center font-bold">
-                    <span>Lihat Rincian Pos & Lamar</span>
+                    <span>{tmaps('posCard.viewDetails')}</span>
                     <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </Link>

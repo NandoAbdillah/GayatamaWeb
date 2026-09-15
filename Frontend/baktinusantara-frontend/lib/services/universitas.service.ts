@@ -1,0 +1,80 @@
+import apiClient from '@/lib/api-client';
+import { LaporanDosenItem, User } from '@/lib/types';
+
+export interface CreateDosenPayload {
+  name: string;
+  email: string;
+  password: string;
+  nip: string;
+  no_hp: string;
+}
+
+export const universitasService = {
+  /**
+   * Get public list of registered universities
+   * Endpoint: GET /api/universitas
+   */
+  async getUniversitasList(): Promise<any[]> {
+    const res = await apiClient.get<any[]>('/api/universitas');
+    return res.data;
+  },
+
+  /**
+   * Add a new lecturer under this university (Universitas)
+   * Endpoint: POST /api/universitas/dosen
+   */
+  async addDosen(payload: CreateDosenPayload): Promise<{
+    message: string;
+    data: any;
+  }> {
+    const res = await apiClient.post('/api/universitas/dosen', payload);
+    return res.data;
+  },
+
+  /**
+   * List all lecturers belonging to this university
+   * Endpoint: GET /api/universitas/dosen
+   */
+  async getDosenList(): Promise<any[]> {
+    const res = await apiClient.get<any[]>('/api/universitas/dosen');
+    return res.data;
+  },
+
+  /**
+   * List all village evaluation reports about university's lecturers
+   * Endpoint: GET /api/universitas/laporan-dosen
+   */
+  async getLaporanDosen(): Promise<LaporanDosenItem[]> {
+    const res = await apiClient.get<LaporanDosenItem[]>('/api/universitas/laporan-dosen');
+    return res.data;
+  },
+
+  /**
+   * Update review status of a lecturer evaluation report
+   * Endpoint: PATCH /api/universitas/laporan-dosen/{id}/status
+   */
+  async updateLaporanStatus(
+    id: number | string,
+    status: 'menunggu' | 'ditinjau' | 'selesai'
+  ): Promise<{ message: string; data: LaporanDosenItem }> {
+    const res = await apiClient.patch(`/api/universitas/laporan-dosen/${id}/status`, {
+      status,
+    });
+    return res.data;
+  },
+
+  /**
+   * Submit evaluation report for a DPL by village (Perangkat Desa)
+   * Endpoint: POST /api/desa/laporan-dosen
+   */
+  async sendLaporanDosen(payload: {
+    dosen_id: number | string;
+    proposal_id: number | string;
+    isi: string;
+  }): Promise<{ message: string; data: any }> {
+    const res = await apiClient.post('/api/desa/laporan-dosen', payload);
+    return res.data;
+  },
+};
+
+export default universitasService;

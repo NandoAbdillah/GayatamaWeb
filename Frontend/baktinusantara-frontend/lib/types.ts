@@ -194,18 +194,94 @@ export interface BASTDocument {
 }
 
 export interface ApiResponse<T> {
-  success: boolean;
+  success?: boolean;
+  message?: string;
   data: T;
-  message: string;
 }
 
 export interface PaginatedResponse<T> {
-  success: boolean;
+  success?: boolean;
   data: T[];
-  meta: {
+  meta?: {
     current_page: number;
     last_page: number;
     per_page: number;
     total: number;
   };
+}
+
+export interface NationalMetrics {
+  total_desa_terbantu: number;
+  total_umkm_terdigitalisasi: number;
+  total_kelompok_kkn: number;
+  total_mahasiswa_terlibat: number;
+  total_jam_pengabdian: number;
+  total_pos_kebutuhan: number;
+  status_pos_breakdown: {
+    open: number;
+    in_progress: number;
+    completed: number;
+  };
+  total_luaran_terverifikasi: number;
+  total_portofolio_publik: number;
+  kategori_breakdown: Record<string, number>;
+  sdgs_distribution: Record<string, number>;
+}
+
+export interface NotificationItem {
+  id: number;
+  user_id: number;
+  title: string;
+  message: string;
+  type?: string;
+  is_read: boolean;
+  action_url?: string;
+  created_at: string;
+}
+
+export interface WilayahItem {
+  id: string;
+  name: string;
+}
+
+export interface PortofolioPublik {
+  id: number;
+  slug: string;
+  judul_program: string;
+  ringkasan_dampak: string;
+  testimoni_desa: string;
+  sertifikat_pdf_url?: string;
+  created_at?: string;
+  kelompok?: {
+    id: number;
+    nama_kelompok: string;
+    anggota?: any[];
+  };
+  desa?: {
+    id: number;
+    nama_desa: string;
+    kecamatan: string;
+    kabupaten: string;
+    provinsi: string;
+    user?: {
+      name: string;
+      email: string;
+    };
+  };
+  proposal?: any;
+  luaran?: any;
+}
+
+export interface LaporanDosenItem {
+  id: number;
+  dosen_id: number;
+  proposal_id: number;
+  isi: string;
+  status: 'menunggu' | 'ditinjau' | 'selesai';
+  dosen?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  created_at: string;
 }

@@ -24,6 +24,8 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/services';
+import { PosKebutuhan } from '@/lib/types';
 
 export default function PosDetailPage() {
   const params = useParams();
@@ -31,7 +33,54 @@ export default function PosDetailPage() {
   const { user } = useAuth();
   const id = Number(params?.id || '1');
 
-  const pos = MOCK_POS_KEBUTUHAN.find((p) => p.id === id) || MOCK_POS_KEBUTUHAN[0];
+  const [pos, setPos] = React.useState<PosKebutuhan>(
+    () => MOCK_POS_KEBUTUHAN.find((p) => p.id === id) || MOCK_POS_KEBUTUHAN[0]
+  );
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadDetail() {
+      try {
+        setLoading(true);
+        const data = await api.posKebutuhan.getById(id);
+        if (data && (data as any).id) {
+          const item: any = data;
+          setPos({
+            id: item.id,
+            desa_id: item.desa_id || 1,
+            judul: item.judul || item.title || 'Pos Kebutuhan KKN',
+            deskripsi: item.deskripsi || item.description || '',
+            nama_desa: item.desa?.nama_desa || item.nama_desa || 'Desa Mitra',
+            kecamatan: item.desa?.kecamatan || item.kecamatan || 'Kecamatan',
+            kabupaten: item.desa?.kabupaten || item.kabupaten || 'Kabupaten',
+            provinsi: item.desa?.provinsi || item.provinsi || 'Jawa Timur',
+            latitude: item.latitude || -6.595,
+            longitude: item.longitude || 106.8166,
+            kategori_sektor: item.kategori || item.kategori_sektor || 'Digitalisasi & Teknologi Desa',
+            kuota_mahasiswa: item.kuota_kelompok ? item.kuota_kelompok * 10 : (item.kuota_mahasiswa || 10),
+            terisi_mahasiswa: item.terisi_mahasiswa || 0,
+            status: item.status || 'terbuka',
+            matching_score: item.matching_score || 95,
+            kriteria_jurusan: Array.isArray(item.kriteria_jurusan)
+              ? item.kriteria_jurusan
+              : item.jurusan_dibutuhkan
+              ? Object.keys(item.jurusan_dibutuhkan)
+              : ['Teknik Informatika', 'Manajemen', 'Sistem Informasi'],
+            target_luaran: Array.isArray(item.target_luaran)
+              ? item.target_luaran
+              : ['Sistem Informasi Web Desa', 'Modul Pelatihan Aparatur', 'Laporan Akhir KKN'],
+            distance_km: item.distance_km || 18.4,
+            created_at: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja',
+          });
+        }
+      } catch (err) {
+        console.warn('Fallback to mock pos detail:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadDetail();
+  }, [id]);
 
   const handleApply = () => {
     if (!user) {
