@@ -243,15 +243,17 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
-    // === UBAH POSISI IMAGE DI SINI (app/(auth)/login/page.tsx:246) ===
-    // - Geser kiri/kanan: ganti 'bg-center' di bawah jadi 'bg-left' / 'bg-right' / 'bg-[position:30%_center]' (% kecil=kiri, % besar=kanan)
-    // - Presisi px: ubah backgroundPosition di style jadi "30% center" (kiri) / "70% center" (kanan) / "left 20px center"
-    // - Responsive: pakai 'bg-center lg:bg-[position:65%_center]' untuk beda HP vs desktop
+    // === BACKGROUND & POSISI IMAGE: ubah bg-[position:...] di bawah untuk geser (30%=kiri, 70%=kanan) ===
     <div
-      className="min-h-[100dvh] min-h-screen w-full bg-cover bg-[position:10%_center] lg:bg-[position:65%_center] bg-no-repeat flex items-start sm:items-center justify-center lg:justify-end p-3 min-[360px]:p-4 sm:p-6 lg:p-8 font-jakarta overflow-y-auto"
+      className="min-h-[100dvh] min-h-screen w-full bg-cover bg-center lg:bg-[position:60%_center] bg-no-repeat flex font-jakarta overflow-hidden"
       style={{ backgroundImage: "url('/images/BGlogin.png')" }}
     >
-      <div className="w-full max-w-[340px] min-[360px]:max-w-sm sm:max-w-md lg:max-w-xl lg:mr-6 xl:mr-12 2xl:mr-16 my-auto bg-transparent flex flex-col">
+      {/* KIRI - area background kosong (flex 1) */}
+      <div className="hidden lg:flex flex-1" aria-hidden />
+
+      {/* KANAN - form center, ukuran tetap di semua laptop (flex 1) */}
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12 overflow-y-auto">
+        <div className="w-full max-w-[420px] sm:max-w-md lg:max-w-[480px] my-auto flex flex-col">
         <div className="text-center mb-4 sm:mb-6 px-1">
           <Link href="/" className="inline-flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 group">
             <div className="w-10 h-10 sm:w-12 sm:h-12 relative flex items-center justify-center transition-transform group-hover:scale-105 shrink-0">
@@ -279,6 +281,7 @@ export default function LoginPage() {
         <Suspense fallback={<div className="p-8 text-center text-slate-500">Memuat formulir masuk...</div>}>
           <LoginFormContent />
         </Suspense>
+        </div>
       </div>
     </div>
   );
