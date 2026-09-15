@@ -133,18 +133,9 @@ function LoginFormContent() {
   };
 
   return (
-    <Card className="p-6 sm:p-8 shadow-ambient-lg border-slate-200/90 dark:border-navy-800 bg-white dark:bg-navy-900">
+    <Card className="p-6 sm:p-8 bg-transparent border-0 shadow-none backdrop-blur-none">
       {/* Role selector quick fill chips */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-2.5">
-          <label className="block text-xs font-bold text-navy-800 dark:text-slate-300 uppercase tracking-wider">
-            Akun Percobaan Cepat (Data Asli Database):
-          </label>
-          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" />
-            Backend Terkoneksi
-          </span>
-        </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {demoAccounts.map((acc) => {
@@ -212,9 +203,6 @@ function LoginFormContent() {
             <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200">
               Kata Sandi
             </label>
-            <span className="text-[11px] text-slate-400">
-              Default demo: <span className="font-mono font-bold text-navy-800 dark:text-slate-300">password</span>
-            </span>
           </div>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -242,10 +230,10 @@ function LoginFormContent() {
         </Button>
       </form>
 
-      <div className="mt-6 pt-6 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-        <span>Belum memiliki akun KKN?</span>
+      <div className="mt-6 pt-6 border-t border-slate-100 dark:border-navy-800 flex items-center text-xs text-slate-500 dark:text-slate-400">
+        <span className='pr-2'>Belum memiliki akun KKN?</span>
         <Link href="/register" className="font-bold text-primary hover:underline">
-          Daftar akun baru →
+          Daftar akun baru
         </Link>
       </div>
     </Card>
@@ -254,26 +242,29 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface-canvas via-white to-surface-container dark:from-[#071629] dark:via-navy-950 dark:to-[#071629] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-jakarta transition-colors duration-200">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="inline-flex items-center gap-2.5 mb-4 group">
-          <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center text-white font-epilogue font-bold text-xl shadow-glow-primary group-hover:scale-105 transition-transform">
-            BN
-          </div>
-          <span className="font-epilogue font-extrabold text-2xl text-navy-950 dark:text-white">
-            BaktiNusantara
-          </span>
-        </Link>
-        <h2 className="text-2xl font-bold text-navy-950 dark:text-white font-epilogue">
-          Masuk ke Portal KKN Terpadu
-        </h2>
-        <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-          Pilih peran Anda atau masukkan akun yang telah terdaftar
-        </p>
-      </div>
+    <div
+      className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center lg:justify-end p-4 sm:p-6 lg:p-8 font-jakarta"
+      style={{ backgroundImage: "url('/images/BGlogin.png')" }}
+    >
+      <div className="w-full max-w-xl lg:mr-8 xl:mr-16 bg-transparent">
+        <div className="text-center mb-6">
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-4 group">
+            <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center text-white font-epilogue font-bold text-xl shadow-glow-primary group-hover:scale-105 transition-transform">
+              BN
+            </div>
+            <span className="font-epilogue font-extrabold text-2xl text-navy-950 dark:text-white drop-shadow-sm">
+              BaktiNusantara
+            </span>
+          </Link>
+          <h2 className="text-2xl font-bold text-navy-950 dark:text-white font-epilogue drop-shadow-sm">
+            Masuk ke Portal KKN Terpadu
+          </h2>
+          <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 drop-shadow-sm">
+            Pilih peran Anda atau masukkan akun yang telah terdaftar
+          </p>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
-        <Suspense fallback={<div className="p-8 text-center text-slate-400">Memuat formulir masuk...</div>}>
+        <Suspense fallback={<div className="p-8 text-center text-slate-500">Memuat formulir masuk...</div>}>
           <LoginFormContent />
         </Suspense>
       </div>
