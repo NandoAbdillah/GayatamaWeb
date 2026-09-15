@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SendWhatsAppNotificationJob;
 use App\Models\Aspirasi;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
@@ -17,8 +18,17 @@ class AspirasiService
             $data['foto_url'] = Storage::url($path);
         }
 
-        return Aspirasi::create($data);
-        // TODO nanti: dispatch job kirim WA notif (BAB 6.2) + AI kategorisasi (BAB 6.3)
+        $aspirasi = Aspirasi::create($data);
+
+        // Dispatch WA notification to citizen
+        if (! empty($aspirasi->pelapor_wa)) {
+            $desaNama = $aspirasi->desa?->nama_desa ?? 'Desa';
+            $pesan = "Halo *{$aspirasi->pelapor_nama}*,\n\nTerima kasih atas aspirasi yang Anda sampaikan untuk *{$desaNama}*.\n\n📌 *ID Tiket*: #{$aspirasi->id}\n📂 *Kategori*: " . strtoupper($aspirasi->kategori) . "\n📝 *Deskripsi*: {$aspirasi->deskripsi}\n\nAspirasi Anda telah diterima dan sedang ditinjau oleh Perangkat Desa. Anda dapat memantau status perkembangan aspirasi Anda secara berkala.\n\n_Salam hangat,_\n*Tim BaktiNusantara*";
+
+            SendWhatsAppNotificationJob::dispatch($aspirasi->pelapor_wa, $pesan);
+        }
+
+        return $aspirasi;
     }
 
     public function findByTicket(int $id): ?Aspirasi
@@ -40,6 +50,12 @@ class AspirasiService
                 'status' => 'ditolak',
                 'alasan_tolak' => $data['alasan_tolak'],
             ]);
+
+            if (! empty($aspirasi->pelapor_wa)) {
+                $pesan = "Halo *{$aspirasi->pelapor_nama}*,\n\nUpdate status aspirasi Anda (Tiket *#{$aspirasi->id}*):\n❌ *Status*: DITOLAK oleh Perangkat Desa\n📋 *Alasan*: {$aspirasi->alasan_tolak}\n\nTerima kasih atas kepedulian Anda dalam menyuarakan aspirasi warga desa.\n\n_Salam hangat,_\n*Tim BaktiNusantara*";
+                SendWhatsAppNotificationJob::dispatch($aspirasi->pelapor_wa, $pesan);
+            }
+
             return $aspirasi;
         }
 
@@ -55,6 +71,11 @@ class AspirasiService
             'deadline' => $data['deadline'],
             'jurusan_dibutuhkan' => $data['jurusan_dibutuhkan'],
         ]);
+
+        if (! empty($aspirasi->pelapor_wa)) {
+            $pesan = "Halo *{$aspirasi->pelapor_nama}*,\n\nKabar baik! Aspirasi Anda (Tiket *#{$aspirasi->id}*) telah ✅ *DISETUJUI & DIVERIFIKASI* oleh Perangkat Desa.\n\nAspirasi ini telah resmi dijadikan Pos Kebutuhan KKN Mahasiswa dengan judul:\n📌 *\"{$data['judul']}\"*\n\nTerima kasih atas kontribusi nyata Anda untuk kemajuan desa!\n\n_Salam hangat,_\n*Tim BaktiNusantara*";
+            SendWhatsAppNotificationJob::dispatch($aspirasi->pelapor_wa, $pesan);
+        }
 
         return $aspirasi;
     }

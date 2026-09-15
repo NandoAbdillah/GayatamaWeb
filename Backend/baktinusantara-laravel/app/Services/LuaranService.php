@@ -129,6 +129,15 @@ class LuaranService
                 $luaran->proposal->kelompok->ketua_id,
                 "Selamat! Luaran akhir kelompok Anda telah divalidasi oleh desa '{$user->profilDesa->nama_desa}'. E-Portofolio publik dan sertifikat Anda telah terbit."
             );
+
+            $ketua = $luaran->proposal->kelompok->ketua;
+            if ($ketua && ! empty($ketua->phone_wa)) {
+                $frontendBaseUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000'));
+                $portfolioUrl = "{$frontendBaseUrl}/portofolio/{$portofolio->slug_public}";
+                $pesan = "Halo *{$ketua->name}* (Ketua {$luaran->proposal->kelompok->nama_kelompok}),\n\n🏆 *Selamat!* Luaran akhir hasil pengabdian KKN kelompok Anda telah resmi ✅ *DIVERIFIKASI & DISAHKAN* oleh Perangkat Desa *{$user->profilDesa->nama_desa}* (_Verified by Village_).\n\n📄 *E-Portofolio Publik Anda*: {$portfolioUrl}\n\nPortofolio ini berisi ringkasan dampak, ulasan perangkat desa, dan berkas sertifikat resmi bertanda tangan digital desa.\n\n_Terima kasih atas dedikasi dan karya nyata Anda!_\n*Tim BaktiNusantara*";
+
+                \App\Jobs\SendWhatsAppNotificationJob::dispatch($ketua->phone_wa, $pesan);
+            }
         }
 
         // Kirim notifikasi ke dosen pembimbing jika ada
