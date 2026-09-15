@@ -7,16 +7,37 @@ export interface GeminiKeySlot {
 }
 
 // Default fallback key pool from environment or user specifications
-const RAW_KEYS =
-  process.env.GEMINI_API_KEYS ||
-  'UserAccount|AQ.Ab8RN6LmNwGwmlb8yzWrALP3O5SR1QxeJq7C2uXZYZVyb6Bllw|true,Esper|AQ.Ab8RN6J8hmVyLXVofC8aNRnuZw36MQ8CL-FtUwpoOCn6-nYD-A|true,Stud|AQ.Ab8RN6KJJPiFoH2UmM5IuVulGip1wbDpeFblyM_Erlhnm9KmKw|true,Tom|AQ.Ab8RN6JX-D1ROgHsEf_lMwuSPqiHc-EN004aSDGs6-l_3Oyqow|true,Village|AQ.Ab8RN6KurK4cxWhQFg50LX5UQm-4OIW58B89NmHZLBAjgmfn-g|true,Ara|AQ.Ab8RN6ItRuE2JfcG5sNanrt-5P4Pth5mIi8ykQj9VPtbnpP4mQ|true';
+const DEFAULT_PRIMARY_KEY = 'AQ.Ab8RN6L_C1aNCzUKJYhyOvoEtbzjY8AE1dz-7IBZoge4f2b5kg';
 
 class GeminiKeyManager {
   private keySlots: GeminiKeySlot[] = [];
   private currentIndex = 0;
 
   constructor() {
-    this.parseKeys(RAW_KEYS);
+    this.refreshKeys();
+  }
+
+  public refreshKeys() {
+    const envSingle = process.env.GEMINI_API_KEY?.trim();
+    const envMultiple = process.env.GEMINI_API_KEYS?.trim();
+
+    if (envMultiple) {
+      this.parseKeys(envMultiple);
+    } else if (envSingle) {
+      this.keySlots = [
+        {
+          name: 'Default',
+          key: envSingle,
+          enabled: true,
+          errorCount: 0,
+          lastUsed: 0,
+        },
+      ];
+    } else {
+      this.parseKeys(
+        `Default|${DEFAULT_PRIMARY_KEY}|true,UserAccount|${DEFAULT_PRIMARY_KEY}|true`
+      );
+    }
   }
 
   private parseKeys(raw: string) {

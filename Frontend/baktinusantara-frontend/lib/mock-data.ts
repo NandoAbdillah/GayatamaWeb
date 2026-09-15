@@ -348,3 +348,196 @@ export const MOCK_BAST: BASTDocument = {
   status_tanda_tangan: 'signed_desa',
   qr_code_verify_url: 'https://gayatama.univ.ac.id/verify/bast/BAST-014-KKN-SKM-2026',
 };
+
+export interface MockDesaItem {
+  id: number;
+  nama: string;
+  kecamatan: string;
+  kabupaten: string;
+  provinsi: string;
+  populasi: number;
+  luas_km2: number;
+  potensi_utama: string[];
+  kebutuhan_prioritas: string[];
+  foto_url: string;
+  pos_tersedia: number;
+}
+
+export const MOCK_DESA_LIST: MockDesaItem[] = [
+  {
+    id: 1,
+    nama: 'Desa Sukamaju',
+    kecamatan: 'Ciawi',
+    kabupaten: 'Bogor',
+    provinsi: 'Jawa Barat',
+    populasi: 4820,
+    luas_km2: 12.4,
+    potensi_utama: ['UMKM Keripik Talas', 'Madu Hutan Lestari', 'Pertanian Organik'],
+    kebutuhan_prioritas: ['Digitalisasi Katalog UMKM', 'Otomasi Irigasi Tani', 'Sertifikasi Halal'],
+    foto_url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&auto=format&fit=crop&q=80',
+    pos_tersedia: 2,
+  },
+  {
+    id: 2,
+    nama: 'Desa Cibodas Asri',
+    kecamatan: 'Pacet',
+    kabupaten: 'Cianjur',
+    provinsi: 'Jawa Barat',
+    populasi: 3650,
+    luas_km2: 18.2,
+    potensi_utama: ['Agrowisata Hortikultura', 'Sayur Organik', 'Ekowisata Jalur Hiking'],
+    kebutuhan_prioritas: ['Pengolahan Kompos Zero Waste', 'Promosi Wisata Digital', 'Peta Jalur Wisata QR'],
+    foto_url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&auto=format&fit=crop&q=80',
+    pos_tersedia: 1,
+  },
+  {
+    id: 3,
+    nama: 'Desa Tanjung Karang',
+    kecamatan: 'Babakan Madang',
+    kabupaten: 'Bogor',
+    provinsi: 'Jawa Barat',
+    populasi: 5120,
+    luas_km2: 9.8,
+    potensi_utama: ['Budidaya Ikan Air Tawar', 'Kerajinan Anyaman Bambu', 'Sentra Tanaman Hias'],
+    kebutuhan_prioritas: ['Pencegahan Stunting Posyandu', 'Filtrasi Air Bersih', 'Website Desa'],
+    foto_url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80',
+    pos_tersedia: 1,
+  },
+  {
+    id: 4,
+    nama: 'Desa Pasir Madang',
+    kecamatan: 'Cigudeg',
+    kabupaten: 'Bogor',
+    provinsi: 'Jawa Barat',
+    populasi: 4230,
+    luas_km2: 15.6,
+    potensi_utama: ['Perkebunan Kopi Robusta', 'Gula Aren Tradisional', 'Wisata Curug'],
+    kebutuhan_prioritas: ['Pengemasan & Roasting Kopi Modern', 'Pemberdayaan BUMDes', 'Literasi Keuangan'],
+    foto_url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80',
+    pos_tersedia: 3,
+  },
+];
+
+export interface MockUmkmItem {
+  id: number;
+  nama: string;
+  desa: string;
+  kabupaten: string;
+  kategori: string;
+  produk_unggulan: string;
+  pemilik: string;
+  omset_bulanan: string;
+  status_kkn: string;
+  foto_url: string;
+}
+
+export const MOCK_UMKM_LIST: MockUmkmItem[] = [
+  {
+    id: 1,
+    nama: 'UMKM Keripik Talas Barokah',
+    desa: 'Desa Sukamaju',
+    kabupaten: 'Bogor',
+    kategori: 'Kuliner & Olahan Pangan',
+    produk_unggulan: 'Keripik Talas Aneka Rasa (Original, Keju, Balado)',
+    pemilik: 'Ibu Ratna Susanti',
+    omset_bulanan: 'Rp 12.000.000',
+    status_kkn: 'Pendampingan Foto Produk, NIB, & Kemasan Standing Pouch',
+    foto_url: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=600&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 2,
+    nama: 'Madu Hutan Lestari Ciawi',
+    desa: 'Desa Sukamaju',
+    kabupaten: 'Bogor',
+    kategori: 'Herbal & Pangan Alami',
+    produk_unggulan: 'Madu Hutan Odeng Murni 500ml & Bee Pollen',
+    pemilik: 'Pak Dedi Kurniawan',
+    omset_bulanan: 'Rp 18.500.000',
+    status_kkn: 'Pembuatan Website Katalog & Pendaftaran Sertifikasi Halal',
+    foto_url: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 3,
+    nama: 'Batik Tulis Bambu Ceria',
+    desa: 'Desa Tanjung Karang',
+    kabupaten: 'Bogor',
+    kategori: 'Fashion & Kerajinan Tangan',
+    produk_unggulan: 'Kain Batik Motif Bambu & Pouch Ecoprint',
+    pemilik: 'Ibu Endang Rahayu',
+    omset_bulanan: 'Rp 8.000.000',
+    status_kkn: 'Integrasi Akun Tokopedia & Pelatihan Instagram Ads',
+    foto_url: 'https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?w=600&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 4,
+    nama: 'Kopi Robusta Gunung Madang',
+    desa: 'Desa Pasir Madang',
+    kabupaten: 'Bogor',
+    kategori: 'Perkebunan & Minuman Khas',
+    produk_unggulan: 'Kopi Bubuk & Biji Sangrai Medium Dark 250gr',
+    pemilik: 'Pak Haji Mansur',
+    omset_bulanan: 'Rp 22.000.000',
+    status_kkn: 'Redesain Label Kemasan & Setup Akun Pembayaran QRIS',
+    foto_url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80',
+  },
+];
+
+export interface MockProgramRekomendasi {
+  id: number;
+  nama_program: string;
+  kategori: string;
+  sasaran: string;
+  fokus: string;
+  durasi: string;
+  relevansi: string;
+  alasan: string;
+  target_output: string[];
+}
+
+export const MOCK_PROGRAM_REKOMENDASI: MockProgramRekomendasi[] = [
+  {
+    id: 1,
+    nama_program: 'Digitalisasi Katalog Produk UMKM Desa & Toko Online',
+    kategori: 'Ekonomi Kreatif & Teknologi',
+    sasaran: 'Pelaku UMKM Pangan & Kerajinan Desa',
+    fokus: 'Pembuatan Website Katalog, Foto Produk Studio Mini, & QRIS',
+    durasi: '4 Minggu',
+    relevansi: 'Sangat Sesuai (High Impact)',
+    alasan: 'Memperluas jangkauan pasar produk lokal desa ke tingkat kota secara digital.',
+    target_output: ['Website Katalog Desa', '30 Banner Produk', 'SOP Pembukuan Kas Digital'],
+  },
+  {
+    id: 2,
+    nama_program: 'Pelatihan Kemasan Premium, NIB & Sertifikasi Halal Gratis',
+    kategori: 'Pemberdayaan Ekonomi UMKM',
+    sasaran: 'Ibu-ibu Pengrajin & Industri Rumahan Desa',
+    fokus: 'Legalitas Usaha, Sertifikasi P-IRT/Halal, & Standar Kemasan',
+    durasi: '3 Minggu',
+    relevansi: 'Prioritas Tinggi',
+    alasan: 'Syarat utama agar produk desa dapat dipasarkan ke retail modern & minimarket.',
+    target_output: ['25 NIB Terbit', 'Modul Panduan Sertifikasi', 'Desain Kemasan Baru'],
+  },
+  {
+    id: 3,
+    nama_program: 'Modernisasi Irigasi Pertanian & Sistem Pemantauan IoT',
+    kategori: 'Ketahanan Pangan & Teknologi',
+    sasaran: 'Gabungan Kelompok Tani (Gapoktan)',
+    fokus: 'Otomasi Pintu Air & Manajemen Distribusi Air Musim Kemarau',
+    durasi: '4 Minggu',
+    relevansi: 'Sangat Sesuai',
+    alasan: 'Mencegah gagal panen dan memastikan debit air sawah terbagi merata.',
+    target_output: ['1 Unit Modul Sensor Air', 'Buku Petunjuk Operasional', 'Peta Jalur Irigasi'],
+  },
+  {
+    id: 4,
+    nama_program: 'Posyandu Digital Terpadu & Edukasi Gizi Cegah Stunting',
+    kategori: 'Kesehatan & Sanitasi Masyarakat',
+    sasaran: 'Kader Posyandu, Ibu Hamil & Balita',
+    fokus: 'Dashboard Pencatatan Tumbuh Kembang & Demo Masak MPASI Lokal',
+    durasi: '4 Minggu',
+    relevansi: 'Sangat Sesuai',
+    alasan: 'Mempercepat deteksi dini stunting dan meningkatkan pemenuhan gizi keluarga.',
+    target_output: ['Aplikasi Web Posyandu', 'Buku Menu Sehat MPASI', 'Filter Air Bersih Dusun'],
+  },
+];
+

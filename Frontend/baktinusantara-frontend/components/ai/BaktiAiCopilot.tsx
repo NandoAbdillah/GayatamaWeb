@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from 'next-intl';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { ContextualSmartCard, SmartCardList } from './ContextualSmartCard';
 import {
   Sparkles,
   X,
@@ -53,7 +54,7 @@ export function BaktiAiCopilot() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeSlotName, setActiveSlotName] = useState('Gemini 2.5 Flash');
+  const [activeSlotName, setActiveSlotName] = useState('Gemini 3.6 Flash');
 
   const activeRole = user?.role || 'mahasiswa';
 
@@ -323,160 +324,24 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
                     <div className="w-full rounded-2xl rounded-tl-sm px-4 py-3.5 text-[13.5px] sm:text-[14px] leading-[1.65] bg-white dark:bg-navy-900/90 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-navy-800 shadow-2xs space-y-2.5">
                       <MarkdownRenderer content={msg.content} isUser={false} />
 
-                      {/* RENDER INTERACTIVE ACTION CARDS (TOOL RESULTS) */}
+                      {/* RENDER CONTEXTUAL SMART CARDS */}
                       {msg.executedTool && msg.executedTool.result && (
-                        <div className="pt-2 border-t border-slate-200/60 dark:border-navy-700/60 space-y-2">
-                          {/* 1. Navigate Action Card */}
-                          {msg.executedTool.name === 'navigate_to_page' && (
-                            <div className="p-3 rounded-xl bg-primary-50/70 dark:bg-navy-950 border border-primary-200 dark:border-primary-900 flex items-center justify-between gap-3 text-slate-900 dark:text-white">
-                              <div>
-                                <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">
-                                  Rekomendasi Halaman
-                                </span>
-                                <h4 className="font-bold text-xs">
-                                  {msg.executedTool.args.title}
-                                </h4>
-                                <p className="text-[11px] text-slate-500">
-                                  {msg.executedTool.args.reason}
-                                </p>
-                              </div>
-                              <button
-                                onClick={() => {
-                                  router.push(msg.executedTool?.args.path);
-                                  setIsOpen(false);
-                                }}
-                                className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold flex items-center gap-1 shrink-0 hover:bg-primary-600 transition-colors shadow-2xs"
-                              >
-                                <span>Buka</span>
-                                <ExternalLink className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
+                        <div className="pt-2 border-t border-slate-200/60 dark:border-navy-700/60">
+                          {msg.executedTool.result.data && Array.isArray(msg.executedTool.result.data) ? (
+                            <SmartCardList
+                              variant={msg.executedTool.result.cardType || msg.executedTool.name}
+                              items={msg.executedTool.result.data}
+                              onSendMessage={(prompt) => handleSendMessage(prompt)}
+                              onCloseCopilot={() => setIsOpen(false)}
+                            />
+                          ) : (
+                            <ContextualSmartCard
+                              variant={msg.executedTool.result.cardType || msg.executedTool.name}
+                              data={msg.executedTool.result}
+                              onSendMessage={(prompt) => handleSendMessage(prompt)}
+                              onCloseCopilot={() => setIsOpen(false)}
+                            />
                           )}
-
-                          {/* 2. Pos List Card */}
-                          {msg.executedTool.name === 'search_pos_kebutuhan' &&
-                            msg.executedTool.result.data && (
-                              <div className="space-y-2">
-                                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">
-                                  Ditemukan {msg.executedTool.result.total_found} Pos Kebutuhan Terpilih:
-                                </span>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                  {msg.executedTool.result.data.map((pos: any) => (
-                                    <div
-                                      key={pos.id}
-                                      className="p-2.5 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 text-xs flex flex-col justify-between space-y-1.5"
-                                    >
-                                      <div>
-                                        <span className="text-[10px] font-bold text-primary">
-                                          {pos.sektor}
-                                        </span>
-                                        <h5 className="font-bold text-navy-950 dark:text-white line-clamp-1">
-                                          {pos.judul}
-                                        </h5>
-                                        <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                                          <MapPin className="w-3 h-3 text-rose-500" />
-                                          {pos.desa}, {pos.kabupaten} ({pos.distance_km} km)
-                                        </p>
-                                      </div>
-                                      <button
-                                        onClick={() => {
-                                          router.push(`/search/${pos.id}`);
-                                          setIsOpen(false);
-                                        }}
-                                        className="text-xs font-bold text-primary flex items-center gap-1 hover:underline pt-1"
-                                      >
-                                        <span>Lihat Rincian & Lamar</span>
-                                        <ChevronRight className="w-3.5 h-3.5" />
-                                      </button>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                          {/* 3. Draft Proposal Card */}
-                          {msg.executedTool.name === 'draft_proposal_kkn' &&
-                            msg.executedTool.result.draft && (
-                              <div className="p-3 rounded-xl bg-amber-50/70 dark:bg-navy-950 border border-amber-200 dark:border-amber-900 text-xs space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1">
-                                    <FileText className="w-3.5 h-3.5" />
-                                    Draf Proposal Siap Diajukan
-                                  </span>
-                                  <button
-                                    onClick={() =>
-                                      copyToClipboard(
-                                        JSON.stringify(msg.executedTool?.result.draft, null, 2),
-                                        'Draf Proposal'
-                                      )
-                                    }
-                                    className="text-[11px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1 hover:underline"
-                                  >
-                                    <Copy className="w-3 h-3" />
-                                    <span>Salin JSON Draf</span>
-                                  </button>
-                                </div>
-                                <h5 className="font-bold text-navy-950 dark:text-white text-xs">
-                                  {msg.executedTool.result.draft.judul_program}
-                                </h5>
-                                <p className="text-[11px] text-slate-600 dark:text-slate-300">
-                                  Desa: <strong>{msg.executedTool.result.draft.desa_tujuan}</strong> • Metodologi: {msg.executedTool.result.draft.metodologi}
-                                </p>
-                              </div>
-                            )}
-
-                          {/* 4. Matching Score Card */}
-                          {msg.executedTool.name === 'calculate_matching_score' && (
-                            <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-navy-950 border border-emerald-200 dark:border-emerald-900 text-xs space-y-1.5">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
-                                  AI Matching Score
-                                </span>
-                                <span className="text-sm font-extrabold text-emerald-600">
-                                  {msg.executedTool.result.score}%
-                                </span>
-                              </div>
-                              <p className="text-xs font-bold text-navy-950 dark:text-white">
-                                {msg.executedTool.result.predikat}
-                              </p>
-                              {msg.executedTool.result.analisis && (
-                                <ul className="text-[11px] text-slate-600 dark:text-slate-300 list-disc pl-4 space-y-0.5">
-                                  {msg.executedTool.result.analisis.map((r: string, idx: number) => (
-                                    <li key={idx}>{r}</li>
-                                  ))}
-                                </ul>
-                              )}
-                            </div>
-                          )}
-
-                          {/* 5. Wilayah Card */}
-                          {msg.executedTool.name === 'query_wilayah_indonesia' &&
-                            msg.executedTool.result.wilayah && (
-                              <div className="p-3 rounded-xl bg-sky-50/70 dark:bg-navy-950 border border-sky-200 dark:border-sky-900 text-xs space-y-1.5">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wider flex items-center gap-1">
-                                    <Landmark className="w-3.5 h-3.5" />
-                                    Profil Wilayah ({msg.executedTool.result.wilayah.name})
-                                  </span>
-                                  <button
-                                    onClick={() => {
-                                      router.push('/maps');
-                                      setIsOpen(false);
-                                    }}
-                                    className="text-[11px] font-bold text-primary flex items-center gap-1 hover:underline"
-                                  >
-                                    <span>Buka di Peta</span>
-                                    <ChevronRight className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-300">
-                                  <div>Ibukota: <strong>{msg.executedTool.result.wilayah.capital || '-'}</strong></div>
-                                  <div>Populasi: <strong>{msg.executedTool.result.wilayah.population?.toLocaleString('id-ID') || '-'}</strong></div>
-                                  <div>Luas: <strong>{msg.executedTool.result.wilayah.total_area_km2?.toLocaleString('id-ID') || '-'} km²</strong></div>
-                                  <div>Elevasi: <strong>{msg.executedTool.result.wilayah.elevation_mdpl || '-'} mdpl</strong></div>
-                                </div>
-                              </div>
-                            )}
                         </div>
                       )}
                     </div>
