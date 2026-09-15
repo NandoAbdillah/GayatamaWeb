@@ -178,6 +178,9 @@ Ada yang bisa saya bantu atau eksekusi untuk Anda hari ini?`,
     }
   };
 
+  // Nonaktifkan AI di halaman login - harus setelah semua hooks agar tidak violate Rules of Hooks
+  if (pathname?.startsWith('/login')) return null;
+
   return (
     <>
       {/* Floating Trigger Aura Button */}
