@@ -95,14 +95,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onExpand })
   const navItems = getRoleNavItems();
 
   return (
-    <aside
-      className={cn(
-        'shrink-0 hidden lg:flex flex-col bg-white dark:bg-navy-950 border-r border-slate-200 dark:border-navy-800 fixed top-[61px] left-0 bottom-0 justify-between select-none overscroll-none z-20 will-change-transform transition-[width,padding] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
-        collapsed
-          ? 'w-[72px] px-2 py-4 overflow-x-hidden overflow-y-auto'
-          : 'w-64 p-4 overflow-hidden'
-      )}
-    >
+    <>
+      <aside
+        className={cn(
+          'shrink-0 flex flex-col bg-white dark:bg-navy-950 border-r border-slate-200 dark:border-navy-800 fixed top-[61px] left-0 bottom-0 justify-between select-none overscroll-none z-20 will-change-transform transition-[width,padding,transform] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
+          collapsed
+            ? 'w-64 p-4 -translate-x-full lg:translate-x-0 lg:w-[72px] lg:px-2 lg:py-4 overflow-x-hidden overflow-y-auto'
+            : 'w-64 p-4 translate-x-0 overflow-hidden'
+        )}
+      >
       <div className="space-y-6">
         {/* User Card - tinggi tetap, fade halus sinkron dengan lebar */}
         <div
@@ -153,13 +154,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onExpand })
                 key={item.href}
                 href={item.href}
                 title={collapsed ? item.label : undefined}
-                onClick={(e) => {
-                  if (collapsed) {
-                    e.preventDefault();
-                    onExpand?.();
-                    // Tunda navigasi agar animasi buka terlihat halus seperti klik ikon
-                    setTimeout(() => router.push(item.href), 300);
-                  }
+                onClick={() => {
+                  if (collapsed) onExpand?.();
                 }}
                 className={cn(
                   'flex items-center rounded-xl text-sm font-medium will-change-transform transition-[padding,justify-content] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group overflow-hidden',
@@ -260,5 +256,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onExpand })
         </button>
       </div>
     </aside>
+    </>
   );
 };
