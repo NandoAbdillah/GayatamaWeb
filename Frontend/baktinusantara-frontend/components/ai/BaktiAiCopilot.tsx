@@ -187,6 +187,9 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
     }
   };
 
+  // Nonaktifkan AI di halaman login - harus setelah semua hooks agar tidak violate Rules of Hooks
+  if (pathname?.startsWith('/login')) return null;
+
   return (
     <>
       {/* Floating Trigger Aura Button */}

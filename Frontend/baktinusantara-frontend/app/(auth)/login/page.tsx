@@ -134,11 +134,11 @@ function LoginFormContent() {
   };
 
   return (
-    <Card className="p-6 sm:p-8 bg-transparent border-0 shadow-none backdrop-blur-none">
+    <Card className="p-4 min-[360px]:p-5 sm:p-6 lg:p-8 bg-white/85 backdrop-blur-xl lg:bg-transparent lg:backdrop-blur-none border border-white/40 lg:border-0 shadow-xl lg:shadow-none rounded-2xl sm:rounded-3xl transition-all">
       {/* Role selector quick fill chips */}
       <div className="mb-6">
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
           {demoAccounts.map((acc) => {
             const Icon = acc.icon;
             const isSelected = selectedRole === acc.role;
@@ -243,31 +243,35 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
+    // === UBAH POSISI IMAGE DI SINI (app/(auth)/login/page.tsx:246) ===
+    // - Geser kiri/kanan: ganti 'bg-center' di bawah jadi 'bg-left' / 'bg-right' / 'bg-[position:30%_center]' (% kecil=kiri, % besar=kanan)
+    // - Presisi px: ubah backgroundPosition di style jadi "30% center" (kiri) / "70% center" (kanan) / "left 20px center"
+    // - Responsive: pakai 'bg-center lg:bg-[position:65%_center]' untuk beda HP vs desktop
     <div
-      className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center lg:justify-end p-4 sm:p-6 lg:p-8 font-jakarta"
+      className="min-h-[100dvh] min-h-screen w-full bg-cover bg-[position:10%_center] lg:bg-[position:65%_center] bg-no-repeat flex items-start sm:items-center justify-center lg:justify-end p-3 min-[360px]:p-4 sm:p-6 lg:p-8 font-jakarta overflow-y-auto"
       style={{ backgroundImage: "url('/images/BGlogin.png')" }}
     >
-      <div className="w-full max-w-xl lg:mr-8 xl:mr-16 bg-transparent">
-        <div className="text-center mb-6">
-          <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
-            <div className="w-12 h-12 relative flex items-center justify-center transition-transform group-hover:scale-105 shrink-0">
+      <div className="w-full max-w-[340px] min-[360px]:max-w-sm sm:max-w-md lg:max-w-xl lg:mr-6 xl:mr-12 2xl:mr-16 my-auto bg-transparent flex flex-col">
+        <div className="text-center mb-4 sm:mb-6 px-1">
+          <Link href="/" className="inline-flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 group">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 relative flex items-center justify-center transition-transform group-hover:scale-105 shrink-0">
               <Image
                 src="/logo.svg"
                 alt="BaktiNusantara Logo"
                 width={48}
                 height={48}
                 priority
-                className="w-12 h-12 object-contain drop-shadow-md"
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow-md"
               />
             </div>
-            <span className="font-epilogue font-extrabold text-2xl text-navy-950 dark:text-white drop-shadow-sm">
+            <span className="font-epilogue font-extrabold text-xl sm:text-2xl text-navy-950 dark:text-white drop-shadow-sm">
               BaktiNusantara
             </span>
           </Link>
-          <h2 className="text-2xl font-bold text-navy-950 dark:text-white font-epilogue drop-shadow-sm">
+          <h2 className="text-xl sm:text-2xl font-bold text-navy-950 dark:text-white font-epilogue drop-shadow-sm leading-tight">
             Masuk ke Portal KKN Terpadu
           </h2>
-          <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 drop-shadow-sm">
+          <p className="mt-1 text-[11px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300 drop-shadow-sm px-2 sm:px-0">
             Pilih peran Anda atau masukkan akun yang telah terdaftar
           </p>
         </div>
