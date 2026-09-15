@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useTheme } from '@/context/ThemeContext';
 
 export interface FireflyData {
   id: number;
@@ -49,14 +50,17 @@ interface HeroFirefliesProps {
   count?: number;
   className?: string;
   interactive?: boolean;
+  darkModeOnly?: boolean;
 }
 
 export const HeroFireflies: React.FC<HeroFirefliesProps> = ({
   count = 26,
   className = '',
   interactive = true,
+  darkModeOnly = true,
 }) => {
   const [mounted, setMounted] = useState(false);
+  const { theme } = useTheme();
   const shouldReduceMotion = useReducedMotion();
   const mousePos = useRef<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -201,12 +205,13 @@ export const HeroFireflies: React.FC<HeroFirefliesProps> = ({
   }, [interactive, mounted]);
 
   if (!mounted) return null;
+  if (darkModeOnly && theme !== 'dark') return null;
 
   return (
     <div
       ref={containerRef}
       aria-hidden="true"
-      className={`absolute inset-0 overflow-hidden pointer-events-none z-0 ${className}`}
+      className={`hidden dark:block absolute inset-0 overflow-hidden pointer-events-none z-0 ${className}`}
       style={{ contain: 'layout paint' }}
     >
       {fireflies.map((fly) => {
