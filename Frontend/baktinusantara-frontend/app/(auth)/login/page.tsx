@@ -223,7 +223,7 @@ function LoginFormContent() {
           isLoading={isLoading}
           size="lg"
           variant="primary"
-          className="w-full mt-2 font-bold text-xs sm:text-sm py-3 rounded-xl shadow-md gap-2"
+          className="w-full bg-[#377832] hover:bg-[#5ea631] mt-2 font-bold text-xs sm:text-sm py-3 rounded-xl shadow-md gap-2"
         >
           <span>Masuk Sebagai {selectedRole.replace('_', ' ').toUpperCase()}</span>
           <ArrowRight className="w-4 h-4" />
@@ -232,7 +232,7 @@ function LoginFormContent() {
 
       <div className="mt-6 pt-6 border-t border-slate-100 dark:border-navy-800 flex items-center text-xs text-slate-500 dark:text-slate-400">
         <span className='pr-2'>Belum memiliki akun KKN?</span>
-        <Link href="/register" className="font-bold text-primary hover:underline">
+        <Link href="/register" className="font-bold text-[#377832] hover:underline">
           Daftar akun baru
         </Link>
       </div>
