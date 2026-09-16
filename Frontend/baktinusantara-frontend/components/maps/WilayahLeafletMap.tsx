@@ -95,8 +95,9 @@ const createCampusIcon = (campusLabel: string) =>
         <div style="width: 40px; height: 40px; border-radius: 9999px; background: #0284c7; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 10px 20px -3px rgba(2, 132, 199, 0.5);">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
         </div>
-        <div style="background: #0f172a; color: #ffffff; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; margin-top: 4px; white-space: nowrap; border: 1.5px solid #38bdf8; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transform: translateZ(0);">
-          🎓 ${campusLabel}
+        <div style="background: #0f172a; color: #ffffff; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; margin-top: 4px; white-space: nowrap; border: 1.5px solid #38bdf8; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transform: translateZ(0); display: flex; align-items: center; gap: 4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-.838L12.83 2.18a2 2 0 0 0-1.66 0L2.6 10.084a1 1 0 0 0 0 1.832l8.57 7.908a2 2 0 0 0 1.66 0l8.57-7.908a1 1 0 0 0 .02-.994Z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
+          <span>${campusLabel}</span>
         </div>
       </div>
     `,
@@ -141,8 +142,9 @@ const createRegionCentroidIcon = (name: string, code: string, logoUrl?: string) 
         <div style="width: 48px; height: 48px; border-radius: 9999px; border: 3px solid #10b981; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 30px rgba(16, 185, 129, 0.7); padding: 3px; background: white;">
           <img src="${logoSrc}" alt="${name}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'" />
         </div>
-        <div style="background: #064e3b; color: #6ee7b7; font-size: 10px; font-weight: 800; padding: 2.5px 10px; border-radius: 9999px; margin-top: 4px; white-space: nowrap; border: 1.5px solid #10b981; box-shadow: 0 4px 10px rgba(0,0,0,0.4); transform: translateZ(0);">
-          🏛️ ${name}
+        <div style="background: #064e3b; color: #6ee7b7; font-size: 10px; font-weight: 800; padding: 2.5px 10px; border-radius: 9999px; margin-top: 4px; white-space: nowrap; border: 1.5px solid #10b981; box-shadow: 0 4px 10px rgba(0,0,0,0.4); transform: translateZ(0); display: flex; align-items: center; gap: 4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18"/><path d="M6 18V9"/><path d="M10 18V9"/><path d="M14 18V9"/><path d="M18 18V9"/><path d="M12 2 2 7v2h20V7Z"/></svg>
+          <span>${name}</span>
         </div>
       </div>
     `,

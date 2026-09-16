@@ -13,6 +13,7 @@ import { MapMarkerItem } from '@/components/maps/WilayahLeafletMap';
 import { MedsosEmbedCard, MedsosPostItem } from '@/components/maps/MedsosEmbedCard';
 import { RiwayatPengabdianCard, RiwayatPengabdianItem } from '@/components/maps/RiwayatPengabdianCard';
 import { LiveReportCard, LiveReportItem } from '@/components/maps/LiveReportCard';
+import { MapFilterSelect } from '@/components/ui/MapFilterSelect';
 import { fetchWikipediaSummary, WikipediaSummary } from '@/lib/wikipedia';
 import {
   MapPin,
@@ -512,10 +513,10 @@ export default function MapsPage() {
 
         {/* 2. TOP FLOATING SEARCH & FILTER ISLAND */}
         <div className="absolute top-3 sm:top-4 left-3 sm:left-6 right-3 sm:right-6 z-30 pointer-events-none flex justify-center">
-          <div className="pointer-events-auto w-full max-w-5xl bg-white/95 dark:bg-navy-900/95 rounded-3xl p-2.5 sm:p-3 border border-slate-200/90 dark:border-navy-700/90 shadow-2xl backdrop-blur-2xl space-y-2 transition-all">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
-              {/* Live search input with Kemendagri live autocomplete */}
-              <div ref={searchContainerRef} className="relative flex-1 max-w-lg">
+          <div className="pointer-events-auto w-full max-w-6xl bg-white/95 dark:bg-navy-900/95 rounded-3xl p-2.5 sm:p-3.5 border border-slate-200/90 dark:border-navy-700/90 shadow-2xl backdrop-blur-2xl space-y-2.5 transition-all">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
+              {/* Live search input - Elongated with Kemendagri live autocomplete */}
+              <div ref={searchContainerRef} className="relative flex-1 min-w-[280px] sm:min-w-[340px]">
                 <div className="relative">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -526,7 +527,7 @@ export default function MapsPage() {
                       if (searchResults.length > 0) setShowSearchResults(true);
                     }}
                     placeholder="Cari desa, kecamatan, kabupaten, atau provinsi..."
-                    className="w-full pl-9 pr-8 py-1.5 rounded-2xl border border-slate-200 dark:border-navy-700 bg-slate-50/90 dark:bg-navy-950 text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-inner"
+                    className="w-full pl-9 pr-8 py-2 rounded-2xl border border-slate-200 dark:border-navy-700 bg-slate-50/90 dark:bg-navy-950 text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-inner"
                   />
                   {isSearching ? (
                     <Loader2 className="w-3.5 h-3.5 text-primary animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
@@ -582,72 +583,66 @@ export default function MapsPage() {
                 )}
               </div>
 
-              {/* Filter Pills */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {/* Sektor Pill */}
-                <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100/90 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-700 text-xs font-semibold">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase">Sektor:</span>
-                  <select
-                    value={selectedSector}
-                    onChange={(e) => setSelectedSector(e.target.value)}
-                    className="bg-transparent focus:outline-none cursor-pointer font-bold text-navy-950 dark:text-white text-xs pr-1"
-                  >
-                    {SECTOR_FILTER_OPTIONS.map((sec) => (
-                      <option key={sec.key} value={sec.key} className="dark:bg-navy-900 text-navy-950 dark:text-white">
-                        {sec.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              {/* Clean Unified Dropdowns Matching Hero Format */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* 1. Sektor Dropdown */}
+                <MapFilterSelect
+                  label="Sektor"
+                  value={selectedSector}
+                  onChange={(val) => setSelectedSector(val)}
+                  options={SECTOR_FILTER_OPTIONS.map((s) => ({ value: s.key, label: s.label }))}
+                  icon={<Layers className="w-3.5 h-3.5 text-emerald-500" />}
+                  dropdownWidth="min-w-[200px]"
+                />
 
-                {/* Radius Pill */}
-                <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100/90 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-700 text-xs font-semibold">
-                  <Compass className="w-3 h-3 text-sky-500" />
-                  <span className="text-[9px] font-bold text-slate-400 uppercase">Radius:</span>
-                  <select
-                    value={radiusFilter}
-                    onChange={(e) => setRadiusFilter(Number(e.target.value))}
-                    className="bg-transparent focus:outline-none cursor-pointer font-bold text-navy-950 dark:text-white text-xs pr-1"
-                  >
-                    <option value={20} className="dark:bg-navy-900 text-navy-950 dark:text-white">&lt; 20 km (Dekat)</option>
-                    <option value={50} className="dark:bg-navy-900 text-navy-950 dark:text-white">&lt; 50 km (Sedang)</option>
-                    <option value={100} className="dark:bg-navy-900 text-navy-950 dark:text-white">Semua Jarak</option>
-                  </select>
-                </div>
+                {/* 2. Radius Dropdown */}
+                <MapFilterSelect
+                  label="Radius"
+                  value={radiusFilter}
+                  onChange={(val) => setRadiusFilter(Number(val))}
+                  options={[
+                    { value: 20, label: '< 20 km (Dekat)' },
+                    { value: 50, label: '< 50 km (Sedang)' },
+                    { value: 100, label: 'Semua Jarak' },
+                  ]}
+                  icon={<Compass className="w-3.5 h-3.5 text-sky-500" />}
+                  dropdownWidth="min-w-[170px]"
+                />
 
-                {/* Provinsi Selector Pill with Mini Crest */}
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80 text-xs font-semibold text-emerald-900 dark:text-emerald-300">
-                  <RegionLogo code={selectedProvinceId} name={currentRegion?.name} size="xs" showBadge={false} />
-                  <select
-                    value={selectedProvinceId}
-                    onChange={(e) => handleProvinceChange(e.target.value)}
-                    className="bg-transparent focus:outline-none cursor-pointer font-extrabold text-emerald-900 dark:text-emerald-200 text-xs max-w-[120px] truncate"
-                  >
-                    {provinces.map((prov) => (
-                      <option key={prov.id} value={prov.id} className="dark:bg-navy-900 text-navy-950 dark:text-white">
-                        {prov.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* 3. Provinsi Dropdown with Crest */}
+                <MapFilterSelect
+                  label="Provinsi"
+                  value={selectedProvinceId}
+                  onChange={(val) => handleProvinceChange(val)}
+                  options={provinces.map((p) => ({
+                    value: p.id,
+                    label: p.name,
+                    icon: <RegionLogo code={p.id} name={p.name} size="xs" showBadge={false} />,
+                  }))}
+                  prefixLogo={
+                    <RegionLogo
+                      code={selectedProvinceId}
+                      name={currentRegion?.name}
+                      size="xs"
+                      showBadge={false}
+                    />
+                  }
+                  dropdownWidth="min-w-[220px]"
+                />
 
-                {/* Kab/Kota Pill */}
+                {/* 4. Kab/Kota Dropdown */}
                 {regencies.length > 0 && (
-                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100/90 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-700 text-xs font-semibold">
-                    <Building className="w-3 h-3 text-emerald-600" />
-                    <select
-                      value={selectedRegencyId}
-                      onChange={(e) => handleRegencyChange(e.target.value)}
-                      className="bg-transparent focus:outline-none cursor-pointer font-bold text-navy-950 dark:text-white text-xs max-w-[130px] truncate"
-                    >
-                      <option value="" className="dark:bg-navy-900 text-navy-950 dark:text-white">Semua Kab/Kota</option>
-                      {regencies.map((reg) => (
-                        <option key={reg.id} value={reg.id} className="dark:bg-navy-900 text-navy-950 dark:text-white">
-                          {reg.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <MapFilterSelect
+                    label="Kab/Kota"
+                    value={selectedRegencyId}
+                    onChange={(val) => handleRegencyChange(val)}
+                    options={[
+                      { value: '', label: 'Semua Kab/Kota' },
+                      ...regencies.map((r) => ({ value: r.id, label: r.name })),
+                    ]}
+                    icon={<Building className="w-3.5 h-3.5 text-emerald-600" />}
+                    dropdownWidth="min-w-[220px]"
+                  />
                 )}
               </div>
             </div>
@@ -676,10 +671,10 @@ export default function MapsPage() {
           </div>
         </div>
 
-        {/* 3. UNIFIED RIGHT SPATIAL INSPECTOR DRAWER (ALL TABS IN ONE ORGANIZED PANEL) */}
-        <div className="absolute top-20 right-3 sm:right-6 bottom-4 w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-end">
+        {/* 3. UNIFIED RIGHT SPATIAL INSPECTOR DRAWER (Positioned below top island with safe screen margins) */}
+        <div className="absolute top-[132px] sm:top-[136px] right-3 sm:right-6 bottom-6 sm:bottom-8 w-[390px] sm:w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-end">
           {isDetailOpen ? (
-            <div className="pointer-events-auto w-full h-full max-h-[calc(100vh-96px)] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-right-4">
+            <div className="pointer-events-auto w-full h-full max-h-[calc(100vh-165px)] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-right-4">
               {/* Inspector Header: 4 Segmented Tabs + Minimize Button */}
               <div className="px-3.5 pt-3 pb-2.5 border-b border-slate-100 dark:border-navy-800 shrink-0 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-800 text-[11px] font-bold flex-1">
@@ -840,30 +835,38 @@ export default function MapsPage() {
                       </div>
                     </div>
 
-                    {/* 4 Quick Spec Metric Chips */}
+                    {/* 4 Quick Spec Metric Chips (Zero Emojis, Pure SVG Icons) */}
                     <div className="grid grid-cols-4 gap-1.5 text-center">
-                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
-                        <span className="text-[9px] text-slate-400 block font-medium">Mahasiswa</span>
+                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80 flex flex-col items-center justify-center">
+                        <span className="text-[9px] text-slate-400 font-medium flex items-center gap-1">
+                          <Users className="w-3 h-3 text-slate-400" /> Mahasiswa
+                        </span>
                         <strong className="text-[11px] font-bold text-navy-950 dark:text-white block mt-0.5">
-                          👥 {selectedPos.kuota_mahasiswa || 8} Mhs
+                          {selectedPos.kuota_mahasiswa || 8} Mhs
                         </strong>
                       </div>
-                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
-                        <span className="text-[9px] text-slate-400 block font-medium">Durasi</span>
+                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80 flex flex-col items-center justify-center">
+                        <span className="text-[9px] text-slate-400 font-medium flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-sky-500" /> Durasi
+                        </span>
                         <strong className="text-[11px] font-bold text-navy-950 dark:text-white block mt-0.5">
-                          📅 45 Hari
+                          45 Hari
                         </strong>
                       </div>
-                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
-                        <span className="text-[9px] text-slate-400 block font-medium">Jarak</span>
+                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80 flex flex-col items-center justify-center">
+                        <span className="text-[9px] text-slate-400 font-medium flex items-center gap-1">
+                          <Navigation className="w-3 h-3 text-primary" /> Jarak
+                        </span>
                         <strong className="text-[11px] font-bold text-primary block mt-0.5">
-                          📍 {selectedPos.distance_km ?? 15} km
+                          {selectedPos.distance_km ?? 15} km
                         </strong>
                       </div>
-                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
-                        <span className="text-[9px] text-slate-400 block font-medium">Luaran</span>
-                        <strong className="text-[11px] font-bold text-emerald-600 block mt-0.5">
-                          🎯 {selectedPos.target_luaran.length} Luaran
+                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80 flex flex-col items-center justify-center">
+                        <span className="text-[9px] text-slate-400 font-medium flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Luaran
+                        </span>
+                        <strong className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 block mt-0.5">
+                          {selectedPos.target_luaran.length} Luaran
                         </strong>
                       </div>
                     </div>
@@ -969,8 +972,9 @@ export default function MapsPage() {
                             <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider bg-emerald-100/70 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md truncate">
                               {pos.kategori_sektor}
                             </span>
-                            <span className="text-[10px] font-bold text-primary bg-primary-50 dark:bg-primary-950 px-2 py-0.5 rounded-full shrink-0">
-                              📍 {pos.distance_km ?? 15} km
+                            <span className="text-[10px] font-bold text-primary bg-primary-50 dark:bg-primary-950 px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-primary shrink-0" />
+                              <span>{pos.distance_km ?? 15} km</span>
                             </span>
                           </div>
 
@@ -984,8 +988,9 @@ export default function MapsPage() {
                           </p>
 
                           <div className="pt-2 border-t border-slate-200/60 dark:border-navy-800 flex items-center justify-between text-[11px] font-bold">
-                            <span className="text-slate-600 dark:text-slate-300">
-                              👥 {pos.kuota_mahasiswa} Mahasiswa Dibutuhkan
+                            <span className="text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                              <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{pos.kuota_mahasiswa} Mahasiswa Dibutuhkan</span>
                             </span>
                             <span
                               onClick={(e) => {
