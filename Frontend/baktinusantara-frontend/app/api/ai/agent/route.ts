@@ -301,13 +301,47 @@ Ketika pengguna menanyakan topik di luar domain (Level 5):
       }
     }
 
-    // Jika seluruh model dalam rotasi gagal, kembalikan pesan ramah tanpa mengekspos error teknis
-    console.error('[AI] All configured Gemini models in the rotation pool have been exhausted or are busy.');
+    // If all remote attempts fail, execute intelligent local fallback
+    console.warn('[API /ai/agent] All Gemini API key slots failed. Falling back to local agent logic. Error:', lastError?.message);
+
+    const lower = message.toLowerCase();
+    let fallbackTool: any = null;
+    let fallbackReply = '';
+
+    if (lower.includes('peta') || lower.includes('maps') || lower.includes('sebaran')) {
+      fallbackTool = {
+        name: 'navigate_to_page',
+        args: { path: '/maps', title: 'Peta Sebaran KKN', reason: 'Melihat peta sebaran program KKN se-Indonesia' },
+        result: await executeAgentTool('navigate_to_page', { path: '/maps', title: 'Peta Sebaran KKN', reason: 'Melihat peta sebaran program KKN' }),
+      };
+      fallbackReply = 'Saya telah membuka **Peta Sebaran KKN Nusantara** untuk Anda.';
+    } else if (lower.includes('katalog') || lower.includes('pos') || lower.includes('cari') || lower.includes('desa')) {
+      const searchRes = await executeAgentTool('search_pos_kebutuhan', { keyword: message });
+      fallbackTool = {
+        name: 'search_pos_kebutuhan',
+        args: { keyword: message },
+        result: searchRes,
+      };
+      fallbackReply = `Berikut rekomendasi program KKN yang berhasil ditemukan berdasarkan kebutuhan desa.`;
+    } else if (lower.includes('proposal')) {
+      fallbackTool = {
+        name: 'navigate_to_page',
+        args: { path: '/mahasiswa/proposal', title: 'Pengajuan Proposal KKN', reason: 'Menyusun dan mengunggah proposal KKN' },
+        result: await executeAgentTool('navigate_to_page', { path: '/mahasiswa/proposal', title: 'Pengajuan Proposal KKN', reason: 'Menyusun proposal' }),
+      };
+      fallbackReply = 'Saya telah mengarahkan Anda ke halaman **Penyusunan Proposal KKN**.';
+    } else {
+      fallbackReply = `Halo! Bakti AI siap membantu Anda dalam eksplorasi pos KKN, penyusunan proposal, pencocokan keahlian mahasiswa, dan pendampingan desa binaan di seluruh Nusantara.
+
+*(Catatan: Token Gemini sesi Anda telah kedaluwarsa. Silakan perbarui API Key permanen dari [Google AI Studio](https://aistudio.google.com/app/apikey) dengan format awalan \`AIzaSy...\`)*`;
+    }
+
     return NextResponse.json({
       success: true,
-      reply: MODEL_ROTATION_CONFIG.friendlyFallbackMessage,
-      executedTool: null,
-      modelUsed: 'busy-fallback',
+      reply: fallbackReply,
+      executedTool: fallbackTool,
+      keySlot: 'LocalFallback',
+      note: 'Fallback mode activated due to expired/unauthenticated remote Gemini token.',
     });
   } catch (error: any) {
     console.error('[AI] Fatal handler error:', error.message);
