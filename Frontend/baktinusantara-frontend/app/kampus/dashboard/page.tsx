@@ -134,16 +134,16 @@ export default function KampusDashboardPage() {
             </div>
 
             <div className="pt-2 flex flex-wrap items-center gap-3">
-              <Link href="/kampus/verifikasi">
+              <Link href="/kampus/laporan-dosen">
                 <Button size="sm" variant="primary" className="shadow-glow-primary gap-1.5 font-bold text-xs">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Verifikasi Berkas Mitra & Kampus</span>
+                  <FileCheck2 className="w-4 h-4" />
+                  <span>Laporan Supervisi DPL</span>
                 </Button>
               </Link>
-              <Link href="/kampus/pos-kebutuhan">
+              <Link href="/kampus/monitoring">
                 <Button size="sm" variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 gap-1.5 font-bold text-xs">
-                  <ClipboardList className="w-4 h-4" />
-                  <span>Katalog Pos Kebutuhan Desa</span>
+                  <MapPin className="w-4 h-4" />
+                  <span>Monitoring Sebaran KKN</span>
                 </Button>
               </Link>
             </div>
@@ -158,16 +158,16 @@ export default function KampusDashboardPage() {
             </div>
             <div>
               <p className="font-bold text-amber-900 dark:text-amber-200 text-sm">
-                Terdapat Permohonan Verifikasi Akun Menunggu Persetujuan
+                Terdapat Laporan Supervisi DPL Menunggu Review
               </p>
               <p className="text-amber-700 dark:text-amber-400 mt-0.5">
-                Perguruan Tinggi (LPPM UNAIR), Balai Desa Maju Bersama, dan Mahasiswa KKN menunggu validasi legalitas SK & KTM.
+                1 laporan kunjungan lapangan Dosen Pembimbing Lapangan menunggu persetujuan LPPM Kampus.
               </p>
             </div>
           </div>
-          <Link href="/kampus/verifikasi" className="shrink-0">
+          <Link href="/kampus/laporan-dosen" className="shrink-0">
             <Button size="sm" variant="outline" className="border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 font-bold text-xs gap-1.5">
-              <span>Buka Menu Verifikasi</span>
+              <span>Buka Laporan DPL</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </Link>
@@ -251,9 +251,9 @@ export default function KampusDashboardPage() {
                     Distribusi progres kebutuhan masyarakat dari pendaftaran hingga luaran tuntas
                   </p>
                 </div>
-                <Link href="/kampus/pos-kebutuhan">
+                <Link href="/kampus/monitoring">
                   <Button variant="outline" size="sm" className="text-xs font-semibold gap-1">
-                    <span>Semua Pos</span>
+                    <span>Buka Monitoring</span>
                     <ArrowRight className="w-3 h-3" />
                   </Button>
                 </Link>
@@ -347,18 +347,18 @@ export default function KampusDashboardPage() {
               </h2>
 
               <div className="space-y-2.5">
-                <Link href="/kampus/verifikasi" className="block group">
+                <Link href="/kampus/laporan-dosen" className="block group">
                   <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-navy-950/60 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200/80 dark:border-navy-800 transition-all flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                        <ShieldCheck className="w-4 h-4" />
+                        <FileCheck2 className="w-4 h-4" />
                       </div>
                       <div>
                         <p className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors">
-                          Verifikasi Entitas Platform
+                          Laporan Supervisi DPL
                         </p>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                          Sahkan SK Desa, KTM Mahasiswa, dan SK Kampus
+                          Review & sahkan laporan kunjungan lapangan DPL
                         </p>
                       </div>
                     </div>
@@ -366,18 +366,18 @@ export default function KampusDashboardPage() {
                   </div>
                 </Link>
 
-                <Link href="/kampus/direktori-kampus" className="block group">
+                <Link href="/kampus/dosen" className="block group">
                   <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-navy-950/60 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200/80 dark:border-navy-800 transition-all flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center">
-                        <Building2 className="w-4 h-4" />
+                        <GraduationCap className="w-4 h-4" />
                       </div>
                       <div>
                         <p className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-emerald-600 transition-colors">
-                          Direktori Perguruan Tinggi & DPL
+                          Manajemen Dosen DPL
                         </p>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                          Daftar kampus terdaftar dan dosen pembimbing
+                          Alokasi & kelola Dosen Pembimbing Lapangan
                         </p>
                       </div>
                     </div>
