@@ -93,6 +93,9 @@ Route::middleware(['auth:sanctum', 'role:universitas'])->group(function () {
     Route::get('/universitas/dosen', [UniversitasController::class, 'listDosen']);
     Route::get('/universitas/laporan-dosen', [UniversitasController::class, 'listLaporan']);
     Route::patch('/universitas/laporan-dosen/{laporanDosen}/status', [UniversitasController::class, 'updateLaporan']);
+    Route::get('/universitas/metrics', [UniversitasController::class, 'metrics']);
+    Route::get('/universitas/kelompok', [UniversitasController::class, 'listKelompok']);
+    Route::get('/universitas/logs', [UniversitasController::class, 'listLogs']);
 });
 
 Route::middleware(['auth:sanctum', 'role:dosen'])->group(function () {

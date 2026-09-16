@@ -122,4 +122,133 @@ class UniversitasService
             ->select('id', 'nama_universitas', 'kode_univ')
             ->get();
     }
+
+    /**
+     * Metrik & statistik KKN khusus lingkup institusi kampus sendiri (LPPM).
+     */
+    public function getCampusMetrics(User $userUniv): array
+    {
+        $univId = $userUniv->profilUniversitas?->id;
+        if (!$univId) {
+            abort(403, 'Profil universitas tidak ditemukan.');
+        }
+
+        // 1. Dosen & Mahasiswa internal kampus
+        $totalDosen = ProfilDosen::where('universitas_id', $univId)->count();
+        $totalMahasiswa = \App\Models\ProfilMahasiswa::where('universitas_id', $univId)->count();
+
+        // 2. Kelompok KKN bimbingan dosen kampus atau mahasiswa kampus
+        $kelompokQuery = \App\Models\Kelompok::where(function ($q) use ($univId) {
+            $q->whereHas('dosen', fn($dq) => $dq->where('universitas_id', $univId))
+              ->orWhereHas('ketua.profilMahasiswa', fn($mq) => $mq->where('universitas_id', $univId));
+        });
+
+        $totalKelompok = $kelompokQuery->count();
+        $kelompokIds = (clone $kelompokQuery)->pluck('id');
+
+        // 3. Jam Pengabdian Mahasiswa Kampus
+        $progressReports = \App\Models\ProgressMingguan::whereHas('proposal', function ($q) use ($kelompokIds) {
+            $q->whereIn('kelompok_id', $kelompokIds);
+        })->with('proposal.kelompok.anggota')->get();
+
+        $totalJamPengabdian = (int) $progressReports->sum(function ($p) {
+            $anggotaCount = $p->proposal?->kelompok?->anggota?->count() ?: 1;
+            return $anggotaCount * 40;
+        });
+
+        // 4. Status Proposal Kampus
+        $proposals = \App\Models\Proposal::whereIn('kelompok_id', $kelompokIds)->get();
+        $proposalBreakdown = [
+            'total' => $proposals->count(),
+            'menunggu' => $proposals->where('status', 'menunggu')->count(),
+            'diterima' => $proposals->where('status', 'diterima')->count(),
+            'ditolak' => $proposals->where('status', 'ditolak')->count(),
+        ];
+
+        // 5. Luaran Terverifikasi
+        $totalLuaranTerverifikasi = \App\Models\LuaranAkhir::where('status_verifikasi', 'verified')
+            ->whereHas('proposal', fn($q) => $q->whereIn('kelompok_id', $kelompokIds))
+            ->count();
+
+        // 6. Desa Terbantu Mitra Kampus
+        $desaTerbantu = \App\Models\PosKebutuhan::whereHas('proposal', function ($q) use ($kelompokIds) {
+            $q->whereIn('kelompok_id', $kelompokIds)->where('status', 'diterima');
+        })->distinct('desa_id')->count('desa_id');
+
+        // 7. Kontribusi SDGs Kampus
+        $sdgCodes = \App\Models\PosKebutuhan::whereHas('proposal', function ($q) use ($kelompokIds) {
+            $q->whereIn('kelompok_id', $kelompokIds)->where('status', 'diterima');
+        })->pluck('sdg_codes');
+
+        $sdgsDistribution = [];
+        foreach ($sdgCodes as $codes) {
+            if (is_array($codes)) {
+                foreach ($codes as $c) {
+                    $key = is_numeric($c) ? 'SDG ' . $c : (string) $c;
+                    $sdgsDistribution[$key] = ($sdgsDistribution[$key] ?? 0) + 1;
+                }
+            }
+        }
+        ksort($sdgsDistribution);
+
+        return [
+            'campus_name' => $userUniv->profilUniversitas?->nama_universitas,
+            'kode_univ' => $userUniv->profilUniversitas?->kode_univ,
+            'total_dosen' => $totalDosen,
+            'total_mahasiswa' => $totalMahasiswa,
+            'total_kelompok_kkn' => $totalKelompok,
+            'total_desa_terbantu' => $desaTerbantu,
+            'total_jam_pengabdian' => $totalJamPengabdian,
+            'total_luaran_terverifikasi' => $totalLuaranTerverifikasi,
+            'status_proposal_breakdown' => $proposalBreakdown,
+            'sdgs_distribution' => $sdgsDistribution,
+        ];
+    }
+
+    /**
+     * Monitoring kelompok KKN khusus bimbingan kampus sendiri.
+     */
+    public function listKelompokByUniv(User $userUniv)
+    {
+        $univId = $userUniv->profilUniversitas?->id;
+        if (!$univId) {
+            abort(403, 'Profil universitas tidak ditemukan.');
+        }
+
+        return \App\Models\Kelompok::where(function ($q) use ($univId) {
+            $q->whereHas('dosen', fn($dq) => $dq->where('universitas_id', $univId))
+              ->orWhereHas('ketua.profilMahasiswa', fn($mq) => $mq->where('universitas_id', $univId));
+        })
+        ->with([
+            'ketua.profilMahasiswa',
+            'dosen.user',
+            'anggota.user.profilMahasiswa',
+            'proposal.posKebutuhan.desa',
+            'proposal.progressMingguan',
+            'proposal.luaranAkhir'
+        ])
+        ->get();
+    }
+
+    /**
+     * Audit log & rekam jejak aktivitas civitas kampus sendiri.
+     */
+    public function listAuditLogsByUniv(User $userUniv)
+    {
+        $univId = $userUniv->profilUniversitas?->id;
+        if (!$univId) {
+            abort(403, 'Profil universitas tidak ditemukan.');
+        }
+
+        $userUnivIds = User::where('id', $userUniv->id)
+            ->orWhereHas('profilDosen', fn($q) => $q->where('universitas_id', $univId))
+            ->orWhereHas('profilMahasiswa', fn($q) => $q->where('universitas_id', $univId))
+            ->pluck('id');
+
+        return \App\Models\Notifikasi::whereIn('user_id', $userUnivIds)
+            ->with('user')
+            ->latest()
+            ->take(50)
+            ->get();
+    }
 }

@@ -76,4 +76,28 @@ class UniversitasController extends Controller
             'data' => $laporan,
         ]);
     }
+
+    public function metrics(Request $request)
+    {
+        return response()->json([
+            'message' => 'Statistik & metrik program KKN internal kampus berhasil dimuat',
+            'data' => $this->universitasService->getCampusMetrics($request->user()),
+        ]);
+    }
+
+    public function listKelompok(Request $request)
+    {
+        return response()->json([
+            'message' => 'Daftar kelompok KKN binaan kampus berhasil dimuat',
+            'data' => $this->universitasService->listKelompokByUniv($request->user()),
+        ]);
+    }
+
+    public function listLogs(Request $request)
+    {
+        return response()->json([
+            'message' => 'Daftar aktivitas & audit log civitas kampus berhasil dimuat',
+            'data' => $this->universitasService->listAuditLogsByUniv($request->user()),
+        ]);
+    }
 }
