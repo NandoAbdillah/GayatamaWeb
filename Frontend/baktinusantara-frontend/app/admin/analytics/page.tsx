@@ -324,56 +324,6 @@ export default function AdminAnalyticsPage() {
               </ResponsiveContainer>
             </div>
           </Card>
-          {/* Leaderboard Perguruan Tinggi Pengabdi */}
-          <Card className="lg:col-span-12 p-6 space-y-4 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-navy-800">
-              <div>
-                <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
-                  Peringkat Kontribusi Perguruan Tinggi Pengabdi (Nasional)
-                </h3>
-                <p className="text-xs text-slate-500">Berdasarkan total jam pengabdian, desa binaan, dan capaian target SDG</p>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 border-b border-slate-200 dark:border-navy-800">
-                    <th className="p-3 font-bold rounded-l-xl">Peringkat & Perguruan Tinggi</th>
-                    <th className="p-3 font-bold">Kelompok Aktif</th>
-                    <th className="p-3 font-bold">Total Jam Kerja</th>
-                    <th className="p-3 font-bold">Desa Binaan</th>
-                    <th className="p-3 font-bold">Fokus SDG Utama</th>
-                    <th className="p-3 font-bold text-right rounded-r-xl">Indeks Dampak</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-navy-800">
-                  <tr className="hover:bg-slate-50/80 dark:hover:bg-navy-900/50">
-                    <td className="p-3 font-bold text-navy-950 dark:text-white flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center font-extrabold text-[11px]">1</span>
-                      <span>Universitas Negeri Surabaya (UNESA)</span>
-                    </td>
-                    <td className="p-3 text-slate-700 dark:text-slate-300">2 Kelompok (4 Mhs)</td>
-                    <td className="p-3 font-mono font-bold text-primary">320 Jam</td>
-                    <td className="p-3">2 Desa (Jombang & Mojokerto)</td>
-                    <td className="p-3"><span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">SDG 8 & 9 (UMKM)</span></td>
-                    <td className="p-3 text-right font-bold text-emerald-600">96.8 / 100</td>
-                  </tr>
-                  <tr className="hover:bg-slate-50/80 dark:hover:bg-navy-900/50">
-                    <td className="p-3 font-bold text-navy-950 dark:text-white flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-slate-300 dark:bg-navy-700 text-slate-700 dark:text-slate-200 flex items-center justify-center font-extrabold text-[11px]">2</span>
-                      <span>Institut Teknologi Sepuluh Nopember (ITS)</span>
-                    </td>
-                    <td className="p-3 text-slate-700 dark:text-slate-300">1 Kelompok (2 Mhs)</td>
-                    <td className="p-3 font-mono font-bold text-primary">320 Jam</td>
-                    <td className="p-3">1 Desa (Pasuruan)</td>
-                    <td className="p-3"><span className="px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 text-[10px] font-bold">SDG 7 & 13 (Energi Bersih)</span></td>
-                    <td className="p-3 text-right font-bold text-emerald-600">94.2 / 100</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </Card>
         </div>
       </div>
     </DashboardLayout>

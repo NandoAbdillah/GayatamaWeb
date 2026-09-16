@@ -133,29 +133,17 @@ export default function KampusDashboardPage() {
               </p>
             </div>
 
-            <div className="pt-2 flex flex-wrap items-center gap-2.5">
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <Link href="/kampus/laporan-dosen">
                 <Button size="sm" variant="primary" className="shadow-glow-primary gap-1.5 font-bold text-xs">
                   <FileCheck2 className="w-4 h-4" />
                   <span>Laporan Supervisi DPL</span>
                 </Button>
               </Link>
-              <Link href="/kampus/dosen">
-                <Button size="sm" variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 gap-1.5 font-bold text-xs">
-                  <GraduationCap className="w-4 h-4" />
-                  <span>Tugaskan DPL</span>
-                </Button>
-              </Link>
-              <Link href="/kampus/sks">
-                <Button size="sm" variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 gap-1.5 font-bold text-xs">
-                  <Award className="w-4 h-4" />
-                  <span>Konversi SKS</span>
-                </Button>
-              </Link>
               <Link href="/kampus/monitoring">
                 <Button size="sm" variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 gap-1.5 font-bold text-xs">
                   <MapPin className="w-4 h-4" />
-                  <span>Monitoring Lapangan</span>
+                  <span>Monitoring Sebaran KKN</span>
                 </Button>
               </Link>
             </div>
