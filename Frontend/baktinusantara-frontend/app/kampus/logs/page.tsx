@@ -33,52 +33,52 @@ interface AuditLog {
 const SEEDED_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-1',
-    aksi: 'Pengesahan Luaran Akhir & E-Sertifikat Digital',
-    aktor: 'Kantor Kepala Desa Sukamaju',
-    detail: "Mengesahkan luaran paket digitalisasi UMKM kelompok 'KKN UNESA 01' dan menerbitkan portofolio publik.",
-    waktu: '1 hari yang lalu',
-    kategori: 'Luaran & Portofolio',
+    aksi: 'Pengesahan Konversi 4 SKS Mata Kuliah KKN',
+    aktor: 'LPPM UNESA Surabaya',
+    detail: "Mengesahkan konversi 4 SKS untuk 5 mahasiswa Kelompok 14 setelah BAST dari Desa Sukamaju terbit.",
+    waktu: '3 jam yang lalu',
+    kategori: 'Konversi SKS',
     tipe: 'success',
   },
   {
     id: 'log-2',
-    aksi: 'Pelaporan Progres Mingguan ke-4 (100%)',
-    aktor: 'Ahmad Fauzi (Ketua KKN UNESA 01)',
-    detail: 'Menyelesaikan 100% target program kerja pembukuan digital dan pelatihan UMKM kripik singkong.',
+    aksi: 'Penerimaan Laporan Supervisi Lapangan DPL',
+    aktor: 'Dr. Ir. Hendra Gunawan, M.T. (DPL)',
+    detail: 'Mengunggah laporan monev kunjungan lapangan tengah periode di Desa Sukamaju dengan rekomendasi akselerasi.',
+    waktu: '1 hari yang lalu',
+    kategori: 'Laporan DPL',
+    tipe: 'info',
+  },
+  {
+    id: 'log-3',
+    aksi: 'Verifikasi Logbook Mingguan ke-4 (100%)',
+    aktor: 'Dr. Budi Santoso, M.Kom. (DPL)',
+    detail: 'Menyetujui capaian 100% jam kerja pengabdian dan luaran katalog digital UMKM kelompok 1.',
     waktu: '2 hari yang lalu',
     kategori: 'Logbook Mingguan',
     tipe: 'success',
   },
   {
-    id: 'log-3',
-    aksi: 'Tinjauan Kelayakan Proposal KKN ITS',
-    aktor: 'Ir. Agus Setiawan, M.T. (Dosen DPL)',
-    detail: 'Menyatakan proposal reaktor biogas Kelompok KKN ITS Berkah Hijau LAYAK dilaksanakan di lapangan.',
-    waktu: '15 hari yang lalu',
-    kategori: 'Review DPL',
-    tipe: 'info',
-  },
-  {
     id: 'log-4',
-    aksi: 'Persetujuan Proposal Program Kerja',
-    aktor: 'Pemerintah Desa Sukamaju',
-    detail: "Menyetujui proposal 'Digitalisasi Branding UMKM' yang diajukan oleh kelompok KKN UNESA 01.",
-    waktu: '25 hari yang lalu',
-    kategori: 'Persetujuan Proposal',
-    tipe: 'success',
+    aksi: 'Penugasan Dosen Pembimbing Lapangan (DPL)',
+    aktor: 'Operator LPPM Kampus',
+    detail: 'Menerbitkan surat tugas bimbingan KKN Semester Genap untuk 15 dosen pembimbing lapangan.',
+    waktu: '1 minggu yang lalu',
+    kategori: 'Manajemen DPL',
+    tipe: 'info',
   },
   {
     id: 'log-5',
-    aksi: 'Verifikasi Berkas Legalitas SK Desa & Kampus',
-    aktor: 'Super Admin BaktiNusantara',
-    detail: 'Memvalidasi SK LPM UNESA dan SK Kepala Desa Sukamaju sebagai entitas terverifikasi resmi.',
-    waktu: '1 bulan yang lalu',
-    kategori: 'Verifikasi Legalitas',
-    tipe: 'info',
+    aksi: 'Review & Persetujuan Proposal Program Kerja',
+    aktor: 'Dr. Retno Wulandari, M.Pd. (DPL)',
+    detail: "Menyetujui proposal 'Edukasi Cempaka Putih' layak diajukan ke kantor kepala desa.",
+    waktu: '2 minggu yang lalu',
+    kategori: 'Proposal KKN',
+    tipe: 'success',
   },
 ];
 
-export default function AdminLogsPage() {
+export default function KampusLogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>(SEEDED_AUDIT_LOGS);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -91,8 +91,8 @@ export default function AdminLogsPage() {
       if (Array.isArray(notifs) && notifs.length > 0) {
         const notifLogs: AuditLog[] = notifs.map((n: any) => ({
           id: `notif-${n.id}`,
-          aksi: 'Notifikasi Sistem In-App',
-          aktor: 'Sistem BaktiNusantara',
+          aksi: 'Notifikasi In-App',
+          aktor: 'Sistem Kampus',
           detail: n.pesan,
           waktu: n.created_at ? new Date(n.created_at).toLocaleDateString('id-ID') : 'Baru saja',
           kategori: 'Notifikasi Sistem',
@@ -124,19 +124,25 @@ export default function AdminLogsPage() {
 
   return (
     <DashboardLayout
-      title="Audit Trail & Rekam Jejak Sistem"
+      title="Log Aktivitas & Riwayat Pengabdian Kampus"
+      breadcrumb={[
+        { label: 'Log Aktivitas Kampus' },
+      ]}
     >
       <div className="space-y-6 font-jakarta">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                <Activity className="w-5 h-5" />
+              </span>
               <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Audit Trail & Rekam Jejak Aktivitas Platform
+                Log & Rekam Jejak Aktivitas Kampus
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Super Admin mengawasi log keamanan dan riwayat aksi krusial mulai dari verifikasi entitas, penerbitan proposal, logbook mingguan, hingga pengesahan luaran akhir.
+              LPPM memantau kronologi pengabdian mahasiswa, bimbingan dosen DPL, pengesahan nilai BAST mitra desa, dan penerbitan konversi SKS.
             </p>
           </div>
 

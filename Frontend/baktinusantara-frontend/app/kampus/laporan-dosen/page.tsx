@@ -82,7 +82,7 @@ const INITIAL_LAPORAN: LaporanDosen[] = [
   },
 ];
 
-export default function AdminLaporanDosenPage() {
+export default function KampusLaporanDosenPage() {
   const [laporanList, setLaporanList] =
     useState<LaporanDosen[]>(INITIAL_LAPORAN);
   const [activeFilter, setActiveFilter] = useState<
@@ -175,7 +175,12 @@ export default function AdminLaporanDosenPage() {
   });
 
   return (
-    <DashboardLayout title="Tinjauan Laporan Dosen Pembimbing Lapangan">
+    <DashboardLayout
+      title="Tinjauan Laporan Dosen Pembimbing Lapangan"
+      breadcrumb={[
+        { label: 'Laporan Monev DPL' },
+      ]}
+    >
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-black text-navy-950 dark:text-white font-epilogue">

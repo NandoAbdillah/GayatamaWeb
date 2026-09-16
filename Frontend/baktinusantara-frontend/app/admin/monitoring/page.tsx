@@ -92,6 +92,7 @@ const SEEDED_MONITORING_GROUPS: GroupMonitoringItem[] = [
 export default function AdminMonitoringPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedUniv, setSelectedUniv] = useState('all');
   const [selectedGroup, setSelectedGroup] = useState<GroupMonitoringItem | null>(null);
 
   const filteredGroups = SEEDED_MONITORING_GROUPS.filter((g) => {
@@ -100,16 +101,21 @@ export default function AdminMonitoringPage() {
       g.desa.toLowerCase().includes(searchTerm.toLowerCase()) ||
       g.universitas.toLowerCase().includes(searchTerm.toLowerCase()) ||
       g.dpl.toLowerCase().includes(searchTerm.toLowerCase());
-    if (filterStatus === 'alert') return matchSearch && g.alert !== null;
-    if (filterStatus === 'ok') return matchSearch && g.alert === null;
-    return matchSearch;
+    const matchUniv = selectedUniv === 'all' || g.universitas.toLowerCase().includes(selectedUniv.toLowerCase());
+    const matchStatus =
+      filterStatus === 'all'
+        ? true
+        : filterStatus === 'alert'
+        ? g.alert !== null
+        : g.alert === null;
+    return matchSearch && matchUniv && matchStatus;
   });
 
   return (
     <DashboardLayout
-      title="Pemantauan Sebaran & Pelaksanaan Program KKN"
+      title="Sebaran Nasional & Pemantauan Program KKN"
       breadcrumb={[
-        { label: 'Sebaran Program KKN' },
+        { label: 'Sebaran Nasional KKN' },
       ]}
     >
       <div className="space-y-6 font-jakarta">
@@ -121,11 +127,11 @@ export default function AdminMonitoringPage() {
                 <MapPin className="w-5 h-5" />
               </span>
               <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Pemantauan Lapangan & Sebaran Program KKN
+                Pusat Pemantauan Sebaran Nasional Program KKN
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Super Admin mengawasi kepatuhan operasional, laporan logbook mingguan, radius jarak (&gt;1.000 km), dan surat izin orang tua kelompok mahasiswa KKN.
+              Super Admin mengawasi kepatuhan operasional seluruh perguruan tinggi, kepatuhan radius jarak (&gt;1.000 km), dan koordinasi antar-instansi se-Indonesia.
             </p>
           </div>
 
@@ -140,23 +146,56 @@ export default function AdminMonitoringPage() {
           </Button>
         </div>
 
+        {/* National Overview Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <Card className="p-4 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Kelompok Aktif</span>
+            <p className="text-xl sm:text-2xl font-black text-navy-950 dark:text-white mt-1">3 <span className="text-xs font-semibold text-slate-500 font-sans">Kelompok</span></p>
+          </Card>
+          <Card className="p-4 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Perguruan Tinggi</span>
+            <p className="text-xl sm:text-2xl font-black text-primary mt-1">2 <span className="text-xs font-semibold text-slate-500 font-sans">PTN/PTS Terlibat</span></p>
+          </Card>
+          <Card className="p-4 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Desa Mitra Terjangkau</span>
+            <p className="text-xl sm:text-2xl font-black text-emerald-600 mt-1">3 <span className="text-xs font-semibold text-slate-500 font-sans">Desa (Jatim & Jabar)</span></p>
+          </Card>
+          <Card className="p-4 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Perlu Tindakan/Izin</span>
+            <p className="text-xl sm:text-2xl font-black text-amber-500 mt-1">1 <span className="text-xs font-semibold text-slate-500 font-sans">Kelompok</span></p>
+          </Card>
+        </div>
+
         {/* Filter & Search Bar */}
-        <Card className="p-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
-          <div className="relative w-full sm:w-96">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Cari kelompok, universitas, desa, atau DPL..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 text-xs text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+        <Card className="p-4 flex flex-col md:flex-row items-center justify-between gap-3 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto flex-1">
+            <div className="relative w-full sm:w-72">
+              <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari kelompok, desa, DPL..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 text-xs text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <select
+              value={selectedUniv}
+              onChange={(e) => setSelectedUniv(e.target.value)}
+              className="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="all">Semua Universitas</option>
+              <option value="unesa">Universitas Negeri Surabaya (UNESA)</option>
+              <option value="its">Institut Teknologi Sepuluh Nopember (ITS)</option>
+              <option value="unair">Universitas Airlangga (UNAIR)</option>
+            </select>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
             <button
               onClick={() => setFilterStatus('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 filterStatus === 'all'
                   ? 'bg-primary text-white shadow-sm'
                   : 'bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
@@ -166,7 +205,7 @@ export default function AdminMonitoringPage() {
             </button>
             <button
               onClick={() => setFilterStatus('alert')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 filterStatus === 'alert'
                   ? 'bg-amber-600 text-white shadow-sm'
                   : 'bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
@@ -176,7 +215,7 @@ export default function AdminMonitoringPage() {
             </button>
             <button
               onClick={() => setFilterStatus('ok')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 filterStatus === 'ok'
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'

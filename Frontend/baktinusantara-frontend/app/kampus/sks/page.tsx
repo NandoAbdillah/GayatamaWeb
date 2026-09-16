@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { FileCheck2, CheckCircle2, Download, GraduationCap, Building } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function AdminSksPage() {
+export default function KampusSksPage() {
   const [kelompokList, setKelompokList] = useState([
     {
       id: 1,
@@ -40,7 +40,12 @@ export default function AdminSksPage() {
   };
 
   return (
-    <DashboardLayout title="Pengesahan Konversi SKS & Kelulusan KKN">
+    <DashboardLayout
+      title="Pengesahan Konversi SKS & Kelulusan KKN"
+      breadcrumb={[
+        { label: 'Konversi SKS Akademik' },
+      ]}
+    >
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">

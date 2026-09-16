@@ -89,7 +89,7 @@ const SEEDED_MONITORING_GROUPS: GroupMonitoringItem[] = [
   },
 ];
 
-export default function AdminMonitoringPage() {
+export default function KampusMonitoringPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedGroup, setSelectedGroup] = useState<GroupMonitoringItem | null>(null);
@@ -107,30 +107,36 @@ export default function AdminMonitoringPage() {
 
   return (
     <DashboardLayout
-      title="Pemantauan Sebaran & Pelaksanaan Program KKN"
+      title="Monitoring Kelompok Mahasiswa & Presensi GPS"
+      breadcrumb={[
+        { label: 'Monitoring Mahasiswa' },
+      ]}
     >
       <div className="space-y-6 font-jakarta">
         {/* Header Title */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                <MapPin className="w-5 h-5" />
+              </span>
               <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Pemantauan Lapangan & Sebaran Program KKN
+                Monitoring Kelompok Mahasiswa & Presensi GPS
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Super Admin mengawasi kepatuhan operasional, laporan logbook mingguan, radius jarak (&gt;1.000 km), dan surat izin orang tua kelompok mahasiswa KKN.
+              LPPM memantau perkembangan logbook harian, status verifikasi DPL, keabsahan presensi geospasial (GPS), dan kesiapan konversi SKS mahasiswa.
             </p>
           </div>
 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => toast.success('Mengirim pengingat notifikasi serentak ke semua ketua kelompok')}
+            onClick={() => toast.success('Mengirim pengingat verifikasi logbook ke dosen DPL')}
             className="text-xs font-bold gap-1.5"
           >
             <Send className="w-4 h-4" />
-            <span>Kirim Notifikasi</span>
+            <span>Kirim Notifikasi ke DPL</span>
           </Button>
         </div>
 

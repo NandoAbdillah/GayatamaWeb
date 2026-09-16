@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function AdminFeedbackPage() {
+export default function KampusFeedbackPage() {
   const [activeFilter, setActiveFilter] = useState('all');
 
   const [feedbacks, setFeedbacks] = useState([
@@ -83,7 +83,12 @@ export default function AdminFeedbackPage() {
   });
 
   return (
-    <DashboardLayout title="Pusat Umpan Balik Stakeholder KKN">
+    <DashboardLayout
+      title="Pusat Umpan Balik Stakeholder KKN"
+      breadcrumb={[
+        { label: 'Umpan Balik Stakeholder' },
+      ]}
+    >
       <div className="space-y-6 font-jakarta">
         {/* Header Title */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

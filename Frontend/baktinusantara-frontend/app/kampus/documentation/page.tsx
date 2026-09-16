@@ -127,7 +127,7 @@ const SOP_VISUALS: Record<
   },
 };
 
-export default function AdminDocumentationPage() {
+export default function KampusDocumentationPage() {
   const [selectedRole, setSelectedRole] = useState<
     "all" | "mahasiswa" | "desa" | "dosen" | "admin"
   >("all");
@@ -145,7 +145,12 @@ export default function AdminDocumentationPage() {
   });
 
   return (
-    <DashboardLayout title="Pusat Dokumentasi Terbuka & SOP KKN">
+    <DashboardLayout
+      title="Pusat Dokumentasi Terbuka & SOP KKN"
+      breadcrumb={[
+        { label: 'SOP & Regulasi KKN' },
+      ]}
+    >
       <div className="space-y-6 w-full">
         <div>
           <h1 className="text-2xl font-black text-navy-950 dark:text-white font-epilogue">

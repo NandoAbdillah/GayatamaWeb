@@ -8,7 +8,7 @@ import { GraduationCap, Users, PlusCircle, CheckCircle2, X, Mail, Lock, Phone, U
 import { toast } from 'sonner';
 import api from '@/lib/services';
 
-export default function AdminDosenPage() {
+export default function KampusDosenPage() {
   const [dosenList, setDosenList] = useState<any[]>([
     {
       id: 1,
@@ -124,7 +124,12 @@ export default function AdminDosenPage() {
   };
 
   return (
-    <DashboardLayout title="Manajemen & Alokasi Dosen Pembimbing (DPL)">
+    <DashboardLayout
+      title="Manajemen & Alokasi Dosen Pembimbing (DPL)"
+      breadcrumb={[
+        { label: 'Manajemen Dosen DPL' },
+      ]}
+    >
       <div className="space-y-6 font-jakarta">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
