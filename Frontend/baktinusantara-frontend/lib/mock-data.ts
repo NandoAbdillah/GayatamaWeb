@@ -86,6 +86,15 @@ export const MOCK_USERS: Record<string, User> = {
       lppm_ketua: 'Prof. Dr. Budi Santoso, M.Sc.',
     },
   },
+  admin: {
+    id: 501,
+    name: 'Super Admin BaktiNusantara',
+    email: 'admin@baktinusantara.id',
+    role: 'admin',
+    is_verified: true,
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    phone: '081234567890',
+  },
 };
 
 export const MOCK_KELOMPOK_14: Kelompok = {

@@ -10,10 +10,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { PanelLeftClose } from 'lucide-react';
 
-export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: string }> = ({
-  children,
-  title,
-}) => {
+export const DashboardLayout: React.FC<{
+  children: React.ReactNode;
+  title?: string;
+  breadcrumb?: { label: string; href?: string }[];
+}> = ({ children, title, breadcrumb }) => {
   const { user } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -29,7 +30,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: stri
   return (
     <div className="min-h-screen bg-surface-canvas dark:bg-[#071629] flex flex-col font-jakarta transition-colors duration-200">
       {/* Top Bar */}
-      <header className="sticky top-0 z-30 w-full bg-white/95 dark:bg-navy-950/95 backdrop-blur-md border-b border-slate-200 dark:border-navy-800 px-4 lg:px-8 py-3.5">
+      <header className="sticky top-0 z-30 w-full bg-white/95 dark:bg-navy-950/95 backdrop-blur-md border-b border-slate-200 dark:border-navy-800 px-4 lg:px-8 py-3">
         <div className="flex items-center justify-between gap-4 w-full">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2.5 group">
@@ -42,18 +43,29 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: stri
                   className="w-8 h-8 object-contain drop-shadow-sm"
                 />
               </div>
-              <span className="font-epilogue font-bold text-navy-950 dark:text-white text-base hidden sm:inline">
-                BaktiNusantara
-              </span>
+              <div className="flex flex-col">
+                <span className="font-epilogue font-bold text-navy-950 dark:text-white text-base leading-tight hidden sm:inline">
+                  BaktiNusantara
+                </span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium hidden sm:inline">
+                  Sistem Informasi KKN & Pengabdian
+                </span>
+              </div>
             </Link>
             {title && (
-              <div className="hidden md:flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 pl-4 border-l border-slate-200 dark:border-navy-800">
-                <span className="font-medium text-navy-900 dark:text-slate-200">{title}</span>
+              <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 pl-4 border-l border-slate-200 dark:border-navy-800">
+                <span className="font-bold text-navy-900 dark:text-slate-200">{title}</span>
               </div>
             )}
           </div>
 
           <div className="flex items-center gap-3">
+            {user?.role === 'admin' && (
+              <span className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-[11px] font-bold">
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                Pusat Kendali Super Admin
+              </span>
+            )}
             <ThemeToggle />
             <RoleSwitcher />
 
@@ -72,6 +84,25 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode; title?: stri
           aria-hidden
         />
         <main className="flex-1 min-w-0 w-full p-4 sm:p-6 lg:p-8">
+          {breadcrumb && breadcrumb.length > 0 && (
+            <nav className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-4 font-medium" aria-label="Breadcrumb">
+              <Link href="/admin/dashboard" className="hover:text-primary transition-colors">
+                Portal Admin
+              </Link>
+              {breadcrumb.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  <span>/</span>
+                  {item.href ? (
+                    <Link href={item.href} className="hover:text-primary transition-colors">
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <span className="text-navy-950 dark:text-white font-semibold">{item.label}</span>
+                  )}
+                </React.Fragment>
+              ))}
+            </nav>
+          )}
           {children}
         </main>
       </div>

@@ -89,10 +89,10 @@ export const RoleSwitcher: React.FC<{ className?: string }> = ({ className }) =>
       const switchedUser = await switchRoleDemo(item.role);
       toast.success(`Beralih peran sebagai ${switchedUser.name}`);
       setIsOpen(false);
-      router.push(item.dashboard);
+      // Pindahkan langsung ke dashboard peran yang dipilih dengan full refresh untuk mereset state & layout
+      window.location.href = item.dashboard;
     } catch (err: any) {
       toast.error('Gagal beralih peran.');
-    } finally {
       setIsSwitching(false);
     }
   };

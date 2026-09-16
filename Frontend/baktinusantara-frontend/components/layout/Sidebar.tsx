@@ -74,20 +74,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onExpand })
           { href: '/dosen/proposal', label: 'Kelayakan Proposal', icon: FileText },
           { href: '/dosen/penilaian', label: 'Rekap Nilai & Berita Acara', icon: Award },
         ];
-      case 'universitas':
       case 'admin':
-      default:
         return [
-          { href: '/admin/dashboard', label: 'Monev LPPM', icon: LayoutDashboard },
+          { href: '/admin/dashboard', label: 'Dashboard Eksekutif', icon: LayoutDashboard },
+          { href: '/admin/verifikasi', label: 'Verifikasi Entitas', icon: ShieldCheck, badge: 'Aksi' },
+          { href: '/admin/pos-kebutuhan', label: 'Pos Kebutuhan Desa', icon: ClipboardList },
+          { href: '/admin/direktori-kampus', label: 'Direktori Kampus & DPL', icon: Building },
+          { href: '/admin/monitoring', label: 'Sebaran Program KKN', icon: MapPin, badge: 'Live' },
+          { href: '/admin/analytics', label: 'Analisis & Statistik SDG', icon: BarChart3 },
+          { href: '/admin/logs', label: 'Audit Trail & Sistem', icon: Activity },
+        ];
+      case 'universitas':
+        return [
+          { href: '/admin/dashboard', label: 'Monev LPPM Kampus', icon: LayoutDashboard },
+          { href: '/admin/dosen', label: 'Kelola Dosen DPL', icon: GraduationCap },
+          { href: '/admin/laporan-dosen', label: 'Tinjau Laporan DPL', icon: FileText, badge: '1 Baru' },
           { href: '/admin/monitoring', label: 'Live Monitoring Spasial', icon: MapPin, badge: 'Live' },
           { href: '/admin/analytics', label: 'Analisis & Statistik SDG', icon: BarChart3 },
-          { href: '/admin/laporan-dosen', label: 'Tinjau Laporan DPL', icon: FileText, badge: '1 Baru' },
-          { href: '/admin/dosen', label: 'Alokasi Dosen DPL', icon: GraduationCap },
-          { href: '/admin/sks', label: 'Konversi SKS & Kelulusan', icon: FileCheck2 },
-          { href: '/admin/verifikasi', label: 'Verifikasi Berkas SK/KTM', icon: ShieldCheck },
+          { href: '/admin/sks', label: 'Konversi SKS Mahasiswa', icon: FileCheck2 },
           { href: '/admin/documentation', label: 'Pusat SOP & Regulasi', icon: BookOpen },
           { href: '/admin/feedback', label: 'Feedback Stakeholder', icon: ThumbsUp },
-          { href: '/admin/logs', label: 'Audit Trail & Sistem', icon: Activity },
+          { href: '/admin/logs', label: 'Log Aktivitas Kampus', icon: Activity },
+        ];
+      default:
+        return [
+          { href: '/admin/dashboard', label: 'Dashboard Admin', icon: LayoutDashboard },
+          { href: '/admin/verifikasi', label: 'Verifikasi Entitas', icon: ShieldCheck },
+          { href: '/admin/pos-kebutuhan', label: 'Pos Kebutuhan', icon: ClipboardList },
+          { href: '/admin/direktori-kampus', label: 'Direktori Kampus', icon: Building },
+          { href: '/admin/analytics', label: 'Statistik SDG', icon: BarChart3 },
         ];
     }
   };
@@ -129,7 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onExpand })
             >
               <p className="text-sm font-bold text-navy-950 dark:text-white truncate">{user?.name}</p>
               <p className="text-xs text-primary dark:text-primary-400 font-semibold capitalize flex items-center gap-1 truncate">
-                {user?.role?.replace('_', ' ')}
+                {user?.role === 'admin' ? 'Super Admin Platform' : user?.role === 'universitas' ? 'LPPM Universitas' : user?.role?.replace('_', ' ')}
               </p>
             </div>
           </div>

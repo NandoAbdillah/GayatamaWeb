@@ -191,32 +191,78 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
   // Nonaktifkan AI di halaman login - harus setelah semua hooks agar tidak violate Rules of Hooks
   if (pathname?.startsWith('/login')) return null;
 
+  // Deteksi rute dashboard (Superadmin, Mahasiswa, Perangkat Desa, Dosen)
+  const isDashboard = Boolean(
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/mahasiswa') ||
+    pathname?.startsWith('/perangkat-desa') ||
+    pathname?.startsWith('/dosen')
+  );
+
   return (
     <>
-      {/* Floating Trigger Aura Button */}
+      {/* Floating Trigger Aira Button */}
       {!isOpen && (
-        <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3">
-          <button
-            onClick={() => setIsOpen(true)}
-            aria-label="Buka Aira - AI Nusantara"
-            className="group relative flex items-center justify-center w-14 h-14 bg-transparent hover:scale-110 active:scale-95 transition-all duration-300 drop-shadow-xl"
-          >
-            <Image
-              src="/icons/logochat.svg"
-              alt="Aira - AI Nusantara"
-              width={56}
-              height={56}
-              className="w-14 h-14 rounded-2xl object-contain drop-shadow-md group-hover:rotate-6 transition-transform duration-300"
-              priority
-            />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-white dark:border-navy-950 rounded-full z-10 shadow-sm" />
-          </button>
+        <>
+          {isDashboard ? (
+            /* DASHBOARD MODE: Floating circular button persis seperti Accessibility Widget (48px × 48px, circle, right: 24px, bottom: 84px) */
+            <div className="fixed bottom-[84px] right-[24px] z-40 flex items-center justify-center pointer-events-auto select-none">
+              <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                aria-label="Buka Asisten AI Aira"
+                title="Aira – AI Nusantara"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  minWidth: '48px',
+                  minHeight: '48px',
+                  maxWidth: '48px',
+                  maxHeight: '48px',
+                  borderRadius: '50%',
+                  aspectRatio: '1 / 1',
+                  overflow: 'hidden',
+                }}
+                className="group relative flex items-center justify-center w-[48px] h-[48px] min-w-[48px] min-h-[48px] max-w-[48px] max-h-[48px] rounded-full aspect-square overflow-hidden bg-[#00D492] border-2 border-white/90 dark:border-white/80 shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40 p-0"
+              >
+                <Image
+                  src="/icons/aira-circle.svg"
+                  alt="Aira - AI Nusantara"
+                  width={48}
+                  height={48}
+                  unoptimized
+                  priority
+                  className="w-full h-full object-cover rounded-full select-none transition-transform duration-200 group-hover:scale-110"
+                />
+              </button>
+            </div>
+          ) : (
+            /* LANDING PAGE / PUBLIC MODE: Pertahankan 100% desain existing di kiri bawah dengan speech bubble */
+            <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3">
+              <button
+                onClick={() => setIsOpen(true)}
+                aria-label="Buka Aira - AI Nusantara"
+                className="group relative flex items-center justify-center w-14 h-14 bg-transparent hover:scale-110 active:scale-95 transition-all duration-300 drop-shadow-xl"
+              >
+                <Image
+                  src="/icons/logochat.svg"
+                  alt="Aira - AI Nusantara"
+                  width={56}
+                  height={56}
+                  unoptimized
+                  className="w-14 h-14 rounded-2xl object-contain drop-shadow-md group-hover:rotate-6 transition-transform duration-300"
+                  priority
+                />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-white dark:border-navy-950 rounded-full z-10 shadow-sm" />
+              </button>
 
-          <div className="hidden sm:flex items-center gap-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-navy-700 shadow-lg text-xs font-bold text-navy-950 dark:text-white animate-bounce">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Butuh bantuan? Aira siap bantu</span>
-          </div>
-        </div>
+              <div className="hidden sm:flex items-center gap-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-navy-700 shadow-lg text-xs font-bold text-navy-950 dark:text-white animate-bounce">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <span>Butuh bantuan? Aira siap bantu</span>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Interactive AI Copilot Modal / Drawer */}
@@ -225,6 +271,8 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
           className={`fixed z-50 transition-all duration-300 flex flex-col shadow-2xl rounded-3xl overflow-hidden border border-slate-200/90 dark:border-navy-800 bg-slate-50/70 dark:bg-navy-950 font-jakarta ${
             isExpanded
               ? 'inset-4 sm:inset-10'
+              : isDashboard
+              ? 'bottom-6 right-6 sm:right-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
               : 'bottom-6 left-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
           }`}
         >
@@ -233,11 +281,12 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 aspect-square flex items-center justify-center border border-white/20 bg-white/10 shadow-xs">
                 <Image
-                  src="/icons/logochat.svg"
+                  src="/icons/aira-circle.svg"
                   alt="Aira – AI Nusantara"
                   width={36}
                   height={36}
-                  className="w-full h-full object-cover"
+                  unoptimized
+                  className="w-full h-full object-cover rounded-full"
                   priority
                 />
               </div>
@@ -307,11 +356,12 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
                     {isFirstInGroup ? (
                       <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 aspect-square flex items-center justify-center bg-emerald-50 dark:bg-navy-900 border border-emerald-200/60 dark:border-navy-700 shadow-2xs">
                         <Image
-                          src="/icons/logochat.svg"
+                          src="/icons/aira-circle.svg"
                           alt="Aira"
                           width={32}
                           height={32}
-                          className="w-full h-full object-cover"
+                          unoptimized
+                          className="w-full h-full object-cover rounded-full"
                         />
                       </div>
                     ) : (
@@ -358,11 +408,12 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
               <div className="flex items-start gap-2.5 mt-3 max-w-[85%]">
                 <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 aspect-square flex items-center justify-center bg-emerald-50 dark:bg-navy-900 border border-emerald-200/60 dark:border-navy-700 shadow-2xs">
                   <Image
-                    src="/icons/logochat.svg"
+                    src="/icons/aira-circle.svg"
                     alt="Aira"
                     width={32}
                     height={32}
-                    className="w-full h-full object-cover"
+                    unoptimized
+                    className="w-full h-full object-cover rounded-full"
                   />
                 </div>
                 <div className="rounded-2xl rounded-tl-sm px-4 py-3 bg-white dark:bg-navy-900/90 border border-slate-200/80 dark:border-navy-800 shadow-2xs flex items-center gap-2.5">

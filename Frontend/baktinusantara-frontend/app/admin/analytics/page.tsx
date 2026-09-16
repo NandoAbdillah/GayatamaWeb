@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -24,53 +24,109 @@ import {
   TrendingUp,
   Award,
   Users,
-  Building,
+  Building2,
   Sparkles,
   Download,
   Calendar,
   Globe2,
   FileCheck2,
+  BarChart3,
+  RefreshCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/services';
+
+const SDG_COLORS: Record<string, string> = {
+  'SDG 2': '#DDA63A',
+  'SDG 3': '#4C9F38',
+  'SDG 4': '#C5192D',
+  'SDG 6': '#26BDE2',
+  'SDG 8': '#A21942',
+  'SDG 9': '#FD6925',
+  'SDG 11': '#FD9D24',
+  'SDG 13': '#3F7E44',
+  'SDG 15': '#56C02B',
+};
 
 export default function AdminAnalyticsPage() {
-  // Mock dataset for Recharts
-  const sectorData = [
-    { name: 'Agrikultur & Ketahanan Pangan', kelompok: 48, sdg: 'SDG 2' },
-    { name: 'Digitalisasi & UMKM Desa', kelompok: 36, sdg: 'SDG 8' },
-    { name: 'Kesehatan & Cegah Stunting', kelompok: 28, sdg: 'SDG 3' },
-    { name: 'Pendidikan & Literasi', kelompok: 20, sdg: 'SDG 4' },
-    { name: 'Infrastruktur & Air Bersih', kelompok: 16, sdg: 'SDG 6' },
-  ];
+  const [metrics, setMetrics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const regionData = [
-    { name: 'Kab. Bogor', value: 52, color: '#2589F5' },
-    { name: 'Kab. Cianjur', value: 34, color: '#16A34A' },
-    { name: 'Kab. Sukabumi', value: 26, color: '#F59E0B' },
-    { name: 'Kab. Bandung Barat', value: 20, color: '#8B5CF6' },
-    { name: 'Kab. Garut', value: 16, color: '#EC4899' },
-  ];
+  useEffect(() => {
+    async function loadMetrics() {
+      try {
+        const res = await api.dashboard.getMetrics();
+        if (res) {
+          setMetrics(res);
+        }
+      } catch (err) {
+        console.warn('Fallback analytics data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadMetrics();
+  }, []);
+
+  // Format Kategori data for BarChart
+  const sectorData = metrics?.kategori_breakdown
+    ? Object.entries(metrics.kategori_breakdown).map(([kategori, total]) => ({
+        name: kategori === 'umkm' ? 'Pemberdayaan UMKM' : kategori.charAt(0).toUpperCase() + kategori.slice(1),
+        pos: total,
+      }))
+    : [
+        { name: 'Pemberdayaan UMKM', pos: 1 },
+        { name: 'Lingkungan', pos: 1 },
+        { name: 'Kesehatan', pos: 1 },
+        { name: 'Pendidikan', pos: 1 },
+        { name: 'Fasilitas', pos: 1 },
+      ];
+
+  // Format SDG data for PieChart
+  const sdgChartData = metrics?.sdgs_distribution
+    ? Object.entries(metrics.sdgs_distribution).map(([sdg, val]) => ({
+        name: sdg,
+        value: val as number,
+        color: SDG_COLORS[sdg] || '#2589F5',
+      }))
+    : [
+        { name: 'SDG 3', value: 1, color: '#4C9F38' },
+        { name: 'SDG 4', value: 1, color: '#C5192D' },
+        { name: 'SDG 8', value: 1, color: '#A21942' },
+        { name: 'SDG 9', value: 2, color: '#FD6925' },
+        { name: 'SDG 11', value: 1, color: '#FD9D24' },
+        { name: 'SDG 13', value: 1, color: '#3F7E44' },
+        { name: 'SDG 15', value: 1, color: '#56C02B' },
+      ];
 
   const weeklyProgressData = [
-    { minggu: 'M1', target: 25, realisasi: 28 },
-    { minggu: 'M2', target: 50, realisasi: 56 },
-    { minggu: 'M3', target: 80, realisasi: 88 },
-    { minggu: 'M4', target: 120, realisasi: 125 },
-    { minggu: 'M5', target: 160, realisasi: 168 },
-    { minggu: 'M6', target: 200, realisasi: 204 },
+    { minggu: 'M1', target: 25, realisasi: 25 },
+    { minggu: 'M2', target: 50, realisasi: 55 },
+    { minggu: 'M3', target: 75, realisasi: 75 },
+    { minggu: 'M4', target: 100, realisasi: 100 },
   ];
 
   return (
-    <DashboardLayout title="Analytics & Monev Dampak KKN">
+    <DashboardLayout
+      title="Analisis & Statistik SDG Nasional"
+      breadcrumb={[
+        { label: 'Analisis & Statistik SDG' },
+      ]}
+    >
       <div className="space-y-6 font-jakarta">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              Dashboard Analisis & Evaluasi Dampak LPPM
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-              Pemantauan kinerja agregat pengabdian mahasiswa, pencapaian target SDG desa, dan efektivitas jam kerja lapangan.
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                <BarChart3 className="w-5 h-5" />
+              </span>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+                Analisis Capaian & Statistik SDG Nasional
+              </h1>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Pemantauan kinerja agregat program KKN terpadu, kontribusi Sustainable Development Goals (SDGs), dan efektivitas jam kerja mahasiswa di desa mitra.
             </p>
           </div>
 
@@ -78,73 +134,81 @@ export default function AdminAnalyticsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => toast.success('Mengekspor laporan analisis statistik (Excel / CSV)')}
+              onClick={() => toast.success('Mengekspor laporan data analisis statistik (Excel / CSV)')}
               className="text-xs font-bold gap-1.5"
             >
               <Download className="w-4 h-4" />
-              <span>Ekspor Data (Excel)</span>
+              <span>Ekspor Excel</span>
             </Button>
             <Button
               variant="primary"
               size="sm"
-              onClick={() => toast.success('Mengunduh Laporan Eksekutif Monev KKN (PDF)')}
+              onClick={() => toast.success('Mengunduh Laporan Eksekutif Capaian KKN Nasional (PDF)')}
               className="text-xs font-bold gap-1.5"
             >
               <FileCheck2 className="w-4 h-4" />
-              <span>Laporan Eksekutif LPPM</span>
+              <span>Laporan Eksekutif</span>
             </Button>
           </div>
         </div>
 
         {/* Metrik Agregat Utama */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Mahasiswa Aktif</span>
-            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">740 Orang</p>
+          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mahasiswa Terlibat</span>
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              {metrics?.total_mahasiswa_terlibat || 7} Orang
+            </p>
             <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
-              <span>148 Kelompok (100% Terisi)</span>
+              <span>{metrics?.total_kelompok_kkn || 3} Kelompok KKN</span>
             </p>
           </Card>
 
-          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Desa Mitra Terhubung</span>
-            <p className="text-2xl font-extrabold text-primary font-epilogue">142 Desa</p>
-            <p className="text-[11px] text-slate-500">5 Kabupaten / Kota</p>
+          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Desa Mitra Terbantu</span>
+            <p className="text-2xl font-extrabold text-primary font-epilogue">
+              {metrics?.total_desa_terbantu || 2} Desa
+            </p>
+            <p className="text-[11px] text-slate-500">Program Berjalan & Selesai</p>
           </Card>
 
-          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Rata-rata Jam Kerja</span>
-            <p className="text-2xl font-extrabold text-emerald-600 font-epilogue">184.2 Jam</p>
-            <p className="text-[11px] text-emerald-600 font-semibold">92.1% dari Target 200 Jam</p>
+          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Jam Pengabdian</span>
+            <p className="text-2xl font-extrabold text-emerald-600 font-epilogue">
+              {metrics?.total_jam_pengabdian?.toLocaleString('id-ID') || '640'} Jam
+            </p>
+            <p className="text-[11px] text-emerald-600 font-semibold">Tercatat di Logbook Mingguan</p>
           </Card>
 
-          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nilai Ekonomi Binaan</span>
-            <p className="text-2xl font-extrabold text-amber-600 font-epilogue">Rp 1.48 M</p>
-            <p className="text-[11px] text-slate-500">Omzet & Hibah Peralatan</p>
+          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Luaran & Portofolio</span>
+            <p className="text-2xl font-extrabold text-amber-600 font-epilogue">
+              {metrics?.total_portofolio_publik || 1} Publikasi
+            </p>
+            <p className="text-[11px] text-slate-500">Sertifikat Digital Diterbitkan</p>
           </Card>
         </div>
 
         {/* Grid Charts Recharts */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Chart 1: Distribusi Sektor KKN & Kontribusi SDG */}
-          <Card className="lg:col-span-7 p-6 space-y-4 border-slate-200 dark:border-navy-800">
+          {/* Chart 1: Distribusi Sektor Program */}
+          <Card className="lg:col-span-7 p-6 space-y-4 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-navy-800">
               <div>
                 <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
-                  Distribusi Sektor Program & Kontribusi SDG
+                  Distribusi Kategori Program KKN
                 </h3>
-                <p className="text-xs text-slate-500">Jumlah kelompok mahasiswa per sektor pengabdian desa</p>
+                <p className="text-xs text-slate-500">Jumlah pos kebutuhan aktif & tuntas per bidang fokus</p>
               </div>
             </div>
 
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={sectorData} layout="vertical" margin={{ left: 20, right: 20 }}>
+                <BarChart data={sectorData} layout="vertical" margin={{ left: 10, right: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                   <XAxis type="number" fontSize={11} stroke="#94a3b8" />
-                  <YAxis type="category" dataKey="name" width={160} fontSize={10} stroke="#64748b" />
+                  <YAxis type="category" dataKey="name" width={140} fontSize={11} stroke="#64748b" />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: '#0F294A',
@@ -153,20 +217,20 @@ export default function AdminAnalyticsPage() {
                       fontSize: '11px',
                     }}
                   />
-                  <Bar dataKey="kelompok" fill="#2589F5" radius={[0, 8, 8, 0]} />
+                  <Bar dataKey="pos" name="Jumlah Pos" fill="#2589F5" radius={[0, 8, 8, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </Card>
 
-          {/* Chart 2: Sebaran Geografis per Kabupaten */}
-          <Card className="lg:col-span-5 p-6 space-y-4 border-slate-200 dark:border-navy-800">
+          {/* Chart 2: Kontribusi SDG */}
+          <Card className="lg:col-span-5 p-6 space-y-4 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-navy-800">
               <div>
                 <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
-                  Sebaran Wilayah Kabupaten
+                  Sebaran Agenda SDG
                 </h3>
-                <p className="text-xs text-slate-500">Proporsi desa mitra penerima KKN 2026</p>
+                <p className="text-xs text-slate-500">Proporsi program KKN terhadap target pembangunan global</p>
               </div>
             </div>
 
@@ -174,15 +238,15 @@ export default function AdminAnalyticsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={regionData}
+                    data={sdgChartData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={4}
+                    innerRadius={45}
+                    outerRadius={75}
+                    paddingAngle={3}
                     dataKey="value"
                   >
-                    {regionData.map((entry, index) => (
+                    {sdgChartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -198,30 +262,28 @@ export default function AdminAnalyticsPage() {
               </ResponsiveContainer>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-2 text-[11px]">
-              {regionData.map((item, idx) => (
-                <span key={idx} className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-300">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span>
-                    {item.name} ({item.value} Desa)
-                  </span>
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-[11px]">
+              {sdgChartData.map((item, idx) => (
+                <span key={idx} className="flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span>{item.name} ({item.value})</span>
                 </span>
               ))}
             </div>
           </Card>
 
-          {/* Chart 3: Tren Realisasi Jam Kerja Lapangan */}
-          <Card className="lg:col-span-12 p-6 space-y-4 border-slate-200 dark:border-navy-800">
+          {/* Chart 3: Progres Kumulatif Siklus */}
+          <Card className="lg:col-span-12 p-6 space-y-4 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-navy-800">
               <div>
                 <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
-                  Progres Kumulatif Jam Kerja Lapangan Mahasiswa (Minggu 1 s.d. 6)
+                  Tren Rata-rata Progres Mingguan Mahasiswa (Minggu 1 s.d. 4)
                 </h3>
-                <p className="text-xs text-slate-500">Target baku LPPM (200 Jam) vs Rata-rata Realisasi Terverifikasi DPL</p>
+                <p className="text-xs text-slate-500">Target Kurikulum (%) vs Realisasi Logbook Terverifikasi DPL & Desa</p>
               </div>
             </div>
 
-            <div className="h-64 w-full">
+            <div className="h-60 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={weeklyProgressData} margin={{ left: 10, right: 10 }}>
                   <defs>
@@ -232,7 +294,7 @@ export default function AdminAnalyticsPage() {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="minggu" stroke="#64748b" fontSize={11} />
-                  <YAxis stroke="#64748b" fontSize={11} />
+                  <YAxis stroke="#64748b" fontSize={11} unit="%" />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: '#0F294A',
@@ -244,7 +306,7 @@ export default function AdminAnalyticsPage() {
                   <Area
                     type="monotone"
                     dataKey="realisasi"
-                    name="Realisasi Terverifikasi"
+                    name="Realisasi Progres"
                     stroke="#16A34A"
                     strokeWidth={3}
                     fillOpacity={1}
@@ -253,7 +315,7 @@ export default function AdminAnalyticsPage() {
                   <Line
                     type="monotone"
                     dataKey="target"
-                    name="Target Kurikulum LPPM"
+                    name="Target Kurikulum KKN"
                     stroke="#94A3B8"
                     strokeDasharray="5 5"
                     strokeWidth={2}
