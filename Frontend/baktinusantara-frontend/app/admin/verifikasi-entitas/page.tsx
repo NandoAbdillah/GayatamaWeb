@@ -229,34 +229,17 @@ export default function AdminVerifikasiPage() {
   const verifiedCount = verifikasiList.filter((v) => v.status === 'verified').length;
 
   return (
-    <DashboardLayout
-      title="Pusat Verifikasi & Validasi Legalitas Entitas"
-      breadcrumb={[
-        { label: 'Verifikasi & Legalitas' },
-      ]}
-    >
+    <DashboardLayout title="Pusat Verifikasi & Validasi Legalitas Entitas">
       <div className="space-y-6 font-jakarta">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                <ShieldCheck className="w-5 h-5" />
-              </span>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Verifikasi Berkas Resmi & Legalitas Akun
-              </h1>
-            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Verifikasi Berkas Resmi & Legalitas Akun
+            </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
               Super Admin platform memvalidasi Surat Keputusan (SK) Lembaga Kampus, SK Kepala Desa, dan Kartu Tanda Mahasiswa (KTM) aktif sebelum diberikan otorisasi penuh di sistem.
             </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-amber-600" />
-              <span>{pendingCount} Menunggu Tindakan</span>
-            </span>
           </div>
         </div>
 

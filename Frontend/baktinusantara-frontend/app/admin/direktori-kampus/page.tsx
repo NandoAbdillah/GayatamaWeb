@@ -148,33 +148,17 @@ export default function AdminDirektoriKampusPage() {
   });
 
   return (
-    <DashboardLayout
-      title="Direktori Perguruan Tinggi & Dosen Pembimbing (DPL)"
-      breadcrumb={[
-        { label: 'Direktori Kampus & DPL' },
-      ]}
-    >
+    <DashboardLayout title="Direktori Perguruan Tinggi & Dosen Pembimbing (DPL)">
       <div className="space-y-6 font-jakarta">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                <Building2 className="w-5 h-5" />
-              </span>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Direktori Perguruan Tinggi & Dosen DPL
-              </h1>
-            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Direktori Perguruan Tinggi & Dosen DPL
+            </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
               Super Admin memantau seluruh lembaga perguruan tinggi mitra terakreditasi dan dewan dosen pembimbing lapangan di platform BaktiNusantara.
             </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs font-bold">
-              {univList.length} Perguruan Tinggi • {dosenList.length} Dosen DPL
-            </span>
           </div>
         </div>
 

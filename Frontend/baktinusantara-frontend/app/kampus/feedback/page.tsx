@@ -95,20 +95,13 @@ export default function AdminFeedbackPage() {
               Evaluasi berkelanjutan dari warga desa, perangkat desa, dosen DPL, dan mahasiswa pelaksana KKN.
             </p>
           </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>94.2% Kepuasan Positif</span>
-            </span>
-          </div>
         </div>
 
         {/* Filter Role Buttons */}
         <div className="flex gap-2 overflow-x-auto pb-1">
           {[
             { key: 'all', label: 'Semua Umpan Balik' },
-            { key: 'warga_desa', label: 'Warga Masyarakat' },
+            { key: 'warga_desa', label: 'Masyarakat' },
             { key: 'perangkat_desa', label: 'Pemerintah Desa' },
             { key: 'dosen', label: 'Dosen Pembimbing' },
             { key: 'mahasiswa', label: 'Refleksi Mahasiswa' },

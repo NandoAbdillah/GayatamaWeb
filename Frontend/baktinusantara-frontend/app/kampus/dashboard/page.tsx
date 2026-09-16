@@ -26,7 +26,6 @@ import {
   ClipboardList,
   Layers,
   MapPin,
-  BarChart3,
   Calendar,
   RefreshCw,
   Landmark,
@@ -385,24 +384,7 @@ export default function KampusDashboardPage() {
                   </div>
                 </Link>
 
-                <Link href="/kampus/analytics" className="block group">
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-navy-950/60 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200/80 dark:border-navy-800 transition-all flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center">
-                        <BarChart3 className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-indigo-600 transition-colors">
-                          Analisis & Statistik SDG Nasional
-                        </p>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                          Grafik capaian dan sebaran dampak per wilayah
-                        </p>
-                      </div>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all" />
-                  </div>
-                </Link>
+
               </div>
             </Card>
 
