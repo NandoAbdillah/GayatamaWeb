@@ -10,6 +10,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { HeroFireflies } from '@/components/ui/HeroFireflies';
 import { IndonesiaMapBackdrop } from '@/components/ui/IndonesiaMapBackdrop';
 import { DashboardPreview } from '@/components/landing/DashboardPreview';
+import { ProvinceDistributionCarousel } from '@/components/landing/ProvinceDistributionCarousel';
 import { RegionLogo } from '@/components/ui/RegionLogo';
 import { INDONESIA_POPULAR_MAJORS } from '@/data/indonesia-majors';
 import { useDashboardMetrics, usePosKebutuhan } from '@/hooks';
@@ -169,6 +170,7 @@ export default function HomePage() {
   const { items: posKebutuhanList } = usePosKebutuhan();
 
   const tHero = useTranslations('hero');
+  const tGeographic = useTranslations('geographic');
   const tProblem = useTranslations('problem');
   const tWorkflow = useTranslations('workflow');
   const tRoles = useTranslations('roles');
@@ -272,9 +274,6 @@ export default function HomePage() {
         {/* Background Overlay */}
         <div aria-hidden className="absolute inset-0 bg-white/20 dark:bg-[#071629]/75 pointer-events-none" />
 
-        {/* Indonesia Vector Map Backdrop with Glowing Hubs and Network Arcs */}
-        <IndonesiaMapBackdrop />
-
         {/* Bioluminescent fireflies effect (Dark Mode Only) */}
         <HeroFireflies count={28} />
 
@@ -282,14 +281,14 @@ export default function HomePage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[850px] h-[400px] sm:h-[500px] bg-gradient-to-tr from-primary/10 via-emerald-500/8 to-sky-400/10 blur-[120px] pointer-events-none rounded-full" />
 
         <div className="relative z-10 w-full max-w-5xl xl:max-w-[1100px] 2xl:max-w-[1200px] mx-auto text-center space-y-6 sm:space-y-7 my-auto px-4 sm:px-0">
-          
+
           {/* Top Badge: Platform Kolaborasi KKN Nasional */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-navy-900/95 border border-emerald-500/40 shadow-sm backdrop-blur-md">
+          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-navy-900/95 border border-emerald-500/40 shadow-sm backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 font-jakarta tracking-wide uppercase">
               {tHero('badge')}
             </span>
-          </div>
+          </div> */}
 
           {/* Headline with Epilogue Font */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight leading-[1.12]">
@@ -306,7 +305,7 @@ export default function HomePage() {
           {/* Search Box Card */}
           <div className="relative z-20 max-w-4xl xl:max-w-5xl mx-auto pt-1 sm:pt-2 text-left">
             <div className="relative z-20 bg-white/95 dark:bg-navy-900/95 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-xl p-3.5 sm:p-4.5 lg:p-5 space-y-3 sm:space-y-3.5 backdrop-blur-xl">
-              
+
               {/* Top Header Bar */}
               <div className="relative z-10 flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-navy-800/80">
                 <div className="flex items-center gap-2 min-w-0">
@@ -446,7 +445,7 @@ export default function HomePage() {
                       </button>
                     )}
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={() => setShowSectorDropdown(!showSectorDropdown)}
@@ -456,8 +455,8 @@ export default function HomePage() {
                       {selectedSectors.length === 0
                         ? 'Semua Sektor (Bisa Pilih Banyak)'
                         : selectedSectors.length === 1
-                        ? SECTOR_OPTIONS.find((s) => s.key === selectedSectors[0])?.shortLabel || selectedSectors[0]
-                        : `${selectedSectors.length} Sektor Terpilih`}
+                          ? SECTOR_OPTIONS.find((s) => s.key === selectedSectors[0])?.shortLabel || selectedSectors[0]
+                          : `${selectedSectors.length} Sektor Terpilih`}
                     </span>
                     <span className="text-slate-400 dark:text-slate-500 text-[10px] ml-1 shrink-0">
                       ▼
@@ -484,19 +483,17 @@ export default function HomePage() {
                             key={sec.key}
                             type="button"
                             onClick={() => toggleSector(sec.key)}
-                            className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between transition-colors ${
-                              isChecked
+                            className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between transition-colors ${isChecked
                                 ? 'bg-primary-50/70 dark:bg-primary-950/40 text-primary dark:text-primary-300'
                                 : 'hover:bg-slate-50 dark:hover:bg-navy-800 text-slate-700 dark:text-slate-300'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
                               <div
-                                className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
-                                  isChecked
+                                className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${isChecked
                                     ? 'bg-primary border-primary text-white'
                                     : 'border-slate-300 dark:border-navy-600 bg-white dark:bg-navy-950'
-                                }`}
+                                  }`}
                               >
                                 {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
                               </div>
@@ -651,11 +648,10 @@ export default function HomePage() {
                         key={chip}
                         type="button"
                         onClick={() => setSearchJurusan(chip)}
-                        className={`text-[11px] px-2.5 py-1 rounded-lg border transition-colors ${
-                          searchJurusan === chip
+                        className={`text-[11px] px-2.5 py-1 rounded-lg border transition-colors ${searchJurusan === chip
                             ? 'bg-primary text-white border-primary font-bold'
                             : 'bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-navy-700 hover:bg-slate-200 dark:hover:bg-navy-700'
-                        }`}
+                          }`}
                       >
                         {chip}
                       </button>
@@ -679,11 +675,10 @@ export default function HomePage() {
                         key={item.key}
                         type="button"
                         onClick={() => setSelectedProgramType(item.key)}
-                        className={`px-3 py-2 rounded-xl text-xs font-semibold text-center transition-all border ${
-                          selectedProgramType === item.key
+                        className={`px-3 py-2 rounded-xl text-xs font-semibold text-center transition-all border ${selectedProgramType === item.key
                             ? 'bg-navy-900 dark:bg-primary text-white border-navy-900 dark:border-primary font-bold'
                             : 'bg-slate-50 dark:bg-navy-950 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-navy-800 hover:bg-slate-100 dark:hover:bg-navy-800'
-                        }`}
+                          }`}
                       >
                         {item.label}
                       </button>
@@ -707,11 +702,10 @@ export default function HomePage() {
                         key={item.key}
                         type="button"
                         onClick={() => setSelectedDuration(item.key)}
-                        className={`px-3 py-2 rounded-xl text-xs font-semibold text-center transition-all border ${
-                          selectedDuration === item.key
+                        className={`px-3 py-2 rounded-xl text-xs font-semibold text-center transition-all border ${selectedDuration === item.key
                             ? 'bg-navy-900 dark:bg-primary text-white border-navy-900 dark:border-primary font-bold'
                             : 'bg-slate-50 dark:bg-navy-950 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-navy-800 hover:bg-slate-100 dark:hover:bg-navy-800'
-                        }`}
+                          }`}
                       >
                         {item.label}
                       </button>
@@ -773,11 +767,10 @@ export default function HomePage() {
       {/* WRAPPER 1: IMAGE2.PNG (Gunung & Burung-burung Panorama Latar Belakang) */}
       {/* ========================================================================= */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden w-full bg-cover sm:bg-[length:100%_auto] lg:bg-cover xl:bg-[length:100%_auto] bg-top bg-no-repeat"
         style={{
           backgroundImage: "url('/images/image2.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 60%',
+          backgroundPosition: 'top center',
           backgroundRepeat: 'no-repeat',
         }}
       >
@@ -785,76 +778,40 @@ export default function HomePage() {
         <div aria-hidden className="absolute inset-0 bg-white/20 dark:bg-[#071629]/70 pointer-events-none" />
 
         {/* ========================================================================= */}
-        {/* 2. PROBLEM SECTION ("KKN Masih Terfragmentasi") */}
+        {/* 2. GEOGRAPHIC DISTRIBUTION SECTION */}
         {/* ========================================================================= */}
-        <section className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12 sm:space-y-14">
-          <div className="text-center max-w-3xl mx-auto space-y-3">
-            <span className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
-              {tProblem('badge')}
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight">
-              {tProblem('title')}
-            </h2>
-            <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 font-jakarta leading-relaxed">
-              {tProblem('subtitle')}
-            </p>
+        <section className="relative py-16 sm:py-20 lg:py-24 px-4 sm:px-8 lg:px-12 max-w-7xl 2xl:max-w-[1380px] mx-auto space-y-8 sm:space-y-10">
+          {/* Header Row: Left-Aligned Distribution Statement + Right-Aligned Peta Nusantara (Papua Flush Right) */}
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
+            {/* Left Column: Heading & Description (Align Left) */}
+            <div className="space-y-3.5 max-w-xl xl:max-w-2xl text-left shrink-0">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 shadow-xs">
+                
+                <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider font-jakarta">
+                  {tGeographic('badge')}
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight leading-[1.18]">
+                {tGeographic('title')}
+              </h2>
+              <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 font-jakarta leading-relaxed max-w-xl">
+                {tGeographic('subtitle')}
+              </p>
+            </div>
+
+            {/* Right Column: Indonesia Map (Right-Aligned, Papua Flush with Right Edge) */}
+            <div className="relative w-full lg:w-[460px] xl:w-[560px] 2xl:w-[620px] aspect-[16/9] flex-shrink-0 flex items-center justify-end overflow-visible ml-auto">
+              <IndonesiaMapBackdrop position="inline-right" className="opacity-95" />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {[
-              {
-                icon: AlertCircle,
-                color: 'text-rose-600 dark:text-rose-400',
-                bgColor: 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/50',
-                title: tProblem('card1.title'),
-                desc: tProblem('card1.desc'),
-              },
-              {
-                icon: HelpCircle,
-                color: 'text-amber-600 dark:text-amber-400',
-                bgColor: 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/50',
-                title: tProblem('card2.title'),
-                desc: tProblem('card2.desc'),
-              },
-              {
-                icon: Clock,
-                color: 'text-sky-600 dark:text-sky-400',
-                bgColor: 'bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-900/50',
-                title: tProblem('card3.title'),
-                desc: tProblem('card3.desc'),
-              },
-              {
-                icon: Activity,
-                color: 'text-purple-600 dark:text-purple-400',
-                bgColor: 'bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-900/50',
-                title: tProblem('card4.title'),
-                desc: tProblem('card4.desc'),
-              },
-            ].map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={idx}
-                  className="p-6 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/90 dark:border-navy-800 shadow-sm hover:shadow-md transition-all duration-200 space-y-3.5 flex flex-col justify-between backdrop-blur-md"
-                >
-                  <div className="space-y-3">
-                    <div className={`w-11 h-11 rounded-2xl border flex items-center justify-center ${item.bgColor}`}>
-                      <Icon className={`w-5 h-5 ${item.color}`} />
-                    </div>
-                    <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue leading-snug">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-jakarta leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+          {/* 38-Province Interactive Carousel & Regional Tabs */}
+          <div className="relative z-10">
+            <ProvinceDistributionCarousel />
           </div>
 
           {/* Transition Banner */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-50/95 via-teal-50/95 to-sky-50/95 dark:from-navy-900/95 dark:via-navy-900/95 dark:to-navy-950/95 border border-emerald-200/80 dark:border-emerald-800/60 shadow-md text-center max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md">
+          <div className="relative z-10 p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-50/95 via-teal-50/95 to-sky-50/95 dark:from-navy-900/95 dark:via-navy-900/95 dark:to-navy-950/95 border border-emerald-200/80 dark:border-emerald-800/60 shadow-md text-center max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md">
             <div className="flex items-center gap-3.5 text-left">
               <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
                 <CheckCircle2 className="w-5 h-5" />
@@ -864,14 +821,14 @@ export default function HomePage() {
                   {tProblem('transition')}
                 </h4>
                 <p className="text-xs text-slate-600 dark:text-slate-400 font-jakarta">
-                  Dari aspirasi warga desa $\rightarrow$ pencarian cerdas $\rightarrow$ validasi $\rightarrow$ pelaksanaan $\rightarrow$ pembuktian dampak.
+                  Dari aspirasi warga desa → pencarian cerdas → validasi → pelaksanaan → pembuktian dampak.
                 </p>
               </div>
             </div>
 
             <Link href="/katalog" className="shrink-0">
               <Button variant="primary" size="sm" className="rounded-xl text-xs font-bold gap-1.5 shadow-sm">
-                <span>Pelajari Alur</span>
+                <span>Jelajahi Katalog</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </Link>
@@ -1248,11 +1205,10 @@ export default function HomePage() {
                 key={reg.id}
                 type="button"
                 onClick={() => setActiveRegionTab(reg.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border backdrop-blur-md ${
-                  activeRegionTab === reg.id
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border backdrop-blur-md ${activeRegionTab === reg.id
                     ? 'bg-primary text-white border-primary shadow-md scale-105'
                     : 'bg-white/90 dark:bg-navy-900/90 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-navy-800 hover:bg-white dark:hover:bg-navy-800'
-                }`}
+                  }`}
               >
                 <span>{reg.shortName}</span>
                 <span className="ml-1.5 px-1.5 py-0.2 rounded-md text-[10px] bg-black/10 dark:bg-white/10 font-mono">
@@ -1363,11 +1319,10 @@ export default function HomePage() {
       {/* WRAPPER 2: IMAGE3.PNG (Landscape Alam Nusantara Latar Belakang) */}
       {/* ========================================================================= */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden w-full bg-cover sm:bg-[length:100%_auto] lg:bg-cover xl:bg-[length:100%_auto] bg-top bg-no-repeat"
         style={{
           backgroundImage: "url('/images/image3.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 10%',
+          backgroundPosition: 'top center',
           backgroundRepeat: 'no-repeat',
         }}
       >
@@ -1429,8 +1384,8 @@ export default function HomePage() {
                         pos.id === 1
                           ? 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=600&auto=format&fit=crop&q=80'
                           : pos.id === 2
-                          ? 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=600&auto=format&fit=crop&q=80'
-                          : 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop&q=80'
+                            ? 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=600&auto=format&fit=crop&q=80'
+                            : 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop&q=80'
                       }
                       alt={pos.judul}
                       loading="lazy"

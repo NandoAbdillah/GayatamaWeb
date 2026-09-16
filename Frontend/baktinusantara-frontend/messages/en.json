@@ -30,7 +30,7 @@
     "aspirasi": "Village Aspirations",
     "portofolio": "Public Portfolio",
     "dashboard": "Dashboard",
-    "login": "Sign In",
+    "login": "Login",
     "register": "Register",
     "logout": "Sign Out",
     "switchRole": "Switch Role",
@@ -45,35 +45,47 @@
   "hero": {
     "announcement": "Thematic Community Service Registration for Odd Semester 2026/2027 is Now Open",
     "badge": "NATIONAL KKN COLLABORATION PLATFORM",
-    "titleLine1": "Discover Village Needs.",
-    "titleLine2": "Channel Student Expertise.",
-    "titleLine3": "Create Real Impact.",
+    "titleLine1": "Discover Village Needs",
+    "titleLine2": "Channel Student Expertise",
+    "titleLine3": "Create Real Impact",
     "subtitle": "BaktiNusantara bridges genuine village needs with student competencies through a single integrated platform — from program discovery, aspiration submission, execution to impact documentation.",
     "searchHeader": "Explore Student KKN Posts",
     "searchMicrocopy": "Find community service programs aligned with your location, discipline, and village needs.",
     "searchBtn": "Explore KKN Posts",
     "mapBtn": "View Nusantara Map"
   },
+  "geographic": {
+    "badge": "GEOGRAPHIC DISTRIBUTION",
+    "title": "Explore Service Distribution Across Nusantara",
+    "subtitle": "Active community service posts across 38 provinces from Sabang to Merauke.",
+    "allRegions": "All Regions",
+    "tabs": {
+      "all": "All Regions",
+      "jawa_bali": "Java & Bali",
+      "sumatera": "Sumatra",
+      "kalimantan": "Kalimantan",
+      "sulawesi": "Sulawesi",
+      "nusra": "Lesser Sunda",
+      "maluku_papua": "Maluku & Papua"
+    },
+    "stats": {
+      "provinces": "Entire Archipelago (38 Provinces)",
+      "posCount": "1,280+ Open Service Posts",
+      "villages": "128 Partner Villages",
+      "priority": "Priority Sectors: Digitalization & Agriculture"
+    },
+    "carousel": {
+      "prev": "Previous",
+      "next": "Next",
+      "viewPosts": "Explore Posts",
+      "students": "Students",
+      "desa": "Partner Villages"
+    }
+  },
   "problem": {
-    "badge": "CURRENT CHALLENGES",
-    "title": "KKN Ecosystem is Still Fragmented",
-    "subtitle": "Why traditional community service needs transformation into an integrated digital platform.",
-    "card1": {
-      "title": "Village Needs are Hard to Find",
-      "desc": "Village aspirations and potential are scattered across physical documents and inaccessible to students."
-    },
-    "card2": {
-      "title": "Programs Lack Alignment",
-      "desc": "Student service ideas often do not match the real urgency and priority needs of local communities."
-    },
-    "card3": {
-      "title": "Data & Documentation are Scattered",
-      "desc": "Program outcomes, outputs, and sustainability are difficult to trace and quantify after service ends."
-    },
-    "card4": {
-      "title": "Collaboration is Still Manual",
-      "desc": "Information, submissions, permits, validation, and follow-ups reside in fragmented channels without unified standards."
-    },
+    "badge": "GEOGRAPHIC DISTRIBUTION",
+    "title": "Explore Service Distribution Across Nusantara",
+    "subtitle": "Active community service posts across 38 provinces from Sabang to Merauke.",
     "transition": "BaktiNusantara unites this entire lifecycle into one integrated digital ecosystem."
   },
   "workflow": {
@@ -371,10 +383,10 @@
     "bast": "Handover Official Report (BAST)"
   },
   "copilot": {
-    "name": "Bakti AI Agent",
+    "name": "Aira - AI Nusantara",
     "badge": "Agentic Copilot",
     "tagline": "Intelligent Assistant & Action Agent",
-    "floatingPrompt": "Need AI to assist or execute an action?",
+    "floatingPrompt": "Need help? Aira is here to help",
     "inputPlaceholder": "Ask or command AI agent...",
     "thinking": "AI Agent is reasoning and preparing actions...",
     "openPage": "Open Page",

@@ -39,33 +39,61 @@ const KKN_HUBS: HubPoint[] = [
 
 /**
  * IndonesiaMapBackdrop
- * Peta vektor Nusantara estetis, kontras, dan interaktif yang menjadi backdrop hero section.
- * Menggunakan teknik CSS Masked Gradients + Ambient Backplate Glow + Radar Sweep + 20 Bioluminescent Hub Nodes.
+ * Peta vektor Nusantara estetis, kontras, dan interaktif yang menjadi backdrop section.
+ * Mendukung posisi 'top-right', 'top-left', atau 'center' dengan masking ultra-halus tanpa border kotak.
  */
-export const IndonesiaMapBackdrop: React.FC = () => {
+export const IndonesiaMapBackdrop: React.FC<{
+  className?: string;
+  position?: 'top-right' | 'top-left' | 'center' | 'inline-right';
+}> = ({ className = '', position = 'inline-right' }) => {
   const [activeHub, setActiveHub] = useState<HubPoint | null>(null);
+
+  const isInline = position === 'inline-right';
+
+  const getPositionStyles = () => {
+    switch (position) {
+      case 'inline-right':
+        return 'inset-0 w-full h-full';
+      case 'top-right':
+        return 'top-0 right-0 lg:right-4 xl:right-8 w-[280px] sm:w-[380px] md:w-[460px] lg:w-[520px] xl:w-[580px] h-[160px] sm:h-[220px] md:h-[260px] lg:h-[300px] xl:h-[330px]';
+      case 'top-left':
+        return 'top-0 left-0 lg:left-4 xl:left-8 w-[280px] sm:w-[380px] md:w-[460px] lg:w-[520px] xl:w-[580px] h-[160px] sm:h-[220px] md:h-[260px] lg:h-[300px] xl:h-[330px]';
+      case 'center':
+      default:
+        return 'top-0 left-1/2 -translate-x-1/2 w-full max-w-[1500px] h-[520px] sm:h-[600px] lg:h-[680px]';
+    }
+  };
 
   return (
     <div
       aria-hidden="false"
-      className="absolute inset-0 flex items-center justify-center overflow-hidden select-none z-0 pointer-events-none"
+      className={`${
+        isInline ? 'relative w-full h-full' : 'absolute inset-0'
+      } overflow-visible select-none z-0 pointer-events-none ${className}`}
     >
-      {/* 1. Ambient Backplate Halo Glow (Memastikan pulau kontras & tidak tenggelam di background terang) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[1200px] h-[350px] sm:h-[450px] bg-gradient-to-r from-emerald-500/15 via-teal-400/12 to-sky-500/15 dark:from-emerald-500/25 dark:via-cyan-500/20 dark:to-blue-500/25 blur-3xl rounded-full pointer-events-none" />
-
-      {/* 2. Container Utama Peta dengan Radial Masking Halus */}
+      {/* 1. Ambient Circular / Diffuse Halo Glow (100% Bulat & Menyebar Alami, Tanpa Batas Kotak) */}
       <div
-        className="relative w-full max-w-[1440px] h-[480px] sm:h-[580px] lg:h-[660px] mx-auto px-4"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[115%] h-[120%] max-w-[650px] max-h-[380px] rounded-full pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 70% at 50% 50%, rgba(16, 185, 129, 0.18) 0%, rgba(13, 148, 136, 0.10) 45%, rgba(6, 182, 212, 0.04) 70%, transparent 100%)',
+          filter: 'blur(40px)',
+        }}
+      />
+
+      {/* 2. Container Utama Peta dengan Masking Melingkar / Oval Menyebar (Zero Rectangle Cutoff) */}
+      <div
+        className={`absolute ${getPositionStyles()} transition-all duration-300`}
         style={{
           maskImage:
-            'radial-gradient(ellipse 85% 75% at 50% 50%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.5) 75%, transparent 100%)',
+            'radial-gradient(ellipse 92% 82% at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.7) 75%, transparent 100%)',
           WebkitMaskImage:
-            'radial-gradient(ellipse 85% 75% at 50% 50%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.5) 75%, transparent 100%)',
+            'radial-gradient(ellipse 92% 82% at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.7) 75%, transparent 100%)',
         }}
       >
-        {/* 3. LAYER A: Rich Gradient Map Mask (Bentuk pulau berkontras tinggi) */}
+        {/* 3. LAYER A: Rich Gradient Map Mask (Bentuk pulau berkontras tinggi & menonjol) */}
         <div
-          className="absolute inset-0 w-full h-full opacity-35 sm:opacity-40 dark:opacity-50 transition-opacity duration-500"
+          className="absolute inset-0 w-full h-full opacity-55 sm:opacity-60 dark:opacity-75 transition-opacity duration-500"
           style={{
             maskImage: "url('/indonesia.svg')",
             WebkitMaskImage: "url('/indonesia.svg')",
@@ -75,25 +103,25 @@ export const IndonesiaMapBackdrop: React.FC = () => {
             WebkitMaskRepeat: 'no-repeat',
             maskPosition: 'center',
             WebkitMaskPosition: 'center',
-            filter: 'drop-shadow(0 4px 14px rgba(4, 120, 87, 0.45)) drop-shadow(0 1px 3px rgba(15, 23, 42, 0.3))',
+            filter: 'drop-shadow(0 4px 16px rgba(4, 120, 87, 0.55)) drop-shadow(0 1px 4px rgba(15, 23, 42, 0.4))',
           }}
         >
           {/* Vibrant Emerald-Teal-Navy in Light Mode, Bright Emerald-Cyan in Dark Mode */}
-          <div className="w-full h-full bg-gradient-to-r from-emerald-800 via-teal-700 to-navy-800 dark:from-emerald-400 dark:via-cyan-300 dark:to-sky-400" />
+          <div className="w-full h-full bg-gradient-to-r from-emerald-700 via-teal-600 to-sky-700 dark:from-emerald-300 dark:via-cyan-300 dark:to-sky-300" />
 
           {/* Radar Sheen / Light Scanline that sweeps from Sabang to Merauke */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/70 dark:via-emerald-200/90 to-transparent w-1/3 h-full animate-map-sweep" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/80 dark:via-emerald-100/90 to-transparent w-1/3 h-full animate-map-sweep" />
         </div>
 
         {/* 4. LAYER B: Secondary Crisp Coastline Silhouette */}
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center opacity-25 sm:opacity-30 dark:opacity-35 transition-opacity duration-300">
+        <div className="absolute inset-0 w-full h-full flex items-center justify-center opacity-35 sm:opacity-40 dark:opacity-50 transition-opacity duration-300">
           <Image
             src="/indonesia.svg"
             alt="Peta Sebaran KKN Nusantara"
             width={1440}
             height={810}
             priority
-            className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(5,150,105,0.35)] dark:invert dark:drop-shadow-[0_0_20px_rgba(16,185,129,0.55)]"
+            className="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(5,150,105,0.45)] dark:invert dark:drop-shadow-[0_0_24px_rgba(16,185,129,0.65)]"
           />
         </div>
 
@@ -101,28 +129,28 @@ export const IndonesiaMapBackdrop: React.FC = () => {
         <svg
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
-          className="absolute inset-0 w-full h-full opacity-60 dark:opacity-80 pointer-events-none"
+          className="absolute inset-0 w-full h-full opacity-75 dark:opacity-95 pointer-events-none"
         >
           <defs>
             <linearGradient id="arcGradSumateraJawa" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#059669" stopOpacity="0.4" />
-              <stop offset="50%" stopColor="#0d9488" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#0284c7" stopOpacity="0.5" />
+              <stop offset="0%" stopColor="#059669" stopOpacity="0.5" />
+              <stop offset="50%" stopColor="#0d9488" stopOpacity="1" />
+              <stop offset="100%" stopColor="#0284c7" stopOpacity="0.6" />
             </linearGradient>
             <linearGradient id="arcGradJawaIKN" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#0284c7" stopOpacity="0.5" />
+              <stop offset="0%" stopColor="#0284c7" stopOpacity="0.6" />
               <stop offset="50%" stopColor="#10b981" stopOpacity="1" />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.8" />
             </linearGradient>
             <linearGradient id="arcGradIKNPapua" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.7" />
-              <stop offset="40%" stopColor="#06b6d4" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.6" />
+              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8" />
+              <stop offset="40%" stopColor="#06b6d4" stopOpacity="1" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0.7" />
             </linearGradient>
             <linearGradient id="arcGradBaliNusra" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.5" />
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.6" />
               <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#0284c7" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#0284c7" stopOpacity="0.5" />
             </linearGradient>
           </defs>
 
@@ -131,7 +159,7 @@ export const IndonesiaMapBackdrop: React.FC = () => {
             d="M 8.8 28.5 Q 13.2 34 17.0 48 Q 24.2 55.5 29.2 66"
             fill="none"
             stroke="url(#arcGradSumateraJawa)"
-            strokeWidth="0.25"
+            strokeWidth="0.3"
             strokeDasharray="1.2 1.5"
           />
 
@@ -140,7 +168,7 @@ export const IndonesiaMapBackdrop: React.FC = () => {
             d="M 29.2 66 Q 36 54 44.0 48.7"
             fill="none"
             stroke="url(#arcGradJawaIKN)"
-            strokeWidth="0.3"
+            strokeWidth="0.35"
             strokeDasharray="1.5 2"
           />
 
@@ -149,7 +177,7 @@ export const IndonesiaMapBackdrop: React.FC = () => {
             d="M 44.0 48.7 Q 48.2 60.5 63.2 54.9 Q 75 48 87.5 45.6"
             fill="none"
             stroke="url(#arcGradIKNPapua)"
-            strokeWidth="0.25"
+            strokeWidth="0.3"
             strokeDasharray="1.2 1.5"
           />
 
@@ -158,7 +186,7 @@ export const IndonesiaMapBackdrop: React.FC = () => {
             d="M 40.2 68.5 Q 44.5 69.8 47.2 69.8 Q 51 71 55.5 72.8"
             fill="none"
             stroke="url(#arcGradBaliNusra)"
-            strokeWidth="0.25"
+            strokeWidth="0.3"
             strokeDasharray="1 1.2"
           />
         </svg>
@@ -177,7 +205,7 @@ export const IndonesiaMapBackdrop: React.FC = () => {
           >
             {/* Outer Sonar Ping Ripple */}
             <span
-              className="absolute -inset-2.5 rounded-full bg-emerald-500/30 dark:bg-emerald-400/40 animate-ping pointer-events-none"
+              className="absolute -inset-2.5 rounded-full bg-emerald-500/35 dark:bg-emerald-400/45 animate-ping pointer-events-none"
               style={{
                 animationDuration: '3.2s',
                 animationDelay: `${hub.delay}s`,
@@ -186,14 +214,14 @@ export const IndonesiaMapBackdrop: React.FC = () => {
 
             {/* Glowing Hub Point Core with Crisp Outer Ring */}
             <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3 items-center justify-center">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-600 dark:bg-emerald-400 opacity-80 shadow-md" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white border border-emerald-700/30 dark:border-emerald-300 shadow-sm" />
+              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-600 dark:bg-emerald-400 opacity-90 shadow-md" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white border border-emerald-700/40 dark:border-emerald-300 shadow-sm" />
             </span>
 
-            {/* Micro Badge for Key Strategic Cities (Always Visible on Desktop) */}
+            {/* Micro Badge for Key Strategic Cities */}
             {hub.badge && (
               <span
-                className="hidden lg:inline-flex items-center gap-1 absolute left-3.5 -top-2 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-white/95 dark:bg-navy-900/95 text-emerald-800 dark:text-emerald-300 rounded-md border border-emerald-600/30 dark:border-emerald-500/40 shadow-sm whitespace-nowrap backdrop-blur-sm transition-transform duration-200 group-hover:scale-105"
+                className="hidden xl:inline-flex items-center gap-1 absolute left-3 -top-1.5 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider bg-white/95 dark:bg-navy-900/95 text-emerald-800 dark:text-emerald-300 rounded-md border border-emerald-600/30 dark:border-emerald-500/40 shadow-sm whitespace-nowrap backdrop-blur-sm transition-transform duration-200 group-hover:scale-105"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 {hub.name}
@@ -214,19 +242,6 @@ export const IndonesiaMapBackdrop: React.FC = () => {
             </div>
           </div>
         ))}
-
-        {/* 7. Bottom Watermark Pill */}
-        <div className="absolute bottom-1 sm:bottom-3 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 dark:bg-navy-950/70 border border-slate-200/80 dark:border-navy-700/60 shadow-xs backdrop-blur-sm">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-[10px] sm:text-[11px] font-medium tracking-wide text-slate-700 dark:text-slate-300 uppercase">
-              1,280+ Pos Pengabdian KKN • Sabang s/d Merauke
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   );

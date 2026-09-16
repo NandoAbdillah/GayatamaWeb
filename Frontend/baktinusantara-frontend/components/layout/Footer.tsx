@@ -2,20 +2,27 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Heart, MapPin, Mail, Phone, Sprout } from 'lucide-react';
+import Image from 'next/image';
+import { Heart, MapPin, Mail, Phone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export const Footer: React.FC = () => {
   const t = useTranslations('footer');
   return (
-    <footer className="w-full bg-navy-950 text-white border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+    <footer className="w-full bg-navy-950 text-white border-t border-slate-800 rounded-tl-3xl rounded-tr-3xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-5">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Col 1: Brand */}
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm">
-                <Sprout className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 relative flex items-center justify-center shrink-0">
+                <Image
+                  src="/logo.svg"
+                  alt="BaktiNusantara Logo"
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 object-contain drop-shadow-sm"
+                />
               </div>
               <span className="font-epilogue font-bold text-lg text-white">BaktiNusantara</span>
             </div>
@@ -104,7 +111,7 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="h-px bg-slate-800 my-8" />
+        <div className="h-px bg-slate-800 my-7" />
 
         <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 font-jakarta gap-4">
           <p>{t('bottom.copyright')}</p>

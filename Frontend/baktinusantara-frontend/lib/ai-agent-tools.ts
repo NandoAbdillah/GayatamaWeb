@@ -1,4 +1,10 @@
-import { MOCK_POS_KEBUTUHAN } from './mock-data';
+import {
+  MOCK_POS_KEBUTUHAN,
+  MOCK_DESA_LIST,
+  MOCK_UMKM_LIST,
+  MOCK_PROGRAM_REKOMENDASI,
+  MOCK_KELOMPOK_14,
+} from './mock-data';
 import { WilayahService } from './wilayah-api';
 
 // Gemini Function Calling Declarations (OpenAPI schema compatible)
@@ -28,6 +34,24 @@ export const GEMINI_AGENT_TOOL_DECLARATIONS = [
     },
   },
   {
+    name: 'search_desa_potensi',
+    description:
+      'Cari data profil desa mitra KKN di GayatamaWeb berdasarkan nama desa, kabupaten, potensi utama (UMKM, Pertanian, Wisata), atau kebutuhan prioritas.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        keyword: {
+          type: 'STRING',
+          description: 'Nama desa, kabupaten, atau kata kunci potensi (misal: "Sukamaju", "Bogor", "organik", "wisata")',
+        },
+        potensi: {
+          type: 'STRING',
+          description: 'Kategori potensi: "UMKM", "Pertanian", "Wisata", "Perkebunan", "Kerajinan"',
+        },
+      },
+    },
+  },
+  {
     name: 'search_pos_kebutuhan',
     description:
       'Cari pos kebutuhan KKN desa berdasarkan kata kunci, sektor/tema (UMKM, Pertanian, Kesehatan, Pendidikan, Lingkungan), atau radius jarak maksimum dari kampus.',
@@ -45,6 +69,46 @@ export const GEMINI_AGENT_TOOL_DECLARATIONS = [
         maxDistanceKm: {
           type: 'NUMBER',
           description: 'Batas jarak maksimum dari kampus dalam kilometer (misal: 20, 50, 100)',
+        },
+      },
+    },
+  },
+  {
+    name: 'search_umkm_desa',
+    description:
+      'Cari profil UMKM mitra binaan desa di GayatamaWeb berdasarkan nama produk, kategori usaha, atau lokasi desa.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        keyword: {
+          type: 'STRING',
+          description: 'Kata kunci pencarian produk atau UMKM (misal: "talas", "madu", "batik", "kopi", "Sukamaju")',
+        },
+        kategori: {
+          type: 'STRING',
+          description: 'Kategori usaha: "Kuliner", "Fashion", "Herbal", "Perkebunan", "Kerajinan"',
+        },
+      },
+    },
+  },
+  {
+    name: 'recommend_program_kkn',
+    description:
+      'Rekomendasikan 2-4 ide program kerja KKN terstruktur dan inovatif berdasarkan kondisi desa, jurusan mahasiswa, atau fokus pembangunan.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        kondisi_desa: {
+          type: 'STRING',
+          description: 'Kondisi atau permasalahan desa (misal: "banyak UMKM belum go digital", "stunting tinggi", "irigasi sawah")',
+        },
+        jurusan_mahasiswa: {
+          type: 'STRING',
+          description: 'Disiplin ilmu mahasiswa (misal: "Teknik Informatika", "Agribisnis", "Kesehatan Masyarakat")',
+        },
+        kategori: {
+          type: 'STRING',
+          description: 'Kategori program: "Teknologi", "Ekonomi UMKM", "Kesehatan", "Pertanian"',
         },
       },
     },
@@ -176,11 +240,57 @@ export async function executeAgentTool(toolName: string, args: any) {
       case 'navigate_to_page': {
         return {
           status: 'success',
+          cardType: 'navigate',
           action: 'NAVIGATE',
           path: args.path,
           title: args.title,
           reason: args.reason,
           message: `Mengalihkan Anda ke halaman ${args.title} (${args.path})`,
+        };
+      }
+
+      case 'search_desa_potensi': {
+        const keyword = (args.keyword || '').toLowerCase();
+        const potensi = (args.potensi || '').toLowerCase();
+
+        let results = MOCK_DESA_LIST.filter((desa) => {
+          let match = true;
+          if (keyword) {
+            match =
+              desa.nama.toLowerCase().includes(keyword) ||
+              desa.kecamatan.toLowerCase().includes(keyword) ||
+              desa.kabupaten.toLowerCase().includes(keyword) ||
+              desa.potensi_utama.some((p) => p.toLowerCase().includes(keyword)) ||
+              desa.kebutuhan_prioritas.some((k) => k.toLowerCase().includes(keyword));
+          }
+          if (match && potensi) {
+            match = desa.potensi_utama.some((p) => p.toLowerCase().includes(potensi));
+          }
+          return match;
+        });
+
+        if (results.length === 0) {
+          results = MOCK_DESA_LIST.slice(0, 2);
+        }
+
+        return {
+          status: 'success',
+          cardType: 'village',
+          action: 'DISPLAY_DESA_CARDS',
+          total_found: results.length,
+          data: results.slice(0, 3).map((d) => ({
+            id: d.id,
+            nama: d.nama,
+            kecamatan: d.kecamatan,
+            kabupaten: d.kabupaten,
+            provinsi: d.provinsi,
+            populasi: d.populasi,
+            luas_km2: d.luas_km2,
+            potensi_utama: d.potensi_utama,
+            kebutuhan_prioritas: d.kebutuhan_prioritas,
+            foto_url: d.foto_url,
+            pos_tersedia: d.pos_tersedia,
+          })),
         };
       }
 
@@ -207,19 +317,103 @@ export async function executeAgentTool(toolName: string, args: any) {
           return match;
         });
 
+        if (results.length === 0) {
+          results = MOCK_POS_KEBUTUHAN;
+        }
+
         return {
           status: 'success',
+          cardType: 'kkn',
           action: 'DISPLAY_POS_LIST',
           total_found: results.length,
-          data: results.slice(0, 4).map((p) => ({
+          data: results.slice(0, 3).map((p) => ({
             id: p.id,
             judul: p.judul,
             desa: p.nama_desa,
+            kecamatan: p.kecamatan,
             kabupaten: p.kabupaten,
             sektor: p.kategori_sektor,
             distance_km: p.distance_km,
             kuota: `${p.terisi_mahasiswa}/${p.kuota_mahasiswa}`,
             status: p.status,
+            kriteria_jurusan: p.kriteria_jurusan,
+            target_luaran: p.target_luaran,
+          })),
+        };
+      }
+
+      case 'search_umkm_desa': {
+        const keyword = (args.keyword || '').toLowerCase();
+        const kategori = (args.kategori || '').toLowerCase();
+
+        let results = MOCK_UMKM_LIST.filter((u) => {
+          let match = true;
+          if (keyword) {
+            match =
+              u.nama.toLowerCase().includes(keyword) ||
+              u.desa.toLowerCase().includes(keyword) ||
+              u.kabupaten.toLowerCase().includes(keyword) ||
+              u.produk_unggulan.toLowerCase().includes(keyword);
+          }
+          if (match && kategori) {
+            match = u.kategori.toLowerCase().includes(kategori);
+          }
+          return match;
+        });
+
+        if (results.length === 0) {
+          results = MOCK_UMKM_LIST.slice(0, 2);
+        }
+
+        return {
+          status: 'success',
+          cardType: 'umkm',
+          action: 'DISPLAY_UMKM_CARDS',
+          total_found: results.length,
+          data: results.slice(0, 3).map((u) => ({
+            id: u.id,
+            nama: u.nama,
+            desa: u.desa,
+            kabupaten: u.kabupaten,
+            kategori: u.kategori,
+            produk_unggulan: u.produk_unggulan,
+            pemilik: u.pemilik,
+            omset_bulanan: u.omset_bulanan,
+            status_kkn: u.status_kkn,
+            foto_url: u.foto_url,
+          })),
+        };
+      }
+
+      case 'recommend_program_kkn': {
+        const kondisi = (args.kondisi_desa || '').toLowerCase();
+        const jurusan = (args.jurusan_mahasiswa || '').toLowerCase();
+
+        let programs = [...MOCK_PROGRAM_REKOMENDASI];
+
+        if (jurusan.includes('informatika') || jurusan.includes('komputer') || kondisi.includes('digital')) {
+          programs.sort((a) => (a.kategori.includes('Teknologi') ? -1 : 1));
+        } else if (jurusan.includes('kesehatan') || kondisi.includes('stunting')) {
+          programs.sort((a) => (a.kategori.includes('Kesehatan') ? -1 : 1));
+        } else if (jurusan.includes('pertanian') || kondisi.includes('irigasi') || kondisi.includes('tani')) {
+          programs.sort((a) => (a.kategori.includes('Ketahanan Pangan') ? -1 : 1));
+        }
+
+        return {
+          status: 'success',
+          cardType: 'program',
+          action: 'DISPLAY_PROGRAM_RECOMMENDATIONS',
+          total_found: programs.length,
+          data: programs.slice(0, 3).map((p) => ({
+            id: p.id,
+            nama_program: p.nama_program,
+            kategori: p.kategori,
+            sasaran: p.sasaran,
+            fokus: p.fokus,
+            durasi: p.durasi,
+            relevansi: p.relevansi,
+            alasan: p.alasan,
+            target_output: p.target_output,
           })),
         };
       }
@@ -227,6 +421,7 @@ export async function executeAgentTool(toolName: string, args: any) {
       case 'draft_pos_kebutuhan_desa': {
         return {
           status: 'success',
+          cardType: 'proposal',
           action: 'DRAFT_POS_CREATED',
           draft: {
             nama_desa: args.nama_desa,
@@ -243,6 +438,7 @@ export async function executeAgentTool(toolName: string, args: any) {
       case 'draft_proposal_kkn': {
         return {
           status: 'success',
+          cardType: 'proposal',
           action: 'DRAFT_PROPOSAL_CREATED',
           draft: {
             judul_program: args.judul_program,
@@ -259,26 +455,35 @@ export async function executeAgentTool(toolName: string, args: any) {
         const major = (args.student_major || '').toLowerCase();
         let baseScore = 75;
         let reasons: string[] = [];
+        let recommendedProgram = 'Pemberdayaan Masyarakat Terpadu';
 
         if (major.includes('informatika') || major.includes('komputer') || major.includes('sistem')) {
-          baseScore = 94;
-          reasons.push('Kesesuaian tinggi untuk program digitalisasi, e-commerce desa, dan sistem informasi geografis.');
-        } else if (major.includes('pertanian') || major.includes('agribisnis') || major.includes('peternakan')) {
           baseScore = 96;
-          reasons.push('Kesesuaian sangat tinggi untuk ketahanan pangan, optimalisasi irigasi, dan modernisasi pascapanen.');
+          recommendedProgram = 'Digitalisasi Katalog UMKM & Smart Irrigation IoT';
+          reasons.push('Kesesuaian sangat tinggi untuk pengembangan website katalog desa, marketplace BUMDes, dan sistem informasi geografis.');
+          reasons.push('Dapat mengoptimalkan modul sensor debit air irigasi sawah berbasis IoT.');
+        } else if (major.includes('pertanian') || major.includes('agribisnis') || major.includes('peternakan')) {
+          baseScore = 94;
+          recommendedProgram = 'Optimalisasi Irigasi Pertanian & Olahan Pascapanen';
+          reasons.push('Kesesuaian sangat tinggi untuk pendampingan gapoktan, ketahanan pangan, dan modernisasi pascapanen talas.');
         } else if (major.includes('kesehatan') || major.includes('keperawatan') || major.includes('gizi')) {
           baseScore = 92;
-          reasons.push('Kesesuaian tinggi untuk penanganan stunting posyandu dan edukasi sanitasi lingkungan.');
+          recommendedProgram = 'Posyandu Digital Terpadu & Pencegahan Stunting';
+          reasons.push('Kesesuaian tinggi untuk penyuluhan gizi balita, edukasi MPASI lokal, dan sanitasi lingkungan.');
         } else {
           baseScore = 88;
-          reasons.push('Kesesuaian baik untuk pemberdayaan masyarakat terpadu dan tata kelola program desa.');
+          recommendedProgram = 'Pemberdayaan UMKM & Tata Kelola Kelembagaan Desa';
+          reasons.push('Kesesuaian baik untuk administrasi desa, pelatihan pemasaran, dan pendampingan warga.');
         }
 
         return {
           status: 'success',
+          cardType: 'major_match',
           action: 'MATCHING_SCORE_COMPUTED',
           score: baseScore,
-          predikat: baseScore >= 90 ? 'Sangat Relevan (Highly Recommended)' : 'Relevan (Recommended)',
+          predikat: baseScore >= 90 ? 'Sangat Sesuai (Highly Recommended)' : 'Sesuai (Recommended)',
+          student_major: args.student_major,
+          recommended_program: recommendedProgram,
           analisis: reasons,
         };
       }
@@ -297,6 +502,7 @@ export async function executeAgentTool(toolName: string, args: any) {
 
         return {
           status: 'success',
+          cardType: 'map_result',
           action: 'WILAYAH_PROFILED',
           wilayah: {
             id: matchedProv?.id,
@@ -318,10 +524,11 @@ export async function executeAgentTool(toolName: string, args: any) {
         const searchRes = await WilayahService.searchWilayahFromApi(keyword);
         return {
           status: 'success',
+          cardType: 'map_result',
           action: 'WILAYAH_SEARCHED',
           keyword,
           total_found: searchRes.data.length,
-          data: searchRes.data.slice(0, 6).map((item) => ({
+          data: searchRes.data.slice(0, 4).map((item) => ({
             kode: item.kode,
             nama: item.nama,
             level: item.level,
@@ -334,6 +541,7 @@ export async function executeAgentTool(toolName: string, args: any) {
       case 'draft_logbook_entry': {
         return {
           status: 'success',
+          cardType: 'progress',
           action: 'DRAFT_LOGBOOK_CREATED',
           entry: {
             tanggal: args.tanggal || new Date().toISOString().split('T')[0],
@@ -341,6 +549,8 @@ export async function executeAgentTool(toolName: string, args: any) {
             kegiatan_utama: args.kegiatan_utama,
             kendala_solusi: args.kendala_solusi || 'Tidak ada kendala berarti. Koordinat kegiatan berjalan lancar.',
             output_tercapai: args.output_tercapai,
+            kelompok_nama: MOCK_KELOMPOK_14.nama_kelompok,
+            progres_persen: MOCK_KELOMPOK_14.progres_persen,
           },
         };
       }

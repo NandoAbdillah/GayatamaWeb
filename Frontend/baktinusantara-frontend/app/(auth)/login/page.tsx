@@ -2,6 +2,7 @@
 
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, SEEDED_ACCOUNTS } from '@/context/AuthContext';
 import { UserRole } from '@/lib/types';
@@ -133,20 +134,11 @@ function LoginFormContent() {
   };
 
   return (
-    <Card className="p-6 sm:p-8 shadow-ambient-lg border-slate-200/90 dark:border-navy-800 bg-white dark:bg-navy-900">
+    <Card className="p-4 min-[360px]:p-5 sm:p-6 lg:p-8 bg-white/85 backdrop-blur-xl lg:bg-transparent lg:backdrop-blur-none border border-white/40 lg:border-0 shadow-xl lg:shadow-none rounded-2xl sm:rounded-3xl transition-all">
       {/* Role selector quick fill chips */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-2.5">
-          <label className="block text-xs font-bold text-navy-800 dark:text-slate-300 uppercase tracking-wider">
-            Akun Percobaan Cepat (Data Asli Database):
-          </label>
-          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" />
-            Backend Terkoneksi
-          </span>
-        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
           {demoAccounts.map((acc) => {
             const Icon = acc.icon;
             const isSelected = selectedRole === acc.role;
@@ -212,9 +204,6 @@ function LoginFormContent() {
             <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200">
               Kata Sandi
             </label>
-            <span className="text-[11px] text-slate-400">
-              Default demo: <span className="font-mono font-bold text-navy-800 dark:text-slate-300">password</span>
-            </span>
           </div>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -235,17 +224,17 @@ function LoginFormContent() {
           isLoading={isLoading}
           size="lg"
           variant="primary"
-          className="w-full mt-2 font-bold text-xs sm:text-sm py-3 rounded-xl shadow-md gap-2"
+          className="w-full bg-[#377832] hover:bg-[#5ea631] mt-2 font-bold text-xs sm:text-sm py-3 rounded-xl shadow-md gap-2"
         >
           <span>Masuk Sebagai {selectedRole.replace('_', ' ').toUpperCase()}</span>
           <ArrowRight className="w-4 h-4" />
         </Button>
       </form>
 
-      <div className="mt-6 pt-6 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-        <span>Belum memiliki akun KKN?</span>
-        <Link href="/register" className="font-bold text-primary hover:underline">
-          Daftar akun baru →
+      <div className="mt-6 pt-6 border-t border-slate-100 dark:border-navy-800 flex items-center text-xs text-slate-500 dark:text-slate-400">
+        <span className='pr-2'>Belum memiliki akun KKN?</span>
+        <Link href="/register" className="font-bold text-[#377832] hover:underline">
+          Daftar akun baru
         </Link>
       </div>
     </Card>
@@ -254,28 +243,45 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface-canvas via-white to-surface-container dark:from-[#071629] dark:via-navy-950 dark:to-[#071629] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-jakarta transition-colors duration-200">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="inline-flex items-center gap-2.5 mb-4 group">
-          <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center text-white font-epilogue font-bold text-xl shadow-glow-primary group-hover:scale-105 transition-transform">
-            BN
-          </div>
-          <span className="font-epilogue font-extrabold text-2xl text-navy-950 dark:text-white">
-            BaktiNusantara
-          </span>
-        </Link>
-        <h2 className="text-2xl font-bold text-navy-950 dark:text-white font-epilogue">
-          Masuk ke Portal KKN Terpadu
-        </h2>
-        <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-          Pilih peran Anda atau masukkan akun yang telah terdaftar
-        </p>
-      </div>
+    // === BACKGROUND & POSISI IMAGE: ubah bg-[position:...] di bawah untuk geser (30%=kiri, 70%=kanan) ===
+    <div
+      className="relative min-h-[100dvh] min-h-screen w-full bg-cover bg-[position:30%_center] lg:bg-[position:60%_center] bg-no-repeat flex font-jakarta overflow-hidden"
+      style={{ backgroundImage: "url('/images/BGlogin.png')" }}
+    >
+      {/* KIRI - 50% layar di desktop, hidden di HP */}
+      <div className="hidden lg:flex flex-1 lg:basis-1/2" aria-hidden />
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
-        <Suspense fallback={<div className="p-8 text-center text-slate-400">Memuat formulir masuk...</div>}>
+      {/* KANAN - full di HP, 50% di desktop, form center simetris */}
+      <div className="flex-1 lg:basis-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12 overflow-y-auto">
+        <div className="w-full max-w-[480px] my-auto flex flex-col">
+        <div className="text-center mb-4 sm:mb-6 px-1">
+          <Link href="/" className="inline-flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 group">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 relative flex items-center justify-center transition-transform group-hover:scale-105 shrink-0">
+              <Image
+                src="/logo.svg"
+                alt="BaktiNusantara Logo"
+                width={48}
+                height={48}
+                priority
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow-md"
+              />
+            </div>
+            <span className="font-epilogue font-extrabold text-xl sm:text-2xl text-navy-950 dark:text-white drop-shadow-sm">
+              BaktiNusantara
+            </span>
+          </Link>
+          <h2 className="text-xl sm:text-2xl font-bold text-navy-950 dark:text-white font-epilogue drop-shadow-sm leading-tight">
+            Masuk ke Portal KKN Terpadu
+          </h2>
+          <p className="mt-1 text-[11px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300 drop-shadow-sm px-2 sm:px-0">
+            Pilih peran Anda atau masukkan akun yang telah terdaftar
+          </p>
+        </div>
+
+        <Suspense fallback={<div className="p-8 text-center text-slate-500">Memuat formulir masuk...</div>}>
           <LoginFormContent />
         </Suspense>
+        </div>
       </div>
     </div>
   );

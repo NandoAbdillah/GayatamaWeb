@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import {
   Home,
-  Sprout,
   ArrowLeft,
   Upload,
   CheckCircle2,
@@ -177,9 +177,15 @@ export default function RegisterPerangkatDesaPage() {
             <span>Pilih Jenis Akun Lain</span>
           </Link>
 
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white">
-              <Sprout className="w-4 h-4" />
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 relative flex items-center justify-center shrink-0">
+              <Image
+                src="/logo.svg"
+                alt="BaktiNusantara Logo"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain drop-shadow-sm"
+              />
             </div>
             <span className="font-epilogue font-bold text-navy-950 dark:text-white text-base">
               BaktiNusantara

@@ -107,7 +107,7 @@ export default function AdminDocumentationPage() {
 
   return (
     <DashboardLayout title="Pusat Dokumentasi Terbuka & SOP KKN">
-      <div className="space-y-6 max-w-5xl">
+      <div className="space-y-6 w-full">
         <div>
           <h1 className="text-2xl font-black text-navy-950 dark:text-white font-epilogue">
             Pusat Dokumentasi Terbuka, SOP, & Panduan Etika

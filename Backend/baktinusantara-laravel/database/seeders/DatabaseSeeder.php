@@ -865,10 +865,9 @@ class DatabaseSeeder extends Seeder
             ['channel' => 'in_app', 'is_read' => false, 'read_at' => null]
         );
 
-        // Notifikasi untuk Mahasiswa Ketua 3 (Bayu)
-        Notifikasi::firstOrCreate(
-            ['user_id' => $mhsBayuUser->id, 'pesan' => "Proposal kelompok Anda untuk pos kebutuhan 'Bimbingan Belajar Bahasa Inggris dan Literasi Digital Sekolah Dasar' berhasil diajukan dan sedang menunggu review desa."],
-            ['channel' => 'in_app', 'is_read' => false, 'read_at' => null]
-        );
+        // ==========================================
+        // 13. MEDSOS POST & LIVE REPORT SEEDER
+        // ==========================================
+        $this->call(MedsosPostSeeder::class);
     }
 }

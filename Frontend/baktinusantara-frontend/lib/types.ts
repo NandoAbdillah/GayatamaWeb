@@ -88,7 +88,7 @@ export interface PosKebutuhan {
   provinsi: string;
   judul: string;
   deskripsi: string;
-  kategori_sektor: 'Agrikultur & Ketahanan Pangan' | 'Kesehatan & Sanitasi' | 'Digitalisasi & Teknologi Desa' | 'Pemberdayaan UMKM' | 'Pendidikan & Literasi';
+  kategori_sektor: 'Agrikultur & Ketahanan Pangan' | 'Kesehatan & Sanitasi' | 'Digitalisasi & Teknologi Desa' | 'Pemberdayaan UMKM' | 'Pendidikan & Literasi' | 'Lingkungan & Energi';
   kuota_mahasiswa: number;
   terisi_mahasiswa: number;
   latitude: number;

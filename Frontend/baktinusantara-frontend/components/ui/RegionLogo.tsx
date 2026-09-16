@@ -34,9 +34,9 @@ export const RegionLogo: React.FC<RegionLogoProps> = ({
   className = '',
   showBadge = true,
 }) => {
-  // Stage 0: Primary (MinIO / custom), Stage 1: Secondary (GitHub Raw), Stage 2: Tertiary (SVG Shield/Initials)
   const [failStage, setFailStage] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const imgRef = React.useRef<HTMLImageElement>(null);
 
   // Derive URLs
   const cleanCode = code.trim();
@@ -57,7 +57,11 @@ export const RegionLogo: React.FC<RegionLogoProps> = ({
   // Reset error state when code or URL changes
   useEffect(() => {
     setFailStage(0);
-    setIsLoading(true);
+    if (imgRef.current && imgRef.current.complete) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+    }
   }, [cleanCode, customUrl]);
 
   const handleError = () => {
@@ -68,6 +72,7 @@ export const RegionLogo: React.FC<RegionLogoProps> = ({
       // Final fallback to styled shield initials
       setFailStage(2);
     }
+    setIsLoading(false);
   };
 
   const handleLoad = () => {
@@ -107,6 +112,7 @@ export const RegionLogo: React.FC<RegionLogoProps> = ({
       {/* Render Image (Tier 0 or Tier 1) */}
       {failStage < 2 && currentSrc ? (
         <img
+          ref={imgRef}
           src={currentSrc}
           alt={name ? `Logo ${name}` : 'Logo Wilayah'}
           className={`${currentSize.img} object-contain transition-all duration-300 hover:scale-105 ${
