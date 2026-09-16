@@ -12,7 +12,8 @@ use Illuminate\Validation\ValidationException;
 class UniversitasService
 {
     public function __construct(
-        protected NotificationService $notificationService
+        protected NotificationService $notificationService,
+        protected OtpService $otpService
     ) {}
 
     public function register(array $data): ProfilUniversitas
@@ -26,12 +27,20 @@ class UniversitasService
             'is_verified' => false,
         ]);
 
-        return ProfilUniversitas::create([
+        $univ = ProfilUniversitas::create([
             'user_id' => $user->id,
             'nama_universitas' => $data['nama_universitas'],
             'kode_univ' => $data['kode_univ'],
             'verified_at' => null,
         ])->load('user');
+
+        // Dispatch OTP registrasi
+        $target = $user->phone_wa ?: $user->email;
+        if ($target) {
+            $this->otpService->generateAndSend($target, 'registration', 'whatsapp', $user);
+        }
+
+        return $univ;
     }
 
     public function verifyByAdmin(ProfilUniversitas $univ): ProfilUniversitas

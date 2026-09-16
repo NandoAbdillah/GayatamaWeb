@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\DB;
 
 class MahasiswaService
 {
+    public function __construct(
+        protected OtpService $otpService
+    ) {}
+
     public function register(array $data, $ktmFile): ProfilMahasiswa
     {
         return DB::transaction(function () use ($data, $ktmFile) {
@@ -23,7 +27,7 @@ class MahasiswaService
 
             $path = $ktmFile->store('ktm-mahasiswa', 'local');
 
-            return ProfilMahasiswa::create([
+            $mhs = ProfilMahasiswa::create([
                 'user_id' => $user->id,
                 'universitas_id' => $data['universitas_id'],
                 'nim' => $data['nim'],
@@ -31,6 +35,14 @@ class MahasiswaService
                 'semester' => $data['semester'] ?? null,
                 'ktm_file_url' => $path,
             ])->load('universitas', 'user');
+
+            // Dispatch OTP registrasi ke nomor WhatsApp/Email mahasiswa
+            $target = $user->phone_wa ?: $user->email;
+            if ($target) {
+                $this->otpService->generateAndSend($target, 'registration', 'whatsapp', $user);
+            }
+
+            return $mhs;
         });
     }
 

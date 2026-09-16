@@ -44,8 +44,15 @@ Route::get('/medsos-posts/{medsosPost}', [MedsosPostController::class, 'show']);
 Route::post('/aspirasi', [AspirasiController::class, 'store']);
 Route::get('/aspirasi/{ticket}', [AspirasiController::class, 'show']);
 
+// Auth & Multi-Channel OTP Endpoints
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/register/verify-otp', [AuthController::class, 'verifyRegisterOtp']);
+Route::post('/otp/resend', [AuthController::class, 'resendOtp']);
+Route::post('/otp/verify', [AuthController::class, 'verifyOtp']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/forgot-email', [AuthController::class, 'forgotEmail']);
 
 Route::post('/register/mahasiswa', [MahasiswaController::class, 'register']);
 

@@ -154,6 +154,122 @@ Dokumentasi resmi arsitektur, seluruh rute API, struktur data, format request/re
   }
   ```
 
+### 3.7 Verifikasi OTP Registrasi (`POST /api/register/verify-otp`)
+- **Akses**: Publik
+- **Payload**:
+  ```json
+  {
+    "identifier": "081234567890",
+    "otp": "749201"
+  }
+  ```
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Verifikasi OTP berhasil. Akun Anda telah diverifikasi."
+  }
+  ```
+
+### 3.8 Request / Resend OTP Multi-Saluran (`POST /api/otp/resend`)
+- **Akses**: Publik
+- **Channel**: `whatsapp` (default), `sms`, `email`
+- **Payload**:
+  ```json
+  {
+    "identifier": "081234567890",
+    "purpose": "registration",
+    "channel": "sms"
+  }
+  ```
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Kode OTP telah berhasil dikirimkan melalui SMS.",
+    "target": "0812****7890",
+    "channel": "sms",
+    "expires_in_minutes": 15
+  }
+  ```
+
+### 3.9 Validasi Kode OTP (`POST /api/otp/verify`)
+- **Akses**: Publik (Step validasi sebelum submit form)
+- **Payload**:
+  ```json
+  {
+    "identifier": "081234567890",
+    "otp": "749201",
+    "purpose": "forgot_password"
+  }
+  ```
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "valid": true,
+    "message": "Kode OTP valid."
+  }
+  ```
+
+### 3.10 Lupa Kata Sandi / Forgot Password (`POST /api/forgot-password`)
+- **Akses**: Publik
+- **Payload**:
+  ```json
+  {
+    "identifier": "ahmad@unesa.ac.id",
+    "channel": "whatsapp"
+  }
+  ```
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Kode OTP pemulihan kata sandi telah dikirimkan via WHATSAPP.",
+    "target": "ahm***@unesa.ac.id",
+    "channel": "whatsapp",
+    "expires_in_minutes": 15
+  }
+  ```
+
+### 3.11 Reset Kata Sandi Baru (`POST /api/reset-password`)
+- **Akses**: Publik (Memvalidasi OTP + mereset password + me-revoke seluruh Sanctum token aktif)
+- **Payload**:
+  ```json
+  {
+    "identifier": "081234567890",
+    "otp": "749201",
+    "password": "PasswordBaru#2026",
+    "password_confirmation": "PasswordBaru#2026"
+  }
+  ```
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Kata sandi berhasil diperbarui. Silakan masuk menggunakan kata sandi baru Anda."
+  }
+  ```
+
+### 3.12 Lupa Email / Account Lookup (`POST /api/forgot-email`)
+- **Akses**: Publik (Mencari email akun terdaftar berdasarkan No WhatsApp, NIM Mahasiswa, atau NIP Dosen)
+- **Payload**:
+  ```json
+  {
+    "identifier": "081234567890",
+    "channel": "whatsapp"
+  }
+  ```
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Informasi email terdaftar telah dikirimkan ke WHATSAPP pemilik akun.",
+    "masked_email": "ahm***@unesa.ac.id",
+    "name": "Ahmad Mahasiswa",
+    "role": "mahasiswa"
+  }
+  ```
+
 ---
 
 ## 4. Super Admin Platform

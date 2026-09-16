@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class DesaService
 {
+    public function __construct(
+        protected OtpService $otpService
+    ) {}
+
     public function register(array $data, $skFile): ProfilDesa
     {
         return DB::transaction(function () use ($data, $skFile) {
@@ -25,7 +29,7 @@ class DesaService
             // 'local' disk = private by default di Laravel 11+ (storage/app/private)
             $path = $skFile->store('sk-desa', 'local');
 
-            return ProfilDesa::create([
+            $desa = ProfilDesa::create([
                 'user_id' => $user->id,
                 'nama_desa' => $data['nama_desa'],
                 'kecamatan' => $data['kecamatan'] ?? null,
@@ -36,6 +40,14 @@ class DesaService
                 'sk_file_url' => $path,
                 'kontak_resmi' => $data['kontak_resmi'] ?? null,
             ]);
+
+            // Dispatch OTP registrasi
+            $target = $user->phone_wa ?: $user->email;
+            if ($target) {
+                $this->otpService->generateAndSend($target, 'registration', 'whatsapp', $user);
+            }
+
+            return $desa;
         });
     }
 
