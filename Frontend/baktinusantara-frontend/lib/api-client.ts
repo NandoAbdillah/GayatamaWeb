@@ -59,6 +59,7 @@ apiClient.interceptors.response.use(
         pathname.startsWith('/perangkat-desa') ||
         pathname.startsWith('/dosen') ||
         pathname.startsWith('/universitas') ||
+        pathname.startsWith('/kampus') ||
         pathname.startsWith('/admin');
 
       if (isProtectedRoute && !pathname.includes('/login')) {

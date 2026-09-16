@@ -191,9 +191,10 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
   // Nonaktifkan AI di halaman login - harus setelah semua hooks agar tidak violate Rules of Hooks
   if (pathname?.startsWith('/login')) return null;
 
-  // Deteksi rute dashboard (Superadmin, Mahasiswa, Perangkat Desa, Dosen)
+  // Deteksi rute dashboard (Superadmin, LPPM Kampus, Mahasiswa, Perangkat Desa, Dosen)
   const isDashboard = Boolean(
     pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/kampus') ||
     pathname?.startsWith('/mahasiswa') ||
     pathname?.startsWith('/perangkat-desa') ||
     pathname?.startsWith('/dosen')

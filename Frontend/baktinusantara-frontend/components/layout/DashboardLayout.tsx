@@ -86,8 +86,8 @@ export const DashboardLayout: React.FC<{
         <main className="flex-1 min-w-0 w-full p-4 sm:p-6 lg:p-8">
           {breadcrumb && breadcrumb.length > 0 && (
             <nav className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-4 font-medium" aria-label="Breadcrumb">
-              <Link href="/admin/dashboard" className="hover:text-primary transition-colors">
-                Portal Admin
+              <Link href={user?.role === 'universitas' ? '/kampus/dashboard' : user?.role === 'admin' ? '/admin/dashboard' : '/'} className="hover:text-primary transition-colors">
+                {user?.role === 'universitas' ? 'Portal Kampus' : user?.role === 'admin' ? 'Portal Admin' : 'Portal'}
               </Link>
               {breadcrumb.map((item, idx) => (
                 <React.Fragment key={idx}>

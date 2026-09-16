@@ -58,7 +58,7 @@ export const RoleSwitcher: React.FC<{ className?: string }> = ({ className }) =>
       label: 'LPPM Kampus',
       subtitle: 'LPPM UNESA Surabaya',
       icon: ShieldCheck,
-      dashboard: '/admin/dashboard',
+      dashboard: '/kampus/dashboard',
     },
     {
       role: 'admin',

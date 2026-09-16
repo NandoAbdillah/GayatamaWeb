@@ -90,9 +90,6 @@ export default function DosenPenilaianPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-primary bg-primary-50 px-3 py-1 rounded-full mb-1">
-              <Award className="w-3.5 h-3.5" /> Evaluasi Kelulusan KKN
-            </div>
             <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">
               Rekapitulasi Penilaian Kelompok 14 (Desa Sukamaju)
             </h1>

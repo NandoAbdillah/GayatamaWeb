@@ -7,7 +7,8 @@ export function middleware(request: NextRequest) {
     '/mahasiswa': ['mahasiswa'],
     '/perangkat-desa': ['perangkat_desa'],
     '/dosen': ['dosen'],
-    '/admin': ['universitas', 'admin'],
+    '/admin': ['admin'],
+    '/kampus': ['universitas'],
   };
 
   // Check if current route is protected
@@ -29,7 +30,8 @@ export function middleware(request: NextRequest) {
         if (userRole === 'mahasiswa') return NextResponse.redirect(new URL('/mahasiswa/dashboard', request.url));
         if (userRole === 'perangkat_desa') return NextResponse.redirect(new URL('/perangkat-desa/dashboard', request.url));
         if (userRole === 'dosen') return NextResponse.redirect(new URL('/dosen/dashboard', request.url));
-        if (userRole === 'universitas' || userRole === 'admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+        if (userRole === 'universitas') return NextResponse.redirect(new URL('/kampus/dashboard', request.url));
+        if (userRole === 'admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
       }
     }
   }

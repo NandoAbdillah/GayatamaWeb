@@ -19,7 +19,7 @@ export const GEMINI_AGENT_TOOL_DECLARATIONS = [
         path: {
           type: 'STRING',
           description:
-            'Path rute tujuan. Contoh: "/maps", "/search", "/katalog", "/aspirasi", "/mahasiswa/proposal", "/mahasiswa/progress", "/dosen/penilaian", "/perangkat-desa/pos-kebutuhan", "/perangkat-desa/surat-tugas", "/admin/analytics"',
+            'Path rute tujuan. Contoh: "/maps", "/search", "/katalog", "/aspirasi", "/mahasiswa/proposal", "/mahasiswa/progress", "/dosen/penilaian", "/perangkat-desa/pos-kebutuhan", "/perangkat-desa/surat-tugas", "/admin/analytics", "/kampus/dashboard"',
         },
         title: {
           type: 'STRING',
