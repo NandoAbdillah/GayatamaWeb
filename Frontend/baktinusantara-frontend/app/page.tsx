@@ -1472,31 +1472,31 @@ export default function HomePage() {
         {/* ========================================================================= */}
         {/* 11. FINAL CTA BANNER (Multi-Directional: Desa + Mahasiswa) */}
         {/* ========================================================================= */}
-        {/* <section className="relative px-4 sm:px-6 lg:px-8 py-16">
-          <div className="max-w-6xl mx-auto rounded-3xl bg-navy-900/95 dark:bg-navy-900/95 text-white p-8 sm:p-12 border border-slate-800 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 text-left backdrop-blur-md">
-            <div className="space-y-2 max-w-xl">
-              <h2 className="text-2xl sm:text-3xl font-extrabold font-epilogue leading-snug">
-                {tCta('title')}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-300 font-jakarta leading-relaxed">
-                {tCta('subtitle')}
-              </p>
-            </div>
+          {/* <section className="relative px-4 sm:px-6 lg:px-8 py-16">
+            <div className="max-w-6xl mx-auto rounded-3xl bg-navy-900/95 dark:bg-navy-900/95 text-white p-8 sm:p-12 border border-slate-800 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 text-left backdrop-blur-md">
+              <div className="space-y-2 max-w-xl">
+                <h2 className="text-2xl sm:text-3xl font-extrabold font-epilogue leading-snug">
+                  {tCta('title')}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 font-jakarta leading-relaxed">
+                  {tCta('subtitle')}
+                </p>
+              </div>
 
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <Link href="/search">
-                <Button size="lg" variant="primary" className="font-bold text-xs sm:text-sm">
-                  {tCta('registerBtn')}
-                </Button>
-              </Link>
-              <Link href="/aspirasi">
-                <Button size="lg" variant="outline" className="border-slate-600 text-navy-950 dark:text-white bg-white dark:bg-navy-800 hover:bg-slate-100 dark:hover:bg-navy-700 font-bold text-xs sm:text-sm">
-                  {tCta('aspirasiBtn')}
-                </Button>
-              </Link>
+              <div className="flex flex-wrap items-center gap-3 shrink-0">
+                <Link href="/search">
+                  <Button size="lg" variant="primary" className="font-bold text-xs sm:text-sm">
+                    {tCta('registerBtn')}
+                  </Button>
+                </Link>
+                <Link href="/aspirasi">
+                  <Button size="lg" variant="outline" className="border-slate-600 text-navy-950 dark:text-white bg-white dark:bg-navy-800 hover:bg-slate-100 dark:hover:bg-navy-700 font-bold text-xs sm:text-sm">
+                    {tCta('aspirasiBtn')}
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
-        </section> */}
+          </section> */}
       </div>
        
       <Footer />
