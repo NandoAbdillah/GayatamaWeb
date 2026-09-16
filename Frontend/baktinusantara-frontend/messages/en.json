@@ -25,6 +25,7 @@
     }
   },
   "nav": {
+    "home": "Home",
     "katalog": "Program Catalog",
     "maps": "Geospatial Map",
     "aspirasi": "Village Aspirations",

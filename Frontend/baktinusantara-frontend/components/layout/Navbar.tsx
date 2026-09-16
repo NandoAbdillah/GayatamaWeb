@@ -13,6 +13,7 @@ import { NotificationCenter } from '@/components/ui/NotificationCenter';
 import { useTranslations } from 'next-intl';
 import {
   LayoutDashboard,
+  Home,
   Menu,
   X,
   Compass,
@@ -57,6 +58,7 @@ export const Navbar: React.FC = () => {
   };
 
   const navLinks = [
+    { href: '/', label: t('home'), icon: Home },
     { href: '/katalog', label: t('katalog'), icon: Compass },
     { href: '/maps', label: t('maps'), icon: MapPin },
     { href: '/aspirasi', label: t('aspirasi'), icon: MessageSquare },

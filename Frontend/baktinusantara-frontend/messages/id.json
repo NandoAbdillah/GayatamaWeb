@@ -25,6 +25,7 @@
     }
   },
   "nav": {
+    "home": "Beranda",
     "katalog": "Katalog KKN",
     "maps": "Peta Sebaran",
     "aspirasi": "Aspirasi Desa",
