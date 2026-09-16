@@ -130,7 +130,7 @@ export default function AdminMonitoringPage() {
             className="text-xs font-bold gap-1.5"
           >
             <Send className="w-4 h-4" />
-            <span>Kirim Broadcast Notifikasi</span>
+            <span>Kirim Notifikasi</span>
           </Button>
         </div>
 
