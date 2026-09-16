@@ -132,7 +132,7 @@ export default function AdminDocumentationPage() {
     "all" | "mahasiswa" | "desa" | "dosen" | "admin"
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>("sop-01");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const filteredDocs = DOC_DATA.filter((doc) => {
     const matchRole =

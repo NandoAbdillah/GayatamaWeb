@@ -90,7 +90,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onExpand })
           { href: '/kampus/dosen', label: 'Dosen DPL', icon: GraduationCap },
           { href: '/kampus/laporan-dosen', label: 'Laporan DPL', icon: FileText, badge: '1 Baru' },
           { href: '/kampus/monitoring', label: 'Monitoring', icon: MapPin, badge: 'Live' },
-          { href: '/kampus/analytics', label: 'Statistik SDG', icon: BarChart3 },
           { href: '/kampus/sks', label: 'Konversi SKS', icon: FileCheck2 },
           { href: '/kampus/documentation', label: 'SOP & Regulasi', icon: BookOpen },
           { href: '/kampus/feedback', label: 'Feedback', icon: ThumbsUp },

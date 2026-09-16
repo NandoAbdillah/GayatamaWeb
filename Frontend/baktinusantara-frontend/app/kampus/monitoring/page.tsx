@@ -214,7 +214,7 @@ export default function AdminMonitoringPage() {
                   <th className="p-3 font-bold">Dosen DPL</th>
                   <th className="p-3 font-bold">Akumulasi Jam</th>
                   <th className="p-3 font-bold">Status Logbook</th>
-                  <th className="p-3 font-bold">Izin Ortu (&gt;1000km)</th>
+                  <th className="p-3 font-bold">Izin Ortu</th>
                   <th className="p-3 font-bold text-right">Aksi</th>
                 </tr>
               </thead>
