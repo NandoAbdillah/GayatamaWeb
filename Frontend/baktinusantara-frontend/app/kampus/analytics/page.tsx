@@ -48,7 +48,7 @@ const SDG_COLORS: Record<string, string> = {
   'SDG 15': '#56C02B',
 };
 
-export default function KampusAnalyticsPage() {
+export default function AdminAnalyticsPage() {
   const [metrics, setMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -108,25 +108,19 @@ export default function KampusAnalyticsPage() {
 
   return (
     <DashboardLayout
-      title="Kinerja Pengabdian & Statistik SDG Kampus"
-      breadcrumb={[
-        { label: 'Kinerja SDG Kampus' },
-      ]}
+      title="Analisis & Statistik SDG Nasional"
     >
       <div className="space-y-6 font-jakarta">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                <BarChart3 className="w-5 h-5" />
-              </span>
               <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Kinerja Pengabdian & Capaian SDG Kampus
+                Analisis Capaian & Statistik SDG Nasional
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Evaluasi kinerja program KKN institusi, kontribusi indikator SDGs, dan rekapitulasi data pengabdian untuk borang akreditasi LPPM.
+              Pemantauan kinerja agregat program KKN terpadu, kontribusi Sustainable Development Goals (SDGs), dan efektivitas jam kerja mahasiswa di desa mitra.
             </p>
           </div>
 
@@ -134,7 +128,7 @@ export default function KampusAnalyticsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => toast.success('Mengekspor rekapitulasi capaian SDG KKN (Excel)')}
+              onClick={() => toast.success('Mengekspor laporan data analisis statistik (Excel / CSV)')}
               className="text-xs font-bold gap-1.5"
             >
               <Download className="w-4 h-4" />
@@ -143,11 +137,11 @@ export default function KampusAnalyticsPage() {
             <Button
               variant="primary"
               size="sm"
-              onClick={() => toast.success('Mengunduh Berkas Borang Akreditasi Pengabdian LPPM (PDF)')}
+              onClick={() => toast.success('Mengunduh Laporan Eksekutif Capaian KKN Nasional (PDF)')}
               className="text-xs font-bold gap-1.5"
             >
               <FileCheck2 className="w-4 h-4" />
-              <span>Borang Akreditasi</span>
+              <span>Laporan Eksekutif</span>
             </Button>
           </div>
         </div>

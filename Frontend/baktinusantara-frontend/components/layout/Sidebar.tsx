@@ -79,22 +79,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onExpand })
           { href: '/admin/dashboard', label: 'Dashboard Eksekutif', icon: LayoutDashboard },
           { href: '/admin/verifikasi', label: 'Verifikasi Entitas', icon: ShieldCheck, badge: 'Aksi' },
           { href: '/admin/pos-kebutuhan', label: 'Pos Kebutuhan Desa', icon: ClipboardList },
-          { href: '/admin/direktori-kampus', label: 'Direktori Kampus & Mitra', icon: Building },
-          { href: '/admin/monitoring', label: 'Sebaran Nasional KKN', icon: MapPin, badge: 'Live' },
-          { href: '/admin/analytics', label: 'Statistik SDG Nasional', icon: BarChart3 },
+          { href: '/admin/direktori-kampus', label: 'Direktori Kampus & DPL', icon: Building },
+          { href: '/admin/monitoring', label: 'Sebaran Program KKN', icon: MapPin, badge: 'Live' },
+          { href: '/admin/analytics', label: 'Analisis & Statistik SDG', icon: BarChart3 },
           { href: '/admin/logs', label: 'Audit Trail & Sistem', icon: Activity },
         ];
       case 'universitas':
         return [
-          { href: '/kampus/dashboard', label: 'Dashboard Kampus', icon: LayoutDashboard },
-          { href: '/kampus/dosen', label: 'Manajemen Dosen DPL', icon: GraduationCap },
-          { href: '/kampus/laporan-dosen', label: 'Laporan Monev DPL', icon: FileText, badge: '1 Baru' },
-          { href: '/kampus/monitoring', label: 'Monitoring Mahasiswa', icon: MapPin, badge: 'Live' },
-          { href: '/kampus/sks', label: 'Konversi SKS Akademik', icon: FileCheck2 },
-          { href: '/kampus/analytics', label: 'Kinerja SDG Kampus', icon: BarChart3 },
-          { href: '/kampus/documentation', label: 'SOP & Regulasi KKN', icon: BookOpen },
-          { href: '/kampus/feedback', label: 'Umpan Balik Stakeholder', icon: ThumbsUp },
-          { href: '/kampus/logs', label: 'Log Aktivitas Kampus', icon: Activity },
+          { href: '/kampus/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { href: '/kampus/dosen', label: 'Dosen DPL', icon: GraduationCap },
+          { href: '/kampus/laporan-dosen', label: 'Laporan DPL', icon: FileText, badge: '1 Baru' },
+          { href: '/kampus/monitoring', label: 'Monitoring', icon: MapPin, badge: 'Live' },
+          { href: '/kampus/analytics', label: 'Statistik SDG', icon: BarChart3 },
+          { href: '/kampus/sks', label: 'Konversi SKS', icon: FileCheck2 },
+          { href: '/kampus/documentation', label: 'SOP & Regulasi', icon: BookOpen },
+          { href: '/kampus/feedback', label: 'Feedback', icon: ThumbsUp },
+          { href: '/kampus/logs', label: 'Aktivitas', icon: Activity },
         ];
       default:
         return [
