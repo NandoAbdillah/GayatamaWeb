@@ -293,8 +293,8 @@ export default function HomePage() {
           {/* Headline with Epilogue Font */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-navy-950 dark:text-white font-epilogue tracking-tight leading-[1.12]">
             {tHero('titleLine1')} <br />
-            <span className="text-secondary-600 dark:text-secondary-400">{tHero('titleLine2')}</span>{' '}
-            <span className="text-primary-600 dark:text-primary-400">{tHero('titleLine3')}</span>
+            <span className="text-primary-600 dark:text-secondary-400">{tHero('titleLine2')}</span>{' '}
+            <span className="text-secondary-600 dark:text-primary-400">{tHero('titleLine3')}</span>
           </h1>
 
           {/* Subheadline (Ecosystem Value Proposition) */}
@@ -1265,7 +1265,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 7. DEEP NAVY SYSTEM ARCHITECTURE & DATA PIPELINE */}
       {/* ========================================================================= */}
-      <section className="bg-navy-950 text-white py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-y border-navy-800">
+      {/* <section className="bg-navy-950 text-white py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-y border-navy-800">
         <div className="max-w-7xl mx-auto space-y-14 relative z-10">
           <div className="max-w-2xl space-y-2 text-left">
             <span className="text-xs font-bold text-primary-400 uppercase tracking-wider">
@@ -1313,11 +1313,13 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ========================================================================= */}
       {/* WRAPPER 2: IMAGE3.PNG (Landscape Alam Nusantara Latar Belakang) */}
       {/* ========================================================================= */}
+     
+     
       <div
         className="relative overflow-hidden w-full bg-cover sm:bg-[length:100%_auto] lg:bg-cover xl:bg-[length:100%_auto] bg-top bg-no-repeat"
         style={{
@@ -1332,7 +1334,7 @@ export default function HomePage() {
         {/* ========================================================================= */}
         {/* 8. PRODUCT PREVIEW SECTION ("BaktiNusantara dalam Satu Dashboard") */}
         {/* ========================================================================= */}
-        <section className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+        {/* <section className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
           <div className="text-center max-w-3xl mx-auto space-y-3">
             <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
               {tDashboard('badge')}
@@ -1345,14 +1347,13 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Dashboard Preview Component */}
           <DashboardPreview />
-        </section>
+        </section> */}
 
         {/* ========================================================================= */}
         {/* 9. POS KEBUTUHAN SIAP DILAMAR */}
         {/* ========================================================================= */}
-        <section className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+        {/* <section className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-1 text-left">
               <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
@@ -1440,12 +1441,12 @@ export default function HomePage() {
               </Card>
             ))}
           </div>
-        </section>
+        </section> */}
 
         {/* ========================================================================= */}
         {/* 10. IMPACT PORTFOLIO CALLOUT ("Setiap Program Meninggalkan Jejak...") */}
         {/* ========================================================================= */}
-        <section className="relative py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        {/* <section className="relative py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-slate-900/95 via-navy-900/95 to-navy-950/95 text-white border border-slate-800 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 text-left backdrop-blur-md">
             <div className="space-y-2 max-w-2xl">
               <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
@@ -1466,12 +1467,12 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
-        </section>
+        </section> */}
 
         {/* ========================================================================= */}
         {/* 11. FINAL CTA BANNER (Multi-Directional: Desa + Mahasiswa) */}
         {/* ========================================================================= */}
-        <section className="relative px-4 sm:px-6 lg:px-8 py-16">
+        {/* <section className="relative px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-6xl mx-auto rounded-3xl bg-navy-900/95 dark:bg-navy-900/95 text-white p-8 sm:p-12 border border-slate-800 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 text-left backdrop-blur-md">
             <div className="space-y-2 max-w-xl">
               <h2 className="text-2xl sm:text-3xl font-extrabold font-epilogue leading-snug">
@@ -1495,9 +1496,9 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-        </section>
+        </section> */}
       </div>
-
+       
       <Footer />
     </div>
   );
