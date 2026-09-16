@@ -121,20 +121,18 @@ export default function AdminMonitoringPage() {
   });
 
   return (
-    <DashboardLayout title="Pemantauan Sebaran & Pelaksanaan Program KKN">
+    <DashboardLayout title="Pemantauan KKN Binaan Kampus">
       <div className="space-y-6 font-jakarta">
         {/* Header Title */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Pemantauan Lapangan & Sebaran Program KKN
-              </h1>
-            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Pemantauan Kelompok & Logbook KKN Binaan Kampus
+            </h1>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Super Admin mengawasi kepatuhan operasional, laporan logbook
-              mingguan, radius jarak (&gt;1.000 km), dan surat izin orang tua
-              kelompok mahasiswa KKN.
+              LPPM Kampus memantau kelompok binaan — lokasi desa mitra, DPL
+              pengampu, akumulasi jam pengabdian, dan status logbook mingguan
+              (Tuntas/Kendala) secara real-time.
             </p>
           </div>
 

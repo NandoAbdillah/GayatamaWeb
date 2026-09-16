@@ -107,24 +107,14 @@ export default function AdminAnalyticsPage() {
   ];
 
   return (
-    <DashboardLayout
-      title="Analisis & Statistik SDG Nasional"
-      breadcrumb={[
-        { label: 'Analisis & Statistik SDG' },
-      ]}
-    >
+    <DashboardLayout title="Analisis & Statistik SDG Nasional">
       <div className="space-y-6 font-jakarta">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                <BarChart3 className="w-5 h-5" />
-              </span>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Analisis Capaian & Statistik SDG Nasional
-              </h1>
-            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Analisis Capaian & Statistik SDG Nasional
+            </h1>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
               Pemantauan kinerja agregat program KKN terpadu, kontribusi Sustainable Development Goals (SDGs), dan efektivitas jam kerja mahasiswa di desa mitra.
             </p>
@@ -135,7 +125,7 @@ export default function AdminAnalyticsPage() {
               variant="outline"
               size="sm"
               onClick={() => toast.success('Mengekspor laporan data analisis statistik (Excel / CSV)')}
-              className="text-xs font-bold gap-1.5"
+              className="text-xs font-bold gap-1.5 whitespace-nowrap"
             >
               <Download className="w-4 h-4" />
               <span>Ekspor Excel</span>
@@ -144,7 +134,7 @@ export default function AdminAnalyticsPage() {
               variant="primary"
               size="sm"
               onClick={() => toast.success('Mengunduh Laporan Eksekutif Capaian KKN Nasional (PDF)')}
-              className="text-xs font-bold gap-1.5"
+              className="text-xs font-bold gap-1.5 whitespace-nowrap"
             >
               <FileCheck2 className="w-4 h-4" />
               <span>Laporan Eksekutif</span>
