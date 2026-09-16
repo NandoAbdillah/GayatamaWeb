@@ -18,6 +18,9 @@ use App\Http\Controllers\LaporanDosenController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WilayahController;
+use App\Http\Controllers\WhatsAppWebhookController;
+
+Route::post('/webhook/whatsapp', [WhatsAppWebhookController::class, 'handle']);
 
 Route::post('/aspirasi', [AspirasiController::class, 'store']);
 Route::get('/aspirasi/{ticket}', [AspirasiController::class, 'show']);
