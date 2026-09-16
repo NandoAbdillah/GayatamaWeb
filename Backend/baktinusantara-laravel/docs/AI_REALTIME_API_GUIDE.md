@@ -22,6 +22,9 @@ Dokumentasi ini ditujukan bagi tim **Frontend Developer** dan pengembang modul *
 | `GET` | `/api/ai/user-context` | **Auth (Sanctum)** | Data personal live pengguna (Mahasiswa: kelompok, proposal, logbook, to-do list; Perangkat Desa: aspirasi & proposal; Dosen: kelompok bimbingan & validasi). |
 | `POST` | `/api/ai/draft-proposal` | **Auth (Sanctum)** | Generator draf proposal KKN terstruktur (4-minggu roadmap, target luaran, estimasi anggaran) berbasis data riil desa. |
 | `POST` | `/api/ai/draft-logbook` | **Auth (Sanctum)** | Generator draf catatan logbook mingguan berstandar LPPM. |
+| `GET` | `/api/universitas/metrics` | **Auth (`role:universitas`)** | Metrik & statistik KKN terisolasi khusus untuk institusi kampus yang sedang login (bukan agregat nasional). |
+| `GET` | `/api/universitas/kelompok` | **Auth (`role:universitas`)** | Monitoring kelompok KKN bimbingan dosen DPL dari kampus ini. |
+| `GET` | `/api/universitas/logs` | **Auth (`role:universitas`)** | Audit trail & rekam jejak aktivitas yang hanya melibatkan civitas kampus terkait. |
 
 ---
 
@@ -484,6 +487,82 @@ Accept: application/json
   }
 }
 ```
+
+---
+
+## 7. Endpoint Khusus LPPM Kampus (`/api/universitas/*`)
+
+Untuk memastikan **isolasi data per institusi kampus** (agar data KKN UNESA, ITB, UI, dsb. tidak saling bocor atau bercampur), gunakan endpoint terotentikasi berikut:
+
+### 7.1 Metrik Kampus (`GET /api/universitas/metrics`)
+Mengembalikan statistik kinerja KKN yang **hanya berasal dari civitas kampus tersebut**.
+
+```http
+GET /api/universitas/metrics HTTP/1.1
+Host: 127.0.0.1:8000
+Authorization: Bearer <TOKEN_LOGIN_UNIVERSITAS>
+Accept: application/json
+```
+
+**Contoh Response (`200 OK`)**:
+```json
+{
+  "message": "Statistik & metrik program KKN internal kampus berhasil dimuat",
+  "data": {
+    "campus_name": "Universitas Negeri Surabaya",
+    "kode_univ": "UNESA-01",
+    "total_dosen": 12,
+    "total_mahasiswa": 150,
+    "total_kelompok_kkn": 15,
+    "total_desa_terbantu": 8,
+    "total_jam_pengabdian": 4800,
+    "total_luaran_terverifikasi": 5,
+    "status_proposal_breakdown": {
+      "total": 18,
+      "menunggu": 2,
+      "diterima": 15,
+      "ditolak": 1
+    },
+    "sdgs_distribution": {
+      "SDG 4": 5,
+      "SDG 8": 8,
+      "SDG 9": 4
+    }
+  }
+}
+```
+
+### 7.2 Monitoring Kelompok Kampus (`GET /api/universitas/kelompok`)
+Mengembalikan daftar kelompok mahasiswa bimbingan DPL kampus tersebut beserta status proposal, progres logbook harian, dan luaran akhir.
+
+```http
+GET /api/universitas/kelompok HTTP/1.1
+Host: 127.0.0.1:8000
+Authorization: Bearer <TOKEN_LOGIN_UNIVERSITAS>
+Accept: application/json
+```
+
+### 7.3 Audit Log Aktivitas Kampus (`GET /api/universitas/logs`)
+Mengembalikan rekam jejak event dan notifikasi yang hanya melibatkan DPL, mahasiswa, dan proposal dari kampus bersangkutan.
+
+```http
+GET /api/universitas/logs HTTP/1.1
+Host: 127.0.0.1:8000
+Authorization: Bearer <TOKEN_LOGIN_UNIVERSITAS>
+Accept: application/json
+```
+
+---
+
+## 8. Panduan Batasan Wewenang Peran (*Role Scope Boundaries*)
+
+| Role | Batasan Data & Kewenangan | Catatan Menu Frontend |
+|---|---|---|
+| **Super Admin Platform (`admin`)** | - Skala **Nasional** lintas seluruh kampus & desa.<br>- Verifikasi SK Desa, KTM Mahasiswa, dan Perguruan Tinggi.<br>- Analitika SDG Agregat Nasional & Sebaran Peta KKN Nasional. | Menu *"Audit Trail & Sistem"* dihapus dari Super Admin karena berisi event bisnis per-kampus. |
+| **LPPM Kampus (`universitas`)** | - Skala **Internal Institusi Kampus Sendiri**.<br>- Kelola akun DPL kampus.<br>- Tinjau laporan supervisi dosen pembimbing.<br>- Akses metrik dan monitoring kelompok bimbingan kampusnya sendiri (`/api/universitas/*`). | Menu *"Statistik SDG"* dan *"Monitoring"* dihapus dari sidebar LPPM untuk mencegah kebocoran data agregat nasional lintas kampus. |
+| **Dosen Pembimbing (`dosen`)** | - Skala **Kelompok Mahasiswa Binaan Sendiri**.<br>- Validasi kelayakan proposal & review progres logbook harian. | Hanya dapat mengakses data proposal kelompok yang dibimbingnya. |
+| **Perangkat Desa (`perangkat_desa`)** | - Skala **Desa Binaan Sendiri**.<br>- Kelola pos kebutuhan, persetujuan proposal masuk, verifikasi luaran akhir. | Hanya dapat melihat proposal & luaran yang ditujukan ke desanya. |
+| **Mahasiswa (`mahasiswa`)** | - Skala **Kelompok KKN Sendiri**.<br>- Pendaftaran pos, pengajuan proposal, logbook harian, upload izin ortu, luaran. | Terisolasi per kelompok KKN. |
 
 ---
 

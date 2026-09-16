@@ -303,4 +303,36 @@ class UniversitasDosenTest extends TestCase
         $updateStatus->assertStatus(200)
             ->assertJsonPath('data.status', 'ditinjau');
     }
+
+    public function test_universitas_can_view_campus_metrics_kelompok_and_logs()
+    {
+        $data = $this->setupScenario();
+
+        // 1. Campus Metrics
+        $resMetrics = $this->actingAs($data['userUniv'], 'sanctum')->getJson('/api/universitas/metrics');
+        $resMetrics->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'campus_name' => 'Universitas Negeri Surabaya',
+                    'kode_univ' => 'UNESA-01',
+                    'total_dosen' => 2,
+                    'total_mahasiswa' => 2,
+                    'total_kelompok_kkn' => 1,
+                ]
+            ]);
+
+        // 2. Campus Kelompok Monitoring
+        $resKelompok = $this->actingAs($data['userUniv'], 'sanctum')->getJson('/api/universitas/kelompok');
+        $resKelompok->assertStatus(200)
+            ->assertJsonCount(1, 'data');
+        $this->assertEquals('Kelompok Penggerak Desa', $resKelompok->json('data.0.nama_kelompok'));
+
+        // 3. Campus Audit / Activity Logs
+        $resLogs = $this->actingAs($data['userUniv'], 'sanctum')->getJson('/api/universitas/logs');
+        $resLogs->assertStatus(200)
+            ->assertJsonStructure([
+                'message',
+                'data',
+            ]);
+    }
 }
