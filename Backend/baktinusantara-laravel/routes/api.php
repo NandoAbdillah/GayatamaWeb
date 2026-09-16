@@ -20,6 +20,20 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\MedsosPostController;
+use App\Http\Controllers\AiContextController;
+
+// AI Realtime Context & Smart Matching Endpoints
+Route::prefix('ai')->group(function () {
+    Route::get('/context', [AiContextController::class, 'globalContext']);
+    Route::get('/search-desa', [AiContextController::class, 'searchDesa']);
+    Route::post('/recommend-pos', [AiContextController::class, 'recommendPos']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/user-context', [AiContextController::class, 'userContext']);
+        Route::post('/draft-proposal', [AiContextController::class, 'draftProposal']);
+        Route::post('/draft-logbook', [AiContextController::class, 'draftLogbook']);
+    });
+});
 
 Route::post('/webhook/whatsapp', [WhatsAppWebhookController::class, 'handle']);
 
