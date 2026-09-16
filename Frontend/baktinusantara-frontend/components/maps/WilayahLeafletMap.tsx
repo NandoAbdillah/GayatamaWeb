@@ -51,7 +51,7 @@ function MapSizeInvalidator() {
 function MapFloatingControls({ polyCenter }: { polyCenter?: [number, number] }) {
   const map = useMap();
   return (
-    <div className="absolute left-4 bottom-16 z-[400] flex flex-col gap-2 pointer-events-auto">
+    <div className="absolute left-4 sm:left-6 bottom-20 z-[400] flex flex-col gap-2 pointer-events-auto">
       <div className="flex flex-col bg-white/95 dark:bg-navy-900/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/90 dark:border-navy-700 overflow-hidden divide-y divide-slate-100 dark:divide-navy-800">
         <button
           type="button"
@@ -104,31 +104,31 @@ const createCampusIcon = (campusLabel: string) =>
     iconAnchor: [65, 30],
   });
 
-const createPosIcon = (isSelected: boolean, name: string, distanceKm?: number, sector?: string) =>
+const createPosIcon = (isSelected: boolean, name: string, distanceKm?: number) =>
   L.divIcon({
     className: 'custom-pos-pin !bg-transparent !border-0 !shadow-none',
     html: `
-      <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: translate3d(0,0,0); transition: transform 0.2s ease;">
-        <div style="display: flex; align-items: center; gap: 5px; background: ${
-          isSelected ? '#0f172a' : '#ffffff'
+      <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: translate3d(0,0,0); transition: all 0.2s ease;">
+        <div style="display: flex; align-items: center; gap: 6px; background: ${
+          isSelected ? '#064e3b' : '#ffffff'
         }; color: ${
           isSelected ? '#ffffff' : '#0f172a'
-        }; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 9999px; box-shadow: ${
-          isSelected ? '0 8px 25px rgba(16, 185, 129, 0.6), 0 0 0 3px #10b981' : '0 6px 16px rgba(0, 0, 0, 0.15)'
-        }; border: 1.5px solid ${isSelected ? '#10b981' : '#e2e8f0'}; transform: translateZ(0);">
-          <span style="width: 8px; height: 8px; border-radius: 9999px; background: ${
+        }; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 9999px; box-shadow: ${
+          isSelected ? '0 8px 20px rgba(16, 185, 129, 0.5), 0 0 0 2.5px #10b981' : '0 4px 12px rgba(0, 0, 0, 0.18)'
+        }; border: 1.5px solid ${isSelected ? '#34d399' : '#cbd5e1'}; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform: translateZ(0);">
+          <span style="width: 7px; height: 7px; border-radius: 9999px; background: ${
             isSelected ? '#34d399' : '#10b981'
-          }; display: inline-block;"></span>
-          <span>${name}</span>
-          ${distanceKm !== undefined ? `<span style="opacity: 0.75; font-size: 9px; font-weight: 600;">• ${distanceKm}km</span>` : ''}
+          }; display: inline-block; flex-shrink: 0;"></span>
+          <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${name}</span>
+          ${distanceKm !== undefined ? `<span style="opacity: 0.8; font-size: 9px; font-weight: 600; flex-shrink: 0;">• ${distanceKm}k</span>` : ''}
         </div>
-        <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid ${
-          isSelected ? '#0f172a' : '#ffffff'
+        <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid ${
+          isSelected ? '#064e3b' : '#ffffff'
         }; margin-top: -1px;"></div>
       </div>
     `,
-    iconSize: [160, 44],
-    iconAnchor: [80, 22],
+    iconSize: [140, 36],
+    iconAnchor: [70, 36],
   });
 
 // Custom DivIcon for Region Centroid with Official Logo
@@ -280,6 +280,7 @@ export default function WilayahLeafletMap({
       <MapContainer
         center={center}
         zoom={zoom}
+        zoomControl={false}
         scrollWheelZoom={true}
         className="w-full h-full z-0"
         style={{ height: '100%', width: '100%' }}
@@ -441,22 +442,17 @@ export default function WilayahLeafletMap({
         })}
       </MapContainer>
 
-      {/* Map Legend Overlay - isolated, pointer-events-none wrapper */}
-      <div className="absolute bottom-4 left-4 right-4 z-[400] flex flex-wrap items-center justify-between bg-white/95 dark:bg-navy-950/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-navy-800 text-xs text-slate-700 dark:text-slate-300 shadow-lg gap-2 pointer-events-none isolate">
-        <div className="flex items-center gap-4 flex-wrap">
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary" /> {tLeaflet('legendCampus')}
-          </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-300" /> {tLeaflet('legendSelectedPos')}
-          </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-3 h-2 rounded bg-emerald-400/40 border border-emerald-500" /> {tLeaflet('legendPolygon')}
-          </span>
-          <span className="flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" /> {tLeaflet('legendLogo')}
-          </span>
-        </div>
+      {/* Map Legend Overlay - compact non-intrusive badge */}
+      <div className="absolute bottom-4 left-4 sm:left-6 z-[300] inline-flex items-center gap-3 bg-white/95 dark:bg-navy-950/90 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-slate-200/90 dark:border-navy-800 text-[11px] text-slate-700 dark:text-slate-300 shadow-lg pointer-events-none select-none">
+        <span className="flex items-center gap-1.5 font-semibold">
+          <span className="w-2 h-2 rounded-full bg-primary" /> {tLeaflet('legendCampus')}
+        </span>
+        <span className="flex items-center gap-1.5 font-semibold">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-300" /> {tLeaflet('legendSelectedPos')}
+        </span>
+        <span className="flex items-center gap-1.5 font-semibold">
+          <span className="w-2.5 h-1.5 rounded bg-emerald-400/40 border border-emerald-500" /> {tLeaflet('legendPolygon')}
+        </span>
       </div>
     </div>
   );

@@ -4,10 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { RegionLogo } from '@/components/ui/RegionLogo';
 import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
 import { Province, Regency, WilayahStats, WilayahSearchItem } from '@/lib/wilayah-types';
@@ -29,14 +26,11 @@ import {
   Building,
   Landmark,
   Users,
-  Maximize2,
   Globe2,
-  Mountain,
   Clock,
   Loader2,
   Search,
   X,
-  ShieldCheck,
   ChevronRight,
   ChevronLeft,
   Share2,
@@ -50,7 +44,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-// Dynamic import for Leaflet (CSR only to avoid SSR window is not defined error)
+// Dynamic import for Leaflet (CSR only)
 function MapLoadingFallback() {
   return (
     <div className="w-full h-full min-h-[580px] bg-slate-900 rounded-3xl flex flex-col items-center justify-center text-white space-y-3">
@@ -198,10 +192,9 @@ export default function MapsPage() {
   const [medsosPosts, setMedsosPosts] = useState<MedsosPostItem[]>([]);
   const [loadingMedsos, setLoadingMedsos] = useState<boolean>(false);
 
-  // Floating UI toggles for full-immersion spatial exploration
+  // Single Unified Spatial Inspector State (Tabs: detail, pos, riwayat, medsos)
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(true);
-  const [isBottomDockOpen, setIsBottomDockOpen] = useState<boolean>(true);
-  const [activeBottomTab, setActiveBottomTab] = useState<'pos' | 'riwayat' | 'medsos'>('pos');
+  const [rightPanelTab, setRightPanelTab] = useState<'detail' | 'pos' | 'riwayat' | 'medsos'>('detail');
 
   // Hero Card Gallery Index
   const [heroImageIdx, setHeroImageIdx] = useState(0);
@@ -212,7 +205,7 @@ export default function MapsPage() {
     'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=800&auto=format&fit=crop&q=80',
   ];
 
-  // Live Wilayah Search state (powered by edopandoyo/wilayah-indonesia-api)
+  // Live Wilayah Search state (Kemendagri Live Autocomplete)
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<WilayahSearchItem[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -285,7 +278,7 @@ export default function MapsPage() {
           setMedsosPosts(json.data);
         }
       } catch (e) {
-        console.warn('Backend medsos posts offline, using mock fallback', e);
+        console.warn('Backend medsos posts offline, using fallback', e);
       } finally {
         setLoadingMedsos(false);
       }
@@ -293,7 +286,7 @@ export default function MapsPage() {
     loadMedsos();
   }, []);
 
-  // Debounced Live Search against edopandoyo API
+  // Debounced Live Search against Kemendagri API
   useEffect(() => {
     if (!searchQuery || searchQuery.trim().length < 2) {
       setSearchResults([]);
@@ -333,13 +326,14 @@ export default function MapsPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Handler for Selecting a Search Item from edopandoyo API
+  // Handler for Selecting a Search Item
   const handleSelectSearchItem = async (item: WilayahSearchItem) => {
     setShowSearchResults(false);
     setSearchQuery('');
     setIsDetailOpen(true);
+    setRightPanelTab('detail');
 
-    // If item is a Province (code length 2)
+    // If item is a Province
     if (item.level_code === 1 || item.kode.length === 2) {
       handleProvinceChange(item.kode);
       return;
@@ -367,7 +361,7 @@ export default function MapsPage() {
       return;
     }
 
-    // If item is District or Village, fetch coordinate via detail API
+    // If item is District or Village
     try {
       const detail = await WilayahService.getWilayahDetailFromApi(item.kode);
       if (detail && detail.coordinates && detail.coordinates.lat && detail.coordinates.lng) {
@@ -451,15 +445,24 @@ export default function MapsPage() {
     return matchRadius && matchSector;
   });
 
-  // Prepare map markers
+  // Prepare map markers with accurate coordinates across provinces
   const mapMarkers: MapMarkerItem[] = filteredPos.map((pos) => {
-    const latOffset = (pos.id % 2 === 0 ? 0.05 : -0.04) * (pos.id * 0.7);
-    const lngOffset = (pos.id % 3 === 0 ? 0.06 : -0.05) * (pos.id * 0.6);
+    let lat = pos.latitude || campusCenter[0];
+    let lng = pos.longitude || campusCenter[1];
+
+    // If province is switched to another province, intelligently offset markers near province centroid
+    if (selectedProvinceId !== '32' && currentRegion?.lat && currentRegion?.lng) {
+      const latOffset = (pos.id % 2 === 0 ? 0.08 : -0.07) * (pos.id * 0.4);
+      const lngOffset = (pos.id % 3 === 0 ? 0.09 : -0.08) * (pos.id * 0.35);
+      lat = currentRegion.lat + latOffset;
+      lng = currentRegion.lng + lngOffset;
+    }
+
     return {
       id: pos.id.toString(),
       name: pos.nama_desa,
-      lat: campusCenter[0] + latOffset,
-      lng: campusCenter[1] + lngOffset,
+      lat,
+      lng,
       type: 'pos',
       description: pos.deskripsi,
       distanceKm: pos.distance_km,
@@ -478,9 +481,7 @@ export default function MapsPage() {
       {/* FULL-VIEWPORT SPATIAL WORKSPACE WITH MAP AS 100% BACKGROUND */}
       {/* ========================================================================= */}
       <div className="relative flex-1 w-full h-[calc(100vh-68px)] overflow-hidden">
-        {/* ======================================================================= */}
         {/* 1. BACKGROUND FULL-CANVAS INTERACTIVE MAP */}
-        {/* ======================================================================= */}
         <div className="absolute inset-0 w-full h-full z-0">
           <WilayahLeafletMap
             center={mapCenter}
@@ -502,20 +503,19 @@ export default function MapsPage() {
               if (m.data) {
                 setSelectedPos(m.data);
                 setHeroImageIdx(0);
+                setRightPanelTab('detail');
                 setIsDetailOpen(true);
               }
             }}
           />
         </div>
 
-        {/* ======================================================================= */}
-        {/* 2. TOP FLOATING SEARCH & FILTER ISLAND (POPUP OVERLAY) */}
-        {/* ======================================================================= */}
+        {/* 2. TOP FLOATING SEARCH & FILTER ISLAND */}
         <div className="absolute top-3 sm:top-4 left-3 sm:left-6 right-3 sm:right-6 z-30 pointer-events-none flex justify-center">
-          <div className="pointer-events-auto w-full max-w-6xl bg-white/95 dark:bg-navy-900/95 rounded-3xl p-3 sm:p-3.5 border border-slate-200/90 dark:border-navy-700/90 shadow-2xl backdrop-blur-2xl space-y-2.5 transition-all">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
-              {/* Left: Search input + Kemendagri live autocomplete */}
-              <div ref={searchContainerRef} className="relative flex-1 max-w-xl">
+          <div className="pointer-events-auto w-full max-w-5xl bg-white/95 dark:bg-navy-900/95 rounded-3xl p-2.5 sm:p-3 border border-slate-200/90 dark:border-navy-700/90 shadow-2xl backdrop-blur-2xl space-y-2 transition-all">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
+              {/* Live search input with Kemendagri live autocomplete */}
+              <div ref={searchContainerRef} className="relative flex-1 max-w-lg">
                 <div className="relative">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -525,11 +525,11 @@ export default function MapsPage() {
                     onFocus={() => {
                       if (searchResults.length > 0) setShowSearchResults(true);
                     }}
-                    placeholder="Cari desa, kecamatan, kabupaten, atau provinsi se-Indonesia..."
-                    className="w-full pl-10 pr-9 py-2 rounded-2xl border border-slate-200 dark:border-navy-700 bg-slate-50/90 dark:bg-navy-950 text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-inner"
+                    placeholder="Cari desa, kecamatan, kabupaten, atau provinsi..."
+                    className="w-full pl-9 pr-8 py-1.5 rounded-2xl border border-slate-200 dark:border-navy-700 bg-slate-50/90 dark:bg-navy-950 text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-inner"
                   />
                   {isSearching ? (
-                    <Loader2 className="w-4 h-4 text-primary animate-spin absolute right-3.5 top-1/2 -translate-y-1/2" />
+                    <Loader2 className="w-3.5 h-3.5 text-primary animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
                   ) : searchQuery ? (
                     <button
                       type="button"
@@ -537,17 +537,17 @@ export default function MapsPage() {
                         setSearchQuery('');
                         setSearchResults([]);
                       }}
-                      className="w-5 h-5 rounded-full bg-slate-200 dark:bg-navy-800 text-slate-500 hover:text-slate-700 absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-xs"
+                      className="w-4 h-4 rounded-full bg-slate-200 dark:bg-navy-800 text-slate-500 hover:text-slate-700 absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center text-xs"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-2.5 h-2.5" />
                     </button>
                   ) : null}
                 </div>
 
                 {/* Autocomplete Dropdown */}
                 {showSearchResults && searchResults.length > 0 && (
-                  <div className="absolute left-0 right-0 top-full mt-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-80 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
-                    <div className="p-2.5 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
+                  <div className="absolute left-0 right-0 top-full mt-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
+                    <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
                       <span>HASIL WILAYAH RESMI KEMENDAGRI</span>
                       <span className="text-emerald-600 font-mono">38 Provinsi</span>
                     </div>
@@ -556,9 +556,9 @@ export default function MapsPage() {
                         key={item.kode}
                         type="button"
                         onClick={() => handleSelectSearchItem(item)}
-                        className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/80 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
+                        className="w-full text-left px-3.5 py-2 hover:bg-emerald-50/80 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
                       >
-                        <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
                           <RegionLogo
                             code={item.kode}
                             name={item.nama}
@@ -575,18 +575,18 @@ export default function MapsPage() {
                             </p>
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-primary shrink-0 transition-colors" />
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-primary shrink-0 transition-colors" />
                       </button>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Filter Pills (Sektor, Radius, Provinsi with Logo, Kab/Kota) */}
-              <div className="flex items-center gap-2 flex-wrap">
+              {/* Filter Pills */}
+              <div className="flex items-center gap-1.5 flex-wrap">
                 {/* Sektor Pill */}
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-slate-100/90 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Sektor:</span>
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100/90 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-700 text-xs font-semibold">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase">Sektor:</span>
                   <select
                     value={selectedSector}
                     onChange={(e) => setSelectedSector(e.target.value)}
@@ -601,9 +601,9 @@ export default function MapsPage() {
                 </div>
 
                 {/* Radius Pill */}
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-slate-100/90 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                  <Compass className="w-3.5 h-3.5 text-sky-500" />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Radius:</span>
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100/90 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-700 text-xs font-semibold">
+                  <Compass className="w-3 h-3 text-sky-500" />
+                  <span className="text-[9px] font-bold text-slate-400 uppercase">Radius:</span>
                   <select
                     value={radiusFilter}
                     onChange={(e) => setRadiusFilter(Number(e.target.value))}
@@ -616,12 +616,12 @@ export default function MapsPage() {
                 </div>
 
                 {/* Provinsi Selector Pill with Mini Crest */}
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80 text-xs font-semibold text-emerald-900 dark:text-emerald-300">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80 text-xs font-semibold text-emerald-900 dark:text-emerald-300">
                   <RegionLogo code={selectedProvinceId} name={currentRegion?.name} size="xs" showBadge={false} />
                   <select
                     value={selectedProvinceId}
                     onChange={(e) => handleProvinceChange(e.target.value)}
-                    className="bg-transparent focus:outline-none cursor-pointer font-extrabold text-emerald-900 dark:text-emerald-200 text-xs max-w-[130px] truncate"
+                    className="bg-transparent focus:outline-none cursor-pointer font-extrabold text-emerald-900 dark:text-emerald-200 text-xs max-w-[120px] truncate"
                   >
                     {provinces.map((prov) => (
                       <option key={prov.id} value={prov.id} className="dark:bg-navy-900 text-navy-950 dark:text-white">
@@ -633,12 +633,12 @@ export default function MapsPage() {
 
                 {/* Kab/Kota Pill */}
                 {regencies.length > 0 && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-slate-100/90 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-700 text-xs font-semibold">
-                    <Building className="w-3.5 h-3.5 text-emerald-600" />
+                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100/90 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-700 text-xs font-semibold">
+                    <Building className="w-3 h-3 text-emerald-600" />
                     <select
                       value={selectedRegencyId}
                       onChange={(e) => handleRegencyChange(e.target.value)}
-                      className="bg-transparent focus:outline-none cursor-pointer font-bold text-navy-950 dark:text-white text-xs max-w-[140px] truncate"
+                      className="bg-transparent focus:outline-none cursor-pointer font-bold text-navy-950 dark:text-white text-xs max-w-[130px] truncate"
                     >
                       <option value="" className="dark:bg-navy-900 text-navy-950 dark:text-white">Semua Kab/Kota</option>
                       {regencies.map((reg) => (
@@ -652,9 +652,9 @@ export default function MapsPage() {
               </div>
             </div>
 
-            {/* Quick Province Ribbons with Official Crests */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-none pt-1 border-t border-slate-100 dark:border-navy-800/80">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+            {/* Quick Province Ribbons */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none pt-1 border-t border-slate-100 dark:border-navy-800/80">
+              <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
                 <Landmark className="w-3 h-3 text-emerald-600" /> Jelajahi:
               </span>
               {FEATURED_PROVINCES.map((prov) => (
@@ -662,9 +662,9 @@ export default function MapsPage() {
                   key={prov.id}
                   type="button"
                   onClick={() => handleProvinceChange(prov.id)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold shrink-0 transition-all border ${
+                  className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold shrink-0 transition-all border ${
                     selectedProvinceId === prov.id
-                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm scale-[1.02]'
+                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-xs scale-[1.02]'
                       : 'bg-slate-50 dark:bg-navy-950 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-navy-800 hover:border-emerald-300'
                   }`}
                 >
@@ -676,223 +676,373 @@ export default function MapsPage() {
           </div>
         </div>
 
-        {/* ======================================================================= */}
-        {/* 3. RIGHT FLOATING DETAIL POPUP PANEL (Estates Hero Detail Overlay) */}
-        {/* ======================================================================= */}
-        <div className="absolute top-36 sm:top-28 right-3 sm:right-6 z-30 pointer-events-none flex flex-col items-end">
+        {/* 3. UNIFIED RIGHT SPATIAL INSPECTOR DRAWER (ALL TABS IN ONE ORGANIZED PANEL) */}
+        <div className="absolute top-20 right-3 sm:right-6 bottom-4 w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-end">
           {isDetailOpen ? (
-            <div className="pointer-events-auto w-[380px] sm:w-[420px] max-w-[calc(100vw-24px)] max-h-[calc(100vh-140px)] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl overflow-y-auto scrollbar-thin flex flex-col transition-all animate-in fade-in slide-in-from-right-4 duration-300">
-              {/* Photo Carousel Container with pagination dots */}
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-900 group shrink-0">
-                <img
-                  src={heroGalleryImages[heroImageIdx]}
-                  alt={selectedPos.judul}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
-
-                {/* Top Overlay Badges & Action Buttons */}
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-auto">
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 text-xs font-bold shadow-md">
-                    <Star className="w-3.5 h-3.5 text-amber-400 fill-current" />
-                    <span>4.9</span>
-                    <span className="text-[10px] text-emerald-400 font-semibold">• Terverifikasi</span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard?.writeText(window.location.href);
-                        alert('Tautan pos berhasil disalin ke clipboard!');
-                      }}
-                      className="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-black/80 flex items-center justify-center transition-all border border-white/20 shadow-md"
-                      title="Bagikan Pos Ini"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsDetailOpen(false)}
-                      className="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-rose-600 flex items-center justify-center transition-all border border-white/20 shadow-md"
-                      title="Tutup Panel / Lihat Peta Penuh"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+            <div className="pointer-events-auto w-full h-full max-h-[calc(100vh-96px)] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-right-4">
+              {/* Inspector Header: 4 Segmented Tabs + Minimize Button */}
+              <div className="px-3.5 pt-3 pb-2.5 border-b border-slate-100 dark:border-navy-800 shrink-0 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-800 text-[11px] font-bold flex-1">
+                  <button
+                    type="button"
+                    onClick={() => setRightPanelTab('detail')}
+                    className={`flex-1 py-1 px-2 rounded-xl transition-all ${
+                      rightPanelTab === 'detail'
+                        ? 'bg-white dark:bg-navy-900 text-navy-950 dark:text-white shadow-xs'
+                        : 'text-slate-500 hover:text-navy-950 dark:hover:text-white'
+                    }`}
+                  >
+                    Detail
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRightPanelTab('pos')}
+                    className={`flex-1 py-1 px-2 rounded-xl transition-all ${
+                      rightPanelTab === 'pos'
+                        ? 'bg-white dark:bg-navy-900 text-navy-950 dark:text-white shadow-xs'
+                        : 'text-slate-500 hover:text-navy-950 dark:hover:text-white'
+                    }`}
+                  >
+                    Pos ({filteredPos.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRightPanelTab('riwayat')}
+                    className={`flex-1 py-1 px-2 rounded-xl transition-all ${
+                      rightPanelTab === 'riwayat'
+                        ? 'bg-white dark:bg-navy-900 text-navy-950 dark:text-white shadow-xs'
+                        : 'text-slate-500 hover:text-navy-950 dark:hover:text-white'
+                    }`}
+                  >
+                    Riwayat ({MOCK_RIWAYAT_ARCHIVES.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRightPanelTab('medsos')}
+                    className={`flex-1 py-1 px-2 rounded-xl transition-all ${
+                      rightPanelTab === 'medsos'
+                        ? 'bg-white dark:bg-navy-900 text-navy-950 dark:text-white shadow-xs'
+                        : 'text-slate-500 hover:text-navy-950 dark:hover:text-white'
+                    }`}
+                  >
+                    Medsos ({medsosPosts.length + MOCK_LIVE_REPORTS.length})
+                  </button>
                 </div>
 
-                {/* Prev / Next Slider Arrows */}
+                {/* Close / Minimize Button */}
                 <button
                   type="button"
-                  onClick={() =>
-                    setHeroImageIdx((prev) => (prev === 0 ? heroGalleryImages.length - 1 : prev - 1))
-                  }
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                  onClick={() => setIsDetailOpen(false)}
+                  className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-navy-800 text-slate-500 hover:text-rose-500 hover:bg-slate-200 dark:hover:bg-navy-700 flex items-center justify-center transition-colors shrink-0"
+                  title="Minimalkan Panel"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <X className="w-4 h-4" />
                 </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setHeroImageIdx((prev) => (prev === heroGalleryImages.length - 1 ? 0 : prev + 1))
-                  }
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-
-                {/* Pagination Dots */}
-                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
-                  {heroGalleryImages.map((_, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setHeroImageIdx(idx)}
-                      className={`h-1.5 rounded-full transition-all ${
-                        heroImageIdx === idx ? 'w-5 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
-                      }`}
-                    />
-                  ))}
-                </div>
               </div>
 
-              {/* Hero Card Body */}
-              <div className="p-4 sm:p-5 space-y-3.5 flex-1">
-                {/* Emblem Crest & Titles */}
-                <div className="flex items-start gap-3 pb-3 border-b border-slate-100 dark:border-navy-800">
-                  <RegionLogo
-                    code={currentRegion?.id || selectedProvinceId}
-                    name={currentRegion?.name || selectedPos.nama_desa}
-                    provId={selectedProvinceId}
-                    size="md"
-                    className="shadow-md shrink-0 mt-0.5"
-                  />
-                  <div className="min-w-0 flex-1 space-y-0.5">
-                    <div className="flex items-center justify-between gap-1.5">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                        {selectedPos.kategori_sektor}
-                      </span>
-                      <span className="text-[10px] font-bold text-slate-400">
-                        ID: #{selectedPos.id}
-                      </span>
-                    </div>
-                    <h2 className="text-base sm:text-lg font-extrabold text-navy-950 dark:text-white font-epilogue leading-snug">
-                      {selectedPos.judul}
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-jakarta flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                      <span className="truncate">
-                        {selectedPos.nama_desa}, {selectedPos.kabupaten}
-                      </span>
-                    </p>
-                  </div>
-                </div>
+              {/* Scrollable Body Container */}
+              <div className="flex-1 overflow-y-auto scrollbar-thin p-3.5 sm:p-4 space-y-4">
+                {/* TAB 1: DETAIL WILAYAH & POS */}
+                {rightPanelTab === 'detail' && (
+                  <div className="space-y-3.5 animate-in fade-in duration-200">
+                    {/* Photo Carousel Container */}
+                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-slate-900 group shrink-0">
+                      <img
+                        src={heroGalleryImages[heroImageIdx]}
+                        alt={selectedPos.judul}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
 
-                {/* 4 Quick Spec Metric Chips (Estates Style) */}
-                <div className="grid grid-cols-4 gap-1.5 text-center">
-                  <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
-                    <span className="text-[9px] text-slate-400 block font-medium">Mahasiswa</span>
-                    <strong className="text-[11px] font-bold text-navy-950 dark:text-white block mt-0.5">
-                      👥 {selectedPos.kuota_mahasiswa || 8} Mhs
-                    </strong>
-                  </div>
-                  <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
-                    <span className="text-[9px] text-slate-400 block font-medium">Durasi</span>
-                    <strong className="text-[11px] font-bold text-navy-950 dark:text-white block mt-0.5">
-                      📅 45 Hari
-                    </strong>
-                  </div>
-                  <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
-                    <span className="text-[9px] text-slate-400 block font-medium">Jarak</span>
-                    <strong className="text-[11px] font-bold text-primary block mt-0.5">
-                      📍 {selectedPos.distance_km ?? 15} km
-                    </strong>
-                  </div>
-                  <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
-                    <span className="text-[9px] text-slate-400 block font-medium">Luaran</span>
-                    <strong className="text-[11px] font-bold text-emerald-600 block mt-0.5">
-                      🎯 {selectedPos.target_luaran.length} Luaran
-                    </strong>
-                  </div>
-                </div>
+                      {/* Top Overlay Badges */}
+                      <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 text-[10px] font-bold shadow-md">
+                          <Star className="w-3 h-3 text-amber-400 fill-current" />
+                          <span>4.9</span>
+                          <span className="text-[9px] text-emerald-400 font-semibold">• Terverifikasi</span>
+                        </div>
 
-                {/* Wikipedia Encyclopedic Knowledge Box */}
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-50/80 via-teal-50/40 to-sky-50/60 dark:from-navy-950 dark:via-navy-950/80 dark:to-navy-900 border border-emerald-200/80 dark:border-emerald-800/60 space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 font-extrabold text-emerald-800 dark:text-emerald-300 text-[11px]">
-                      <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Konteks Wilayah & Ensiklopedia</span>
-                    </div>
-                    {wikiSummary?.pageUrl && (
-                      <a
-                        href={wikiSummary.pageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
-                      >
-                        <span>Wikipedia ID</span>
-                        <ExternalLink className="w-2.5 h-2.5" />
-                      </a>
-                    )}
-                  </div>
-                  {loadingWiki ? (
-                    <div className="flex items-center gap-2 text-xs text-slate-400 py-0.5">
-                      <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                      <span className="text-[11px]">Memuat data ensiklopedia wilayah...</span>
-                    </div>
-                  ) : (
-                    <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed line-clamp-3 font-jakarta">
-                      {wikiSummary?.extract || selectedPos.deskripsi}
-                    </p>
-                  )}
-                </div>
-
-                {/* Target Luaran List */}
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-navy-950 dark:text-white block">
-                    Target Capaian Luaran Utama:
-                  </span>
-                  <div className="space-y-1">
-                    {selectedPos.target_luaran.slice(0, 2).map((tgt, i) => (
-                      <div key={i} className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="text-[11px]">{tgt}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard?.writeText(window.location.href);
+                            alert('Tautan pos berhasil disalin ke clipboard!');
+                          }}
+                          className="w-6 h-6 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-black/80 flex items-center justify-center transition-all border border-white/20 shadow-md"
+                          title="Bagikan Pos Ini"
+                        >
+                          <Share2 className="w-3 h-3" />
+                        </button>
                       </div>
+
+                      {/* Slider Arrows */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setHeroImageIdx((prev) => (prev === 0 ? heroGalleryImages.length - 1 : prev - 1))
+                        }
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setHeroImageIdx((prev) => (prev === heroGalleryImages.length - 1 ? 0 : prev + 1))
+                        }
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Pagination Dots */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+                        {heroGalleryImages.map((_, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setHeroImageIdx(idx)}
+                            className={`h-1.5 rounded-full transition-all ${
+                              heroImageIdx === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Emblem Crest & Titles */}
+                    <div className="flex items-start gap-3 pb-2 border-b border-slate-100 dark:border-navy-800">
+                      <RegionLogo
+                        code={currentRegion?.id || selectedProvinceId}
+                        name={currentRegion?.name || selectedPos.nama_desa}
+                        provId={selectedProvinceId}
+                        size="md"
+                        className="shadow-md shrink-0 mt-0.5"
+                      />
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 truncate">
+                            {selectedPos.kategori_sektor}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-400 shrink-0">
+                            ID: #{selectedPos.id}
+                          </span>
+                        </div>
+                        <h2 className="text-sm sm:text-base font-extrabold text-navy-950 dark:text-white font-epilogue leading-snug">
+                          {selectedPos.judul}
+                        </h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-jakarta flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                          <span className="truncate">
+                            {selectedPos.nama_desa}, {selectedPos.kabupaten}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 4 Quick Spec Metric Chips */}
+                    <div className="grid grid-cols-4 gap-1.5 text-center">
+                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
+                        <span className="text-[9px] text-slate-400 block font-medium">Mahasiswa</span>
+                        <strong className="text-[11px] font-bold text-navy-950 dark:text-white block mt-0.5">
+                          👥 {selectedPos.kuota_mahasiswa || 8} Mhs
+                        </strong>
+                      </div>
+                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
+                        <span className="text-[9px] text-slate-400 block font-medium">Durasi</span>
+                        <strong className="text-[11px] font-bold text-navy-950 dark:text-white block mt-0.5">
+                          📅 45 Hari
+                        </strong>
+                      </div>
+                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
+                        <span className="text-[9px] text-slate-400 block font-medium">Jarak</span>
+                        <strong className="text-[11px] font-bold text-primary block mt-0.5">
+                          📍 {selectedPos.distance_km ?? 15} km
+                        </strong>
+                      </div>
+                      <div className="p-2 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/80">
+                        <span className="text-[9px] text-slate-400 block font-medium">Luaran</span>
+                        <strong className="text-[11px] font-bold text-emerald-600 block mt-0.5">
+                          🎯 {selectedPos.target_luaran.length} Luaran
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Wikipedia Encyclopedic Knowledge Box */}
+                    <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-50/80 via-teal-50/40 to-sky-50/60 dark:from-navy-950 dark:via-navy-950/80 dark:to-navy-900 border border-emerald-200/80 dark:border-emerald-800/60 space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5 font-extrabold text-emerald-800 dark:text-emerald-300 text-[11px]">
+                          <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Konteks Wilayah & Ensiklopedia</span>
+                        </div>
+                        {wikiSummary?.pageUrl && (
+                          <a
+                            href={wikiSummary.pageUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
+                          >
+                            <span>Wikipedia ID</span>
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                      </div>
+                      {loadingWiki ? (
+                        <div className="flex items-center gap-2 text-xs text-slate-400 py-0.5">
+                          <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                          <span className="text-[11px]">Memuat data ensiklopedia wilayah...</span>
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed line-clamp-3 font-jakarta">
+                          {wikiSummary?.extract || selectedPos.deskripsi}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Target Luaran List */}
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-bold text-navy-950 dark:text-white block">
+                        Target Capaian Luaran Utama:
+                      </span>
+                      <div className="space-y-1">
+                        {selectedPos.target_luaran.map((tgt, i) => (
+                          <div key={i} className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                            <span className="text-[11px]">{tgt}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Main Action Buttons */}
+                    <div className="pt-2 flex items-center gap-2">
+                      <Link href={`/search/${selectedPos.id}`} className="flex-1">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          className="w-full justify-center font-bold text-xs gap-1.5 rounded-2xl shadow-lg shadow-emerald-500/20 py-2.5"
+                        >
+                          <span>Buka Detail Pos</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Button>
+                      </Link>
+                      <Link href={`/aspirasi`}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-2xl text-xs font-bold py-2.5 px-4"
+                        >
+                          Aspirasi
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 2: DAFTAR POS KKN TERKAIT */}
+                {rightPanelTab === 'pos' && (
+                  <div className="space-y-3 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between text-xs text-slate-500 pb-1">
+                      <span className="font-bold">Ditemukan {filteredPos.length} Pos KKN di wilayah ini</span>
+                    </div>
+
+                    {filteredPos.map((pos) => {
+                      const isSelected = pos.id === selectedPos.id;
+                      return (
+                        <div
+                          key={pos.id}
+                          onClick={() => {
+                            setSelectedPos(pos);
+                            setHeroImageIdx(0);
+                            if (pos.latitude && pos.longitude) {
+                              setMapCenter([pos.latitude, pos.longitude]);
+                              setMapZoom(12);
+                            }
+                          }}
+                          className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 space-y-2 group ${
+                            isSelected
+                              ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-500 ring-2 ring-emerald-400/40 shadow-md'
+                              : 'bg-slate-50/80 dark:bg-navy-950/60 border-slate-200/80 dark:border-navy-800 hover:border-emerald-300 hover:shadow-md'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider bg-emerald-100/70 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md truncate">
+                              {pos.kategori_sektor}
+                            </span>
+                            <span className="text-[10px] font-bold text-primary bg-primary-50 dark:bg-primary-950 px-2 py-0.5 rounded-full shrink-0">
+                              📍 {pos.distance_km ?? 15} km
+                            </span>
+                          </div>
+
+                          <h3 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                            {pos.judul}
+                          </h3>
+
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
+                            <span className="truncate">{pos.nama_desa}, {pos.kabupaten}</span>
+                          </p>
+
+                          <div className="pt-2 border-t border-slate-200/60 dark:border-navy-800 flex items-center justify-between text-[11px] font-bold">
+                            <span className="text-slate-600 dark:text-slate-300">
+                              👥 {pos.kuota_mahasiswa} Mahasiswa Dibutuhkan
+                            </span>
+                            <span
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPos(pos);
+                                setRightPanelTab('detail');
+                              }}
+                              className="text-emerald-600 hover:underline flex items-center gap-0.5 text-[10px]"
+                            >
+                              Detail <ChevronRight className="w-3 h-3" />
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* TAB 3: RIWAYAT PENGABDIAN ALUMNI */}
+                {rightPanelTab === 'riwayat' && (
+                  <div className="space-y-3.5 animate-in fade-in duration-200">
+                    <div className="text-xs text-slate-500 pb-1 font-bold">
+                      Arsip Hasil Program KKN yang Telah Selesai ({MOCK_RIWAYAT_ARCHIVES.length})
+                    </div>
+                    {MOCK_RIWAYAT_ARCHIVES.map((item) => (
+                      <RiwayatPengabdianCard key={item.id} item={item} className="w-full shadow-sm" />
                     ))}
                   </div>
-                </div>
+                )}
 
-                {/* Main Action Buttons */}
-                <div className="pt-1 flex items-center gap-2">
-                  <Link href={`/search/${selectedPos.id}`} className="flex-1">
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      className="w-full justify-center font-bold text-xs gap-1.5 rounded-2xl shadow-lg shadow-emerald-500/20 py-2"
-                    >
-                      <span>Buka Detail Pos</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Button>
-                  </Link>
-                  <Link href={`/aspirasi`}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-2xl text-xs font-bold py-2"
-                    >
-                      Aspirasi
-                    </Button>
-                  </Link>
-                </div>
+                {/* TAB 4: LIVE REPORT & MEDSOS FEEDS */}
+                {rightPanelTab === 'medsos' && (
+                  <div className="space-y-3.5 animate-in fade-in duration-200">
+                    <div className="text-xs text-slate-500 pb-1 font-bold flex items-center justify-between">
+                      <span>Dokumentasi Lapangan & Media Sosial</span>
+                      <span className="text-emerald-600 font-bold">{medsosPosts.length + MOCK_LIVE_REPORTS.length} Postingan</span>
+                    </div>
+
+                    {/* Real-time Field Reports */}
+                    {MOCK_LIVE_REPORTS.map((report) => (
+                      <LiveReportCard key={report.id} report={report} className="w-full shadow-sm" />
+                    ))}
+
+                    {/* Social Media Post Cards */}
+                    {medsosPosts.map((post) => (
+                      <MedsosEmbedCard key={post.id} post={post} className="w-full shadow-sm" />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ) : (
-            /* Collapsed Floating Pill Button */
+            /* Collapsed Floating Pill Button on Right Edge */
             <button
               type="button"
               onClick={() => setIsDetailOpen(true)}
-              className="pointer-events-auto flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl shadow-2xl border border-emerald-400 dark:border-emerald-700 text-xs font-bold text-navy-950 dark:text-white hover:scale-105 hover:border-emerald-500 transition-all group"
+              className="pointer-events-auto flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl shadow-2xl border border-emerald-400 dark:border-emerald-700 text-xs font-bold text-navy-950 dark:text-white hover:scale-105 hover:border-emerald-500 transition-all group"
             >
               <RegionLogo
                 code={currentRegion?.id || selectedProvinceId}
@@ -902,166 +1052,12 @@ export default function MapsPage() {
                 showBadge={false}
               />
               <div className="text-left">
-                <span className="block text-[9px] text-slate-400 font-medium">Buka Detail Wilayah</span>
-                <strong className="block text-xs text-navy-950 dark:text-white group-hover:text-primary transition-colors">
+                <span className="block text-[9px] text-slate-400 font-medium">Buka Panel Wilayah & Pos</span>
+                <strong className="block text-xs text-navy-950 dark:text-white group-hover:text-primary transition-colors truncate max-w-[140px]">
                   {selectedPos.nama_desa} ({selectedPos.kabupaten})
                 </strong>
               </div>
-              <ChevronLeft className="w-4 h-4 text-emerald-600 ml-1" />
-            </button>
-          )}
-        </div>
-
-        {/* ======================================================================= */}
-        {/* 4. BOTTOM FLOATING MULTI-TAB DOCK / CAROUSEL (POPUP OVERLAY) */}
-        {/* ======================================================================= */}
-        <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-6 z-30 pointer-events-none max-w-[calc(100vw-24px)] lg:max-w-[calc(100vw-460px)]">
-          {isBottomDockOpen ? (
-            <div className="pointer-events-auto bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl p-3 sm:p-3.5 border border-slate-200/90 dark:border-navy-700/80 shadow-2xl space-y-2.5 transition-all">
-              {/* Header with Segmented Tabs & Collapse Button */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-800 flex-1 max-w-xl">
-                  <button
-                    type="button"
-                    onClick={() => setActiveBottomTab('pos')}
-                    className={`flex-1 py-1 px-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                      activeBottomTab === 'pos'
-                        ? 'bg-white dark:bg-navy-900 text-navy-950 dark:text-white shadow-sm border border-slate-200 dark:border-navy-700'
-                        : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span className="truncate">Pos Terkait ({filteredPos.length})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveBottomTab('riwayat')}
-                    className={`flex-1 py-1 px-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                      activeBottomTab === 'riwayat'
-                        ? 'bg-white dark:bg-navy-900 text-navy-950 dark:text-white shadow-sm border border-slate-200 dark:border-navy-700'
-                        : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <Award className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span className="truncate">Riwayat ({MOCK_RIWAYAT_ARCHIVES.length})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveBottomTab('medsos')}
-                    className={`flex-1 py-1 px-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                      activeBottomTab === 'medsos'
-                        ? 'bg-white dark:bg-navy-900 text-navy-950 dark:text-white shadow-sm border border-slate-200 dark:border-navy-700'
-                        : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <Instagram className="w-3.5 h-3.5 text-pink-500 shrink-0" />
-                    <span className="truncate">Live & Medsos ({medsosPosts.length + MOCK_LIVE_REPORTS.length})</span>
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsBottomDockOpen(false)}
-                  className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-navy-800 text-slate-500 hover:text-rose-500 flex items-center justify-center transition-colors shrink-0"
-                  title="Sembunyikan Dock Bawah"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Tab 1: Pos KKN Terkait (Horizontal Scroll Cards) */}
-              {activeBottomTab === 'pos' && (
-                <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none snap-x max-w-full">
-                  {filteredPos.map((pos) => {
-                    const isSelected = pos.id === selectedPos.id;
-                    return (
-                      <div
-                        key={pos.id}
-                        onClick={() => {
-                          setSelectedPos(pos);
-                          setHeroImageIdx(0);
-                          setIsDetailOpen(true);
-                        }}
-                        className={`w-[240px] sm:w-[260px] shrink-0 snap-start p-3 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col justify-between space-y-2 ${
-                          isSelected
-                            ? 'bg-emerald-50/90 dark:bg-navy-950 border-emerald-500 shadow-md ring-2 ring-emerald-400/50'
-                            : 'bg-slate-50/90 dark:bg-navy-950/60 border-slate-200/80 dark:border-navy-800 hover:border-emerald-300'
-                        }`}
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-300 uppercase truncate">
-                              {pos.kategori_sektor}
-                            </span>
-                            <span className="text-[9px] font-bold text-primary bg-primary-50 dark:bg-primary-950 px-1.5 py-0.5 rounded-full shrink-0">
-                              {pos.distance_km ?? 15} km
-                            </span>
-                          </div>
-                          <h4 className="text-xs font-bold text-navy-950 dark:text-white line-clamp-2 leading-snug">
-                            {pos.judul}
-                          </h4>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
-                            <span className="truncate">{pos.nama_desa}, {pos.kabupaten}</span>
-                          </p>
-                        </div>
-                        <div className="pt-1.5 border-t border-slate-200/60 dark:border-navy-800 flex items-center justify-between text-[10px] font-bold text-emerald-600">
-                          <span>{pos.kuota_mahasiswa} Mahasiswa Dibutuhkan</span>
-                          <ChevronRight className="w-3.5 h-3.5" />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Tab 2: Riwayat Pengabdian Alumni */}
-              {activeBottomTab === 'riwayat' && (
-                <div className="flex gap-3.5 overflow-x-auto pb-1 scrollbar-none snap-x max-w-full">
-                  {MOCK_RIWAYAT_ARCHIVES.map((item) => (
-                    <RiwayatPengabdianCard
-                      key={item.id}
-                      item={item}
-                      className="w-[260px] sm:w-[280px] shrink-0 snap-start"
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Tab 3: Live Report & Medsos Post Feed */}
-              {activeBottomTab === 'medsos' && (
-                <div className="flex gap-3.5 overflow-x-auto pb-1 scrollbar-none snap-x max-w-full">
-                  {/* Live Reports */}
-                  {MOCK_LIVE_REPORTS.map((report) => (
-                    <LiveReportCard
-                      key={report.id}
-                      report={report}
-                      className="w-[260px] sm:w-[280px] shrink-0 snap-start"
-                    />
-                  ))}
-
-                  {/* Social Media Embeds */}
-                  {medsosPosts.map((post) => (
-                    <MedsosEmbedCard
-                      key={post.id}
-                      post={post}
-                      className="w-[260px] sm:w-[280px] shrink-0 snap-start"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Collapsed Bottom Pill */
-            <button
-              type="button"
-              onClick={() => setIsBottomDockOpen(true)}
-              className="pointer-events-auto flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl shadow-2xl border border-slate-200 dark:border-navy-700 text-xs font-bold text-navy-950 dark:text-white hover:scale-105 transition-all"
-            >
-              <Layers className="w-4 h-4 text-emerald-600" />
-              <span>Tampilkan Daftar Pos & Live Feeds</span>
+              <ChevronLeft className="w-4 h-4 text-emerald-600 ml-1 shrink-0" />
             </button>
           )}
         </div>
@@ -1069,4 +1065,3 @@ export default function MapsPage() {
     </div>
   );
 }
-
