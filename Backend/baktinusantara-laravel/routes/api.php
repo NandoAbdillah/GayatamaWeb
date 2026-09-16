@@ -18,6 +18,11 @@ use App\Http\Controllers\LaporanDosenController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WilayahController;
+use App\Http\Controllers\MedsosPostController;
+
+Route::get('/medsos-posts', [MedsosPostController::class, 'index']);
+Route::post('/medsos-posts', [MedsosPostController::class, 'store']);
+Route::get('/medsos-posts/{medsosPost}', [MedsosPostController::class, 'show']);
 
 Route::post('/aspirasi', [AspirasiController::class, 'store']);
 Route::get('/aspirasi/{ticket}', [AspirasiController::class, 'show']);
