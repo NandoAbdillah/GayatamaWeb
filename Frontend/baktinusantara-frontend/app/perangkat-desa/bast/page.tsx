@@ -42,9 +42,6 @@ export default function PerangkatDesaBASTPage() {
     <DashboardLayout title="Penilaian Mitra Desa & Pengesahan BAST">
       <div className="space-y-6">
         <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full mb-1">
-            <Award className="w-3.5 h-3.5" /> Berita Acara Serah Terima (BAST) KKN
-          </div>
           <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">
             Penilaian Mitra Desa & Pengesahan Hasil KKN
           </h1>

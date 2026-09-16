@@ -104,7 +104,7 @@ export default function RegisterUniversitasPage() {
 
       await register('universitas', payload);
       toast.success('Pendaftaran Institusi Kampus Berhasil! Selamat datang di Portal Monev LPPM.');
-      router.push('/admin/dashboard');
+      router.push('/kampus/dashboard');
     } catch (err: any) {
       toast.error(err.message || 'Terjadi kesalahan pendaftaran universitas');
     } finally {

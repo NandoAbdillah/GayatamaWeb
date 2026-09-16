@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onExpand })
           { href: '/dosen/dashboard', label: 'Dashboard DPL', icon: GraduationCap },
           { href: '/dosen/logbook', label: 'Verifikasi Logbook', icon: CheckSquare, badge: '1 Revisi' },
           { href: '/dosen/proposal', label: 'Kelayakan Proposal', icon: FileText },
-          { href: '/dosen/penilaian', label: 'Rekap Nilai & Berita Acara', icon: Award },
+          { href: '/dosen/penilaian', label: 'Rekap Nilai', icon: Award },
         ];
       case 'admin':
         return [
@@ -86,15 +86,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onExpand })
         ];
       case 'universitas':
         return [
-          { href: '/admin/dashboard', label: 'Monev LPPM Kampus', icon: LayoutDashboard },
-          { href: '/admin/dosen', label: 'Kelola Dosen DPL', icon: GraduationCap },
-          { href: '/admin/laporan-dosen', label: 'Tinjau Laporan DPL', icon: FileText, badge: '1 Baru' },
-          { href: '/admin/monitoring', label: 'Live Monitoring Spasial', icon: MapPin, badge: 'Live' },
-          { href: '/admin/analytics', label: 'Analisis & Statistik SDG', icon: BarChart3 },
-          { href: '/admin/sks', label: 'Konversi SKS Mahasiswa', icon: FileCheck2 },
-          { href: '/admin/documentation', label: 'Pusat SOP & Regulasi', icon: BookOpen },
-          { href: '/admin/feedback', label: 'Feedback Stakeholder', icon: ThumbsUp },
-          { href: '/admin/logs', label: 'Log Aktivitas Kampus', icon: Activity },
+          { href: '/kampus/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { href: '/kampus/dosen', label: 'Dosen DPL', icon: GraduationCap },
+          { href: '/kampus/laporan-dosen', label: 'Laporan DPL', icon: FileText, badge: '1 Baru' },
+          { href: '/kampus/monitoring', label: 'Monitoring', icon: MapPin, badge: 'Live' },
+          { href: '/kampus/analytics', label: 'Statistik SDG', icon: BarChart3 },
+          { href: '/kampus/sks', label: 'Konversi SKS', icon: FileCheck2 },
+          { href: '/kampus/documentation', label: 'SOP & Regulasi', icon: BookOpen },
+          { href: '/kampus/feedback', label: 'Feedback', icon: ThumbsUp },
+          { href: '/kampus/logs', label: 'Aktivitas', icon: Activity },
         ];
       default:
         return [

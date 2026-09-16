@@ -48,6 +48,7 @@ export const Navbar: React.FC = () => {
       case 'dosen':
         return '/dosen/dashboard';
       case 'universitas':
+        return '/kampus/dashboard';
       case 'admin':
         return '/admin/dashboard';
       default:
