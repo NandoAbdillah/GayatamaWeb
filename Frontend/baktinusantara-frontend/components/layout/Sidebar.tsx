@@ -192,7 +192,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             badge: "Live",
           },
           { href: "/admin/analisis-statistik", label: "Statistik SDG", icon: BarChart3 },
-          { href: "/admin/audit-trail", label: "Log Sistem", icon: Activity },
         ];
       case "universitas":
         return [
@@ -207,12 +206,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             label: "Laporan DPL",
             icon: FileText,
             badge: "1 Baru",
-          },
-          {
-            href: "/kampus/monitoring",
-            label: "Monitoring",
-            icon: MapPin,
-            badge: "Live",
           },
           { href: "/kampus/sks", label: "Konversi SKS", icon: FileCheck2 },
           {
