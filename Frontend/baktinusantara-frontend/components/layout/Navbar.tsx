@@ -65,12 +65,17 @@ export const Navbar: React.FC = () => {
     { href: '/portofolio/kelompok-14-sukamaju', label: t('portofolio'), icon: Sparkles },
   ];
 
+  // Halaman peta (maps) memakai layout fullscreen dengan map sebagai background,
+  // navbar harus selalu solid agar tidak transparan di atas peta
+  const isMapsPage = pathname === '/maps' || pathname.startsWith('/maps');
+  const useSolidNavbar = isScrolled || isMapsPage;
+
   return (
     <header
       className={`sticky top-0 z-50 w-full border-b transition-colors duration-200 ${
-        isScrolled
+        useSolidNavbar
           ? 'bg-white/95 dark:bg-navy-950/95 backdrop-blur-md border-slate-200/80 dark:border-navy-800 shadow-sm'
-          : 'bg-transparent dark:bg-transparent border-transparent backdrop-blur-none shadow-none'
+          : 'bg-white/80 dark:bg-navy-950/80 backdrop-blur-sm border-slate-200/50 dark:border-navy-800/50 shadow-none lg:bg-transparent lg:dark:bg-transparent lg:border-transparent lg:backdrop-blur-none lg:shadow-none'
       }`}
     >
       <div className="max-w-[1500px] mx-auto px-4 sm:px-8 lg:px-12">
@@ -186,9 +191,9 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu Dropdown - absolute overlay agar tidak mendorong layout peta & tidak ter-clip overflow-hidden */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-950 px-6 pt-4 pb-6 space-y-4 font-jakarta shadow-xl">
+        <div className="lg:hidden absolute top-full left-0 right-0 z-40 border-t border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-950 px-6 pt-4 pb-6 space-y-4 font-jakarta shadow-xl max-h-[calc(100dvh-5rem)] overflow-y-auto">
           <div className="space-y-3 pb-3 border-b border-slate-100 dark:border-navy-800">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('switchRole')}</span>
