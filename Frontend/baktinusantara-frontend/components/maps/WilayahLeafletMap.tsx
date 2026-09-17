@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Polygon, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { Building, MapPin, Navigation, Sparkles, Compass } from 'lucide-react';
+import { Building, MapPin, Navigation, Sparkles, Compass, Landmark, Home } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 // Custom Map Controller to auto flyTo center when coordinates change
@@ -257,6 +257,10 @@ export default function WilayahLeafletMap({
                   (e.target as HTMLElement).style.display = 'none';
                 }}
               />
+            ) : regionCode.split('.').length >= 4 ? (
+              <Home className="w-5 h-5 text-emerald-600" />
+            ) : regionCode.split('.').length >= 3 ? (
+              <Landmark className="w-5 h-5 text-emerald-600" />
             ) : (
               <Building className="w-5 h-5 text-emerald-600" />
             )}
@@ -264,7 +268,13 @@ export default function WilayahLeafletMap({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                {regionCode.length === 2 ? tLeaflet('province') : tLeaflet('regencyCity')}
+                {regionCode.split('.').length >= 4
+                  ? 'Desa / Kelurahan'
+                  : regionCode.split('.').length >= 3
+                  ? 'Kecamatan / Distrik'
+                  : regionCode.includes('.')
+                  ? tLeaflet('regencyCity')
+                  : tLeaflet('province')}
               </span>
               {regionCode && (
                 <span className="text-[9px] font-mono bg-slate-100 dark:bg-navy-900 text-slate-500 px-1 rounded">
@@ -313,16 +323,16 @@ export default function WilayahLeafletMap({
           />
         )}
 
-        {/* Real Boundary Polygons from Emsifa API */}
+        {/* Real Boundary Polygons from Emsifa API with sharp, high-contrast, and clear border */}
         {polygonPath && polygonPath.length > 0 && (
           <Polygon
             positions={polygonPath as any}
             pathOptions={{
-              color: '#10b981',
-              weight: 3,
-              opacity: 0.9,
-              fillColor: '#34d399',
-              fillOpacity: 0.18,
+              color: '#047857',
+              weight: regionCode.includes('.') && regionCode.split('.').length >= 3 ? 4.5 : 3.5,
+              opacity: 1,
+              fillColor: '#10b981',
+              fillOpacity: 0.24,
             }}
           >
             <Popup>
