@@ -1219,7 +1219,7 @@ export default function HomePage() {
           </div>
 
           {/* Active Region Highlights Card */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/90 dark:border-navy-800 shadow-xl max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 backdrop-blur-md">
+          <div className="p-6 sm:p-8 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/90 dark:border-navy-800 shadow-xl max-w-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 backdrop-blur-md">
             <div className="w-full md:w-1/3 aspect-[16/10] rounded-2xl overflow-hidden shadow-md shrink-0">
               <img
                 src={activeRegionData.img}
