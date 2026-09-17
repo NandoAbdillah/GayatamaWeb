@@ -236,4 +236,61 @@ class ProgressTest extends TestCase
             'required' => 1,
         ]);
     }
+
+    public function test_progress_with_title_and_target_and_lppm_access()
+    {
+        $data = $this->setupScenario();
+
+        $userUniv = User::factory()->create(['role' => 'universitas', 'is_verified' => true]);
+        $univ = \App\Models\ProfilUniversitas::create([
+            'user_id' => $userUniv->id,
+            'nama_universitas' => 'Universitas Negeri Surabaya',
+            'kode_univ' => 'UNESA',
+            'verified_at' => now(),
+        ]);
+
+        \App\Models\ProfilMahasiswa::create([
+            'user_id' => $data['ketua']->id,
+            'universitas_id' => $univ->id,
+            'nim' => '25091397001',
+            'jurusan' => 'Teknik Informatika',
+        ]);
+
+        // Submit progress with title and target
+        $res = $this->actingAs($data['ketua'], 'sanctum')->postJson('/api/progress', [
+            'proposal_id' => $data['proposal']->id,
+            'title' => 'Sosialisasi Digitalisasi UMKM Desa',
+            'minggu_ke' => 1,
+            'persentase' => 20,
+            'target' => 'Menyelesaikan 10 wawancara UMKM dan perancangan prototype',
+            'deskripsi' => 'Melakukan pertemuan dengan 10 pelaku UMKM di balai desa.',
+        ]);
+
+        $res->assertStatus(201)
+            ->assertJsonPath('data.title', 'Sosialisasi Digitalisasi UMKM Desa')
+            ->assertJsonPath('data.target', 'Menyelesaikan 10 wawancara UMKM dan perancangan prototype');
+
+        $this->assertDatabaseHas('progress_mingguan', [
+            'proposal_id' => $data['proposal']->id,
+            'title' => 'Sosialisasi Digitalisasi UMKM Desa',
+            'target' => 'Menyelesaikan 10 wawancara UMKM dan perancangan prototype',
+        ]);
+
+        // LPPM Kampus accesses proposal logbook
+        $lppmRes = $this->actingAs($userUniv, 'sanctum')
+            ->getJson("/api/proposal/{$data['proposal']->id}/progress");
+
+        $lppmRes->assertStatus(200)
+            ->assertJsonCount(1)
+            ->assertJsonPath('0.title', 'Sosialisasi Digitalisasi UMKM Desa')
+            ->assertJsonPath('0.target', 'Menyelesaikan 10 wawancara UMKM dan perancangan prototype');
+
+        // LPPM Kampus calls /api/universitas/logbook
+        $lppmListRes = $this->actingAs($userUniv, 'sanctum')
+            ->getJson('/api/universitas/logbook');
+
+        $lppmListRes->assertStatus(200)
+            ->assertJsonPath('message', 'Daftar logbook harian / mingguan mahasiswa KKN kampus berhasil dimuat')
+            ->assertJsonCount(1, 'data');
+    }
 }

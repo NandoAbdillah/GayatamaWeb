@@ -100,4 +100,12 @@ class UniversitasController extends Controller
             'data' => $this->universitasService->listAuditLogsByUniv($request->user()),
         ]);
     }
+
+    public function listLogbook(Request $request)
+    {
+        return response()->json([
+            'message' => 'Daftar logbook harian / mingguan mahasiswa KKN kampus berhasil dimuat',
+            'data' => $this->universitasService->listLogbookByUniv($request->user()),
+        ]);
+    }
 }

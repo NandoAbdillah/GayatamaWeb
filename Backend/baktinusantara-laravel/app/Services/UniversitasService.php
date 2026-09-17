@@ -260,4 +260,29 @@ class UniversitasService
             ->take(50)
             ->get();
     }
+
+    /**
+     * Monitoring seluruh logbook harian / mingguan kelompok KKN civitas kampus sendiri.
+     */
+    public function listLogbookByUniv(User $userUniv)
+    {
+        $univId = $userUniv->profilUniversitas?->id;
+        if (!$univId) {
+            abort(403, 'Profil universitas tidak ditemukan.');
+        }
+
+        $kelompokIds = \App\Models\Kelompok::where(function ($q) use ($univId) {
+            $q->whereHas('dosen', fn($dq) => $dq->where('universitas_id', $univId))
+              ->orWhereHas('ketua.profilMahasiswa', fn($mq) => $mq->where('universitas_id', $univId));
+        })->pluck('id');
+
+        return \App\Models\ProgressMingguan::whereHas('proposal', fn($q) => $q->whereIn('kelompok_id', $kelompokIds))
+            ->with([
+                'proposal.kelompok.ketua.profilMahasiswa',
+                'proposal.kelompok.dosen.user',
+                'proposal.posKebutuhan.desa'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
 }

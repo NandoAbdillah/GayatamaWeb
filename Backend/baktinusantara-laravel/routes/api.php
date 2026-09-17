@@ -117,6 +117,8 @@ Route::middleware(['auth:sanctum', 'role:universitas'])->group(function () {
     Route::get('/universitas/metrics', [UniversitasController::class, 'metrics']);
     Route::get('/universitas/kelompok', [UniversitasController::class, 'listKelompok']);
     Route::get('/universitas/logs', [UniversitasController::class, 'listLogs']);
+    Route::get('/universitas/logbook', [UniversitasController::class, 'listLogbook']);
+    Route::get('/universitas/progress', [UniversitasController::class, 'listLogbook']);
 });
 
 Route::middleware(['auth:sanctum', 'role:dosen'])->group(function () {

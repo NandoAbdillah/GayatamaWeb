@@ -15,8 +15,10 @@ class StoreProgressRequest extends FormRequest
     {
         return [
             'proposal_id' => 'required|exists:proposal,id',
+            'title' => 'nullable|string|max:255',
             'minggu_ke' => 'required|integer|min:1|max:52',
             'persentase' => 'required|integer|min:0|max:100',
+            'target' => 'nullable|string|max:2000',
             'deskripsi' => 'required|string|max:2000',
             'foto' => 'nullable|file|image|max:5120',
         ];
