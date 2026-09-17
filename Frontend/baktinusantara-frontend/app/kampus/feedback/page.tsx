@@ -120,12 +120,17 @@ export default function AdminFeedbackPage() {
           ))}
         </div>
 
-        {/* List Umpan Balik */}
-        <div className="space-y-4">
+        {/* List Umpan Balik - Grid 2 Kolom */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filtered.length === 0 && (
+            <div className="lg:col-span-2 py-12 text-center text-sm text-slate-400">
+              Tidak ada umpan balik untuk filter ini.
+            </div>
+          )}
           {filtered.map((item) => (
             <Card
               key={item.id}
-              className="p-6 space-y-4 border-slate-200 dark:border-navy-800 hover:shadow-md transition-shadow"
+              className="p-6 space-y-4 border-slate-200 dark:border-navy-800 hover:shadow-md transition-shadow flex flex-col"
             >
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-navy-800">
                 <div className="space-y-1">
@@ -161,11 +166,11 @@ export default function AdminFeedbackPage() {
                 </div>
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed flex-1">
                 "{item.isi}"
               </p>
 
-              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-400">
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-400 mt-auto">
                 <span>{item.tanggal}</span>
 
                 {item.status === 'pending' && (
