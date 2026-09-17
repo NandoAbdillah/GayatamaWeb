@@ -140,10 +140,10 @@ export default function KampusDashboardPage() {
                   <span>Laporan Supervisi DPL</span>
                 </Button>
               </Link>
-              <Link href="/kampus/monitoring">
+              <Link href="/kampus/dosen">
                 <Button size="sm" variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 gap-1.5 font-bold text-xs">
-                  <MapPin className="w-4 h-4" />
-                  <span>Monitoring Sebaran KKN</span>
+                  <GraduationCap className="w-4 h-4" />
+                  <span>Kelola Dosen DPL</span>
                 </Button>
               </Link>
             </div>
@@ -251,9 +251,9 @@ export default function KampusDashboardPage() {
                     Distribusi progres kebutuhan masyarakat dari pendaftaran hingga luaran tuntas
                   </p>
                 </div>
-                <Link href="/kampus/monitoring">
+                <Link href="/kampus/laporan-dosen">
                   <Button variant="outline" size="sm" className="text-xs font-semibold gap-1">
-                    <span>Buka Monitoring</span>
+                    <span>Lihat Laporan DPL</span>
                     <ArrowRight className="w-3 h-3" />
                   </Button>
                 </Link>
@@ -385,18 +385,18 @@ export default function KampusDashboardPage() {
                   </div>
                 </Link>
 
-                <Link href="/kampus/analytics" className="block group">
+                <Link href="/kampus/sks" className="block group">
                   <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-navy-950/60 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200/80 dark:border-navy-800 transition-all flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center">
-                        <BarChart3 className="w-4 h-4" />
+                        <Award className="w-4 h-4" />
                       </div>
                       <div>
                         <p className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-indigo-600 transition-colors">
-                          Analisis & Statistik SDG Nasional
+                          Konversi SKS Mahasiswa
                         </p>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                          Grafik capaian dan sebaran dampak per wilayah
+                          Validasi pengakuan kredit mata kuliah KKN
                         </p>
                       </div>
                     </div>
