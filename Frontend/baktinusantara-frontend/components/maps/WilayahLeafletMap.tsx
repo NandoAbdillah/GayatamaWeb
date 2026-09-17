@@ -3,17 +3,25 @@
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Polygon, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { Building, MapPin, Navigation, Sparkles, Compass, Landmark, Home } from 'lucide-react';
+import { Building, MapPin, Navigation, Sparkles, Compass, Landmark, Home, GraduationCap, ExternalLink } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 // Custom Map Controller to auto flyTo center when coordinates change
 function ChangeView({ center, zoom, bounds }: { center: [number, number]; zoom: number; bounds?: any }) {
   const map = useMap();
+  const prevBoundsKeyRef = React.useRef<string>('');
+  const prevCenterKeyRef = React.useRef<string>('');
 
   useEffect(() => {
-    if (bounds && bounds.isValid && bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
-    } else if (center) {
+    const boundsKey = bounds && bounds.isValid && bounds.isValid() ? bounds.toBBoxString() : '';
+    const centerKey = center ? `${center[0].toFixed(4)},${center[1].toFixed(4)},${zoom}` : '';
+
+    if (boundsKey && boundsKey !== prevBoundsKeyRef.current) {
+      prevBoundsKeyRef.current = boundsKey;
+      prevCenterKeyRef.current = centerKey;
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+    } else if (centerKey && centerKey !== prevCenterKeyRef.current) {
+      prevCenterKeyRef.current = centerKey;
       map.flyTo(center, zoom, { duration: 1.2 });
     }
   }, [center, zoom, bounds, map]);
@@ -45,6 +53,36 @@ function MapSizeInvalidator() {
       if (ro) ro.disconnect();
     };
   }, [map]);
+  return null;
+}
+
+function LeafletContainerCleaner() {
+  const map = useMap();
+  useEffect(() => {
+    return () => {
+      try {
+        const container = map.getContainer();
+        if (container) {
+          (container as any)._leaflet_id = null;
+        }
+      } catch (e) {
+        // ignore cleanup error
+      }
+    };
+  }, [map]);
+  return null;
+}
+
+function ZoomTracker({ onZoomChange }: { onZoomChange: (z: number) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    onZoomChange(map.getZoom());
+    const onZoom = () => onZoomChange(map.getZoom());
+    map.on('zoomend', onZoom);
+    return () => {
+      map.off('zoomend', onZoom);
+    };
+  }, [map, onZoomChange]);
   return null;
 }
 
@@ -132,6 +170,68 @@ const createPosIcon = (isSelected: boolean, name: string, distanceKm?: number) =
     iconAnchor: [70, 36],
   });
 
+const createCollegeIcon = (
+  name: string,
+  shortName?: string,
+  logoUrl?: string,
+  jenis?: string,
+  kelompok?: string,
+  isSelected?: boolean
+) => {
+  const isPTN = kelompok?.toUpperCase() === 'PTN' || jenis?.toLowerCase().includes('negeri') || false;
+  const borderColor = isSelected
+    ? isPTN ? '#10b981' : '#6366f1'
+    : isPTN ? '#059669' : '#4f46e5';
+  const glow = isSelected
+    ? `0 0 0 4px ${isPTN ? 'rgba(16, 185, 129, 0.4)' : 'rgba(99, 102, 241, 0.4)'}, 0 8px 20px rgba(0,0,0,0.3)`
+    : '0 4px 12px rgba(0, 0, 0, 0.16)';
+  const labelBadge = isPTN ? 'PTN' : 'PTS';
+  const badgeBg = isPTN ? '#047857' : '#4338ca';
+
+  const displayName = shortName ? `${shortName} - ${name}` : name;
+
+  const fallbackSvg = `
+    <div class="campus-svg-fallback" style="display: ${logoUrl ? 'none' : 'flex'}; width: 100%; height: 100%; align-items: center; justify-content: center; color: ${isPTN ? '#047857' : '#4338ca'};">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.42 10.922a1 1 0 0 0-.019-.838L12.83 2.18a2 2 0 0 0-1.66 0L2.6 10.084a1 1 0 0 0 0 1.832l8.57 7.908a2 2 0 0 0 1.66 0l8.57-7.908a1 1 0 0 0 .02-.994Z"/>
+        <path d="M22 10v6"/>
+        <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>
+      </svg>
+    </div>
+  `;
+
+  const logoImg = logoUrl
+    ? `<img src="${logoUrl}" alt="${name}" style="width: 24px; height: 24px; object-fit: contain; border-radius: 4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />`
+    : '';
+
+  return L.divIcon({
+    className: 'custom-college-pin !bg-transparent !border-0 !shadow-none',
+    html: `
+      <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: translate3d(0,0,0);">
+        <!-- Floating Hover Tooltip (Shown on hover without layout shifting) -->
+        <div class="campus-tooltip" style="position: absolute; bottom: 100%; margin-bottom: 8px; left: 50%; transform: translateX(-50%); opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; background: #0f172a; color: #ffffff; padding: 4px 10px; border-radius: 9999px; font-size: 10px; font-weight: 700; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.35); border: 1.5px solid ${isPTN ? '#34d399' : '#818cf8'}; z-index: 9999; display: flex; align-items: center; gap: 5px;">
+          <span style="background: ${isPTN ? '#059669' : '#4f46e5'}; color: #ffffff; font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 9999px; letter-spacing: 0.3px;">${labelBadge}</span>
+          <span style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${displayName}</span>
+          <div style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #0f172a;"></div>
+        </div>
+
+        <!-- Disc Pin Icon (Compact 36px, zero stacking at normal zoom) -->
+        <div class="campus-disc" style="width: 36px; height: 36px; border-radius: 9999px; background: #ffffff; border: 2.5px solid ${borderColor}; box-shadow: ${glow}; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 3px; position: relative; transition: transform 0.2s ease;">
+          ${logoImg}
+          ${fallbackSvg}
+        </div>
+
+        <!-- Mini Status Pip (PTN / PTS) -->
+        <div style="position: absolute; bottom: -5px; background: ${badgeBg}; color: #ffffff; font-size: 8px; font-weight: 900; padding: 1px 5px; border-radius: 9999px; border: 1.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.25); letter-spacing: 0.5px; white-space: nowrap;">
+          ${labelBadge}
+        </div>
+      </div>
+    `,
+    iconSize: [36, 42],
+    iconAnchor: [18, 38],
+  });
+};
+
 // Custom DivIcon for Region Centroid with Official Logo
 const createRegionCentroidIcon = (name: string, code: string, logoUrl?: string) => {
   const logoSrc = logoUrl || `https://wilayah.smartartstudio.my.id/wilayah-logo/${code}.png`;
@@ -206,36 +306,125 @@ export default function WilayahLeafletMap({
   const tLeaflet = useTranslations('maps.leaflet');
   const tmaps = useTranslations('maps');
   // Compute bounds and centroid if polygon exists
-  let polyBounds: L.LatLngBounds | undefined = undefined;
-  let polyCenter: [number, number] | undefined = undefined;
+  const { polyBounds, polyCenter } = React.useMemo(() => {
+    let bounds: L.LatLngBounds | undefined = undefined;
+    let centerPt: [number, number] | undefined = undefined;
 
-  if (polygonPath && polygonPath.length > 0) {
-    try {
-      const flatCoords: [number, number][] = [];
-      const flatten = (arr: any[]) => {
-        if (typeof arr[0] === 'number') {
-          flatCoords.push(arr as [number, number]);
-        } else {
-          arr.forEach(flatten);
+    if (polygonPath && polygonPath.length > 0) {
+      try {
+        const flatCoords: [number, number][] = [];
+        const flatten = (arr: any[]) => {
+          if (typeof arr[0] === 'number') {
+            flatCoords.push(arr as [number, number]);
+          } else {
+            arr.forEach(flatten);
+          }
+        };
+        flatten(polygonPath);
+
+        if (flatCoords.length > 0) {
+          bounds = L.latLngBounds(flatCoords.map((c) => L.latLng(c[0], c[1])));
+          centerPt = [bounds.getCenter().lat, bounds.getCenter().lng];
         }
-      };
-      flatten(polygonPath);
-
-      if (flatCoords.length > 0) {
-        polyBounds = L.latLngBounds(flatCoords.map((c) => L.latLng(c[0], c[1])));
-        polyCenter = [polyBounds.getCenter().lat, polyBounds.getCenter().lng];
+      } catch (e) {
+        console.warn('Could not calculate polygon bounds', e);
       }
-    } catch (e) {
-      console.warn('Could not calculate polygon bounds', e);
     }
-  }
+    return { polyBounds: bounds, polyCenter: centerPt };
+  }, [polygonPath]);
 
   const effectiveLogoUrl =
     regionLogoUrl ||
     (regionCode ? `https://wilayah.smartartstudio.my.id/wilayah-logo/${regionCode}.png` : '');
 
+  // Zoom-aware state for dynamic clutter prevention
+  const [currentZoomLevel, setCurrentZoomLevel] = React.useState(zoom);
+
+  React.useEffect(() => {
+    setCurrentZoomLevel(zoom);
+  }, [zoom]);
+
+  // Compute displayed markers with intelligent anti-stacking logic when zoomed out
+  const displayedMarkers = React.useMemo(() => {
+    const posMarkers = markers.filter((m) => m.type !== 'campus');
+    const campusMarkers = markers.filter((m) => m.type === 'campus');
+
+    let activeCampuses = campusMarkers;
+
+    // When zoomed out at province or national level (zoom < 10), prevent clustering blob
+    // by prioritizing prominent universities (PTN, selected, or high-profile) up to 18 max
+    if (currentZoomLevel < 10 && campusMarkers.length > 18) {
+      const selected = campusMarkers.filter((m) => m.id === selectedMarkerId);
+      const others = campusMarkers.filter((m) => m.id !== selectedMarkerId);
+
+      const ptns = others.filter(
+        (m) =>
+          m.data?.kelompok === 'PTN' ||
+          String(m.data?.id || '').toLowerCase().startsWith('ptn') ||
+          m.data?.jenis?.toLowerCase().includes('negeri')
+      );
+      const pts = others.filter(
+        (m) =>
+          m.data?.kelompok !== 'PTN' &&
+          !String(m.data?.id || '').toLowerCase().startsWith('ptn') &&
+          !m.data?.jenis?.toLowerCase().includes('negeri')
+      );
+
+      // Prioritize top PTNs and top PTS across the region
+      activeCampuses = [...selected, ...ptns.slice(0, 12), ...pts.slice(0, 6)];
+    }
+
+    // Micro-spacing offset to ensure two universities sharing exact same coordinate do not stack
+    const placedPositions: Array<{ lat: number; lng: number }> = [];
+    const spacedCampuses = activeCampuses.map((cm, idx) => {
+      let lat = cm.lat;
+      let lng = cm.lng;
+      const overlap = placedPositions.find(
+        (p) => Math.abs(p.lat - lat) < 0.0035 && Math.abs(p.lng - lng) < 0.0035
+      );
+      if (overlap) {
+        const angle = ((idx * 45) % 360) * (Math.PI / 180);
+        const dist = 0.004; // ~400 meters offset
+        lat += Math.sin(angle) * dist;
+        lng += Math.cos(angle) * dist;
+      }
+      placedPositions.push({ lat, lng });
+      return { ...cm, lat, lng };
+    });
+
+    return [...posMarkers, ...spacedCampuses];
+  }, [markers, currentZoomLevel, selectedMarkerId]);
+
   return (
     <div className={className}>
+      {/* Global CSS for Premium Campus Badges & Hover Tooltips */}
+      <style>{`
+        .custom-college-pin {
+          z-index: 250 !important;
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        .custom-college-pin:hover {
+          z-index: 99999 !important;
+          transform: scale(1.15) translate3d(0, -3px, 0) !important;
+        }
+        .custom-college-pin:hover .campus-tooltip {
+          opacity: 1 !important;
+          transform: translateX(-50%) translateY(-6px) !important;
+          pointer-events: auto !important;
+        }
+        .custom-college-pin:hover .campus-disc {
+          box-shadow: 0 10px 25px rgba(0,0,0,0.35) !important;
+        }
+        .custom-pos-pin {
+          z-index: 240 !important;
+          transition: transform 0.2s ease !important;
+        }
+        .custom-pos-pin:hover {
+          z-index: 99998 !important;
+          transform: scale(1.08) !important;
+        }
+      `}</style>
+
       {/* Loading Overlay - pointer-events-none so map remains interactive */}
       {isLoadingPolygon && (
         <div className="absolute top-28 left-1/2 -translate-x-1/2 z-[400] bg-white/90 dark:bg-navy-900/90 backdrop-blur-md px-4 py-2 rounded-full border border-slate-200 dark:border-navy-700 shadow-xl flex items-center gap-2 text-xs font-bold text-primary animate-pulse pointer-events-none isolate">
@@ -297,7 +486,9 @@ export default function WilayahLeafletMap({
         className="w-full h-full z-0"
         style={{ height: '100%', width: '100%' }}
       >
+        <LeafletContainerCleaner />
         <MapSizeInvalidator />
+        <ZoomTracker onZoomChange={setCurrentZoomLevel} />
         <ChangeView center={center} zoom={zoom} bounds={polyBounds} />
         <MapFloatingControls polyCenter={polyCenter} />
 
@@ -421,33 +612,123 @@ export default function WilayahLeafletMap({
           </Popup>
         </Marker>
 
-        {/* Village / Pos KKN Markers */}
-        {markers.map((marker) => {
+        {/* Village / Pos KKN & Campus Markers */}
+        {displayedMarkers.map((marker) => {
           const isSelected = marker.id === selectedMarkerId;
+          const isCollege = marker.type === 'campus';
+          const isPTN = isCollege && (marker.data?.kelompok === 'PTN' || String(marker.data?.id || '').toLowerCase().startsWith('ptn') || marker.data?.jenis?.toLowerCase().includes('negeri') || false);
+
           return (
             <Marker
               key={marker.id}
               position={[marker.lat, marker.lng]}
-              icon={createPosIcon(isSelected, marker.name, marker.distanceKm)}
+              icon={
+                isCollege
+                  ? createCollegeIcon(
+                      marker.name,
+                      marker.data?.short_name,
+                      marker.data?.logo_url,
+                      marker.data?.jenis,
+                      marker.data?.kelompok,
+                      isSelected
+                    )
+                  : createPosIcon(isSelected, marker.name, marker.distanceKm)
+              }
               eventHandlers={{
                 click: () => onSelectMarker && onSelectMarker(marker),
               }}
             >
               <Popup>
-                <div className="p-2 space-y-1">
-                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
-                    {tLeaflet('posNeed')}
-                  </span>
-                  <h4 className="font-bold text-xs text-navy-950">{marker.name}</h4>
-                  {marker.distanceKm !== undefined && (
-                    <p className="text-[11px] text-slate-500 font-medium">
-                      {tLeaflet('distanceFromCampus', { distance: marker.distanceKm })}
-                    </p>
-                  )}
-                  {marker.description && (
-                    <p className="text-[11px] text-slate-600 line-clamp-2">{marker.description}</p>
-                  )}
-                </div>
+                {isCollege ? (
+                  <div className="p-3 space-y-2.5 max-w-[280px] font-sans">
+                    <div className="flex items-start gap-2.5 pb-2 border-b border-slate-100">
+                      {marker.data?.logo_url ? (
+                        <img
+                          src={marker.data.logo_url}
+                          alt={marker.name}
+                          className="w-10 h-10 object-contain shrink-0 p-1 bg-slate-50 rounded-xl border border-slate-200 shadow-xs"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                            const fallback = (e.target as HTMLElement).nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div
+                        className={`w-10 h-10 rounded-xl ${
+                          isPTN ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-indigo-50 border-indigo-200 text-indigo-600'
+                        } border flex items-center justify-center shrink-0 ${marker.data?.logo_url ? 'hidden' : 'flex'}`}
+                      >
+                        <GraduationCap className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span
+                            className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                              isPTN
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                : 'bg-indigo-100 text-indigo-800 border border-indigo-300'
+                            }`}
+                          >
+                            {isPTN ? 'PTN (Negeri)' : 'PTS (Swasta)'}
+                          </span>
+                          {marker.data?.jenis && (
+                            <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full border border-slate-200 capitalize">
+                              {marker.data.jenis}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="font-extrabold text-xs text-navy-950 leading-snug mt-1">
+                          {marker.name}
+                        </h4>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 text-[11px] text-slate-600 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                      {marker.data?.regency_name && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Wilayah:</span>
+                          <strong className="text-navy-900 font-semibold">{marker.data.regency_name}</strong>
+                        </div>
+                      )}
+                      {marker.data?.accreditation && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Akreditasi:</span>
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            {marker.data.accreditation}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {marker.data?.website && (
+                      <a
+                        href={marker.data.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center w-full gap-1.5 text-xs font-bold py-1.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors"
+                      >
+                        <span>Portal Kampus</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-2 space-y-1">
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                      {tLeaflet('posNeed')}
+                    </span>
+                    <h4 className="font-bold text-xs text-navy-950">{marker.name}</h4>
+                    {marker.distanceKm !== undefined && (
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        {tLeaflet('distanceFromCampus', { distance: marker.distanceKm })}
+                      </p>
+                    )}
+                    {marker.description && (
+                      <p className="text-[11px] text-slate-600 line-clamp-2">{marker.description}</p>
+                    )}
+                  </div>
+                )}
               </Popup>
             </Marker>
           );
@@ -457,15 +738,34 @@ export default function WilayahLeafletMap({
       {/* Map Legend Overlay - compact non-intrusive badge */}
       <div className="absolute bottom-4 left-4 sm:left-6 z-[300] inline-flex items-center gap-3 bg-white/95 dark:bg-navy-950/90 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-slate-200/90 dark:border-navy-800 text-[11px] text-slate-700 dark:text-slate-300 shadow-lg pointer-events-none select-none">
         <span className="flex items-center gap-1.5 font-semibold">
-          <span className="w-2 h-2 rounded-full bg-primary" /> {tLeaflet('legendCampus')}
+          <span className="w-2 h-2 rounded-full bg-emerald-600 ring-2 ring-emerald-300" /> PTN
         </span>
         <span className="flex items-center gap-1.5 font-semibold">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-300" /> {tLeaflet('legendSelectedPos')}
+          <span className="w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-indigo-300" /> PTS
         </span>
         <span className="flex items-center gap-1.5 font-semibold">
-          <span className="w-2.5 h-1.5 rounded bg-emerald-400/40 border border-emerald-500" /> {tLeaflet('legendPolygon')}
+          <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-300" /> Pos Terpilih
+        </span>
+        <span className="flex items-center gap-1.5 font-semibold">
+          <span className="w-2.5 h-1.5 rounded bg-emerald-400/40 border border-emerald-500" /> Batas Wilayah
         </span>
       </div>
+
+      <style jsx global>{`
+        .custom-college-pin {
+          transition: z-index 0.2s ease;
+        }
+        .custom-college-pin:hover {
+          z-index: 10000 !important;
+        }
+        .custom-college-pin:hover .campus-tooltip {
+          opacity: 1 !important;
+          transform: translateX(-50%) translateY(-4px) !important;
+        }
+        .custom-college-pin:hover .campus-disc {
+          transform: scale(1.15) !important;
+        }
+      `}</style>
     </div>
   );
 }
