@@ -106,10 +106,7 @@ export default function SuperadminDashboardPage() {
   const completedPos = metrics?.status_pos_breakdown?.completed || 0;
 
   return (
-    <DashboardLayout
-      title="Pusat Kendali Eksekutif Super Admin"
-      breadcrumb={[{ label: 'Dashboard Eksekutif' }]}
-    >
+    <DashboardLayout title="Pusat Kendali Eksekutif Super Admin">
       <div className="space-y-6 font-jakarta">
         {/* Executive Banner */}
         <div className="rounded-3xl bg-gradient-to-r from-navy-950 via-slate-900 to-primary-950 text-white p-6 sm:p-8 shadow-ambient-lg relative overflow-hidden border border-slate-800">
@@ -139,7 +136,7 @@ export default function SuperadminDashboardPage() {
             </div>
 
             <div className="pt-2 flex flex-wrap items-center gap-3">
-              <Link href="/admin/verifikasi">
+              <Link href="/admin/verifikasi-entitas">
                 <Button size="sm" variant="primary" className="shadow-glow-primary gap-1.5 font-bold text-xs">
                   <ShieldCheck className="w-4 h-4" />
                   <span>Verifikasi Berkas Mitra & Kampus</span>
@@ -180,7 +177,7 @@ export default function SuperadminDashboardPage() {
               </p>
             </div>
           </div>
-          <Link href="/admin/verifikasi" className="shrink-0">
+          <Link href="/admin/verifikasi-entitas" className="shrink-0">
             <Button size="sm" variant="outline" className="border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 font-bold text-xs gap-1.5">
               <span>Buka Menu Verifikasi</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -362,7 +359,7 @@ export default function SuperadminDashboardPage() {
               </h2>
 
               <div className="space-y-2.5">
-                <Link href="/admin/verifikasi" className="block group">
+                <Link href="/admin/verifikasi-entitas" className="block group">
                   <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-navy-950/60 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200/80 dark:border-navy-800 transition-all flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
@@ -400,7 +397,7 @@ export default function SuperadminDashboardPage() {
                   </div>
                 </Link>
 
-                <Link href="/admin/analytics" className="block group">
+                <Link href="/admin/analisis-statistik" className="block group">
                   <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-navy-950/60 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200/80 dark:border-navy-800 transition-all flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center">

@@ -17,6 +17,7 @@ import {
   ExternalLink,
   ChevronRight,
   TrendingUp,
+  GraduationCap,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -174,11 +175,13 @@ export default function RiwayatKknDesaPage() {
 
               <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500">
                 <div className="flex items-center gap-4">
-                  <span>
-                    👥 <strong>{p.total_mahasiswa}</strong> Mahasiswa ({p.total_kelompok} Kelompok)
+                  <span className="flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-slate-400" />
+                    <span><strong>{p.total_mahasiswa}</strong> Mahasiswa ({p.total_kelompok} Kelompok)</span>
                   </span>
-                  <span>
-                    🎓 DPL: <strong>{p.dpl.join(', ')}</strong>
+                  <span className="flex items-center gap-1.5">
+                    <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>DPL: <strong>{p.dpl.join(', ')}</strong></span>
                   </span>
                 </div>
 

@@ -26,7 +26,6 @@ import {
   ClipboardList,
   Layers,
   MapPin,
-  BarChart3,
   Calendar,
   RefreshCw,
   Landmark,

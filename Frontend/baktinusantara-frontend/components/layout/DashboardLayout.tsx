@@ -60,12 +60,6 @@ export const DashboardLayout: React.FC<{
           </div>
 
           <div className="flex items-center gap-3">
-            {user?.role === 'admin' && (
-              <span className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-[11px] font-bold">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                Pusat Kendali Super Admin
-              </span>
-            )}
             <ThemeToggle />
             <RoleSwitcher />
 

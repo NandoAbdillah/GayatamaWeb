@@ -226,33 +226,17 @@ export default function AdminPosKebutuhanPage() {
   });
 
   return (
-    <DashboardLayout
-      title="Pengawasan Pos Kebutuhan & Program KKN Desa"
-      breadcrumb={[
-        { label: 'Pos Kebutuhan Desa' },
-      ]}
-    >
+    <DashboardLayout title="Pengawasan Pos Kebutuhan & Program KKN Desa">
       <div className="space-y-6 font-jakarta">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                <ClipboardList className="w-5 h-5" />
-              </span>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Katalog & Pemantauan Pos Kebutuhan Desa
-              </h1>
-            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Katalog & Pemantauan Pos Kebutuhan Desa
+            </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
               Super Admin mengawasi seluruh pos aspirasi dan kebutuhan riil desa mitra di seluruh Indonesia yang siap atau sedang dikerjakan mahasiswa KKN.
             </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary dark:text-primary-300 text-xs font-bold">
-              Total {posList.length} Pos Terdata
-            </span>
           </div>
         </div>
 
@@ -285,7 +269,6 @@ export default function AdminPosKebutuhanPage() {
 
             {/* Status Filter */}
             <div className="flex items-center gap-1.5 self-end md:self-auto">
-              <span className="text-xs text-slate-400 font-medium">Status:</span>
               {[
                 { key: 'all', label: 'Semua' },
                 { key: 'open', label: 'Open' },

@@ -123,24 +123,14 @@ export default function AdminLogsPage() {
   });
 
   return (
-    <DashboardLayout
-      title="Audit Trail & Rekam Jejak Sistem"
-      breadcrumb={[
-        { label: 'Audit Trail & Sistem' },
-      ]}
-    >
+    <DashboardLayout title="Audit Trail & Rekam Jejak Sistem">
       <div className="space-y-6 font-jakarta">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                <Activity className="w-5 h-5" />
-              </span>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-                Audit Trail & Rekam Jejak Aktivitas Platform
-              </h1>
-            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Audit Trail & Rekam Jejak Aktivitas Platform
+            </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
               Super Admin mengawasi log keamanan dan riwayat aksi krusial mulai dari verifikasi entitas, penerbitan proposal, logbook mingguan, hingga pengesahan luaran akhir.
             </p>
@@ -153,7 +143,7 @@ export default function AdminLogsPage() {
               fetchRealNotifications();
               toast.success('Log aktivitas berhasil dimuat ulang');
             }}
-            className="text-xs font-bold gap-1.5 self-start sm:self-auto"
+            className="text-xs font-bold gap-1.5 self-start sm:self-auto whitespace-nowrap"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Segarkan Log</span>
