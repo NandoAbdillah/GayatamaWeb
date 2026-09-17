@@ -24,6 +24,7 @@ Dokumentasi resmi arsitektur, seluruh rute API, struktur data, format request/re
 17. [AI Real-Time Context & Smart Matching Engine](#17-ai-real-time-context--smart-matching-engine)
 18. [Sistem Notifikasi Pengguna](#18-sistem-notifikasi-pengguna)
 19. [Peta Interaktif Geospasial & Haversine Distance Engine](#19-peta-interaktif-geospasial--haversine-distance-engine)
+20. [E-Sertifikat KKN & Verifikasi Kriptografis Publik](#20-e-sertifikat-kkn--verifikasi-kriptografis-publik)
 
 ---
 
@@ -709,9 +710,61 @@ Layanan geospasial terpusat untuk peta interaktif, visualisasi persebaran KKN, s
 
 ---
 
+## 20. E-Sertifikat KKN & Verifikasi Kriptografis Publik
+
+Mesin penerbitan dan verifikasi keaslian digital sertifikat resmi KKN berbasis nomor registrasi nasional dan signature hash kriptografis SHA-256.
+
+### 20.1 Verifikasi Publik Keaslian Sertifikat (`GET /api/certificate/verify/{code}`)
+- **Akses**: Publik (No-Auth — diakses langsung saat memindai QR Code)
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "is_authentic": true,
+    "status": "VALID & TERVERIFIKASI",
+    "certificate_code": "BN-KKN-2026-UNESA-D1-8F3A12",
+    "verification_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "recipient": {
+      "name": "Ahmad Fauzi",
+      "nim": "21051204001",
+      "jurusan": "Teknik Informatika"
+    },
+    "academic": {
+      "universitas": "Universitas Negeri Surabaya",
+      "dosen_pembimbing": "Dr. Budi Santoso, M.Kom.",
+      "total_jam_pengabdian": 160
+    },
+    "village": {
+      "nama_desa": "Desa Sukamaju",
+      "pengesahan": "Pemerintah Desa Mitra BaktiNusantara"
+    },
+    "program": {
+      "judul": "Digitalisasi Branding dan E-Commerce UMKM",
+      "sdg_codes": [8, 9]
+    },
+    "issued_at": "17 September 2026 15:30:00 WIB",
+    "pdf_url": "http://127.0.0.1:8000/storage/certificates/BN-KKN-2026-UNESA-D1-8F3A12.pdf",
+    "qr_code_svg": "<svg xmlns=..."
+  }
+  ```
+
+### 20.2 Unduh Berkas PDF Sertifikat Asli (`GET /api/certificate/{code}/download`)
+- **Akses**: Publik
+- **Header**: `Content-Type: application/pdf`
+- **Response**: Binary stream berkas PDF standar resmi.
+
+### 20.3 Portal Sertifikat Mahasiswa (`GET /api/certificate/mine`)
+- **Akses**: Auth (`role:mahasiswa`)
+- **Response (`200 OK`)**: Daftar seluruh sertifikat KKN resmi yang diraih oleh mahasiswa yang sedang login.
+
+### 20.4 Daftar Sertifikat Anggota per Proposal (`GET /api/certificate/proposal/{proposal}`)
+- **Akses**: Auth (`auth:sanctum`)
+- **Response (`200 OK`)**: Rincian sertifikat seluruh anggota tim pada proposal KKN terkait.
+
+---
+
 ## 🧪 Panduan Menjalankan Pengujian Otomatis (Automated Tests)
 
-Semua fungsionalitas backend di atas dilindungi oleh **62 Feature & Unit Test Suites (493 assertions)** dengan SQLite in-memory isolation.
+Semua fungsionalitas backend di atas dilindungi oleh **68 Feature & Unit Test Suites (519 assertions)** dengan SQLite in-memory isolation.
 
 Jalankan perintah berikut di direktori `Backend/baktinusantara-laravel`:
 ```bash
@@ -719,6 +772,6 @@ php artisan test
 ```
 **Hasil Ekspektasi**:
 ```
-Tests:  62 passed (493 assertions)
-Time:   ~4.35s
+Tests:  68 passed (519 assertions)
+Time:   ~12.80s
 ```

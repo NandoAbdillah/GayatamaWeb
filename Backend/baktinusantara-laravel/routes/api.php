@@ -22,6 +22,11 @@ use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\MedsosPostController;
 use App\Http\Controllers\AiContextController;
 use App\Http\Controllers\GeospatialController;
+use App\Http\Controllers\CertificateController;
+
+// E-Sertifikat & Public Verification Endpoints
+Route::get('/certificate/verify/{code}', [CertificateController::class, 'verify']);
+Route::get('/certificate/{code}/download', [CertificateController::class, 'download']);
 
 // Geospatial & Map Engine Endpoints
 Route::prefix('geospatial')->group(function () {
@@ -137,4 +142,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifikasi', [NotificationController::class, 'index']);
     Route::patch('/notifikasi/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::patch('/notifikasi/{notifikasi}/read', [NotificationController::class, 'markAsRead']);
+    Route::get('/certificate/mine', [CertificateController::class, 'myCertificates']);
+    Route::get('/certificate/proposal/{proposal}', [CertificateController::class, 'getProposalCertificates']);
 });
