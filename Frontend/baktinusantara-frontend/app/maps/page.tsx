@@ -7,7 +7,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/Button';
 import { RegionLogo } from '@/components/ui/RegionLogo';
 import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
-import { Province, Regency, WilayahStats, WilayahSearchItem } from '@/lib/wilayah-types';
+import { Province, Regency, District, Village, WilayahStats, WilayahSearchItem } from '@/lib/wilayah-types';
 import { WilayahService } from '@/lib/wilayah-api';
 import { MapMarkerItem } from '@/components/maps/WilayahLeafletMap';
 import { MedsosEmbedCard, MedsosPostItem } from '@/components/maps/MedsosEmbedCard';
@@ -26,6 +26,7 @@ import {
   CheckCircle2,
   Building,
   Landmark,
+  Home,
   Users,
   Globe2,
   Clock,
@@ -178,7 +179,11 @@ export default function MapsPage() {
   const [selectedProvinceId, setSelectedProvinceId] = useState<string>('32'); // Default Jawa Barat
   const [selectedRegencyId, setSelectedRegencyId] = useState<string>('');
   const [regencies, setRegencies] = useState<Regency[]>([]);
-  const [currentRegion, setCurrentRegion] = useState<Province | Regency | null>(null);
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [selectedVillageId, setSelectedVillageId] = useState<string>('');
+  const [villages, setVillages] = useState<Village[]>([]);
+  const [currentRegion, setCurrentRegion] = useState<Province | Regency | District | Village | null>(null);
 
   // Polygon boundary state
   const [polygonPath, setPolygonPath] = useState<any[]>([]);
@@ -255,6 +260,46 @@ export default function MapsPage() {
     }
     loadRegs();
   }, [selectedProvinceId]);
+
+  // Load Districts when Regency changes
+  useEffect(() => {
+    if (!selectedRegencyId) {
+      setDistricts([]);
+      setSelectedDistrictId('');
+      setVillages([]);
+      setSelectedVillageId('');
+      return;
+    }
+
+    async function loadDistricts() {
+      try {
+        const dists = await WilayahService.getDistricts(selectedRegencyId);
+        setDistricts(dists);
+      } catch (err) {
+        console.error('Failed to load districts:', err);
+      }
+    }
+    loadDistricts();
+  }, [selectedRegencyId]);
+
+  // Load Villages when District changes
+  useEffect(() => {
+    if (!selectedDistrictId) {
+      setVillages([]);
+      setSelectedVillageId('');
+      return;
+    }
+
+    async function loadVillages() {
+      try {
+        const vills = await WilayahService.getVillages(selectedDistrictId);
+        setVillages(vills);
+      } catch (err) {
+        console.error('Failed to load villages:', err);
+      }
+    }
+    loadVillages();
+  }, [selectedDistrictId]);
 
   // Load Wikipedia details whenever selected region or selected pos changes
   useEffect(() => {
@@ -334,17 +379,22 @@ export default function MapsPage() {
     setIsDetailOpen(true);
     setRightPanelTab('detail');
 
-    // If item is a Province
-    if (item.level_code === 1 || item.kode.length === 2) {
+    // Split code components (e.g., "32.01.01.1001" or "32.01")
+    const parts = item.kode.split('.');
+
+    // If item is a Province (Level 1)
+    if (item.level_code === 1 || parts.length === 1 || item.kode.length === 2) {
       handleProvinceChange(item.kode);
       return;
     }
 
-    // If item is a Regency
-    if (item.level_code === 2 || (item.kode.length === 5 && item.kode.includes('.'))) {
-      const provId = item.kode.split('.')[0];
+    // If item is a Regency (Level 2)
+    if (item.level_code === 2 || parts.length === 2) {
+      const provId = parts[0];
       setSelectedProvinceId(provId);
       setSelectedRegencyId(item.kode);
+      setSelectedDistrictId('');
+      setSelectedVillageId('');
 
       try {
         const reg = await WilayahService.getRegencyById(item.kode);
@@ -362,18 +412,49 @@ export default function MapsPage() {
       return;
     }
 
-    // If item is District or Village
-    try {
-      const detail = await WilayahService.getWilayahDetailFromApi(item.kode);
-      if (detail && detail.coordinates && detail.coordinates.lat && detail.coordinates.lng) {
-        setMapCenter([detail.coordinates.lat, detail.coordinates.lng]);
-        setMapZoom(13);
-        if (detail.parents && detail.parents.province) {
-          setSelectedProvinceId(detail.parents.province);
+    // If item is District (Level 3)
+    if (parts.length === 3) {
+      const provId = parts[0];
+      const regId = `${parts[0]}.${parts[1]}`;
+      setSelectedProvinceId(provId);
+      setSelectedRegencyId(regId);
+      setSelectedDistrictId(item.kode);
+      setSelectedVillageId('');
+
+      try {
+        const detail = await WilayahService.getWilayahDetailFromApi(item.kode);
+        if (detail && detail.coordinates && detail.coordinates.lat && detail.coordinates.lng) {
+          setMapCenter([detail.coordinates.lat, detail.coordinates.lng]);
+          setMapZoom(13);
         }
+        loadPolygon(item.kode);
+      } catch (e) {
+        console.warn('Error loading district from search:', e);
       }
-    } catch (e) {
-      console.warn('Error flying to detail coordinate', e);
+      return;
+    }
+
+    // If item is Village (Level 4)
+    if (parts.length >= 4) {
+      const provId = parts[0];
+      const regId = `${parts[0]}.${parts[1]}`;
+      const distId = `${parts[0]}.${parts[1]}.${parts[2]}`;
+      setSelectedProvinceId(provId);
+      setSelectedRegencyId(regId);
+      setSelectedDistrictId(distId);
+      setSelectedVillageId(item.kode);
+
+      try {
+        const detail = await WilayahService.getWilayahDetailFromApi(item.kode);
+        if (detail && detail.coordinates && detail.coordinates.lat && detail.coordinates.lng) {
+          setMapCenter([detail.coordinates.lat, detail.coordinates.lng]);
+          setMapZoom(15);
+        }
+        loadPolygon(item.kode);
+      } catch (e) {
+        console.warn('Error loading village from search:', e);
+      }
+      return;
     }
   };
 
@@ -381,6 +462,8 @@ export default function MapsPage() {
   const handleProvinceChange = async (provId: string) => {
     setSelectedProvinceId(provId);
     setSelectedRegencyId('');
+    setSelectedDistrictId('');
+    setSelectedVillageId('');
 
     const prov = provinces.find((p) => p.id === provId);
     if (prov) {
@@ -396,6 +479,9 @@ export default function MapsPage() {
   // Handler for Regency Change
   const handleRegencyChange = async (regId: string) => {
     setSelectedRegencyId(regId);
+    setSelectedDistrictId('');
+    setSelectedVillageId('');
+
     if (!regId) {
       const prov = provinces.find((p) => p.id === selectedProvinceId);
       if (prov) {
@@ -414,6 +500,83 @@ export default function MapsPage() {
         setMapZoom(11);
       }
       loadPolygon(reg.id);
+    }
+  };
+
+  // Handler for District Change
+  const handleDistrictChange = async (distId: string) => {
+    setSelectedDistrictId(distId);
+    setSelectedVillageId('');
+
+    if (!distId) {
+      const reg = regencies.find((r) => r.id === selectedRegencyId);
+      if (reg) {
+        setCurrentRegion(reg);
+        loadPolygon(reg.id);
+        if (reg.lat && reg.lng) {
+          setMapCenter([reg.lat, reg.lng]);
+          setMapZoom(11);
+        }
+      }
+      return;
+    }
+
+    const dist = districts.find((d) => d.id === distId);
+    if (dist) {
+      setCurrentRegion(dist);
+      loadPolygon(dist.id);
+      if (dist.lat && dist.lng) {
+        setMapCenter([dist.lat, dist.lng]);
+        setMapZoom(13);
+      } else {
+        try {
+          const detail = await WilayahService.getDistrictById(distId);
+          if (detail && detail.lat && detail.lng) {
+            setMapCenter([detail.lat, detail.lng]);
+            setMapZoom(13);
+          }
+        } catch (e) {
+          console.warn('Could not load district coordinates:', e);
+        }
+      }
+    }
+  };
+
+  // Handler for Village Change
+  const handleVillageChange = async (villId: string) => {
+    setSelectedVillageId(villId);
+
+    if (!villId) {
+      const dist = districts.find((d) => d.id === selectedDistrictId);
+      if (dist) {
+        setCurrentRegion(dist);
+        loadPolygon(dist.id);
+        if (dist.lat && dist.lng) {
+          setMapCenter([dist.lat, dist.lng]);
+          setMapZoom(13);
+        }
+      }
+      return;
+    }
+
+    const vill = villages.find((v) => v.id === villId);
+    if (vill) {
+      setCurrentRegion(vill);
+      loadPolygon(vill.id);
+      if (vill.lat && vill.lng) {
+        setMapCenter([vill.lat, vill.lng]);
+        setMapZoom(15);
+      } else {
+        try {
+          const detail = await WilayahService.getVillageById(villId);
+          if (detail && detail.lat && detail.lng) {
+            setMapCenter([detail.lat, detail.lng]);
+            setMapZoom(15);
+          }
+        } catch (e) {
+          console.warn('Could not load village coordinates:', e);
+        }
+      }
     }
   };
 
@@ -490,10 +653,10 @@ export default function MapsPage() {
             polygonPath={polygonPath}
             regionName={currentRegion?.name || 'Indonesia'}
             regionCode={currentRegion?.id || selectedProvinceId}
-            regionLogoUrl={currentRegion?.logo_url}
-            regionCapital={currentRegion?.capital}
-            regionPopulation={currentRegion?.population}
-            regionArea={currentRegion?.total_area}
+            regionLogoUrl={currentRegion && 'logo_url' in currentRegion ? currentRegion.logo_url : undefined}
+            regionCapital={currentRegion && 'capital' in currentRegion ? currentRegion.capital : undefined}
+            regionPopulation={currentRegion && 'population' in currentRegion ? currentRegion.population : undefined}
+            regionArea={currentRegion && 'total_area' in currentRegion ? currentRegion.total_area : undefined}
             markers={mapMarkers}
             radiusKm={radiusFilter === 100 ? undefined : radiusFilter}
             selectedMarkerId={selectedPos.id.toString()}
@@ -583,8 +746,8 @@ export default function MapsPage() {
                 )}
               </div>
 
-              {/* Clean Unified Dropdowns Matching Hero Format */}
-              <div className="flex items-center gap-2 flex-wrap">
+              {/* Pos Filter Dropdowns (Sektor & Radius) */}
+              <div className="flex items-center gap-2 shrink-0">
                 {/* 1. Sektor Dropdown */}
                 <MapFilterSelect
                   label="Sektor"
@@ -608,43 +771,77 @@ export default function MapsPage() {
                   icon={<Compass className="w-3.5 h-3.5 text-sky-500" />}
                   dropdownWidth="min-w-[170px]"
                 />
-
-                {/* 3. Provinsi Dropdown with Crest */}
-                <MapFilterSelect
-                  label="Provinsi"
-                  value={selectedProvinceId}
-                  onChange={(val) => handleProvinceChange(val)}
-                  options={provinces.map((p) => ({
-                    value: p.id,
-                    label: p.name,
-                    icon: <RegionLogo code={p.id} name={p.name} size="xs" showBadge={false} />,
-                  }))}
-                  prefixLogo={
-                    <RegionLogo
-                      code={selectedProvinceId}
-                      name={currentRegion?.name}
-                      size="xs"
-                      showBadge={false}
-                    />
-                  }
-                  dropdownWidth="min-w-[220px]"
-                />
-
-                {/* 4. Kab/Kota Dropdown */}
-                {regencies.length > 0 && (
-                  <MapFilterSelect
-                    label="Kab/Kota"
-                    value={selectedRegencyId}
-                    onChange={(val) => handleRegencyChange(val)}
-                    options={[
-                      { value: '', label: 'Semua Kab/Kota' },
-                      ...regencies.map((r) => ({ value: r.id, label: r.name })),
-                    ]}
-                    icon={<Building className="w-3.5 h-3.5 text-emerald-600" />}
-                    dropdownWidth="min-w-[220px]"
-                  />
-                )}
               </div>
+            </div>
+
+            {/* Tier 2: 4-Level Wilayah Hierarchy Filter Pills (Provinsi -> Kab/Kota -> Kecamatan -> Desa) */}
+            <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-slate-100 dark:border-navy-800/80">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+                <Navigation className="w-3 h-3 text-emerald-600" /> Wilayah:
+              </span>
+
+              {/* 1. Provinsi Dropdown with Crest */}
+              <MapFilterSelect
+                label="Provinsi"
+                value={selectedProvinceId}
+                onChange={(val) => handleProvinceChange(val)}
+                options={provinces.map((p) => ({
+                  value: p.id,
+                  label: p.name,
+                  icon: <RegionLogo code={p.id} name={p.name} size="xs" showBadge={false} />,
+                }))}
+                prefixLogo={
+                  <RegionLogo
+                    code={selectedProvinceId}
+                    name={currentRegion?.name}
+                    size="xs"
+                    showBadge={false}
+                  />
+                }
+                dropdownWidth="min-w-[220px]"
+              />
+
+              {/* 2. Kab/Kota Dropdown */}
+              <MapFilterSelect
+                label="Kab/Kota"
+                value={selectedRegencyId}
+                onChange={(val) => handleRegencyChange(val)}
+                options={[
+                  { value: '', label: 'Semua Kab/Kota' },
+                  ...regencies.map((r) => ({ value: r.id, label: r.name })),
+                ]}
+                icon={<Building className="w-3.5 h-3.5 text-emerald-600" />}
+                dropdownWidth="min-w-[220px]"
+              />
+
+              {/* 3. Kecamatan / Distrik Dropdown */}
+              <MapFilterSelect
+                label="Kecamatan / Distrik"
+                value={selectedDistrictId}
+                onChange={(val) => handleDistrictChange(val)}
+                options={[
+                  { value: '', label: selectedRegencyId ? 'Semua Kecamatan' : 'Pilih Kab/Kota dulu' },
+                  ...districts.map((d) => ({ value: d.id, label: d.name })),
+                ]}
+                icon={<Landmark className="w-3.5 h-3.5 text-emerald-600" />}
+                dropdownWidth="min-w-[220px]"
+              />
+
+              {/* 4. Desa / Kelurahan Dropdown */}
+              <MapFilterSelect
+                label="Desa / Kelurahan"
+                value={selectedVillageId}
+                onChange={(val) => handleVillageChange(val)}
+                options={[
+                  { value: '', label: selectedDistrictId ? 'Semua Desa/Kel' : 'Pilih Kecamatan dulu' },
+                  ...villages.map((v) => ({
+                    value: v.id,
+                    label: v.postal_code ? `${v.name} (${v.postal_code})` : v.name,
+                  })),
+                ]}
+                icon={<Home className="w-3.5 h-3.5 text-emerald-600" />}
+                dropdownWidth="min-w-[240px]"
+              />
             </div>
 
             {/* Quick Province Ribbons */}
@@ -672,9 +869,9 @@ export default function MapsPage() {
         </div>
 
         {/* 3. UNIFIED RIGHT SPATIAL INSPECTOR DRAWER (Positioned below top island with safe screen margins) */}
-        <div className="absolute top-[132px] sm:top-[136px] right-3 sm:right-6 bottom-6 sm:bottom-8 w-[390px] sm:w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-end">
+        <div className="absolute top-[180px] sm:top-[185px] right-3 sm:right-6 bottom-6 sm:bottom-8 w-[390px] sm:w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-end">
           {isDetailOpen ? (
-            <div className="pointer-events-auto w-full h-full max-h-[calc(100vh-165px)] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-right-4">
+            <div className="pointer-events-auto w-full h-full max-h-[calc(100vh-215px)] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-right-4">
               {/* Inspector Header: 4 Segmented Tabs + Minimize Button */}
               <div className="px-3.5 pt-3 pb-2.5 border-b border-slate-100 dark:border-navy-800 shrink-0 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-800 text-[11px] font-bold flex-1">
