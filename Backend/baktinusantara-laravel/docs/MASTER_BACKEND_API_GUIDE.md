@@ -23,6 +23,7 @@ Dokumentasi resmi arsitektur, seluruh rute API, struktur data, format request/re
 16. [WhatsApp Gateway & Webhook Bot Dua Arah](#16-whatsapp-gateway--webhook-bot-dua-arah)
 17. [AI Real-Time Context & Smart Matching Engine](#17-ai-real-time-context--smart-matching-engine)
 18. [Sistem Notifikasi Pengguna](#18-sistem-notifikasi-pengguna)
+19. [Peta Interaktif Geospasial & Haversine Distance Engine](#19-peta-interaktif-geospasial--haversine-distance-engine)
 
 ---
 
@@ -579,9 +580,138 @@ Menenagai **AI Smart Copilot / Agent (Aira)** di frontend:
 
 ---
 
+## 19. Peta Interaktif Geospasial & Haversine Distance Engine
+
+Layanan geospasial terpusat untuk peta interaktif, visualisasi persebaran KKN, serta pencarian pos terdekat berbasis formula **Haversine** ($R = 6371\text{ km}$).
+
+### 19.1 Pin Data Peta Interaktif (`GET /api/geospatial/map-data`)
+- **Akses**: Publik
+- **Query Params**:
+  - `provinsi` (opsional): filter nama provinsi (misal `Jawa Timur`)
+  - `kategori` (opsional): `umkm`, `kesehatan`, `lingkungan`, `pendidikan`, `fasilitas`
+  - `sdg` (opsional): integer `1` - `17`
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "total_desa_mitra": 3,
+    "pins": [
+      {
+        "desa_id": 1,
+        "nama_desa": "Desa Sukamaju",
+        "kecamatan": "Mojowarno",
+        "kabupaten": "Kabupaten Jombang",
+        "provinsi": "Jawa Timur",
+        "latitude": -7.6358,
+        "longitude": 112.2965,
+        "kontak_resmi": "081234567201",
+        "total_pos_aktif": 1,
+        "total_kelompok_kkn": 1,
+        "sdgs_fokus": [8, 9],
+        "kategori_pos": ["umkm"],
+        "aspirasi_urgensi_tertinggi": "mendesak",
+        "pos_kebutuhan": [
+          {
+            "id": 1,
+            "judul": "Digitalisasi Branding dan E-Commerce UMKM",
+            "kategori": "umkm",
+            "sdg_codes": [8, 9],
+            "kuota_kelompok": 1,
+            "kuota_terisi": 1,
+            "deadline": "2026-10-30",
+            "status": "in_progress"
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+### 19.2 Pencarian Pos KKN Terdekat via Haversine (`GET /api/geospatial/nearby-pos`)
+- **Akses**: Publik
+- **Query Params**:
+  - `lat` (required): Latitude titik asal / kampus (misal `-7.3117`)
+  - `lon` (required): Longitude titik asal / kampus (misal `112.7275`)
+  - `radius_km` (opsional): batas jarak maksimal dalam km (misal `50`)
+  - `kategori` (opsional): kategori pos
+  - `sdg` (opsional): kode SDG 1-17
+  - `jurusan` (opsional): kecocokan jurusan mahasiswa
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "origin": { "latitude": -7.3117, "longitude": 112.7275 },
+    "radius_filter_km": 50,
+    "total_found": 1,
+    "results": [
+      {
+        "pos_id": 2,
+        "judul": "Pengolahan Biogas Kotoran Sapi",
+        "kategori": "lingkungan",
+        "sdg_codes": [13, 15],
+        "kuota_kelompok": 1,
+        "kuota_terisi": 0,
+        "sisa_kuota": 1,
+        "deadline": "2026-10-27",
+        "desa": {
+          "id": 2,
+          "nama_desa": "Desa Berkah Makmur",
+          "kabupaten": "Kabupaten Pasuruan",
+          "latitude": -7.6931,
+          "longitude": 112.6312
+        },
+        "jarak_km": 43.72,
+        "requires_surat_izin_ortu": false,
+        "travel_estimate": "± 1.1 jam (Darat/Mobil)"
+      }
+    ]
+  }
+  ```
+
+### 19.3 Ringkasan Sebaran Regional per Provinsi (`GET /api/geospatial/province-summary`)
+- **Akses**: Publik (Digunakan untuk visualisasi peta *Choropleth* Indonesia di Super Admin)
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "total_provinces": 2,
+    "provinces": [
+      {
+        "provinsi": "Jawa Timur",
+        "total_desa_mitra": 2,
+        "total_pos_kebutuhan": 3,
+        "total_kelompok_bertugas": 2,
+        "sdg_counts": { "SDG 8": 1, "SDG 9": 1, "SDG 13": 1 },
+        "center_coordinate": { "latitude": -7.6358, "longitude": 112.2965 }
+      }
+    ]
+  }
+  ```
+
+### 19.4 Utilitas Kalkulasi Jarak Geospasial (`POST /api/geospatial/calculate-distance`)
+- **Akses**: Publik
+- **Payload**:
+  ```json
+  {
+    "lat1": -7.3117,
+    "lon1": 112.7275,
+    "lat2": -6.1754,
+    "lon2": 106.8272
+  }
+  ```
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "origin": { "latitude": -7.3117, "longitude": 112.7275 },
+    "destination": { "latitude": -6.1754, "longitude": 106.8272 },
+    "distance_km": 659.85,
+    "requires_surat_izin_ortu": false,
+    "travel_estimate": "± 11 jam (Darat/Kereta/Bus)"
+  }
+  ```
+
+---
+
 ## 🧪 Panduan Menjalankan Pengujian Otomatis (Automated Tests)
 
-Semua fungsionalitas backend di atas dilindungi oleh 49 Feature & Unit Test Suites dengan SQLite in-memory isolation.
+Semua fungsionalitas backend di atas dilindungi oleh **62 Feature & Unit Test Suites (493 assertions)** dengan SQLite in-memory isolation.
 
 Jalankan perintah berikut di direktori `Backend/baktinusantara-laravel`:
 ```bash
@@ -589,6 +719,6 @@ php artisan test
 ```
 **Hasil Ekspektasi**:
 ```
-Tests:  49 passed (331 assertions)
-Time:   ~3 - 5s
+Tests:  62 passed (493 assertions)
+Time:   ~4.35s
 ```

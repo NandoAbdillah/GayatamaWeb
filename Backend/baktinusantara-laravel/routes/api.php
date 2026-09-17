@@ -21,6 +21,15 @@ use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\MedsosPostController;
 use App\Http\Controllers\AiContextController;
+use App\Http\Controllers\GeospatialController;
+
+// Geospatial & Map Engine Endpoints
+Route::prefix('geospatial')->group(function () {
+    Route::get('/map-data', [GeospatialController::class, 'mapData']);
+    Route::get('/nearby-pos', [GeospatialController::class, 'nearbyPos']);
+    Route::get('/province-summary', [GeospatialController::class, 'provinceSummary']);
+    Route::post('/calculate-distance', [GeospatialController::class, 'calculateDistance']);
+});
 
 // AI Realtime Context & Smart Matching Endpoints
 Route::prefix('ai')->group(function () {
