@@ -36,6 +36,7 @@
     "logout": "Sign Out",
     "switchRole": "Switch Role",
     "roles": {
+      "visitor": "Visitor",
       "mahasiswa": "Student Participant",
       "perangkat_desa": "Village Administration",
       "dosen": "Academic Field Supervisor (DPL)",

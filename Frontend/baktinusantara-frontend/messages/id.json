@@ -36,6 +36,7 @@
     "logout": "Keluar",
     "switchRole": "Ganti Peran",
     "roles": {
+      "visitor": "Visitor",
       "mahasiswa": "Mahasiswa KKN",
       "perangkat_desa": "Pemerintah Desa",
       "dosen": "Dosen Pembimbing (DPL)",

@@ -13,6 +13,18 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/portfolio/:slug*',
+        destination: '/portofolio/:slug*',
+      },
+      {
+        source: '/portfolio',
+        destination: '/portofolio',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

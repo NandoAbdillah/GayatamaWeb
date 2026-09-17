@@ -93,7 +93,7 @@ export function NotificationCenter({ className = '' }: { className?: string }) {
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Notifikasi"
         className={cn(
-          'relative p-2 rounded-xl border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/20',
+          'relative w-9 h-9 inline-flex items-center justify-center rounded-xl border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/20 shrink-0',
           isOpen
             ? 'bg-primary/10 text-primary border-primary/30 dark:bg-primary/20 dark:text-primary-300'
             : 'text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200/80 dark:bg-navy-900 dark:hover:bg-navy-800 border-slate-200/80 dark:border-navy-700'
