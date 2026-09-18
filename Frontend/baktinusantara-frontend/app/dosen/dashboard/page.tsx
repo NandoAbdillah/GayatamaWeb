@@ -38,7 +38,7 @@ export default function DosenDashboard() {
               {user?.name || 'Dr. Ir. Hendra Gunawan, M.T.'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-200 font-jakarta leading-relaxed">
-              NIP: 197804122005011002 • Membina 3 Kelompok KKN (Total 15 Mahasiswa)
+              NIP: 197804122005011002
             </p>
 
             <div className="pt-3 flex flex-wrap items-center gap-3">
@@ -84,20 +84,20 @@ export default function DosenDashboard() {
 
           <Card className="p-5 border-slate-200 space-y-2 bg-white">
             <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+              <span>Mahasiswa Binaan</span>
+              <GraduationCap className="w-4 h-4 text-indigo-600" />
+            </div>
+            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">15 Mahasiswa</p>
+            <p className="text-xs text-slate-500">dari 3 kelompok binaan</p>
+          </Card>
+
+          <Card className="p-5 border-slate-200 space-y-2 bg-white">
+            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
               <span>Proposal Divalidasi</span>
               <FileText className="w-4 h-4 text-emerald-600" />
             </div>
             <p className="text-2xl font-extrabold text-navy-950 font-epilogue">3 / 3 Disetujui</p>
             <p className="text-xs text-emerald-700 font-medium">Kelayakan Akademik 100%</p>
-          </Card>
-
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span>Rekap Nilai Kelulusan</span>
-              <Award className="w-4 h-4 text-indigo-600" />
-            </div>
-            <p className="text-sm font-bold text-navy-950 font-epilogue">Siap Diterbitkan</p>
-            <p className="text-xs text-slate-500">Menunggu Finalisasi Luaran</p>
           </Card>
         </div>
 
