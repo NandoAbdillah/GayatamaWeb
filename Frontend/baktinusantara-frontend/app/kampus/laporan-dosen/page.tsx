@@ -1,97 +1,36 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import {
   GraduationCap,
   CheckCircle2,
-  XCircle,
   FileText,
   Calendar,
   Building,
   Users,
   Search,
-  Download,
   Eye,
-  MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/services";
-
-interface LaporanDosen {
-  id: number;
-  dosen: string;
-  nip: string;
-  kelompok: string;
-  desa: string;
-  tanggal_kunjungan: string;
-  jenis_supervisi: string;
-  status: "menunggu" | "disetujui" | "revisi";
-  ringkasan: string;
-  catatan_dpl: string;
-  lampiran_url: string;
-}
-
-const INITIAL_LAPORAN: LaporanDosen[] = [
-  {
-    id: 1,
-    dosen: "Dr. Ir. Hendra Kusuma, M.T.",
-    nip: "197508122003121002",
-    kelompok: "Kelompok 14 — Sukamaju Berdaya",
-    desa: "Desa Sukamaju (Kab. Bandung)",
-    tanggal_kunjungan: "28 Juli 2025",
-    jenis_supervisi: "Supervisi Lapangan Tengah Periode (Monev II)",
-    status: "menunggu",
-    ringkasan:
-      "Monitoring langsung instalasi sensor debit air irigasi cerdas di RW 04 dan validasi katalog produk UMKM olahan pisang.",
-    catatan_dpl:
-      "Progres kelompok mencapai 72%. Sinergi dengan aparat desa berjalan sangat baik. Disarankan akselerasi penyusunan laporan BAST akhir.",
-    lampiran_url: "#",
-  },
-  {
-    id: 2,
-    dosen: "Prof. Dr. Sri Wahyuni, M.Si.",
-    nip: "196803151992032001",
-    kelompok: "Kelompok 08 — Ciburial Mandiri",
-    desa: "Desa Ciburial (Kab. Bandung Barat)",
-    tanggal_kunjungan: "25 Juli 2025",
-    jenis_supervisi: "Supervisi Lapangan Awal & Pembekalan Desa",
-    status: "disetujui",
-    ringkasan:
-      "Sosialisasi program pengentasan stunting posyandu bersama bidan desa dan pemetaan sanitasi air bersih.",
-    catatan_dpl:
-      "Semua anggota kelompok hadir lengkap di posko. Program kerja sesuai kebutuhan mendesak posyandu desa.",
-    lampiran_url: "#",
-  },
-  {
-    id: 3,
-    dosen: "Agus Setiawan, S.Kom., M.Cs.",
-    nip: "198904202015041003",
-    kelompok: "Kelompok 22 — Maruyung Digital",
-    desa: "Desa Maruyung (Kab. Garut)",
-    tanggal_kunjungan: "20 Juli 2025",
-    jenis_supervisi: "Kunjungan Verifikasi Luaran Akhir",
-    status: "disetujui",
-    ringkasan:
-      "Uji coba platform Sistem Informasi Administrasi Desa (SIAD) bersama Sekdes dan Kaur Perencanaan.",
-    catatan_dpl:
-      "Aplikasi web siap dihibahkan kepada pihak desa. Dokumen buku manual panduan operasional telah diserahkan.",
-    lampiran_url: "#",
-  },
-];
+import {
+  LaporanDosen,
+  INITIAL_LAPORAN,
+  STORAGE_KEY,
+} from "@/lib/data/laporan-dosen";
 
 export default function AdminLaporanDosenPage() {
+  const router = useRouter();
   const [laporanList, setLaporanList] =
     useState<LaporanDosen[]>(INITIAL_LAPORAN);
   const [activeFilter, setActiveFilter] = useState<
     "all" | "menunggu" | "disetujui" | "revisi"
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLaporan, setSelectedLaporan] = useState<LaporanDosen | null>(
-    null,
-  );
 
   useEffect(() => {
     async function loadReports() {
@@ -122,48 +61,43 @@ export default function AdminLaporanDosenPage() {
             catatan_dpl:
               item.catatan ||
               "Kinerja pengabdian terlaksana sesuai rencana kerja.",
-            lampiran_url: "#",
+            lampiran_url: item.lampiran_url || item.file_url || "",
+            lampiran_name: item.lampiran_name || item.file_name || undefined,
           }));
           setLaporanList(normalized);
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+          } catch {}
+          return;
         }
       } catch (err) {
         console.warn("Fallback to mock reports:", err);
       }
+      // fallback: coba restore dari localStorage jika ada update status sebelumnya
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setLaporanList(parsed);
+            return;
+          }
+        }
+      } catch {}
+      // tetap gunakan INITIAL dan simpan
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_LAPORAN));
+      } catch {}
     }
     loadReports();
   }, []);
 
-  const handleApprove = async (id: number) => {
+  // sync ke localStorage setiap ada perubahan (agar halaman detail konsisten)
+  useEffect(() => {
     try {
-      await api.universitas.updateLaporanStatus(id, "selesai");
-    } catch (err) {
-      console.warn("Backend update status error:", err);
-    }
-    setLaporanList((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, status: "disetujui" } : item,
-      ),
-    );
-    setSelectedLaporan(null);
-    toast.success("Laporan supervisi DPL berhasil disetujui oleh LPPM!");
-  };
-
-  const handleRequestRevision = async (id: number) => {
-    try {
-      await api.universitas.updateLaporanStatus(id, "ditinjau");
-    } catch (err) {
-      console.warn("Backend update status error:", err);
-    }
-    setLaporanList((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, status: "revisi" } : item,
-      ),
-    );
-    setSelectedLaporan(null);
-    toast.info(
-      "Catatan revisi laporan supervisi telah dikirim ke email Dosen DPL.",
-    );
-  };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(laporanList));
+    } catch {}
+  }, [laporanList]);
 
   const filteredLaporan = laporanList.filter((item) => {
     const matchFilter = activeFilter === "all" || item.status === activeFilter;
@@ -299,7 +233,7 @@ export default function AdminLaporanDosenPage() {
                     }`}
                   >
                     {item.status === "disetujui"
-                      ? "✓ Disetujui LPPM"
+                      ? "Disetujui"
                       : item.status === "revisi"
                         ? "Perlu Revisi"
                         : "Menunggu Review"}
@@ -328,7 +262,7 @@ export default function AdminLaporanDosenPage() {
                 <p className="text-xs font-bold text-navy-950 dark:text-white mb-1">
                   {item.jenis_supervisi}
                 </p>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-2">
                   {item.ringkasan}
                 </p>
               </div>
@@ -337,51 +271,34 @@ export default function AdminLaporanDosenPage() {
                 <strong className="text-primary font-bold block mb-1">
                   Evaluasi & Catatan DPL:
                 </strong>
-                <p className="text-slate-600 dark:text-slate-300 italic">
+                <p className="text-slate-600 dark:text-slate-300 italic line-clamp-2">
                   "{item.catatan_dpl}"
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-navy-800 text-xs">
-                <button
-                  onClick={() =>
-                    toast.info(
-                      "Mengunduh berkas lampiran foto & Berita Acara Supervisi...",
-                    )
-                  }
-                  className="flex items-center gap-1.5 text-primary hover:underline font-bold"
+              <div className="flex justify-end pt-3 border-t border-slate-100 dark:border-navy-800">
+                <Button
+                  onClick={() => {
+                    try {
+                      localStorage.setItem(STORAGE_KEY, JSON.stringify(laporanList));
+                    } catch {}
+                    router.push(`/kampus/laporan-dosen/${item.id}`);
+                  }}
+                  variant="primary"
+                  size="sm"
+                  className="gap-1.5 font-bold shadow-sm"
                 >
-                  <Download className="w-4 h-4" />
-                  <span>Unduh Lampiran BA Kunjungan (PDF)</span>
-                </button>
-
-                <div className="flex items-center gap-2">
-                  {item.status !== "disetujui" && (
-                    <Button
-                      onClick={() => handleRequestRevision(item.id)}
-                      variant="outline"
-                      size="sm"
-                      className="text-rose-600 border-rose-200 hover:bg-rose-50 dark:border-rose-900 dark:hover:bg-rose-950"
-                    >
-                      <XCircle className="w-3.5 h-3.5 mr-1" />
-                      <span>Minta Revisi</span>
-                    </Button>
-                  )}
-                  {item.status !== "disetujui" && (
-                    <Button
-                      onClick={() => handleApprove(item.id)}
-                      variant="emerald"
-                      size="sm"
-                      className="gap-1 shadow-sm font-bold"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Sahkan Laporan DPL</span>
-                    </Button>
-                  )}
-                </div>
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Review</span>
+                </Button>
               </div>
             </Card>
           ))}
+          {filteredLaporan.length === 0 && (
+            <Card className="p-10 text-center border-dashed bg-white dark:bg-navy-900">
+              <p className="text-sm text-slate-500">Tidak ada laporan yang sesuai filter.</p>
+            </Card>
+          )}
         </div>
       </div>
     </DashboardLayout>
