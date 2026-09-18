@@ -53,7 +53,7 @@ export const Navbar: React.FC = () => {
       case 'admin':
         return '/admin/dashboard';
       default:
-        return '/mahasiswa/dashboard';
+        return '/login';
     }
   };
 
@@ -65,80 +65,84 @@ export const Navbar: React.FC = () => {
     { href: '/portofolio/kelompok-14-sukamaju', label: t('portofolio'), icon: Sparkles },
   ];
 
+  // Halaman peta (maps) memakai layout fullscreen dengan map sebagai background,
+  // navbar harus selalu solid agar tidak transparan di atas peta
+  const isMapsPage = pathname === '/maps' || pathname.startsWith('/maps');
+  const useSolidNavbar = isScrolled || isMapsPage;
+
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b transition-colors duration-200 ${
-        isScrolled
+      className={`sticky top-0 z-50 w-full border-b transition-colors duration-200 ${useSolidNavbar
           ? 'bg-white/95 dark:bg-navy-950/95 backdrop-blur-md border-slate-200/80 dark:border-navy-800 shadow-sm'
-          : 'bg-transparent dark:bg-transparent border-transparent backdrop-blur-none shadow-none'
-      }`}
+          : 'bg-white/80 dark:bg-navy-950/80 backdrop-blur-sm border-slate-200/50 dark:border-navy-800/50 shadow-none lg:bg-transparent lg:dark:bg-transparent lg:border-transparent lg:backdrop-blur-none lg:shadow-none'
+        }`}
     >
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-8 lg:px-12">
-        <div className="flex items-center h-20 gap-3 sm:gap-4 lg:gap-6">
-          {/* Logo Brand (Farmvest / IKN Style) - fixed, never shrinks */}
-          <Link href="/" className="flex items-center gap-3 shrink-0 group">
-            <div className="w-11 h-11 relative flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shrink-0">
-              <Image
-                src="/logo.svg"
-                alt={tCommon('appName')}
-                width={44}
-                height={44}
-                priority
-                className="w-11 h-11 object-contain drop-shadow-sm"
-              />
-            </div>
-            <div className="flex flex-col justify-center items-center min-w-0 mt-3">
-              <span className="font-epilogue font-extrabold text-navy-950 dark:text-white text-xl leading-none tracking-tight whitespace-nowrap justify-center ">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 xl:px-8 w-full">
+        <div className="flex items-center justify-between h-20 w-full">
+          {/* Left Group: Brand + Desktop Nav Links */}
+          <div className="flex items-center shrink-0">
+            {/* Section 1: Brand (Logo + Text) */}
+            <Link href="/" className="flex items-center gap-3 shrink-0 group">
+              <div className="w-10 h-10 relative flex items-center justify-center shrink-0">
+                <Image
+                  src="/logo.svg"
+                  alt={tCommon('appName')}
+                  width={40}
+                  height={40}
+                  priority
+                  className="w-10 h-10 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
+                />
+              </div>
+              <span className="font-epilogue font-extrabold text-navy-950 dark:text-white text-xl leading-none tracking-tight whitespace-nowrap">
                 {tCommon('appName')}
               </span>
-            </div>
-          </Link>
+            </Link>
 
-          {/* Desktop Center Navigation Links - flex-1 centered, stable width */}
-          <nav className="hidden lg:flex flex-1 items-center justify-center gap-5 xl:gap-7 min-w-0">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`text-[13px] xl:text-[14px] font-semibold font-jakarta whitespace-nowrap shrink-0 transition-colors duration-150 relative py-2 ${
-                    isActive
-                      ? 'text-primary dark:text-primary-400'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-navy-950 dark:hover:text-white'
-                  }`}
-                >
-                  {link.label}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+            {/* Section 2: Desktop Navigation Links */}
+            <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-6 ml-5 2xl:ml-8 shrink-0">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`text-[13px] 2xl:text-[14px] font-semibold font-jakarta whitespace-nowrap shrink-0 transition-colors duration-150 relative py-2 ${isActive
+                        ? 'text-primary dark:text-primary-400 font-bold'
+                        : 'text-slate-600 dark:text-slate-300 hover:text-navy-950 dark:hover:text-white'
+                      }`}
+                  >
+                    {link.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
 
-          {/* Right Action & Controls - shrink-0, fixed layout to prevent shift on language change */}
-          <div className="hidden sm:flex items-center gap-2 lg:gap-2.5 shrink-0 ml-auto lg:ml-0">
-            {/* Language Switcher - fixed min-width to avoid header jump IDN/ENG */}
-            <LanguageSwitcher className="min-w-[78px] justify-center" />
+          {/* Section 3: Right Action & Controls for Desktop (xl+) */}
+          <div className="hidden xl:flex items-center gap-1.5 2xl:gap-2.5 shrink-0 ml-auto pl-3 2xl:pl-4">
+            {/* Language Switcher */}
+            <LanguageSwitcher className="min-w-[72px] justify-center shrink-0" />
 
             {/* Dark Mode Toggle */}
-            <ThemeToggle />
+            <ThemeToggle className="shrink-0" />
 
             {/* Notification Center */}
-            <NotificationCenter />
+            <NotificationCenter className="shrink-0" />
 
             {/* Quick Demo Switcher Dropdown */}
-            <RoleSwitcher />
+            <RoleSwitcher className="shrink-0" />
 
-            <div className="h-6 w-px bg-slate-200 dark:bg-navy-800 mx-0.5 shrink-0" />
+            <div className="h-5 w-px bg-slate-200 dark:bg-navy-800 mx-0.5 shrink-0" />
 
             {isAuthenticated ? (
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 2xl:gap-2 shrink-0">
                 <Link href={getDashboardLink()} className="shrink-0">
-                  <Button size="md" variant="primary" className="gap-2 font-bold px-3.5 py-2 rounded-xl shadow-sm hover:shadow-md text-xs whitespace-nowrap min-w-[120px] justify-center">
+                  <Button size="sm" variant="primary" className="h-9 gap-1.5 font-bold px-3 2xl:px-3.5 rounded-xl shadow-xs hover:shadow-sm text-xs whitespace-nowrap min-w-[95px] justify-center">
                     <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate max-w-[110px]">Portal {user?.name ? user.name.split(' ')[0] : 'Dashboard'}</span>
+                    <span className="truncate max-w-[90px]">Portal {user?.name ? user.name.split(' ')[0] : 'Dashboard'}</span>
                   </Button>
                 </Link>
                 <button
@@ -146,21 +150,22 @@ export const Navbar: React.FC = () => {
                     await logout();
                     toast.success('Sesi berhasil keluar');
                   }}
-                  className="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-slate-200 dark:border-navy-700 transition-colors shrink-0"
+                  className="w-9 h-9 inline-flex items-center justify-center rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-slate-200/80 dark:border-navy-700 transition-colors shrink-0"
                   title="Keluar Sesi"
+                  aria-label="Keluar Sesi"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 2xl:gap-2 shrink-0">
                 <Link href="/login" className="shrink-0">
-                  <Button size="sm" variant="ghost" className="text-xs font-bold text-navy-950 dark:text-slate-200 px-3.5 py-2 hover:bg-slate-100 dark:hover:bg-navy-900 whitespace-nowrap min-w-[96px] justify-center">
+                  <Button size="sm" variant="ghost" className="h-9 text-xs font-bold text-navy-950 dark:text-slate-200 px-3 hover:bg-slate-100 dark:hover:bg-navy-900 whitespace-nowrap min-w-[75px] justify-center">
                     {t('login')}
                   </Button>
                 </Link>
                 <Link href="/register" className="shrink-0">
-                  <Button size="sm" variant="primary" className="text-xs font-bold px-4 py-2 rounded-xl shadow-sm whitespace-nowrap min-w-[108px] justify-center">
+                  <Button size="sm" variant="primary" className="h-9 text-xs font-bold px-3.5 2xl:px-4 rounded-xl shadow-xs whitespace-nowrap min-w-[85px] justify-center">
                     {t('register')}
                   </Button>
                 </Link>
@@ -168,25 +173,26 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile Menu Toggle Button & controls on mobile/tablet */}
-          <div className="flex lg:hidden items-center gap-2 shrink-0 ml-auto sm:ml-0">
-            {/* Language switcher visible on very small screens where right group is hidden */}
-            <div className="sm:hidden">
+          {/* Mobile/Tablet Controls & Menu Toggle (< xl) */}
+          <div className="flex xl:hidden items-center gap-2 shrink-0 ml-auto">
+            {/* Language switcher visible on tablet/mobile header */}
+            <div className="hidden sm:inline-block">
               <LanguageSwitcher />
             </div>
             <ThemeToggle />
+            {isAuthenticated && <NotificationCenter />}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-xl text-navy-900 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-navy-900 border border-slate-200 dark:border-navy-800 transition-colors shrink-0"
+              className="w-9 h-9 inline-flex items-center justify-center rounded-xl text-navy-900 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-navy-900 border border-slate-200/80 dark:border-navy-800 transition-colors shrink-0"
               aria-label="Buka menu navigasi"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu Dropdown - absolute overlay agar tidak mendorong layout peta & tidak ter-clip overflow-hidden */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-950 px-6 pt-4 pb-6 space-y-4 font-jakarta shadow-xl">
           <div className="space-y-3 pb-3 border-b border-slate-100 dark:border-navy-800">
@@ -194,13 +200,10 @@ export const Navbar: React.FC = () => {
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('switchRole')}</span>
               <RoleSwitcher />
             </div>
-            {/* Language & Theme row in mobile - hidden on sm because header already shows it */}
-            <div className="flex items-center justify-between">
+            {/* Language & Theme row in mobile */}
+            <div className="flex sm:hidden items-center justify-between">
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bahasa / Language</span>
-              <div className="flex items-center gap-2">
-                <LanguageSwitcher />
-                <ThemeToggle />
-              </div>
+              <LanguageSwitcher />
             </div>
           </div>
 
@@ -213,11 +216,10 @@ export const Navbar: React.FC = () => {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap ${
-                    isActive
+                  className={`flex items-center gap-3 px-3.5 py-2.5 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap ${isActive
                       ? 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-300 font-bold'
                       : 'text-navy-950 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-navy-900'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 h-4 text-slate-400 shrink-0" />
                   <span className="truncate">{link.label}</span>

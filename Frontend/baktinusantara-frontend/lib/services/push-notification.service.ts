@@ -133,8 +133,8 @@ export class PushNotificationService {
       return { success: false, error: 'Web Push tidak didukung oleh browser ini.' };
     }
 
-    const effectiveUserId = userId || 101;
-    const effectiveUserRole = userRole || 'mahasiswa';
+    const effectiveUserId = userId || 0;
+    const effectiveUserRole = userRole || 'visitor';
 
     try {
       // 1. Request notification permission safely (supporting both Promise and Callback)

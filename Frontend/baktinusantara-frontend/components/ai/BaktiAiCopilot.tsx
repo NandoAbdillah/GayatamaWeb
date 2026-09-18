@@ -56,7 +56,7 @@ export function BaktiAiCopilot() {
   const [loading, setLoading] = useState(false);
   const [activeSlotName, setActiveSlotName] = useState('Gemini 3.6 Flash');
 
-  const activeRole = user?.role || 'mahasiswa';
+  const activeRole = user?.role || 'visitor';
 
   const [messages, setMessages] = useState<MessageItem[]>([
     {
@@ -158,6 +158,14 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
   // Quick Action Prompts based on User Role (Conversational & Friendly)
   const getQuickPrompts = () => {
     switch (activeRole) {
+      case 'visitor':
+        return [
+          { label: 'Jelajahi Pos KKN', prompt: 'Bisa bantu rekomendasikan pos KKN tematik yang sedang dibuka?' },
+          { label: 'Info Peta Wilayah', prompt: 'Bagaimana cara melihat sebaran program KKN di peta geospasial?' },
+          { label: 'Alur Pendaftaran KKN', prompt: 'Jelaskan alur pendaftaran KKN untuk mahasiswa dan kemitraan desa.' },
+          { label: 'Aspirasi Warga', prompt: 'Bagaimana warga atau desa bisa menyampaikan aspirasi program KKN?' },
+          { label: 'Portofolio Dampak', prompt: 'Tampilkan hasil karya dan portofolio kegiatan KKN mahasiswa.' },
+        ];
       case 'perangkat_desa':
         return [
           { label: 'Buat pos kebutuhan desa', prompt: 'Bisa bantu buatkan draf pos kebutuhan KKN untuk desa kami?' },
@@ -177,7 +185,8 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
           { label: 'Verifikasi mitra desa', prompt: 'Buka halaman verifikasi pendaftaran mitra desa baru.' },
           { label: 'Peta sebaran nasional', prompt: 'Buka peta sebaran kuota pos KKN se-Indonesia.' },
         ];
-      default: // Mahasiswa
+      case 'mahasiswa':
+      default:
         return [
           { label: 'Bantu cari desa', prompt: 'Bisa bantu carikan rekomendasi desa yang cocok untuk KKN?' },
           { label: 'Cari KKN terdekat', prompt: 'Carikan pos KKN dengan radius terdekat dari lokasi saya.' },

@@ -8,15 +8,26 @@ import { NotificationCenter } from '@/components/ui/NotificationCenter';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import { PanelLeftClose } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { PanelLeftClose, Loader2 } from 'lucide-react';
 
 export const DashboardLayout: React.FC<{
   children: React.ReactNode;
   title?: string;
   breadcrumb?: { label: string; href?: string }[];
 }> = ({ children, title, breadcrumb }) => {
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+
+  // Client-side authentication guard for visitors / unauthenticated users
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      const loginUrl = `/login?redirect=${encodeURIComponent(pathname || '/')}`;
+      router.replace(loginUrl);
+    }
+  }, [isLoading, isAuthenticated, pathname, router]);
 
   // Persist collapsed state
   useEffect(() => {
@@ -26,6 +37,17 @@ export const DashboardLayout: React.FC<{
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', String(collapsed));
   }, [collapsed]);
+
+  if (isLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-surface-canvas dark:bg-[#071629] flex items-center justify-center font-jakarta">
+        <div className="flex flex-col items-center gap-3 text-slate-500 dark:text-slate-400">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <span className="text-xs font-semibold">Memverifikasi otentikasi...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface-canvas dark:bg-[#071629] flex flex-col font-jakarta transition-colors duration-200">

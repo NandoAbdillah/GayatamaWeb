@@ -55,8 +55,8 @@ export function usePushNotifications() {
   };
 
   const subscribe = async () => {
-    const effectiveUserId = user?.id || 101;
-    const effectiveUserRole = user?.role || 'mahasiswa';
+    const effectiveUserId = user?.id || 0;
+    const effectiveUserRole = user?.role || 'visitor';
 
     setIsLoading(true);
     setError(null);

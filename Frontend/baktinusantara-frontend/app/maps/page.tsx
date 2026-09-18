@@ -808,16 +808,16 @@ export default function MapsPage() {
   }, [showPosMarkers, showCampusMarkers, filteredPos, filteredCampuses, selectedProvinceId, currentRegion, campusCenter]);
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-slate-900 flex flex-col font-jakarta transition-colors selection:bg-emerald-100 selection:text-emerald-900 relative">
-      {/* Top Main Navigation Bar */}
-      <div className="z-40 shrink-0 shadow-md">
+    <div className="h-[100dvh] w-screen flex flex-col bg-slate-900 font-jakarta overflow-hidden transition-colors selection:bg-emerald-100 selection:text-emerald-900 relative">
+      {/* Top Main Navigation Bar - solid on maps, above map, not clipped */}
+      <div className="shrink-0 relative z-50 shadow-md">
         <Navbar />
       </div>
 
       {/* ========================================================================= */}
       {/* FULL-VIEWPORT SPATIAL WORKSPACE WITH MAP AS 100% BACKGROUND */}
       {/* ========================================================================= */}
-      <div className="relative flex-1 w-full h-[calc(100vh-68px)] overflow-hidden">
+      <div className="relative flex-1 min-h-0 w-full overflow-hidden">
         {/* 1. BACKGROUND FULL-CANVAS INTERACTIVE MAP */}
         <div className="absolute inset-0 w-full h-full z-0">
           <WilayahLeafletMap
