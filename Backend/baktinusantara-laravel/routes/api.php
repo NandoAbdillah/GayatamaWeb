@@ -23,6 +23,7 @@ use App\Http\Controllers\MedsosPostController;
 use App\Http\Controllers\AiContextController;
 use App\Http\Controllers\GeospatialController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\UploadController;
 
 // E-Sertifikat & Public Verification Endpoints
 Route::get('/certificate/verify/{code}', [CertificateController::class, 'verify']);
@@ -36,8 +37,8 @@ Route::prefix('geospatial')->group(function () {
     Route::post('/calculate-distance', [GeospatialController::class, 'calculateDistance']);
 });
 
-// AI Realtime Context & Smart Matching Endpoints
-Route::prefix('ai')->group(function () {
+// AI Realtime Context & Smart Matching Endpoints (Rate Limited: 30 req/min)
+Route::prefix('ai')->middleware('throttle:30,1')->group(function () {
     Route::get('/context', [AiContextController::class, 'globalContext']);
     Route::get('/search-desa', [AiContextController::class, 'searchDesa']);
     Route::post('/recommend-pos', [AiContextController::class, 'recommendPos']);
@@ -52,34 +53,37 @@ Route::prefix('ai')->group(function () {
 Route::post('/webhook/whatsapp', [WhatsAppWebhookController::class, 'handle']);
 
 Route::get('/medsos-posts', [MedsosPostController::class, 'index']);
-Route::post('/medsos-posts', [MedsosPostController::class, 'store']);
 Route::get('/medsos-posts/{medsosPost}', [MedsosPostController::class, 'show']);
 
 Route::post('/aspirasi', [AspirasiController::class, 'store']);
 Route::get('/aspirasi/{ticket}', [AspirasiController::class, 'show']);
 
-// Auth & Multi-Channel OTP Endpoints
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::post('/register/verify-otp', [AuthController::class, 'verifyRegisterOtp']);
-Route::post('/otp/resend', [AuthController::class, 'resendOtp']);
-Route::post('/otp/verify', [AuthController::class, 'verifyOtp']);
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-Route::post('/forgot-email', [AuthController::class, 'forgotEmail']);
+// Auth & Multi-Channel OTP Endpoints (Rate Limited: 15 req/min)
+Route::middleware('throttle:15,1')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register/verify-otp', [AuthController::class, 'verifyRegisterOtp']);
+    Route::post('/otp/resend', [AuthController::class, 'resendOtp']);
+    Route::post('/otp/verify', [AuthController::class, 'verifyOtp']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/forgot-email', [AuthController::class, 'forgotEmail']);
 
-Route::post('/register/mahasiswa', [MahasiswaController::class, 'register']);
+    Route::post('/register/mahasiswa', [MahasiswaController::class, 'register']);
+    Route::post('/register/desa', [DesaController::class, 'register']);
+    Route::post('/register/universitas', [UniversitasController::class, 'register']);
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/register/desa', [DesaController::class, 'register']);
-Route::post('/register/universitas', [UniversitasController::class, 'register']);
-
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::patch('/admin/desa/{profilDesa}/verify', [DesaController::class, 'verify']);
+    Route::get('/admin/desa/{profilDesa}/sk', [DesaController::class, 'downloadSk']);
     Route::patch('/admin/mahasiswa/{profilMahasiswa}/verify', [MahasiswaController::class, 'verify']);
+    Route::get('/admin/mahasiswa/{profilMahasiswa}/ktm', [MahasiswaController::class, 'downloadKtm']);
     Route::patch('/admin/universitas/{profilUniversitas}/verify', [UniversitasController::class, 'verify']);
 });
 
@@ -139,6 +143,11 @@ Route::middleware(['auth:sanctum', 'role:mahasiswa'])->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/upload', [UploadController::class, 'upload']);
+    Route::post('/medsos-posts', [MedsosPostController::class, 'store']);
+    Route::get('/proposal/{proposal}/file', [ProposalController::class, 'downloadFile']);
+    Route::get('/proposal/{proposal}/surat-izin-ortu/file', [ProposalController::class, 'downloadSuratOrtu']);
+    Route::get('/luaran/{luaran}/file', [LuaranController::class, 'downloadFile']);
     Route::get('/proposal/{proposal}/progress', [ProgressController::class, 'indexByProposal']);
     Route::get('/proposal/{proposal}/luaran', [LuaranController::class, 'showByProposal']);
     Route::get('/notifikasi', [NotificationController::class, 'index']);

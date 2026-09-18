@@ -175,51 +175,11 @@ class CertificateService
     }
 
     /**
-     * Generate QR Code SVG Vector Standalone (ringan, tanpa dependensi eksternal).
+     * Generate QR Code SVG ISO/IEC 18004 Standar (Pure PHP, scannable offline).
      */
     public function generateQrCodeSvg(string $content): string
     {
-        $hash = md5($content);
-        $size = 140;
-        $modules = 21;
-        $cellSize = $size / $modules;
-
-        $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $size . ' ' . $size . '" width="' . $size . '" height="' . $size . '">';
-        $svg .= '<rect width="' . $size . '" height="' . $size . '" fill="#ffffff"/>';
-
-        // Finder patterns (3 sudut)
-        $svg .= $this->renderQrFinderPattern(0, 0, $cellSize);
-        $svg .= $this->renderQrFinderPattern(($modules - 7) * $cellSize, 0, $cellSize);
-        $svg .= $this->renderQrFinderPattern(0, ($modules - 7) * $cellSize, $cellSize);
-
-        // Data pattern berbasis content hash
-        for ($r = 0; $r < $modules; $r++) {
-            for ($c = 0; $c < $modules; $c++) {
-                if (($r < 7 && $c < 7) || ($r < 7 && $c >= $modules - 7) || ($r >= $modules - 7 && $c < 7)) {
-                    continue;
-                }
-                $bitIndex = ($r * $modules + $c) % 32;
-                $char = hexdec($hash[$bitIndex % strlen($hash)]);
-                if (($char + $r + $c) % 2 === 0) {
-                    $x = round($c * $cellSize, 2);
-                    $y = round($r * $cellSize, 2);
-                    $w = round($cellSize + 0.1, 2);
-                    $svg .= '<rect x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $w . '" fill="#0f172a"/>';
-                }
-            }
-        }
-
-        $svg .= '</svg>';
-        return $svg;
-    }
-
-    private function renderQrFinderPattern(float $x, float $y, float $cell): string
-    {
-        $out = '';
-        $out .= '<rect x="' . $x . '" y="' . $y . '" width="' . ($cell * 7) . '" height="' . ($cell * 7) . '" fill="#0f172a"/>';
-        $out .= '<rect x="' . ($x + $cell) . '" y="' . ($y + $cell) . '" width="' . ($cell * 5) . '" height="' . ($cell * 5) . '" fill="#ffffff"/>';
-        $out .= '<rect x="' . ($x + $cell * 2) . '" y="' . ($y + $cell * 2) . '" width="' . ($cell * 3) . '" height="' . ($cell * 3) . '" fill="#0f172a"/>';
-        return $out;
+        return \App\Services\QrCode\QrCodeGenerator::generateSvg($content);
     }
 
     /**
