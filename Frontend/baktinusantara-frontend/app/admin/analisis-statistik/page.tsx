@@ -1,320 +1,537 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import React, { useState } from "react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-} from 'recharts';
-import {
-  TrendingUp,
-  Award,
-  Users,
-  Building2,
-  Sparkles,
-  Download,
-  Calendar,
-  Globe2,
-  FileCheck2,
-  BarChart3,
-  RefreshCw,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import api from '@/lib/services';
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Layers,
+  Tag,
+  X,
+  AlertTriangle,
+  CheckCircle2,
+  Briefcase,
+} from "lucide-react";
+import { toast } from "sonner";
 
-const SDG_COLORS: Record<string, string> = {
-  'SDG 2': '#DDA63A',
-  'SDG 3': '#4C9F38',
-  'SDG 4': '#C5192D',
-  'SDG 6': '#26BDE2',
-  'SDG 8': '#A21942',
-  'SDG 9': '#FD6925',
-  'SDG 11': '#FD9D24',
-  'SDG 13': '#3F7E44',
-  'SDG 15': '#56C02B',
-};
+interface KategoriKKN {
+  id: string;
+  nama: string;
+  slug: string;
+}
 
-export default function AdminAnalyticsPage() {
-  const [metrics, setMetrics] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+interface SektorKKN {
+  id: string;
+  nama: string;
+  slug: string;
+}
 
-  useEffect(() => {
-    async function loadMetrics() {
-      try {
-        const res = await api.dashboard.getMetrics();
-        if (res) {
-          setMetrics(res);
-        }
-      } catch (err) {
-        console.warn('Fallback analytics data:', err);
-      } finally {
-        setLoading(false);
-      }
+const INITIAL_KATEGORI: KategoriKKN[] = [
+  { id: "1", nama: "Pemberdayaan UMKM", slug: "umkm" },
+  { id: "2", nama: "Lingkungan", slug: "lingkungan" },
+  { id: "3", nama: "Kesehatan", slug: "kesehatan" },
+  { id: "4", nama: "Pendidikan", slug: "pendidikan" },
+  { id: "5", nama: "Fasilitas", slug: "fasilitas" },
+];
+
+const INITIAL_SEKTOR: SektorKKN[] = [
+  { id: "s1", nama: "Pertanian", slug: "pertanian" },
+  { id: "s2", nama: "Perikanan", slug: "perikanan" },
+  { id: "s3", nama: "Pariwisata", slug: "pariwisata" },
+  { id: "s4", nama: "Teknologi", slug: "teknologi" },
+  { id: "s5", nama: "Sosial Kemasyarakatan", slug: "sosial_kemasyarakatan" },
+];
+
+export default function AnalisisStatistikPage() {
+  // Kategori state
+  const [kategoriList, setKategoriList] =
+    useState<KategoriKKN[]>(INITIAL_KATEGORI);
+  const [kategoriSearch, setKategoriSearch] = useState("");
+  const [kategoriNama, setKategoriNama] = useState("");
+  const [kategoriEditingId, setKategoriEditingId] = useState<string | null>(
+    null,
+  );
+  const [kategoriDeleteTarget, setKategoriDeleteTarget] =
+    useState<KategoriKKN | null>(null);
+
+  // Sektor state
+  const [sektorList, setSektorList] = useState<SektorKKN[]>(INITIAL_SEKTOR);
+  const [sektorSearch, setSektorSearch] = useState("");
+  const [sektorNama, setSektorNama] = useState("");
+  const [sektorEditingId, setSektorEditingId] = useState<string | null>(null);
+  const [sektorDeleteTarget, setSektorDeleteTarget] =
+    useState<SektorKKN | null>(null);
+
+  // Kategori handlers
+  const filteredKategori = kategoriList.filter((k) =>
+    k.nama.toLowerCase().includes(kategoriSearch.toLowerCase()),
+  );
+
+  const handleKategoriSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!kategoriNama.trim()) {
+      toast.error("Nama kategori wajib diisi");
+      return;
     }
-    loadMetrics();
-  }, []);
+    const slug = kategoriNama
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, "");
+    if (kategoriEditingId) {
+      if (
+        kategoriList.some((k) => k.slug === slug && k.id !== kategoriEditingId)
+      ) {
+        toast.error("Kategori dengan nama tersebut sudah ada");
+        return;
+      }
+      setKategoriList((prev) =>
+        prev.map((k) =>
+          k.id === kategoriEditingId
+            ? { ...k, nama: kategoriNama.trim(), slug }
+            : k,
+        ),
+      );
+      toast.success(`Kategori "${kategoriNama}" diperbarui`);
+      setKategoriEditingId(null);
+    } else {
+      if (kategoriList.some((k) => k.slug === slug)) {
+        toast.error("Kategori sudah ada");
+        return;
+      }
+      setKategoriList((prev) => [
+        ...prev,
+        { id: Date.now().toString(), nama: kategoriNama.trim(), slug },
+      ]);
+      toast.success(`Kategori "${kategoriNama}" ditambahkan`);
+    }
+    setKategoriNama("");
+  };
 
-  // Format Kategori data for BarChart
-  const sectorData = metrics?.kategori_breakdown
-    ? Object.entries(metrics.kategori_breakdown).map(([kategori, total]) => ({
-        name: kategori === 'umkm' ? 'Pemberdayaan UMKM' : kategori.charAt(0).toUpperCase() + kategori.slice(1),
-        pos: total,
-      }))
-    : [
-        { name: 'Pemberdayaan UMKM', pos: 1 },
-        { name: 'Lingkungan', pos: 1 },
-        { name: 'Kesehatan', pos: 1 },
-        { name: 'Pendidikan', pos: 1 },
-        { name: 'Fasilitas', pos: 1 },
-      ];
+  const handleKategoriEdit = (item: KategoriKKN) => {
+    setKategoriEditingId(item.id);
+    setKategoriNama(item.nama);
+  };
 
-  // Format SDG data for PieChart
-  const sdgChartData = metrics?.sdgs_distribution
-    ? Object.entries(metrics.sdgs_distribution).map(([sdg, val]) => ({
-        name: sdg,
-        value: val as number,
-        color: SDG_COLORS[sdg] || '#2589F5',
-      }))
-    : [
-        { name: 'SDG 3', value: 1, color: '#4C9F38' },
-        { name: 'SDG 4', value: 1, color: '#C5192D' },
-        { name: 'SDG 8', value: 1, color: '#A21942' },
-        { name: 'SDG 9', value: 2, color: '#FD6925' },
-        { name: 'SDG 11', value: 1, color: '#FD9D24' },
-        { name: 'SDG 13', value: 1, color: '#3F7E44' },
-        { name: 'SDG 15', value: 1, color: '#56C02B' },
-      ];
+  const handleKategoriCancel = () => {
+    setKategoriEditingId(null);
+    setKategoriNama("");
+  };
 
-  const weeklyProgressData = [
-    { minggu: 'M1', target: 25, realisasi: 25 },
-    { minggu: 'M2', target: 50, realisasi: 55 },
-    { minggu: 'M3', target: 75, realisasi: 75 },
-    { minggu: 'M4', target: 100, realisasi: 100 },
-  ];
+  const handleKategoriDelete = () => {
+    if (!kategoriDeleteTarget) return;
+    setKategoriList((prev) =>
+      prev.filter((k) => k.id !== kategoriDeleteTarget.id),
+    );
+    toast.success(`Kategori "${kategoriDeleteTarget.nama}" dihapus`);
+    setKategoriDeleteTarget(null);
+  };
+
+  // Sektor handlers
+  const filteredSektor = sektorList.filter((s) =>
+    s.nama.toLowerCase().includes(sektorSearch.toLowerCase()),
+  );
+
+  const handleSektorSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sektorNama.trim()) {
+      toast.error("Nama sektor wajib diisi");
+      return;
+    }
+    const slug = sektorNama
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, "");
+    if (sektorEditingId) {
+      if (sektorList.some((s) => s.slug === slug && s.id !== sektorEditingId)) {
+        toast.error("Sektor dengan nama tersebut sudah ada");
+        return;
+      }
+      setSektorList((prev) =>
+        prev.map((s) =>
+          s.id === sektorEditingId
+            ? { ...s, nama: sektorNama.trim(), slug }
+            : s,
+        ),
+      );
+      toast.success(`Sektor "${sektorNama}" diperbarui`);
+      setSektorEditingId(null);
+    } else {
+      if (sektorList.some((s) => s.slug === slug)) {
+        toast.error("Sektor sudah ada");
+        return;
+      }
+      setSektorList((prev) => [
+        ...prev,
+        { id: Date.now().toString(), nama: sektorNama.trim(), slug },
+      ]);
+      toast.success(`Sektor "${sektorNama}" ditambahkan`);
+    }
+    setSektorNama("");
+  };
+
+  const handleSektorEdit = (item: SektorKKN) => {
+    setSektorEditingId(item.id);
+    setSektorNama(item.nama);
+  };
+
+  const handleSektorCancel = () => {
+    setSektorEditingId(null);
+    setSektorNama("");
+  };
+
+  const handleSektorDelete = () => {
+    if (!sektorDeleteTarget) return;
+    setSektorList((prev) => prev.filter((s) => s.id !== sektorDeleteTarget.id));
+    toast.success(`Sektor "${sektorDeleteTarget.nama}" dihapus`);
+    setSektorDeleteTarget(null);
+  };
 
   return (
-    <DashboardLayout title="Analisis & Statistik SDG Nasional">
-      <div className="space-y-6 font-jakarta">
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              Analisis Capaian & Statistik SDG Nasional
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Pemantauan kinerja agregat program KKN terpadu, kontribusi Sustainable Development Goals (SDGs), dan efektivitas jam kerja mahasiswa di desa mitra.
-            </p>
+    <DashboardLayout title="Manajemen Sektor & Kategori KKN">
+      <div className="space-y-6 font-jakarta w-full">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+            Manajemen Sektor & Kategori KKN
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Kelola kategori dan sektor untuk kebutuhan KKN
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Kategori - Kiri */}
+          <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm w-full flex flex-col">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Tag className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
+                  Kategori KKN
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Kelola kategori program KKN
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleKategoriSubmit} className="flex gap-2 mb-4">
+              <div className="relative flex-1">
+                <Tag className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder={
+                    kategoriEditingId
+                      ? "Edit kategori..."
+                      : "Nama kategori baru..."
+                  }
+                  value={kategoriNama}
+                  onChange={(e) => setKategoriNama(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 text-sm text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <Button
+                type="submit"
+                size="sm"
+                variant="primary"
+                className="gap-1.5 font-bold text-xs shrink-0"
+              >
+                {kategoriEditingId ? (
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                ) : (
+                  <Plus className="w-3.5 h-3.5" />
+                )}
+                {kategoriEditingId ? "Simpan" : "Tambah"}
+              </Button>
+              {kategoriEditingId && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleKategoriCancel}
+                  className="shrink-0 h-10 w-10 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </form>
+            <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-navy-800 flex-1">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 border-b border-slate-200 dark:border-navy-800">
+                      <th className="p-3 font-bold w-12">No</th>
+                      <th className="p-3 font-bold">Nama Kategori</th>
+                      <th className="p-3 font-bold text-right w-20">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-navy-800">
+                    {filteredKategori.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="p-6 text-center text-xs text-slate-500"
+                        >
+                          Tidak ada kategori.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredKategori.map((k, idx) => (
+                        <tr
+                          key={k.id}
+                          className="hover:bg-slate-50/60 dark:hover:bg-navy-950/50"
+                        >
+                          <td className="p-3 font-mono text-slate-500">
+                            {idx + 1}
+                          </td>
+                          <td className="p-3 font-semibold text-navy-950 dark:text-white">
+                            {k.nama}
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={() => handleKategoriEdit(k)}
+                                className="w-7 h-7 rounded-lg bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 text-slate-500 hover:text-primary hover:border-primary/30 flex items-center justify-center transition-colors"
+                                aria-label="Edit"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => setKategoriDeleteTarget(k)}
+                                className="w-7 h-7 rounded-lg bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center justify-center transition-colors"
+                                aria-label="Hapus"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+
+          {/* Sektor - Kanan */}
+          <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm w-full flex flex-col">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center">
+                <Briefcase className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
+                  Sektor KKN
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Kelola sektor program KKN
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSektorSubmit} className="flex gap-2 mb-4">
+              <div className="relative flex-1">
+                <Layers className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder={
+                    sektorEditingId ? "Edit sektor..." : "Nama sektor baru..."
+                  }
+                  value={sektorNama}
+                  onChange={(e) => setSektorNama(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 text-sm text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <Button
+                type="submit"
+                size="sm"
+                variant="primary"
+                className="gap-1.5 font-bold text-xs shrink-0 bg-emerald-600 hover:bg-emerald-700"
+              >
+                {sektorEditingId ? (
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                ) : (
+                  <Plus className="w-3.5 h-3.5" />
+                )}
+                {sektorEditingId ? "Simpan" : "Tambah"}
+              </Button>
+              {sektorEditingId && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleSektorCancel}
+                  className="shrink-0 h-10 w-10 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </form>
+
+            <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-navy-800 flex-1">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 border-b border-slate-200 dark:border-navy-800">
+                      <th className="p-3 font-bold w-12">No</th>
+                      <th className="p-3 font-bold">Nama Sektor</th>
+                      <th className="p-3 font-bold text-right w-20">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-navy-800">
+                    {filteredSektor.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="p-6 text-center text-xs text-slate-500"
+                        >
+                          Tidak ada sektor.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredSektor.map((s, idx) => (
+                        <tr
+                          key={s.id}
+                          className="hover:bg-slate-50/60 dark:hover:bg-navy-950/50"
+                        >
+                          <td className="p-3 font-mono text-slate-500">
+                            {idx + 1}
+                          </td>
+                          <td className="p-3 font-semibold text-navy-950 dark:text-white">
+                            {s.nama}
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={() => handleSektorEdit(s)}
+                                className="w-7 h-7 rounded-lg bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 text-slate-500 hover:text-emerald-600 hover:border-emerald-200 flex items-center justify-center transition-colors"
+                                aria-label="Edit"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => setSektorDeleteTarget(s)}
+                                className="w-7 h-7 rounded-lg bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center justify-center transition-colors"
+                                aria-label="Hapus"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Popup Hapus Kategori */}
+        {kategoriDeleteTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm">
+            <Card className="w-full max-w-md p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-2xl space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div className="space-y-1 flex-1">
+                  <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
+                    Hapus Kategori?
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Hapus{" "}
+                    <strong className="text-navy-950 dark:text-white">
+                      {kategoriDeleteTarget.nama}
+                    </strong>
+                    ?
+                  </p>
+                </div>
+                <button
+                  onClick={() => setKategoriDeleteTarget(null)}
+                  className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-navy-800"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setKategoriDeleteTarget(null)}
+                  className="text-xs"
+                >
+                  Batal
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleKategoriDelete}
+                  className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs gap-1.5"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Ya, Hapus
+                </Button>
+              </div>
+            </Card>
           </div>
+        )}
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => toast.success('Mengekspor laporan data analisis statistik (Excel / CSV)')}
-              className="text-xs font-bold gap-1.5 whitespace-nowrap"
-            >
-              <Download className="w-4 h-4" />
-              <span>Ekspor Excel</span>
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => toast.success('Mengunduh Laporan Eksekutif Capaian KKN Nasional (PDF)')}
-              className="text-xs font-bold gap-1.5 whitespace-nowrap"
-            >
-              <FileCheck2 className="w-4 h-4" />
-              <span>Laporan Eksekutif</span>
-            </Button>
+        {/* Popup Hapus Sektor */}
+        {sektorDeleteTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm">
+            <Card className="w-full max-w-md p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-2xl space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div className="space-y-1 flex-1">
+                  <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
+                    Hapus Sektor?
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Hapus{" "}
+                    <strong className="text-navy-950 dark:text-white">
+                      {sektorDeleteTarget.nama}
+                    </strong>
+                    ?
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSektorDeleteTarget(null)}
+                  className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-navy-800"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSektorDeleteTarget(null)}
+                  className="text-xs"
+                >
+                  Batal
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleSektorDelete}
+                  className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs gap-1.5"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Ya, Hapus
+                </Button>
+              </div>
+            </Card>
           </div>
-        </div>
-
-        {/* Metrik Agregat Utama */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mahasiswa Terlibat</span>
-            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {metrics?.total_mahasiswa_terlibat || 7} Orang
-            </p>
-            <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" />
-              <span>{metrics?.total_kelompok_kkn || 3} Kelompok KKN</span>
-            </p>
-          </Card>
-
-          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Desa Mitra Terbantu</span>
-            <p className="text-2xl font-extrabold text-primary font-epilogue">
-              {metrics?.total_desa_terbantu || 2} Desa
-            </p>
-            <p className="text-[11px] text-slate-500">Program Berjalan & Selesai</p>
-          </Card>
-
-          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Jam Pengabdian</span>
-            <p className="text-2xl font-extrabold text-emerald-600 font-epilogue">
-              {metrics?.total_jam_pengabdian?.toLocaleString('id-ID') || '640'} Jam
-            </p>
-            <p className="text-[11px] text-emerald-600 font-semibold">Tercatat di Logbook Mingguan</p>
-          </Card>
-
-          <Card className="p-4 space-y-1 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Luaran & Portofolio</span>
-            <p className="text-2xl font-extrabold text-amber-600 font-epilogue">
-              {metrics?.total_portofolio_publik || 1} Publikasi
-            </p>
-            <p className="text-[11px] text-slate-500">Sertifikat Digital Diterbitkan</p>
-          </Card>
-        </div>
-
-        {/* Grid Charts Recharts */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Chart 1: Distribusi Sektor Program */}
-          <Card className="lg:col-span-7 p-6 space-y-4 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-navy-800">
-              <div>
-                <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
-                  Distribusi Kategori Program KKN
-                </h3>
-                <p className="text-xs text-slate-500">Jumlah pos kebutuhan aktif & tuntas per bidang fokus</p>
-              </div>
-            </div>
-
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={sectorData} layout="vertical" margin={{ left: 10, right: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                  <XAxis type="number" fontSize={11} stroke="#94a3b8" />
-                  <YAxis type="category" dataKey="name" width={140} fontSize={11} stroke="#64748b" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0F294A',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '11px',
-                    }}
-                  />
-                  <Bar dataKey="pos" name="Jumlah Pos" fill="#2589F5" radius={[0, 8, 8, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          {/* Chart 2: Kontribusi SDG */}
-          <Card className="lg:col-span-5 p-6 space-y-4 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-navy-800">
-              <div>
-                <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
-                  Sebaran Agenda SDG
-                </h3>
-                <p className="text-xs text-slate-500">Proporsi program KKN terhadap target pembangunan global</p>
-              </div>
-            </div>
-
-            <div className="h-64 w-full flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={sdgChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={45}
-                    outerRadius={75}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {sdgChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0F294A',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '11px',
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-[11px]">
-              {sdgChartData.map((item, idx) => (
-                <span key={idx} className="flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300">
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span>{item.name} ({item.value})</span>
-                </span>
-              ))}
-            </div>
-          </Card>
-
-          {/* Chart 3: Progres Kumulatif Siklus */}
-          <Card className="lg:col-span-12 p-6 space-y-4 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-navy-800">
-              <div>
-                <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
-                  Tren Rata-rata Progres Mingguan Mahasiswa (Minggu 1 s.d. 4)
-                </h3>
-                <p className="text-xs text-slate-500">Target Kurikulum (%) vs Realisasi Logbook Terverifikasi DPL & Desa</p>
-              </div>
-            </div>
-
-            <div className="h-60 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={weeklyProgressData} margin={{ left: 10, right: 10 }}>
-                  <defs>
-                    <linearGradient id="realisasiGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#16A34A" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#16A34A" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="minggu" stroke="#64748b" fontSize={11} />
-                  <YAxis stroke="#64748b" fontSize={11} unit="%" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0F294A',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '11px',
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="realisasi"
-                    name="Realisasi Progres"
-                    stroke="#16A34A"
-                    strokeWidth={3}
-                    fillOpacity={1}
-                    fill="url(#realisasiGrad)"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="target"
-                    name="Target Kurikulum KKN"
-                    stroke="#94A3B8"
-                    strokeDasharray="5 5"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </div>
+        )}
       </div>
     </DashboardLayout>
   );

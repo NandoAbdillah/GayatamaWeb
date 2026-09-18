@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -8,177 +9,27 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
   ClipboardList,
   Search,
-  Filter,
-  Eye,
   Building,
   MapPin,
-  Users,
-  Calendar,
-  Layers,
-  Sparkles,
   BookOpen,
   Heart,
   Leaf,
   Wrench,
-  GraduationCap,
-  X,
-  ExternalLink,
+  Store,
   ChevronRight,
-  Landmark,
 } from 'lucide-react';
-import { toast } from 'sonner';
 import api from '@/lib/services';
+import { FALLBACK_POS_DATA, PosKebutuhanItem } from '@/lib/data/pos-kebutuhan-data';
 
-interface PosKebutuhanItem {
-  id: number;
-  judul: string;
-  desa_id: number;
-  deskripsi: string;
-  kategori: string;
-  sdg_codes?: number[];
-  kuota_kelompok: number;
-  deadline?: string;
-  jurusan_dibutuhkan?: Record<string, number>;
-  status: 'open' | 'in_progress' | 'completed';
-  desa?: {
-    id: number;
-    nama_desa: string;
-    kecamatan?: string;
-    kabupaten?: string;
-    provinsi?: string;
-    kontak_resmi?: string;
-    latitude?: number;
-    longitude?: number;
-  };
-}
 
-const FALLBACK_POS_DATA: PosKebutuhanItem[] = [
-  {
-    id: 1,
-    judul: 'Digitalisasi Branding dan E-Commerce UMKM Kripik Singkong',
-    desa_id: 1,
-    deskripsi: 'Pengembangan identitas visual merek kemasan modern, pendaftaran marketplace (Shopee/Tokopedia), dan pelatihan pembukuan keuangan digital untuk 15 pelaku UMKM.',
-    kategori: 'umkm',
-    sdg_codes: [8, 9],
-    kuota_kelompok: 1,
-    deadline: '2026-10-30',
-    jurusan_dibutuhkan: {
-      'Teknik Informatika': 1,
-      'Desain Komunikasi Visual': 1,
-      'Manajemen': 1,
-    },
-    status: 'in_progress',
-    desa: {
-      id: 1,
-      nama_desa: 'Desa Sukamaju',
-      kecamatan: 'Mojowarno',
-      kabupaten: 'Kabupaten Jombang',
-      provinsi: 'Jawa Timur',
-      kontak_resmi: '081234567201',
-    },
-  },
-  {
-    id: 2,
-    judul: 'Pemetaan Sistem Pengolahan Sampah Organik dan Biogas',
-    desa_id: 2,
-    deskripsi: 'Perancangan instalasi prototipe biogas dari limbah kotoran ternak dan penyuluhan manajemen sampah ramah lingkungan.',
-    kategori: 'lingkungan',
-    sdg_codes: [13, 15],
-    kuota_kelompok: 1,
-    deadline: '2026-11-15',
-    jurusan_dibutuhkan: {
-      'Teknik Lingkungan': 1,
-      'Sistem Informasi': 1,
-    },
-    status: 'in_progress',
-    desa: {
-      id: 2,
-      nama_desa: 'Desa Berkah Makmur',
-      kecamatan: 'Prigen',
-      kabupaten: 'Kabupaten Pasuruan',
-      provinsi: 'Jawa Timur',
-      kontak_resmi: '081234567202',
-    },
-  },
-  {
-    id: 3,
-    judul: 'Pemberdayaan Posyandu Digital & Pencegahan Stunting Anak',
-    desa_id: 1,
-    deskripsi: 'Digitalisasi pencatatan data tumbuh kembang balita di 5 posyandu desa serta edukasi gizi seimbang bagi ibu hamil.',
-    kategori: 'kesehatan',
-    sdg_codes: [3],
-    kuota_kelompok: 2,
-    deadline: '2026-10-15',
-    jurusan_dibutuhkan: {
-      'Kesehatan Masyarakat': 2,
-      'Gizi': 1,
-      'Teknik Informatika': 1,
-    },
-    status: 'open',
-    desa: {
-      id: 1,
-      nama_desa: 'Desa Sukamaju',
-      kecamatan: 'Mojowarno',
-      kabupaten: 'Kabupaten Jombang',
-      provinsi: 'Jawa Timur',
-      kontak_resmi: '081234567201',
-    },
-  },
-  {
-    id: 4,
-    judul: 'Bimbingan Belajar Bahasa Inggris dan Literasi Digital SD',
-    desa_id: 3,
-    deskripsi: 'Penguatan kemampuan dasar bahasa Inggris interaktif dan pengenalan literasi komputer bagi siswa SDN Pacet 01.',
-    kategori: 'pendidikan',
-    sdg_codes: [4],
-    kuota_kelompok: 1,
-    deadline: '2026-10-05',
-    jurusan_dibutuhkan: {
-      'Pendidikan Bahasa Inggris': 1,
-      'Pendidikan Guru Sekolah Dasar': 1,
-    },
-    status: 'open',
-    desa: {
-      id: 3,
-      nama_desa: 'Desa Cempaka Putih',
-      kecamatan: 'Pacet',
-      kabupaten: 'Kabupaten Mojokerto',
-      provinsi: 'Jawa Timur',
-      kontak_resmi: '081234567203',
-    },
-  },
-  {
-    id: 5,
-    judul: 'Perencanaan Masterplan Ruang Terbuka Hijau & Sarana Olahraga Desa',
-    desa_id: 2,
-    deskripsi: 'Penyusunan dokumen desain teknis dan anggaran rencana pembangunan taman desa terpadu ramah lansia dan anak.',
-    kategori: 'fasilitas',
-    sdg_codes: [9, 11],
-    kuota_kelompok: 1,
-    deadline: '2026-08-30',
-    jurusan_dibutuhkan: {
-      'Teknik Sipil': 1,
-      'Arsitektur': 1,
-    },
-    status: 'completed',
-    desa: {
-      id: 2,
-      nama_desa: 'Desa Berkah Makmur',
-      kecamatan: 'Prigen',
-      kabupaten: 'Kabupaten Pasuruan',
-      provinsi: 'Jawa Timur',
-      kontak_resmi: '081234567202',
-    },
-  },
-];
 
 export default function AdminPosKebutuhanPage() {
+  const router = useRouter();
   const [posList, setPosList] = useState<PosKebutuhanItem[]>(FALLBACK_POS_DATA);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeKategori, setActiveKategori] = useState<string>('all');
   const [activeStatus, setActiveStatus] = useState<string>('all');
-  const [selectedPos, setSelectedPos] = useState<PosKebutuhanItem | null>(null);
 
   useEffect(() => {
     async function loadPosKebutuhan() {
@@ -199,7 +50,7 @@ export default function AdminPosKebutuhanPage() {
   const getKategoriIcon = (kategori: string) => {
     switch (kategori.toLowerCase()) {
       case 'umkm':
-        return Sparkles;
+        return Store;
       case 'lingkungan':
         return Leaf;
       case 'kesehatan':
@@ -232,7 +83,7 @@ export default function AdminPosKebutuhanPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              Katalog & Pemantauan Pos Kebutuhan Desa
+              Pengajuan Kebutuhan Desa/KKN
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
               Super Admin mengawasi seluruh pos aspirasi dan kebutuhan riil desa mitra di seluruh Indonesia yang siap atau sedang dikerjakan mahasiswa KKN.
@@ -271,9 +122,9 @@ export default function AdminPosKebutuhanPage() {
             <div className="flex items-center gap-1.5 self-end md:self-auto">
               {[
                 { key: 'all', label: 'Semua' },
-                { key: 'open', label: 'Open' },
-                { key: 'in_progress', label: 'In Progress' },
-                { key: 'completed', label: 'Completed' },
+                { key: 'open', label: 'Terbuka' },
+                { key: 'in_progress', label: 'Sedang Berjalan' },
+                { key: 'completed', label: 'Selesai' },
               ].map((st) => (
                 <button
                   key={st.key}
@@ -353,35 +204,17 @@ export default function AdminPosKebutuhanPage() {
                         <span>{pos.desa?.kecamatan}, {pos.desa?.kabupaten}</span>
                       </div>
                     </div>
-
-                    {/* SDGs Badges */}
-                    {pos.sdg_codes && pos.sdg_codes.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {pos.sdg_codes.map((sdg) => (
-                          <span
-                            key={sdg}
-                            className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-slate-300"
-                          >
-                            SDG {sdg}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
-                  {/* Card Footer */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between text-xs">
-                    <span className="text-slate-500 text-[11px]">
-                      Kuota: <strong className="text-navy-950 dark:text-white">{pos.kuota_kelompok} Kelompok</strong>
-                    </span>
-
+                  {/* Card Footer - hanya Detail */}
+                  <div className="pt-3 border-t border-slate-100 dark:border-navy-800 flex items-center justify-end">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setSelectedPos(pos)}
+                      onClick={() => router.push(`/admin/pos-kebutuhan/${pos.id}`)}
                       className="text-xs font-semibold gap-1"
                     >
-                      <span>Rincian</span>
+                      <span>Detail</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </Button>
                   </div>
@@ -391,95 +224,7 @@ export default function AdminPosKebutuhanPage() {
           )}
         </div>
 
-        {/* Modal Detail Pos Kebutuhan */}
-        {selectedPos && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-sm animate-in fade-in duration-150">
-            <Card className="w-full max-w-xl p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-navy-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                    <ClipboardList className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
-                      Rincian Pos Kebutuhan Desa
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      ID Pos: #{selectedPos.id} • Kategori: <span className="capitalize font-semibold">{selectedPos.kategori}</span>
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedPos(null)}
-                  className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-navy-800"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
 
-              <div className="space-y-3 text-xs font-jakarta">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Judul Pos Kebutuhan</span>
-                    <StatusBadge status={selectedPos.status} size="sm" />
-                  </div>
-                  <h4 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
-                    {selectedPos.judul}
-                  </h4>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800 space-y-2">
-                  <p className="font-bold text-slate-700 dark:text-slate-300">Deskripsi Lengkap Program:</p>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                    {selectedPos.deskripsi}
-                  </p>
-                </div>
-
-                {/* Profil Desa Mitra */}
-                <div className="p-3.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 space-y-1.5">
-                  <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold">
-                    <Building className="w-4 h-4" />
-                    <span>{selectedPos.desa?.nama_desa}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-slate-600 dark:text-slate-400 text-[11px]">
-                    <div>Kecamatan: {selectedPos.desa?.kecamatan}</div>
-                    <div>Kabupaten: {selectedPos.desa?.kabupaten}</div>
-                    <div>Provinsi: {selectedPos.desa?.provinsi}</div>
-                    <div>Kontak Resmi: <span className="font-mono">{selectedPos.desa?.kontak_resmi || '-'}</span></div>
-                  </div>
-                </div>
-
-                {/* Jurusan Dibutuhkan */}
-                {selectedPos.jurusan_dibutuhkan && (
-                  <div className="space-y-1.5">
-                    <p className="font-bold text-navy-950 dark:text-white uppercase tracking-wider text-[11px]">
-                      Kualifikasi / Jurusan Mahasiswa yang Dibutuhkan
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {Object.entries(selectedPos.jurusan_dibutuhkan).map(([jurusan, kuota]) => (
-                        <div key={jurusan} className="p-2 rounded-lg bg-slate-100 dark:bg-navy-800 flex items-center justify-between">
-                          <span className="font-semibold text-slate-700 dark:text-slate-200">{jurusan}</span>
-                          <span className="font-mono font-bold text-primary">{kuota} Mahasiswa</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-navy-800">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedPos(null)}
-                  className="text-xs"
-                >
-                  Tutup
-                </Button>
-              </div>
-            </Card>
-          </div>
-        )}
       </div>
     </DashboardLayout>
   );
