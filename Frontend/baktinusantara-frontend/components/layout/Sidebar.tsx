@@ -200,6 +200,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             label: "Dashboard",
             icon: LayoutDashboard,
           },
+          {
+            href: "/kampus/monitoring",
+            label: "Monitoring",
+            icon: Activity,
+            badge: "Live",
+          },
           { href: "/kampus/dosen", label: "Dosen DPL", icon: GraduationCap },
           {
             href: "/kampus/laporan-dosen",
@@ -207,14 +213,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             icon: FileText,
             badge: "1 Baru",
           },
-          { href: "/kampus/sks", label: "Konversi SKS", icon: FileCheck2 },
           {
             href: "/kampus/documentation",
             label: "SOP & Regulasi",
             icon: BookOpen,
           },
           { href: "/kampus/feedback", label: "Feedback", icon: ThumbsUp },
-          { href: "/kampus/logs", label: "Aktivitas", icon: Activity },
         ];
       default:
         return [
