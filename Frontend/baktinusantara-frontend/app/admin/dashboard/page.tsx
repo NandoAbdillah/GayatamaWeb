@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/services";
+import { FALLBACK_UNIV_DETAIL } from "@/lib/data/direktori-kampus-data";
+import { MONITORING_UNIV } from "@/lib/data/monitoring-data";
 import {
   ShieldCheck,
   Building2,
@@ -409,7 +411,7 @@ export default function SuperadminDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
-              <span>Desa Terbantu</span>
+              <span>Desa Terdaftar</span>
               <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600">
                 <Building2 className="w-4 h-4" />
               </div>
@@ -419,59 +421,50 @@ export default function SuperadminDashboardPage() {
             </p>
             <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5" />
-              <span>Mitra Aktif & Terverifikasi</span>
+              <span>Mitra Terdaftar di Sistem</span>
             </p>
           </Card>
 
           <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
-              <span>Mahasiswa KKN Terlibat</span>
+              <span>Desa Terbantu</span>
               <div className="w-8 h-8 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary">
                 <Users className="w-4 h-4" />
               </div>
             </div>
             <p className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {loading
-                ? "..."
-                : `${metrics?.total_mahasiswa_terlibat || 0} Orang`}
+              {loading ? "..." : `${metrics?.total_desa_terbantu || 0} Desa`}
             </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-              {metrics?.total_kelompok_kkn || 0} Kelompok Terdaftar
+            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>Telah Menerima Program KKN</span>
             </p>
           </Card>
 
           <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
-              <span>UMKM Terdigitalisasi</span>
+              <span>Universitas Terdaftar</span>
               <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-600">
-                <Sparkles className="w-4 h-4" />
+                <GraduationCap className="w-4 h-4" />
               </div>
             </div>
             <p className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {loading
-                ? "..."
-                : `${metrics?.total_umkm_terdigitalisasi || 0} Unit`}
+              {loading ? "..." : `${FALLBACK_UNIV_DETAIL.length} Kampus`}
             </p>
-            <p className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">
-              Rebranding & E-Commerce
-            </p>
+            <p className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">Kampus Mitra Terverifikasi</p>
           </Card>
 
           <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
-              <span>Jam Pengabdian Efektif</span>
+              <span className="text-[10px] sm:text-xs leading-tight">Universitas Sedang KKN</span>
               <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600">
-                <Clock className="w-4 h-4" />
+                <GraduationCap className="w-4 h-4" />
               </div>
             </div>
             <p className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {loading
-                ? "..."
-                : `${metrics?.total_jam_pengabdian?.toLocaleString("id-ID") || 0} Jam`}
+              {loading ? "..." : `${MONITORING_UNIV.filter((u) => u.program_aktif > 0).length} Kampus`}
             </p>
-            <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">
-              {metrics?.total_luaran_terverifikasi || 0} Luaran Terverifikasi
-            </p>
+            <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Aktif menjalankan KKN</p>
           </Card>
         </div>
 
