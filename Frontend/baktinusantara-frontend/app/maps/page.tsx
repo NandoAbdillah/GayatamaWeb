@@ -1112,10 +1112,10 @@ export default function MapsPage() {
           </div>
         </div>
 
-        {/* 3. UNIFIED RIGHT SPATIAL INSPECTOR DRAWER (Positioned below top island with safe screen margins) */}
-        <div className="absolute top-[180px] sm:top-[185px] right-3 sm:right-6 bottom-6 sm:bottom-8 w-[390px] sm:w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-end">
+        {/* 3. UNIFIED LEFT SPATIAL INSPECTOR DRAWER (Positioned at top-left, 60vh max-height) */}
+        <div className="absolute top-3 sm:top-4 left-3 sm:left-6 w-[390px] sm:w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-start">
           {isDetailOpen ? (
-            <div className="pointer-events-auto w-full h-full max-h-[calc(100vh-215px)] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-right-4">
+            <div className="pointer-events-auto w-full max-h-[60vh] sm:max-h-[62vh] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-left-4">
               {/* Inspector Header: 5 Segmented Tabs + Minimize Button */}
               <div className="px-3.5 pt-3 pb-2.5 border-b border-slate-100 dark:border-navy-800 shrink-0 flex items-center justify-between gap-1.5">
                 <div className="flex items-center gap-0.5 p-1 rounded-2xl bg-slate-100 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-800 text-[10.5px] font-bold flex-1 overflow-x-auto scrollbar-none">
@@ -1897,7 +1897,7 @@ export default function MapsPage() {
               </div>
             </div>
           ) : (
-            /* Collapsed Floating Pill Button on Right Edge */
+            /* Collapsed Floating Pill Button on Left Edge */
             <button
               type="button"
               onClick={() => setIsDetailOpen(true)}
@@ -1917,7 +1917,7 @@ export default function MapsPage() {
                   {activeGovernance.name}
                 </strong>
               </div>
-              <ChevronLeft className="w-4 h-4 text-emerald-600 ml-1 shrink-0" />
+              <ChevronRight className="w-4 h-4 text-emerald-600 ml-1 shrink-0" />
             </button>
           )}
         </div>
