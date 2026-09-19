@@ -412,6 +412,32 @@ export const MOCK_ASPIRASI: Aspirasi[] = [
     tanggapan_desa: 'Diverifikasi oleh Sekdes. Sedang dijadwalkan workshop bersama mahasiswa KKN Farmasi & Hukum.',
     created_at: '2026-08-18',
   },
+  {
+    id: 3,
+    ticket_number: 'ASP-2026-SKM-0125',
+    desa_id: 201,
+    nama_pengadu: 'Ibu Siti (Kader Posyandu Dusun 1)',
+    nomor_kontak: '081322445566',
+    judul: 'Posyandu Kekurangan Alat Timbang Digital dan PMT Balita',
+    deskripsi:
+      'Timbangan manual di Posyandu Dusun 1 sudah rusak dan PMT balita tidak rutin. Mohon bantuan pengadaan alat timbang digital serta penyuluhan gizi untuk cegah stunting.',
+    kategori: 'Kesehatan',
+    status: 'pending',
+    created_at: '2026-08-20',
+  },
+  {
+    id: 4,
+    ticket_number: 'ASP-2026-SKM-0130',
+    desa_id: 201,
+    nama_pengadu: 'Pak Budi (Kelompok Tani Muda)',
+    nomor_kontak: '085799001122',
+    judul: 'Jalan Usaha Tani Becek dan Sulit Dilalui Saat Hujan',
+    deskripsi:
+      'Jalan tanah menuju area persawahan blok barat becek parah ketika hujan, hasil panen sulit diangkut. Warga berharap ada perbaikan pengerasan jalan dan gotong royong.',
+    kategori: 'Infrastruktur',
+    status: 'pending',
+    created_at: '2026-08-22',
+  },
 ];
 
 export const MOCK_BAST: BASTDocument = {

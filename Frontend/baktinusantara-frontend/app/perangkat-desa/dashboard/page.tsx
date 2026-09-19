@@ -109,15 +109,13 @@ export default function PerangkatDesaDashboard() {
 
           <Card className="p-5 border-slate-200 space-y-2 bg-white">
             <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span>Status BAST Desa</span>
-              <Award className="w-4 h-4 text-indigo-600" />
+              <span>Total Kelompok</span>
+              <Users className="w-4 h-4 text-indigo-600" />
             </div>
-            <p className="text-sm font-bold text-navy-950 font-epilogue">
-              Siap Ditandatangani
+            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">
+              1 Kelompok
             </p>
-            <p className="text-xs text-emerald-700 font-semibold">
-              Evaluasi Luaran 94/100
-            </p>
+            <p className="text-xs text-slate-500">Aktif di Desa Sukamaju • 2026</p>
           </Card>
         </div>
 
