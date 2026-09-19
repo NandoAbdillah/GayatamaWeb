@@ -157,14 +157,14 @@ const createPosIcon = (isSelected: boolean, name: string, distanceKm?: number) =
   L.divIcon({
     className: 'custom-pos-pin !bg-transparent !border-0 !shadow-none',
     html: `
-      <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: translate3d(0,0,0); transition: all 0.2s ease;">
+      <div class="pos-pin-wrapper" style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
         <div style="display: flex; align-items: center; gap: 6px; background: ${
           isSelected ? '#064e3b' : '#ffffff'
         }; color: ${
           isSelected ? '#ffffff' : '#0f172a'
         }; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 9999px; box-shadow: ${
           isSelected ? '0 8px 20px rgba(16, 185, 129, 0.5), 0 0 0 2.5px #10b981' : '0 4px 12px rgba(0, 0, 0, 0.18)'
-        }; border: 1.5px solid ${isSelected ? '#34d399' : '#cbd5e1'}; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform: translateZ(0);">
+        }; border: 1.5px solid ${isSelected ? '#34d399' : '#cbd5e1'}; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
           <span style="width: 7px; height: 7px; border-radius: 9999px; background: ${
             isSelected ? '#34d399' : '#10b981'
           }; display: inline-block; flex-shrink: 0;"></span>
@@ -193,8 +193,8 @@ const createCollegeIcon = (
     ? isPTN ? '#10b981' : '#6366f1'
     : isPTN ? '#059669' : '#4f46e5';
   const glow = isSelected
-    ? `0 0 0 4px ${isPTN ? 'rgba(16, 185, 129, 0.4)' : 'rgba(99, 102, 241, 0.4)'}, 0 8px 20px rgba(0,0,0,0.3)`
-    : '0 4px 12px rgba(0, 0, 0, 0.16)';
+    ? `0 0 0 3px ${isPTN ? 'rgba(16, 185, 129, 0.4)' : 'rgba(99, 102, 241, 0.4)'}, 0 6px 16px rgba(0,0,0,0.25)`
+    : '0 3px 10px rgba(0, 0, 0, 0.14)';
   const labelBadge = isPTN ? 'PTN' : 'PTS';
   const badgeBg = isPTN ? '#047857' : '#4338ca';
 
@@ -217,22 +217,22 @@ const createCollegeIcon = (
   return L.divIcon({
     className: 'custom-college-pin !bg-transparent !border-0 !shadow-none',
     html: `
-      <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: translate3d(0,0,0);">
-        <!-- Floating Hover Tooltip (Shown on hover without layout shifting) -->
-        <div class="campus-tooltip" style="position: absolute; bottom: 100%; margin-bottom: 8px; left: 50%; transform: translateX(-50%); opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; background: #0f172a; color: #ffffff; padding: 4px 10px; border-radius: 9999px; font-size: 10px; font-weight: 700; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.35); border: 1.5px solid ${isPTN ? '#34d399' : '#818cf8'}; z-index: 9999; display: flex; align-items: center; gap: 5px;">
+      <div class="campus-pin-wrapper" style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+        <!-- Floating Hover Tooltip (Always pointer-events: none to prevent flicker) -->
+        <div class="campus-tooltip" style="position: absolute; bottom: 100%; margin-bottom: 6px; left: 50%; transform: translateX(-50%); opacity: 0; pointer-events: none !important; transition: opacity 0.15s ease-out, transform 0.15s ease-out; background: #0f172a; color: #ffffff; padding: 4px 10px; border-radius: 9999px; font-size: 10px; font-weight: 700; white-space: nowrap; box-shadow: 0 6px 20px rgba(0,0,0,0.35); border: 1.5px solid ${isPTN ? '#34d399' : '#818cf8'}; z-index: 99999; display: flex; align-items: center; gap: 5px;">
           <span style="background: ${isPTN ? '#059669' : '#4f46e5'}; color: #ffffff; font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 9999px; letter-spacing: 0.3px;">${labelBadge}</span>
           <span style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${displayName}</span>
           <div style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #0f172a;"></div>
         </div>
 
         <!-- Disc Pin Icon (Compact 36px, zero stacking at normal zoom) -->
-        <div class="campus-disc" style="width: 36px; height: 36px; border-radius: 9999px; background: #ffffff; border: 2.5px solid ${borderColor}; box-shadow: ${glow}; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 3px; position: relative; transition: transform 0.2s ease;">
+        <div class="campus-disc" style="width: 36px; height: 36px; border-radius: 9999px; background: #ffffff; border: 2.5px solid ${borderColor}; box-shadow: ${glow}; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 3px; position: relative;">
           ${logoImg}
           ${fallbackSvg}
         </div>
 
         <!-- Mini Status Pip (PTN / PTS) -->
-        <div style="position: absolute; bottom: -5px; background: ${badgeBg}; color: #ffffff; font-size: 8px; font-weight: 900; padding: 1px 5px; border-radius: 9999px; border: 1.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.25); letter-spacing: 0.5px; white-space: nowrap;">
+        <div style="position: absolute; bottom: -5px; background: ${badgeBg}; color: #ffffff; font-size: 8px; font-weight: 900; padding: 1px 5px; border-radius: 9999px; border: 1.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); letter-spacing: 0.5px; white-space: nowrap;">
           ${labelBadge}
         </div>
       </div>
@@ -407,31 +407,52 @@ export default function WilayahLeafletMap({
 
   return (
     <div className={className}>
-      {/* Global CSS for Premium Campus Badges & Hover Tooltips */}
+      {/* Global CSS for Stable, Shake-Free Campus Badges & Hover Tooltips */}
       <style>{`
         .custom-college-pin {
           z-index: 250 !important;
-          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
         .custom-college-pin:hover {
           z-index: 99999 !important;
-          transform: scale(1.15) translate3d(0, -3px, 0) !important;
+        }
+        .custom-college-pin .campus-pin-wrapper {
+          transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+          transform-origin: center bottom;
+        }
+        .custom-college-pin:hover .campus-pin-wrapper {
+          transform: translateY(-2px);
+        }
+        .custom-college-pin .campus-disc {
+          transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
+          transform-origin: center center;
+        }
+        .custom-college-pin:hover .campus-disc {
+          transform: scale(1.08);
+          box-shadow: 0 8px 18px rgba(0,0,0,0.25) !important;
+        }
+        .custom-college-pin .campus-tooltip {
+          pointer-events: none !important;
+          opacity: 0;
+          transform: translateX(-50%) translateY(0);
+          transition: opacity 0.15s ease-out, transform 0.15s ease-out;
         }
         .custom-college-pin:hover .campus-tooltip {
           opacity: 1 !important;
-          transform: translateX(-50%) translateY(-6px) !important;
-          pointer-events: auto !important;
-        }
-        .custom-college-pin:hover .campus-disc {
-          box-shadow: 0 10px 25px rgba(0,0,0,0.35) !important;
+          transform: translateX(-50%) translateY(-4px) !important;
+          pointer-events: none !important;
         }
         .custom-pos-pin {
           z-index: 240 !important;
-          transition: transform 0.2s ease !important;
         }
         .custom-pos-pin:hover {
           z-index: 99998 !important;
-          transform: scale(1.08) !important;
+        }
+        .custom-pos-pin .pos-pin-wrapper {
+          transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+          transform-origin: center bottom;
+        }
+        .custom-pos-pin:hover .pos-pin-wrapper {
+          transform: scale(1.05) translateY(-1px);
         }
       `}</style>
 
@@ -760,21 +781,6 @@ export default function WilayahLeafletMap({
         </span>
       </div>
 
-      <style jsx global>{`
-        .custom-college-pin {
-          transition: z-index 0.2s ease;
-        }
-        .custom-college-pin:hover {
-          z-index: 10000 !important;
-        }
-        .custom-college-pin:hover .campus-tooltip {
-          opacity: 1 !important;
-          transform: translateX(-50%) translateY(-4px) !important;
-        }
-        .custom-college-pin:hover .campus-disc {
-          transform: scale(1.15) !important;
-        }
-      `}</style>
     </div>
   );
 }
