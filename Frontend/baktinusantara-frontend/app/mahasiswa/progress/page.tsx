@@ -41,24 +41,9 @@ export default function MahasiswaProgressPage() {
   const [deskripsi, setDeskripsi] = useState<string>('');
   const [fotoFile, setFotoFile] = useState<File | null>(null);
 
-  // Normalize ensures foto_dokumentasi_urls is always array (prevents "reading 'length'" crash)
+  // Normalize ensures all fields are properly structured and enriched
   const normalizeLogbook = (raw: any): LogbookEntry => {
-    const fotos: string[] = (() => {
-      if (Array.isArray(raw?.foto_dokumentasi_urls)) return raw.foto_dokumentasi_urls;
-      if (Array.isArray(raw?.foto_dokumentasi)) return raw.foto_dokumentasi;
-      if (Array.isArray(raw?.fotos)) return raw.fotos;
-      if (typeof raw?.foto === 'string' && raw.foto) return [raw.foto];
-      if (typeof raw?.foto_url === 'string' && raw.foto_url) return [raw.foto_url];
-      return [];
-    })();
-    return {
-      ...raw,
-      foto_dokumentasi_urls: fotos,
-      deskripsi: raw?.deskripsi ?? '',
-      judul_kegiatan: raw?.judul_kegiatan ?? raw?.judul ?? '',
-      target_program_terkait: raw?.target_program_terkait ?? '-',
-      status: raw?.status ?? 'submitted',
-    } as LogbookEntry;
+    return api.progress.normalizeEntry(raw);
   };
 
   useEffect(() => {

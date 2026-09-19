@@ -65,7 +65,7 @@ export default function DetailBerkasPage() {
           </Card>
 
           {/* Popup Konfirmasi Verifikasi */}
-          {showConfirm && (
+          {showConfirm && item && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-in fade-in duration-150">
               <Card className="w-full max-w-md p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-2xl space-y-4">
                 <div className="flex items-start gap-3">
