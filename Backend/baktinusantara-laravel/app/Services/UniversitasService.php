@@ -32,13 +32,37 @@ class UniversitasService
             'is_verified' => false,
         ]);
 
+        // Enforce Official PDDikti / BAN-PT Accreditation verification
+        $realAkreditasi = $data['akreditasi'] ?? 'Baik';
+        $kodeUniv = $data['kode_univ'] ?? null;
+
+        if (!empty($kodeUniv) || !empty($data['nama_universitas'])) {
+            $jsonPath = database_path('data/master_kampus_indonesia.json');
+            if (file_exists($jsonPath)) {
+                $allCampuses = json_decode(file_get_contents($jsonPath), true) ?: [];
+                $qKode = strtolower(trim($kodeUniv ?? ''));
+                $qNama = strtolower(trim($data['nama_universitas'] ?? ''));
+
+                foreach ($allCampuses as $campus) {
+                    if (
+                        ($qKode && strtolower(trim($campus['kode_univ'] ?? '')) === $qKode) ||
+                        ($qNama && strtolower(trim($campus['nama_universitas'] ?? '')) === $qNama)
+                    ) {
+                        $realAkreditasi = $campus['akreditasi'] ?? $realAkreditasi;
+                        $kodeUniv = $campus['kode_univ'] ?? $kodeUniv;
+                        break;
+                    }
+                }
+            }
+        }
+
         $univ = ProfilUniversitas::create([
             'user_id' => $user->id,
             'nama_universitas' => $data['nama_universitas'],
-            'kode_univ' => $data['kode_univ'] ?? null,
+            'kode_univ' => $kodeUniv,
             'sk_file_url' => $skPath,
             'nip_admin' => $data['nip_admin'] ?? null,
-            'akreditasi' => $data['akreditasi'] ?? null,
+            'akreditasi' => $realAkreditasi,
             'alamat_kampus' => $data['alamat_kampus'] ?? null,
             'verified_at' => null,
         ])->load('user');
@@ -284,6 +308,41 @@ class UniversitasService
             'usn' => 'sembilanbelas november',
             'untidar' => 'tidar',
             'utu' => 'teuku umar',
+            'umsida' => 'universitas muhammadiyah sidoarjo',
+            'unusida' => 'universitas nahdlatul ulama sidoarjo',
+            'umaha' => 'universitas maarif hasyim latif',
+            'unusa' => 'universitas nahdlatul ulama surabaya',
+            'ubaya' => 'universitas surabaya',
+            'ukwms' => 'katolik widya mandala surabaya',
+            'untag' => '17 agustus 1945',
+            'unitomo' => 'dr. soetomo',
+            'ubhara' => 'bhayangkara surabaya',
+            'uwks' => 'wijaya kusuma surabaya',
+            'uht' => 'hang tuah',
+            'unnar' => 'narotama',
+            'unipa' => 'pgri adi buana',
+            'undika' => 'dinamika',
+            'uad' => 'ahmad dahlan',
+            'ump' => 'muhammadiyah purwokerto',
+            'unimus' => 'muhammadiyah semarang',
+            'unimma' => 'muhammadiyah magelang',
+            'uhamka' => 'muhammadiyah prof. dr. hamka',
+            'umj' => 'muhammadiyah jakarta',
+            'umsu' => 'muhammadiyah sumatera utara',
+            'umri' => 'muhammadiyah riau',
+            'unismuh' => 'muhammadiyah makassar',
+            'umpalembang' => 'muhammadiyah palembang',
+            'umb' => 'mercu buana',
+            'umkt' => 'muhammadiyah kalimantan timur',
+            'umk' => 'muria kudus',
+            'ummat' => 'muhammadiyah mataram',
+            'ubsi' => 'bina sarana informatika',
+            'gunadarma' => 'gunadarma',
+            'uph' => 'pelita harapan',
+            'umn' => 'multimedia nusantara',
+            'udinus' => 'dian nuswantoro',
+            'uksw' => 'satya wacana',
+            'usd' => 'sanata dharma',
         ];
 
         // 1. Load Master Dataset (2,850 clean Indonesian colleges & universities)

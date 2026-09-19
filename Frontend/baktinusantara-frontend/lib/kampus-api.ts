@@ -22,8 +22,8 @@ export interface KampusItem {
   lng?: number;
 }
 
-const API_KEY = 'aip_live_Kpft1RibVLVlokZ8gWbKMVd1YXM49vPO';
-const BASE_URL = 'https://use.apiindonesia.id/api/v1';
+// Unified Master Database - Zero external rate limits or token limits
+// Data served locally & through high-performance backend master endpoints
 
 // In-memory cache to prevent redundant network calls
 const kampusCache = new Map<string, { data: KampusItem[]; timestamp: number }>();
@@ -33,7 +33,13 @@ const CACHE_TTL_MS = 1000 * 60 * 30; // 30 minutes
  * Pemetaan Domain & Logo Kampus Populer Indonesia
  */
 const KNOWN_CAMPUS_DATA: Record<string, { domain: string; lat: number; lng: number; shortName: string; city: string; prov: string }> = {
-  // Jawa Timur
+  // Jawa Timur & Sidoarjo
+  'universitas muhammadiyah sidoarjo': { domain: 'umsida.ac.id', lat: -7.4670, lng: 112.7168, shortName: 'UMSIDA', city: 'Kabupaten Sidoarjo', prov: 'Jawa Timur' },
+  'universitas nahdlatul ulama sidoarjo': { domain: 'unusida.ac.id', lat: -7.4523, lng: 112.7189, shortName: 'UNUSIDA', city: 'Kabupaten Sidoarjo', prov: 'Jawa Timur' },
+  'universitas maarif hasyim latif': { domain: 'umaha.ac.id', lat: -7.4123, lng: 112.6789, shortName: 'UMAHA', city: 'Kabupaten Sidoarjo', prov: 'Jawa Timur' },
+  'universitas muhammadiyah surabaya': { domain: 'um-surabaya.ac.id', lat: -7.2711, lng: 112.7956, shortName: 'UMSurabaya', city: 'Kota Surabaya', prov: 'Jawa Timur' },
+  'universitas nahdlatul ulama surabaya': { domain: 'unusa.ac.id', lat: -7.3145, lng: 112.7356, shortName: 'UNUSA', city: 'Kota Surabaya', prov: 'Jawa Timur' },
+  'universitas surabaya': { domain: 'ubaya.ac.id', lat: -7.3211, lng: 112.7689, shortName: 'UBAYA', city: 'Kota Surabaya', prov: 'Jawa Timur' },
   'universitas airlangga': { domain: 'unair.ac.id', lat: -7.2721, lng: 112.7583, shortName: 'UNAIR', city: 'Kota Surabaya', prov: 'Jawa Timur' },
   'institut teknologi sepuluh nopember': { domain: 'its.ac.id', lat: -7.2824, lng: 112.7949, shortName: 'ITS', city: 'Kota Surabaya', prov: 'Jawa Timur' },
   'universitas brawijaya': { domain: 'ub.ac.id', lat: -7.9526, lng: 112.6144, shortName: 'UB', city: 'Kota Malang', prov: 'Jawa Timur' },

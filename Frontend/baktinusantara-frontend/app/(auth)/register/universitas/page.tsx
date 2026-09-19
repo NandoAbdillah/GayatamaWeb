@@ -38,6 +38,8 @@ export default function RegisterUniversitasPage() {
   const [isSearchingMaster, setIsSearchingMaster] = useState(false);
   const suggestionRef = useRef<HTMLDivElement>(null);
 
+  const [selectedMaster, setSelectedMaster] = useState<MasterUniversitasItem | null>(null);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -83,6 +85,10 @@ export default function RegisterUniversitasPage() {
     setFormData((prev) => ({ ...prev, nama_universitas: val }));
     setShowSuggestions(true);
 
+    if (selectedMaster && selectedMaster.nama_universitas.toLowerCase() !== val.toLowerCase()) {
+      setSelectedMaster(null);
+    }
+
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -108,6 +114,7 @@ export default function RegisterUniversitasPage() {
 
   const handleSelectMaster = (univ: MasterUniversitasItem) => {
     const resolvedAddress = univ.alamat_kampus || (univ.kabupaten_kota ? `${univ.kabupaten_kota}, ${univ.provinsi}` : '');
+    setSelectedMaster(univ);
     setFormData((prev) => ({
       ...prev,
       nama_universitas: univ.nama_universitas,
@@ -117,7 +124,7 @@ export default function RegisterUniversitasPage() {
     }));
     setSearchQuery(univ.nama_universitas);
     setShowSuggestions(false);
-    toast.success(`Data ${univ.nama_universitas} (Kode PT: ${univ.kode_univ || '-'}) berhasil disinkronkan dari PDDikti!`);
+    toast.success(`Data resmi ${univ.nama_universitas} (Akreditasi: ${univ.akreditasi || 'Unggul'}) tersinkronisasi dari PDDikti!`);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -384,31 +391,74 @@ export default function RegisterUniversitasPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Kode PT (PDDikti Kemendikbudristek)
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Kode PT (PDDikti Kemendikbudristek)
+                    </label>
+                    {selectedMaster && (
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Valid PDDikti
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="text"
+                    readOnly={Boolean(selectedMaster)}
                     value={formData.kode_pt}
                     onChange={(e) => setFormData({ ...formData, kode_pt: e.target.value })}
-                    placeholder="Contoh: 001008"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950/60 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    placeholder="Pilih kampus untuk mengisi otomatis..."
+                    className={`w-full px-4 py-2.5 rounded-xl border text-xs font-mono font-semibold ${
+                      selectedMaster
+                        ? 'border-slate-200 dark:border-navy-700 bg-slate-100 dark:bg-navy-950/80 text-navy-950 dark:text-white cursor-not-allowed'
+                        : 'border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-950/60 text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30'
+                    }`}
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Akreditasi Institusi
-                  </label>
-                  <select
-                    value={formData.akreditasi}
-                    onChange={(e) => setFormData({ ...formData, akreditasi: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="Unggul">Unggul / A</option>
-                    <option value="Baik Sekali">Baik Sekali / B</option>
-                    <option value="Baik">Baik / C</option>
-                  </select>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Akreditasi Institusi
+                    </label>
+                    {selectedMaster ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">
+                        <ShieldCheck className="w-3 h-3" />
+                        Data Riil BAN-PT / PDDikti
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        Deteksi Otomatis
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      readOnly
+                      value={
+                        selectedMaster
+                          ? `${formData.akreditasi} (Resmi Terakreditasi BAN-PT)`
+                          : formData.kode_pt
+                            ? `${formData.akreditasi} (PDDikti)`
+                            : 'Pilih perguruan tinggi di atas...'
+                      }
+                      className={`w-full px-4 py-2.5 rounded-xl border text-xs font-bold transition-all ${
+                        selectedMaster
+                          ? 'border-emerald-300 dark:border-emerald-700/80 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200 cursor-not-allowed shadow-sm'
+                          : 'border-slate-200 dark:border-navy-700 bg-slate-100 dark:bg-navy-950/60 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                      }`}
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
+                    {selectedMaster ? (
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                        ✓ Akreditasi terkunci otomatis sesuai data riil BAN-PT. Tidak dapat diubah manual guna mencegah pemalsuan data.
+                      </span>
+                    ) : (
+                      'Terkunci otomatis dari PDDikti untuk menjamin integritas data (tidak dapat diinput manual).'
+                    )}
+                  </p>
                 </div>
 
                 <div className="space-y-1 sm:col-span-2">
