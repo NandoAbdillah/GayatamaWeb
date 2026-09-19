@@ -304,7 +304,7 @@ export default function HomePage() {
 
           {/* Search Box Card */}
           <div className="relative z-20 max-w-4xl xl:max-w-5xl mx-auto pt-1 sm:pt-2 text-left">
-            <div className="relative z-20 bg-white/95 dark:bg-navy-900/95 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-xl p-3.5 sm:p-4.5 lg:p-5 space-y-3 sm:space-y-3.5 backdrop-blur-xl">
+            <div className="relative z-20 bg-white dark:bg-navy-900 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-xl p-3.5 sm:p-4.5 lg:p-5 space-y-3 sm:space-y-3.5">
 
               {/* Top Header Bar */}
               <div className="relative z-10 flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-navy-800/80">
@@ -772,6 +772,7 @@ export default function HomePage() {
           backgroundImage: "url('/images/image2.png')",
           backgroundPosition: 'top center',
           backgroundRepeat: 'no-repeat',
+          contain: 'paint',
         }}
       >
         {/* Transparent Overlay for High Readability & Keeping Mountain/Bird Art Visible */}
@@ -811,7 +812,7 @@ export default function HomePage() {
           </div>
 
           {/* Transition Banner */}
-          <div className="relative z-10 p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-50/95 via-teal-50/95 to-sky-50/95 dark:from-navy-900/95 dark:via-navy-900/95 dark:to-navy-950/95 border border-emerald-200/80 dark:border-emerald-800/60 shadow-md text-center max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md">
+          <div className="relative z-10 p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-50/95 via-teal-50/95 to-sky-50/95 dark:from-navy-900/95 dark:via-navy-900/95 dark:to-navy-950/95 border border-emerald-200/80 dark:border-emerald-800/60 shadow-md text-center max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-left">
               <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
                 <CheckCircle2 className="w-5 h-5" />
@@ -901,7 +902,7 @@ export default function HomePage() {
               return (
                 <div
                   key={idx}
-                  className="relative p-6 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/90 dark:border-navy-800 shadow-sm hover:shadow-md transition-all duration-200 space-y-3 group flex flex-col justify-between backdrop-blur-md"
+                  className="relative p-6 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/90 dark:border-navy-800 shadow-sm hover:shadow-md transition-all duration-200 space-y-3 group flex flex-col justify-between"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -949,7 +950,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Role 1: Mahasiswa */}
-            <div className="p-7 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-primary-200 dark:border-primary-900/60 shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between space-y-6 relative overflow-hidden group backdrop-blur-md">
+            <div className="p-7 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-primary-200 dark:border-primary-900/60 shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between space-y-6 relative overflow-hidden group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-primary-50 dark:bg-primary-950 text-primary flex items-center justify-center border border-primary-200 dark:border-primary-800">
                   <GraduationCap className="w-6 h-6" />
@@ -976,7 +977,7 @@ export default function HomePage() {
             </div>
 
             {/* Role 2: Pemerintah Desa */}
-            <div className="p-7 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-emerald-200 dark:border-emerald-900/60 shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between space-y-6 relative overflow-hidden group backdrop-blur-md">
+            <div className="p-7 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-emerald-200 dark:border-emerald-900/60 shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between space-y-6 relative overflow-hidden group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
                   <Building className="w-6 h-6" />
@@ -1003,7 +1004,7 @@ export default function HomePage() {
             </div>
 
             {/* Role 3: DPL & Pengelola LPPM */}
-            <div className="p-7 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-amber-200 dark:border-amber-900/60 shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between space-y-6 relative overflow-hidden group backdrop-blur-md">
+            <div className="p-7 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-amber-200 dark:border-amber-900/60 shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between space-y-6 relative overflow-hidden group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-200 dark:border-amber-800">
                   <ShieldCheck className="w-6 h-6" />
@@ -1049,7 +1050,7 @@ export default function HomePage() {
             </div>
 
             <Link href="/portofolio/kelompok-14-sukamaju">
-              <Button variant="outline" size="sm" className="text-xs font-semibold gap-1.5 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md">
+              <Button variant="outline" size="sm" className="text-xs font-semibold gap-1.5 bg-white/90 dark:bg-navy-900/90">
                 <span>{tShowcase('viewDoc')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
@@ -1094,7 +1095,7 @@ export default function HomePage() {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="group rounded-3xl overflow-hidden border border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-xl transition-all duration-300 bg-white/95 dark:bg-navy-900/95 flex flex-col justify-between backdrop-blur-md"
+                className="group rounded-3xl overflow-hidden border border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-xl transition-all duration-300 bg-white/95 dark:bg-navy-900/95 flex flex-col justify-between"
               >
                 <div>
                   <div className="relative w-full aspect-[16/10] overflow-hidden">
@@ -1105,7 +1106,7 @@ export default function HomePage() {
                       decoding="async"
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                     />
-                    <span className="absolute top-3 left-3 bg-navy-950/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md">
+                    <span className="absolute top-3 left-3 bg-navy-950/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-md">
                       {item.sector}
                     </span>
                   </div>
@@ -1167,7 +1168,7 @@ export default function HomePage() {
               return (
                 <div
                   key={i}
-                  className="p-5 rounded-2xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/80 dark:border-navy-800 space-y-2 backdrop-blur-md shadow-sm"
+                  className="p-5 rounded-2xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/80 dark:border-navy-800 space-y-2 shadow-sm"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
@@ -1205,9 +1206,9 @@ export default function HomePage() {
                 key={reg.id}
                 type="button"
                 onClick={() => setActiveRegionTab(reg.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border backdrop-blur-md ${activeRegionTab === reg.id
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${activeRegionTab === reg.id
                     ? 'bg-primary text-white border-primary shadow-md scale-105'
-                    : 'bg-white/90 dark:bg-navy-900/90 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-navy-800 hover:bg-white dark:hover:bg-navy-800'
+                    : 'bg-white/95 dark:bg-navy-900/95 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-navy-800 hover:bg-white dark:hover:bg-navy-800'
                   }`}
               >
                 <span>{reg.shortName}</span>
@@ -1219,7 +1220,7 @@ export default function HomePage() {
           </div>
 
           {/* Active Region Highlights Card */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/90 dark:border-navy-800 shadow-xl max-w-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 backdrop-blur-md">
+          <div className="p-6 sm:p-8 rounded-3xl bg-white/95 dark:bg-navy-900/95 border border-slate-200/90 dark:border-navy-800 shadow-xl max-w-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="w-full md:w-1/3 aspect-[16/10] rounded-2xl overflow-hidden shadow-md shrink-0">
               <img
                 src={activeRegionData.img}
@@ -1326,6 +1327,7 @@ export default function HomePage() {
           backgroundImage: "url('/images/image3.png')",
           backgroundPosition: 'top center',
           backgroundRepeat: 'no-repeat',
+          contain: 'paint',
         }}
       >
         {/* Transparent Overlay for Visibility */}

@@ -46,7 +46,7 @@ export const IndonesiaMapBackdrop: React.FC<{
   className?: string;
   position?: 'top-right' | 'top-left' | 'center' | 'inline-right';
 }> = ({ className = '', position = 'inline-right' }) => {
-  const [activeHub, setActiveHub] = useState<HubPoint | null>(null);
+  const [, setActiveHub] = useState<HubPoint | null>(null);
 
   const isInline = position === 'inline-right';
 
@@ -70,6 +70,7 @@ export const IndonesiaMapBackdrop: React.FC<{
       className={`${
         isInline ? 'relative w-full h-full' : 'absolute inset-0'
       } overflow-visible select-none z-0 pointer-events-none ${className}`}
+      style={{ contain: 'layout paint' }}
     >
       {/* 1. Ambient Circular / Diffuse Halo Glow (100% Bulat & Menyebar Alami, Tanpa Batas Kotak) */}
       <div
@@ -77,7 +78,8 @@ export const IndonesiaMapBackdrop: React.FC<{
         style={{
           background:
             'radial-gradient(ellipse 80% 70% at 50% 50%, rgba(16, 185, 129, 0.18) 0%, rgba(13, 148, 136, 0.10) 45%, rgba(6, 182, 212, 0.04) 70%, transparent 100%)',
-          filter: 'blur(40px)',
+          filter: 'blur(30px)',
+          transform: 'translateZ(0)',
         }}
       />
 
@@ -89,6 +91,7 @@ export const IndonesiaMapBackdrop: React.FC<{
             'radial-gradient(ellipse 92% 82% at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.7) 75%, transparent 100%)',
           WebkitMaskImage:
             'radial-gradient(ellipse 92% 82% at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.7) 75%, transparent 100%)',
+          transform: 'translateZ(0)',
         }}
       >
         {/* 3. LAYER A: Rich Gradient Map Mask (Bentuk pulau berkontras tinggi & menonjol) */}
@@ -103,7 +106,8 @@ export const IndonesiaMapBackdrop: React.FC<{
             WebkitMaskRepeat: 'no-repeat',
             maskPosition: 'center',
             WebkitMaskPosition: 'center',
-            filter: 'drop-shadow(0 4px 16px rgba(4, 120, 87, 0.55)) drop-shadow(0 1px 4px rgba(15, 23, 42, 0.4))',
+            filter: 'drop-shadow(0 4px 12px rgba(4, 120, 87, 0.45)) drop-shadow(0 1px 3px rgba(15, 23, 42, 0.3))',
+            willChange: 'transform',
           }}
         >
           {/* Vibrant Emerald-Teal-Navy in Light Mode, Bright Emerald-Cyan in Dark Mode */}
@@ -121,7 +125,7 @@ export const IndonesiaMapBackdrop: React.FC<{
             width={1440}
             height={810}
             priority
-            className="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(5,150,105,0.45)] dark:invert dark:drop-shadow-[0_0_24px_rgba(16,185,129,0.65)]"
+            className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(5,150,105,0.4)] dark:invert dark:drop-shadow-[0_0_20px_rgba(16,185,129,0.55)]"
           />
         </div>
 
@@ -221,7 +225,7 @@ export const IndonesiaMapBackdrop: React.FC<{
             {/* Micro Badge for Key Strategic Cities */}
             {hub.badge && (
               <span
-                className="hidden xl:inline-flex items-center gap-1 absolute left-3 -top-1.5 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider bg-white/95 dark:bg-navy-900/95 text-emerald-800 dark:text-emerald-300 rounded-md border border-emerald-600/30 dark:border-emerald-500/40 shadow-sm whitespace-nowrap backdrop-blur-sm transition-transform duration-200 group-hover:scale-105"
+                className="hidden xl:inline-flex items-center gap-1 absolute left-3 -top-1.5 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider bg-white dark:bg-navy-900 text-emerald-800 dark:text-emerald-300 rounded-md border border-emerald-600/30 dark:border-emerald-500/40 shadow-sm whitespace-nowrap transition-transform duration-200 group-hover:scale-105"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 {hub.name}
@@ -230,7 +234,7 @@ export const IndonesiaMapBackdrop: React.FC<{
 
             {/* Interactive Tooltip on Hover */}
             <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 pointer-events-none">
-              <div className="bg-navy-950/95 text-white rounded-lg px-2.5 py-1.5 text-xs shadow-xl border border-emerald-500/40 whitespace-nowrap backdrop-blur-md">
+              <div className="bg-navy-950 text-white rounded-lg px-2.5 py-1.5 text-xs shadow-xl border border-emerald-500/40 whitespace-nowrap">
                 <p className="font-bold text-emerald-400 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400" />
                   {hub.name}
