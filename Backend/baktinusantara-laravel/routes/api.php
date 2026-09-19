@@ -109,6 +109,7 @@ Route::get('/pos-kebutuhan/{posKebutuhan}', [PosKebutuhanController::class, 'sho
 Route::get('/portofolio/{slug}', [PortofolioController::class, 'show']);
 Route::get('/dosen', [DosenController::class, 'index']);
 Route::get('/universitas', [UniversitasController::class, 'index']);
+Route::get('/universitas/master', [UniversitasController::class, 'master']);
 Route::get('/dashboard/metrics', [DashboardController::class, 'metrics']);
 
 Route::prefix('wilayah')->group(function () {

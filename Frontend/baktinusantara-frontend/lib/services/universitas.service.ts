@@ -9,6 +9,23 @@ export interface CreateDosenPayload {
   no_hp: string;
 }
 
+export interface MasterUniversitasItem {
+  id?: string;
+  nama_universitas: string;
+  nama_singkat?: string | null;
+  kode_univ: string;
+  jenis?: string;
+  kelompok?: string;
+  akreditasi: string;
+  alamat_kampus?: string;
+  provinsi?: string;
+  kabupaten_kota?: string;
+  website?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  is_verified?: boolean;
+}
+
 export const universitasService = {
   /**
    * Get public list of registered universities
@@ -16,6 +33,33 @@ export const universitasService = {
    */
   async getUniversitasList(): Promise<any[]> {
     const res = await apiClient.get<any[]>('/api/universitas');
+    return res.data;
+  },
+
+  /**
+   * Get master database of universities with PDDikti codes
+   * Endpoint: GET /api/universitas/master?search=...
+   */
+  async getMasterList(search?: string): Promise<MasterUniversitasItem[]> {
+    const res = await apiClient.get<MasterUniversitasItem[]>('/api/universitas/master', {
+      params: search ? { search } : undefined,
+    });
+    return res.data;
+  },
+
+  /**
+   * Register a new university with official SK file
+   * Endpoint: POST /api/register/universitas
+   */
+  async registerUniversitas(formData: FormData): Promise<{
+    message: string;
+    data: any;
+  }> {
+    const res = await apiClient.post('/api/register/universitas', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return res.data;
   },
 

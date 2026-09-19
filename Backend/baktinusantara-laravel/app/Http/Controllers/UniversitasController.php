@@ -18,9 +18,15 @@ class UniversitasController extends Controller
         return response()->json($this->universitasService->listVerifiedPublic());
     }
 
+    public function master(Request $request)
+    {
+        return response()->json($this->universitasService->getMasterList($request->query('search')));
+    }
+
     public function register(RegisterUniversitasRequest $request)
     {
-        $univ = $this->universitasService->register($request->validated());
+        $skFile = $request->file('sk_file') ?: $request->file('mou_file');
+        $univ = $this->universitasService->register($request->validated(), $skFile);
 
         return response()->json([
             'message' => 'Registrasi universitas berhasil, menunggu verifikasi admin',

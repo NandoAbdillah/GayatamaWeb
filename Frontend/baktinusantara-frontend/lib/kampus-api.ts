@@ -97,6 +97,7 @@ export function resolveCampusLogo(name: string, domain?: string | null): string 
 export const KampusService = {
   /**
    * Mengambil daftar perguruan tinggi di wilayah terpilih (Provinsi, Kab/Kota, Kecamatan, atau Desa)
+   * Terhubung langsung ke Master Database 2.850 Perguruan Tinggi se-Indonesia
    */
   async getKampusByWilayah(params: {
     provinceId?: string;
@@ -115,145 +116,198 @@ export const KampusService = {
     }
 
     try {
-      // Tentukan query pencarian ke API Indonesia
-      // Prioritaskan nama Kab/Kota (misal: "Surabaya", "Malang", "Bogor", "Bandung")
-      // atau nama Provinsi jika kab/kota belum dipilih
-      let searchQueries: string[] = [];
-
+      let query = '';
       if (regencyName && regencyName.trim().length > 0) {
-        const cleanRegency = regencyName.replace(/^(kabupaten|kota)\s+/i, '').trim();
-        searchQueries = [cleanRegency];
-      } else if (provinceId === '35' || (provinceName && provinceName.toLowerCase().includes('jawa timur'))) {
-        searchQueries = ['Surabaya', 'Malang', 'Jember', 'Brawijaya', 'Airlangga'];
-      } else if (provinceId === '32' || (provinceName && provinceName.toLowerCase().includes('jawa barat'))) {
-        searchQueries = ['Bandung', 'Bogor', 'Depok', 'Cirebon'];
-      } else if (provinceId === '31' || (provinceName && provinceName.toLowerCase().includes('jakarta'))) {
-        searchQueries = ['Jakarta'];
-      } else if (provinceId === '33' || (provinceName && provinceName.toLowerCase().includes('jawa tengah'))) {
-        searchQueries = ['Semarang', 'Solo', 'Surakarta'];
-      } else if (provinceId === '34' || (provinceName && provinceName.toLowerCase().includes('yogyakarta'))) {
-        searchQueries = ['Yogyakarta', 'Sleman'];
-      } else if (provinceId === '51' || (provinceName && provinceName.toLowerCase().includes('bali'))) {
-        searchQueries = ['Denpasar', 'Udayana', 'Bali'];
-      } else if (provinceId === '12' || (provinceName && provinceName.toLowerCase().includes('sumatera utara'))) {
-        searchQueries = ['Medan', 'Sumatera Utara'];
-      } else if (provinceId === '73' || (provinceName && provinceName.toLowerCase().includes('sulawesi selatan'))) {
-        searchQueries = ['Makassar', 'Hasanuddin'];
+        query = regencyName.replace(/^(kabupaten|kota)\s+/i, '').trim();
+      } else if (provinceName && provinceName.trim().length > 0) {
+        query = provinceName.replace(/^provinsi\s+/i, '').trim();
       } else if (regionName) {
-        const cleanRegion = regionName.replace(/^(provinsi|kabupaten|kota|kecamatan|desa|kelurahan)\s+/i, '').trim();
-        searchQueries = [cleanRegion];
-      } else {
-        searchQueries = ['Universitas'];
+        query = regionName.replace(/^(provinsi|kabupaten|kota|kecamatan|desa|kelurahan)\s+/i, '').trim();
       }
 
-      // Jalankan query secara paralel (maksimal 3 queries)
-      const fetchPromises = searchQueries.slice(0, 3).map(async (query) => {
-        try {
-          const res = await fetch(
-            `${BASE_URL}/kampus/search?q=${encodeURIComponent(query)}`,
-            {
-              headers: {
-                'x-api-key': API_KEY,
-                Accept: 'application/json',
-              },
-              next: { revalidate: 3600 },
-            }
-          );
-          if (!res.ok) return [];
-          const json = await res.json();
-          return Array.isArray(json.data) ? json.data : [];
-        } catch {
-          return [];
+      // 1. Fetch from Unified Backend Master Dataset
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+      const fetchUrl = query
+        ? `${backendUrl}/api/universitas/master?search=${encodeURIComponent(query)}`
+        : `${backendUrl}/api/universitas/master`;
+
+      let rawList: any[] = [];
+      try {
+        const res = await fetch(fetchUrl, {
+          headers: { Accept: 'application/json' },
+          next: { revalidate: 3600 },
+        });
+        if (res.ok) {
+          rawList = await res.json();
         }
-      });
-
-      const results = await Promise.all(fetchPromises);
-      const rawList: any[] = results.flat();
-
-      // Deduplikasi berdasarkan nama atau ID
-      const seen = new Set<string>();
-      const uniqueList: any[] = [];
-
-      for (const item of rawList) {
-        const normName = (item.name || '').toLowerCase().trim();
-        if (!normName || seen.has(normName) || normName.length < 3) continue;
-        seen.add(normName);
-        uniqueList.push(item);
+      } catch (err) {
+        // Fallback to static public json
+        try {
+          const fallbackRes = await fetch('/data/master_kampus_indonesia.json');
+          if (fallbackRes.ok) {
+            const allStatic: any[] = await fallbackRes.json();
+            if (query) {
+              const qLower = query.toLowerCase();
+              rawList = allStatic.filter(
+                (c) =>
+                  c.provinsi?.toLowerCase().includes(qLower) ||
+                  c.kabupaten_kota?.toLowerCase().includes(qLower) ||
+                  c.nama_universitas?.toLowerCase().includes(qLower)
+              ).slice(0, 30);
+            } else {
+              rawList = allStatic.slice(0, 30);
+            }
+          }
+        } catch {
+          rawList = [];
+        }
       }
 
-      // Format dan enrich dengan koordinat spasial & logo
       const baseLat = centerLat || -7.2575;
       const baseLng = centerLng || 112.7521;
 
-      const enriched: KampusItem[] = uniqueList.map((item, idx) => {
-        const lower = (item.name || '').toLowerCase();
+      const enriched: KampusItem[] = rawList.map((item, idx) => {
+        const lower = (item.nama_universitas || item.name || '').toLowerCase();
         let domain: string | undefined = undefined;
-        let cLat = item.lat;
-        let cLng = item.lng;
-        let shortName = item.short_name;
-        let regName = item.regency_name;
-        let provName = item.province_name || provinceName;
+        let cLat = item.latitude || item.lat;
+        let cLng = item.longitude || item.lng;
+        let shortName = item.nama_singkat || item.short_name;
 
-        // Check known campus mapping
         for (const [key, known] of Object.entries(KNOWN_CAMPUS_DATA)) {
           if (lower.includes(key) || key.includes(lower)) {
             domain = known.domain;
-            cLat = known.lat;
-            cLng = known.lng;
+            cLat = cLat || known.lat;
+            cLng = cLng || known.lng;
             shortName = shortName || known.shortName;
-            regName = regName || known.city;
-            provName = provName || known.prov;
             break;
           }
         }
 
-        // If coordinates missing, create sensible cluster offset around region centroid
         if (!cLat || !cLng) {
-          const angle = (idx * (360 / Math.min(uniqueList.length, 24))) * (Math.PI / 180);
-          const distance = 0.04 + (idx % 5) * 0.035; // ~4 - 15 km spread
+          const angle = (idx * (360 / Math.min(Math.max(rawList.length, 1), 24))) * (Math.PI / 180);
+          const distance = 0.04 + (idx % 5) * 0.035;
           cLat = baseLat + Math.cos(angle) * distance;
           cLng = baseLng + Math.sin(angle) * distance;
         }
 
-        const logoUrl = resolveCampusLogo(item.name, domain);
-
-        const resolvedKelompok = item.kelompok
-          ? item.kelompok.toUpperCase()
-          : item.id?.toLowerCase().startsWith('ptn')
-          ? 'PTN'
-          : item.id?.toLowerCase().startsWith('pts')
-          ? 'PTS'
-          : 'PTN';
+        const resolvedName = (item.nama_universitas || item.name || '').trim();
+        const logoUrl = resolveCampusLogo(resolvedName, domain);
 
         return {
-          id: item.id || `kmp-${idx}`,
-          name: item.name.replace(/^[\s\d]+/, '').trim(),
+          id: item.id || item.kode_univ || `kmp-${idx}`,
+          name: resolvedName,
           short_name: shortName || null,
           jenis: (item.jenis || 'universitas').toLowerCase(),
-          kelompok: resolvedKelompok,
+          kelompok: (item.kelompok || 'PTN').toUpperCase(),
           province_id: item.province_id || provinceId || null,
           regency_id: item.regency_id || null,
-          province_name: provName || null,
-          regency_name: regName || null,
+          province_name: item.provinsi || provinceName || null,
+          regency_name: item.kabupaten_kota || regencyName || null,
+          address: item.alamat_kampus || null,
           website: domain ? `https://${domain}` : item.website || null,
-          accreditation: item.accreditation || 'Terakreditasi Baik',
+          accreditation: item.akreditasi || 'Unggul / A',
           logo_url: logoUrl,
           lat: cLat,
           lng: cLng,
         };
       });
 
-      // Filter and prioritize prestigious and relevant campuses first
-      enriched.sort((a, b) => {
-        if (a.kelompok === 'PTN' && b.kelompok !== 'PTN') return -1;
-        if (a.kelompok !== 'PTN' && b.kelompok === 'PTN') return 1;
-        return a.name.localeCompare(b.name);
-      });
-
       kampusCache.set(cacheKey, { data: enriched, timestamp: Date.now() });
       return enriched;
     } catch (err) {
-      console.error('Failed to fetch kampus data from API Indonesia:', err);
+      console.error('Failed to fetch kampus data:', err);
+      return [];
+    }
+  },
+
+  /**
+   * Cari seluruh 2.850 perguruan tinggi se-Indonesia (PTN, PTS, Institut, Politeknik, Akademi)
+   */
+  async searchKampus(query: string): Promise<KampusItem[]> {
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
+
+    const trimmed = query.trim();
+    const cacheKey = `search:${trimmed.toLowerCase()}`;
+
+    const cached = kampusCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data;
+    }
+
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+      const res = await fetch(
+        `${backendUrl}/api/universitas/master?search=${encodeURIComponent(trimmed)}`,
+        {
+          headers: { Accept: 'application/json' },
+          next: { revalidate: 3600 },
+        }
+      );
+
+      let list: any[] = [];
+      if (res.ok) {
+        list = await res.json();
+      }
+
+      // Fallback: static json search if backend is unreachable
+      if (!Array.isArray(list) || list.length === 0) {
+        try {
+          const fallbackRes = await fetch('/data/master_kampus_indonesia.json');
+          if (fallbackRes.ok) {
+            const allStatic: any[] = await fallbackRes.json();
+            const qLower = trimmed.toLowerCase();
+            list = allStatic.filter(
+              (c) =>
+                c.nama_universitas?.toLowerCase().includes(qLower) ||
+                c.nama_singkat?.toLowerCase().includes(qLower) ||
+                c.kode_univ?.toLowerCase().includes(qLower) ||
+                c.kabupaten_kota?.toLowerCase().includes(qLower)
+            ).slice(0, 30);
+          }
+        } catch {
+          // Ignore
+        }
+      }
+
+      const formatted: KampusItem[] = list.map((item, idx) => {
+        const name = (item.nama_universitas || item.name || '').trim();
+        const lower = name.toLowerCase();
+        let domain: string | undefined = undefined;
+        let shortName = item.nama_singkat || item.short_name;
+
+        for (const [key, known] of Object.entries(KNOWN_CAMPUS_DATA)) {
+          if (lower.includes(key) || key.includes(lower)) {
+            domain = known.domain;
+            shortName = shortName || known.shortName;
+            break;
+          }
+        }
+
+        const logoUrl = resolveCampusLogo(name, domain);
+
+        return {
+          id: item.kode_univ || item.id || `kmp-${idx}`,
+          name: name,
+          short_name: shortName || null,
+          jenis: (item.jenis || 'universitas').toLowerCase(),
+          kelompok: (item.kelompok || 'PTS').toUpperCase(),
+          province_name: item.provinsi || null,
+          regency_name: item.kabupaten_kota || null,
+          address: item.alamat_kampus || null,
+          website: domain ? `https://${domain}` : item.website || null,
+          accreditation: item.akreditasi || 'Unggul / A',
+          logo_url: logoUrl,
+          lat: item.latitude || item.lat,
+          lng: item.longitude || item.lng,
+        };
+      });
+
+      kampusCache.set(cacheKey, { data: formatted, timestamp: Date.now() });
+      return formatted;
+    } catch (err) {
+      console.error('searchKampus error:', err);
       return [];
     }
   },
