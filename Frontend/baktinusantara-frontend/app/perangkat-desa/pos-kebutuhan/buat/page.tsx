@@ -66,20 +66,20 @@ export default function BuatPosKebutuhanPage() {
     <DashboardLayout title="Terbitkan Pos Kebutuhan Baru">
       <div className="space-y-6 font-jakarta w-full">
         <Link href="/perangkat-desa/pos-kebutuhan">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs font-bold bg-white">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs font-bold bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
             <ArrowLeft className="w-3.5 h-3.5" /> Kembali
           </Button>
         </Link>
 
-        <Card className="p-6 sm:p-8 bg-white border-slate-200 shadow-sm space-y-6">
+        <Card className="p-6 sm:p-8 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm space-y-6">
           <div>
-            <h1 className="text-xl font-extrabold text-navy-950 font-epilogue">Buat Pos Kebutuhan Baru</h1>
-            <p className="text-xs text-slate-500 mt-1">Lengkapi detail di bawah untuk menerbitkan pos kebutuhan resmi desa.</p>
+            <h1 className="text-xl font-extrabold text-navy-950 dark:text-white font-epilogue">Buat Pos Kebutuhan Baru</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Lengkapi detail di bawah untuk menerbitkan pos kebutuhan resmi desa.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900 dark:text-slate-200">
                 <FileText className="w-3.5 h-3.5 text-slate-400" />
                 Judul Pos Kebutuhan <span className="text-rose-500">*</span>
               </label>
@@ -89,12 +89,12 @@ export default function BuatPosKebutuhanPage() {
                 value={judul}
                 onChange={(e) => setJudul(e.target.value)}
                 placeholder="Contoh: Perbaikan Saluran Irigasi & Pengerukan Sedimen Dusun 2"
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-sm text-navy-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900 dark:text-slate-200">
                 <Layers className="w-3.5 h-3.5 text-slate-400" />
                 Deskripsi Kebutuhan <span className="text-rose-500">*</span>
               </label>
@@ -104,13 +104,13 @@ export default function BuatPosKebutuhanPage() {
                 value={deskripsi}
                 onChange={(e) => setDeskripsi(e.target.value)}
                 placeholder="Jelaskan kondisi lapangan, urgensi, dan capaian yang diharapkan bersama mahasiswa KKN..."
-                className="w-full p-3.5 bg-white border border-slate-300 rounded-xl text-xs text-navy-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary leading-relaxed"
+                className="w-full p-3.5 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary leading-relaxed"
               />
-              <p className="text-[11px] text-slate-400">Minimal 20 karakter, jelaskan konteks desa.</p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">Minimal 20 karakter, jelaskan konteks desa.</p>
             </div>
 
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900 dark:text-slate-200">
                 <Target className="w-3.5 h-3.5 text-slate-400" />
                 Luaran yang Diharapkan <span className="text-rose-500">*</span>
               </label>
@@ -120,20 +120,20 @@ export default function BuatPosKebutuhanPage() {
                 value={luaran}
                 onChange={(e) => setLuaran(e.target.value)}
                 placeholder="Tulis satu luaran per baris&#10;Contoh:&#10;Saluran irigasi bersih & lancar&#10;Dokumentasi foto before-after&#10;Jadwal kerja bakti"
-                className="w-full p-3.5 bg-white border border-slate-300 rounded-xl text-xs text-navy-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary leading-relaxed font-mono"
+                className="w-full p-3.5 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary leading-relaxed font-mono"
               />
-              <p className="text-[11px] text-slate-400">Satu baris = satu luaran. Akan ditampilkan sebagai checklist.</p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">Satu baris = satu luaran. Akan ditampilkan sebagai checklist.</p>
             </div>
 
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900 dark:text-slate-200">
                 <Tag className="w-3.5 h-3.5 text-slate-400" />
                 Kategori <span className="text-rose-500">*</span>
               </label>
               <select
                 value={kategori}
                 onChange={(e) => setKategori(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               >
                 {KATEGORI_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -143,7 +143,7 @@ export default function BuatPosKebutuhanPage() {
               </select>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-navy-800">
               <Link href="/perangkat-desa/pos-kebutuhan">
                 <Button type="button" variant="outline" size="md" className="text-xs">
                   Batal

@@ -197,7 +197,7 @@ export default function AdminVerifikasiPage() {
               <p className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
                 Tidak ada data verifikasi yang sesuai
               </p>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                 Coba ubah kata kunci pencarian atau sesuaikan filter jenis entitas dan status verifikasi.
               </p>
             </Card>
@@ -212,7 +212,7 @@ export default function AdminVerifikasiPage() {
                   key={key}
                   className={`p-5 border transition-all duration-200 bg-white dark:bg-navy-900 shadow-sm hover:shadow-md ${
                     isPending
-                      ? 'border-amber-200 dark:border-amber-900/60 bg-amber-50/20'
+                      ? 'border-amber-200 dark:border-amber-900/60 bg-amber-50/20 dark:bg-amber-950/20'
                       : 'border-slate-200 dark:border-navy-800'
                   }`}
                 >

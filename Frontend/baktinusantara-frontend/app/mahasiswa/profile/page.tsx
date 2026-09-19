@@ -128,7 +128,7 @@ export default function MahasiswaProfilePage() {
 
         <form id="profile-form" onSubmit={handleSaveProfile} className="space-y-6">
           {/* Card 1: Banner & Identitas Pokok */}
-          <Card className="p-6 sm:p-8 space-y-6 border-slate-200 dark:border-navy-800">
+          <Card className="p-6 sm:p-8 space-y-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
             <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100 dark:border-navy-800">
               <div className="relative group">
                 <img
@@ -251,14 +251,14 @@ export default function MahasiswaProfilePage() {
           </Card>
 
           {/* Card 2: Kontak Darurat & Wali */}
-          <Card className="p-6 sm:p-8 space-y-4 border-slate-200 dark:border-navy-800">
+          <Card className="p-6 sm:p-8 space-y-4 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
             <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-navy-800">
               <Heart className="w-5 h-5 text-rose-500" />
               <div>
                 <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
                   Kontak Darurat Orang Tua / Wali
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Diperlukan untuk koordinasi keselamatan lapangan dan verifikasi izin perjalanan KKN.
                 </p>
               </div>
@@ -323,7 +323,7 @@ export default function MahasiswaProfilePage() {
           </Card>
 
           {/* Card 3: Keahlian & Smart-Matching Tags */}
-          <Card className="p-6 sm:p-8 space-y-4 border-slate-200 dark:border-navy-800">
+          <Card className="p-6 sm:p-8 space-y-4 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-navy-800">
               <div className="flex items-center gap-2.5">
                 <Sparkles className="w-5 h-5 text-amber-500" />
@@ -331,7 +331,7 @@ export default function MahasiswaProfilePage() {
                   <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
                     Keahlian & Kompetensi (Smart-Matching Tags)
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Sistem menggunakan tag ini untuk mencocokkan kelompok Anda dengan pos kebutuhan desa.
                   </p>
                 </div>
@@ -398,7 +398,7 @@ export default function MahasiswaProfilePage() {
                   <FileCheck2 className="w-5 h-5 text-emerald-600" />
                   <div>
                     <p className="text-xs font-bold text-navy-950 dark:text-white">Kartu Tanda Mahasiswa (KTM)</p>
-                    <p className="text-[10px] text-slate-400">Terverifikasi OCR LPPM</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500">Terverifikasi OCR LPPM</p>
                   </div>
                 </div>
                 <StatusBadge status="approved" label="Sah" size="sm" />
@@ -409,7 +409,7 @@ export default function MahasiswaProfilePage() {
                   <FileCheck2 className="w-5 h-5 text-emerald-600" />
                   <div>
                     <p className="text-xs font-bold text-navy-950 dark:text-white">Sertifikat Pembekalan KKN</p>
-                    <p className="text-[10px] text-slate-400">Lulus Gelombang I 2026</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500">Lulus Gelombang I 2026</p>
                   </div>
                 </div>
                 <StatusBadge status="approved" label="Sah" size="sm" />

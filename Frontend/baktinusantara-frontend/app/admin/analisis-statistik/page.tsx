@@ -213,7 +213,7 @@ export default function AnalisisStatistikPage() {
                 <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
                   Kategori KKN
                 </h2>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Kelola kategori program KKN
                 </p>
               </div>
@@ -263,7 +263,7 @@ export default function AnalisisStatistikPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 border-b border-slate-200 dark:border-navy-800">
+                    <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-navy-800">
                       <th className="p-3 font-bold w-12">No</th>
                       <th className="p-3 font-bold">Nama Kategori</th>
                       <th className="p-3 font-bold text-right w-20">Aksi</th>
@@ -274,7 +274,7 @@ export default function AnalisisStatistikPage() {
                       <tr>
                         <td
                           colSpan={3}
-                          className="p-6 text-center text-xs text-slate-500"
+                          className="p-6 text-center text-xs text-slate-500 dark:text-slate-400"
                         >
                           Tidak ada kategori.
                         </td>
@@ -285,7 +285,7 @@ export default function AnalisisStatistikPage() {
                           key={k.id}
                           className="hover:bg-slate-50/60 dark:hover:bg-navy-950/50"
                         >
-                          <td className="p-3 font-mono text-slate-500">
+                          <td className="p-3 font-mono text-slate-500 dark:text-slate-400">
                             {idx + 1}
                           </td>
                           <td className="p-3 font-semibold text-navy-950 dark:text-white">
@@ -321,14 +321,14 @@ export default function AnalisisStatistikPage() {
           {/* Sektor - Kanan */}
           <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm w-full flex flex-col">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <Briefcase className="w-4 h-4" />
               </div>
               <div>
                 <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
                   Sektor KKN
                 </h2>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Kelola sektor program KKN
                 </p>
               </div>
@@ -377,7 +377,7 @@ export default function AnalisisStatistikPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 border-b border-slate-200 dark:border-navy-800">
+                    <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-navy-800">
                       <th className="p-3 font-bold w-12">No</th>
                       <th className="p-3 font-bold">Nama Sektor</th>
                       <th className="p-3 font-bold text-right w-20">Aksi</th>
@@ -388,7 +388,7 @@ export default function AnalisisStatistikPage() {
                       <tr>
                         <td
                           colSpan={3}
-                          className="p-6 text-center text-xs text-slate-500"
+                          className="p-6 text-center text-xs text-slate-500 dark:text-slate-400"
                         >
                           Tidak ada sektor.
                         </td>
@@ -399,7 +399,7 @@ export default function AnalisisStatistikPage() {
                           key={s.id}
                           className="hover:bg-slate-50/60 dark:hover:bg-navy-950/50"
                         >
-                          <td className="p-3 font-mono text-slate-500">
+                          <td className="p-3 font-mono text-slate-500 dark:text-slate-400">
                             {idx + 1}
                           </td>
                           <td className="p-3 font-semibold text-navy-950 dark:text-white">

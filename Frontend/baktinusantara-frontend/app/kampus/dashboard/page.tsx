@@ -174,7 +174,7 @@ export default function KampusDashboardPage() {
           <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Desa Terbantu</span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                 <Building2 className="w-4 h-4" />
               </div>
             </div>
@@ -190,7 +190,7 @@ export default function KampusDashboardPage() {
           <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Mahasiswa KKN Terlibat</span>
-              <div className="w-8 h-8 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-primary-300">
                 <Users className="w-4 h-4" />
               </div>
             </div>
@@ -207,7 +207,7 @@ export default function KampusDashboardPage() {
           <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Total Kelompok</span>
-              <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-600">
+              <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
                 <Layers className="w-4 h-4" />
               </div>
             </div>
@@ -286,8 +286,8 @@ export default function KampusDashboardPage() {
 
               {/* Status Breakdown Cards */}
               <div className="grid grid-cols-3 gap-3 pt-1">
-                <div className="p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 space-y-1">
-                  <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
+                <div className="p-3.5 rounded-xl bg-blue-50/60 dark:bg-primary-950/40 border border-blue-100 dark:border-primary-900/50 space-y-1">
+                  <span className="text-[10px] font-bold text-primary dark:text-primary-300 uppercase tracking-wider">
                     Terbuka (Open)
                   </span>
                   <p className="text-xl font-extrabold text-navy-950 dark:text-white font-epilogue">
@@ -298,8 +298,8 @@ export default function KampusDashboardPage() {
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50 space-y-1">
-                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">
+                <div className="p-3.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/50 space-y-1">
+                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                     Berjalan (In Progress)
                   </span>
                   <p className="text-xl font-extrabold text-navy-950 dark:text-white font-epilogue">
@@ -310,8 +310,8 @@ export default function KampusDashboardPage() {
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50 space-y-1">
-                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                <div className="p-3.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 space-y-1">
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                     Selesai (Completed)
                   </span>
                   <p className="text-xl font-extrabold text-navy-950 dark:text-white font-epilogue">

@@ -83,8 +83,8 @@ export default function PerangkatDesaBastListPage() {
     <DashboardLayout title="Penilaian Kelompok KKN">
       <div className="space-y-6 font-jakarta">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">Daftar Kelompok KKN di Desa</h1>
-          <p className="text-xs text-slate-500 mt-1">Kelompok yang sedang melaksanakan KKN di Desa Sukamaju. Berikan penilaian akhir untuk setiap kelompok.</p>
+          <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">Daftar Kelompok KKN di Desa</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Kelompok yang sedang melaksanakan KKN di Desa Sukamaju. Berikan penilaian akhir untuk setiap kelompok.</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-3">
@@ -95,15 +95,15 @@ export default function PerangkatDesaBastListPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari kelompok, kode, atau ketua..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm text-navy-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-2xl text-sm text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
             />
           </div>
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl p-1.5 shadow-sm overflow-x-auto">
+          <div className="flex items-center gap-2 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-2xl p-1.5 shadow-sm overflow-x-auto">
             {filterOptions.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setFilterStatus(opt.value)}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${filterStatus === opt.value ? 'bg-navy-950 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${filterStatus === opt.value ? 'bg-navy-950 dark:bg-primary text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-navy-800'}`}
               >
                 {opt.label}
               </button>
@@ -114,8 +114,8 @@ export default function PerangkatDesaBastListPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredKelompok.length === 0 ? (
             <div className="col-span-full">
-              <Card className="p-10 text-center bg-white border-slate-200">
-                <p className="text-sm text-slate-500">Tidak ada kelompok yang sesuai pencarian / filter.</p>
+              <Card className="p-10 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+                <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada kelompok yang sesuai pencarian / filter.</p>
               </Card>
             </div>
           ) : (
@@ -123,30 +123,30 @@ export default function PerangkatDesaBastListPage() {
               const penilaian = penilaianMap[k.id];
               const sudahDinilai = !!penilaian;
               return (
-                <Card key={k.id} className="p-5 bg-white border-slate-200 shadow-sm flex flex-col">
+                <Card key={k.id} className="p-5 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm flex flex-col">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-[11px] font-mono font-bold text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full w-fit">
+                      <p className="text-[11px] font-mono font-bold text-slate-500 dark:text-slate-300 bg-slate-50 dark:bg-navy-950/60 border border-slate-200 dark:border-navy-800 px-2.5 py-1 rounded-full w-fit">
                         {k.kode_kelompok}
                       </p>
-                      <h3 className="text-sm font-bold text-navy-950 font-epilogue mt-2 leading-snug">{k.nama_kelompok}</h3>
-                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+                      <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue mt-2 leading-snug">{k.nama_kelompok}</h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5" />
-                        Ketua: <strong className="text-navy-900">{k.ketua_nama}</strong>
+                        Ketua: <strong className="text-navy-900 dark:text-slate-200">{k.ketua_nama}</strong>
                       </p>
-                      <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-1">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1">
                         <Calendar className="w-3.5 h-3.5" />
                         {k.periode}
                       </p>
                     </div>
                     <span
-                      className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold border ${sudahDinilai ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}
+                      className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold border ${sudahDinilai ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800' : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800'}`}
                     >
                       {sudahDinilai ? `Dinilai ${penilaian.nilaiAkhir}` : 'Belum Dinilai'}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-navy-800">
                     <Link href={`/perangkat-desa/progress/${k.id}`} className="flex-1">
                       <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
                         <Eye className="w-3.5 h-3.5" />

@@ -84,7 +84,7 @@ export const RiwayatPengabdianCard: React.FC<RiwayatPengabdianCardProps> = ({
           </p>
 
           <div className="pt-2 space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               Luaran Terverifikasi:
             </span>
             <div className="space-y-1">
@@ -99,7 +99,7 @@ export const RiwayatPengabdianCard: React.FC<RiwayatPengabdianCardProps> = ({
         </div>
 
         <div className="pt-2.5 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between">
-          <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
             <Users className="w-3.5 h-3.5 text-slate-400" />
             {item.jumlah_mahasiswa} Mahasiswa Alumni
           </span>
@@ -113,7 +113,7 @@ export const RiwayatPengabdianCard: React.FC<RiwayatPengabdianCardProps> = ({
               <ExternalLink className="w-3 h-3" />
             </Link>
           ) : (
-            <span className="text-[10px] text-slate-400">Arsip Resmi</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500">Arsip Resmi</span>
           )}
         </div>
       </div>

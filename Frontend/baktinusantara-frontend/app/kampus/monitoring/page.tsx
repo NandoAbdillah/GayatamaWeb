@@ -118,10 +118,10 @@ export default function KampusMonitoringPage() {
 
         {/* Tabel Monitoring - kolom: Kelompok, Lokasi KKN, Dosen DPL, Status, Aksi */}
         <Card className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-md">
-          <div className="overflow-x-auto border rounded-xl">
+          <div className="overflow-x-auto border border-slate-200 dark:border-navy-800 rounded-xl">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 border-b border-slate-200 dark:border-navy-800">
+                <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-navy-800">
                   <th className="p-3 font-bold">Kelompok</th>
                   <th className="p-3 font-bold">Lokasi KKN</th>
                   <th className="p-3 font-bold">Dosen DPL</th>
@@ -145,7 +145,7 @@ export default function KampusMonitoringPage() {
                     return (
                       <tr
                         key={g.id}
-                        className="hover:bg-slate-50/80 dark:hover:bg-navy-900/50 transition-colors"
+                        className="hover:bg-slate-50/80 dark:hover:bg-navy-800/40 transition-colors"
                       >
                         <td className="p-3">
                           <p className="font-bold text-navy-950 dark:text-white">

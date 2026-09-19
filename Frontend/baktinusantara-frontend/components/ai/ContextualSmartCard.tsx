@@ -182,7 +182,7 @@ export function ContextualSmartCard({
 
         <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-navy-800 gap-2">
           {pos.kuota && (
-            <span className="text-[11px] text-slate-500 font-medium">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               Kuota: <strong>{pos.kuota}</strong>
             </span>
           )}
@@ -243,7 +243,7 @@ export function ContextualSmartCard({
         </div>
 
         <div className="px-3 pb-3 pt-1 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between">
-          <span className="text-[10px] text-slate-400">Mitra GayatamaWeb</span>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500">Mitra GayatamaWeb</span>
           <button
             onClick={() => handleNavigate('/katalog')}
             className="py-1 px-3 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors flex items-center gap-1 shadow-2xs"
@@ -290,7 +290,7 @@ export function ContextualSmartCard({
 
         <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-navy-800 gap-2">
           {prog.durasi && (
-            <span className="text-[10.5px] text-slate-500 flex items-center gap-1 font-medium">
+            <span className="text-[10.5px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium">
               <Clock className="w-3 h-3 text-slate-400" />
               {prog.durasi}
             </span>
@@ -455,7 +455,7 @@ export function ContextualSmartCard({
           <h4 className="font-bold text-xs text-navy-950 dark:text-white">
             {log.kegiatan_utama}
           </h4>
-          <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2">
             <span>Tanggal: <strong>{log.tanggal}</strong></span>
             <span>Durasi: <strong>{log.jam_kerja} Jam</strong></span>
           </p>
@@ -489,7 +489,7 @@ export function ContextualSmartCard({
           Rekomendasi Halaman
         </span>
         <h4 className="font-bold text-xs">{nav.title || 'Halaman'}</h4>
-        {nav.reason && <p className="text-[11px] text-slate-500 mt-0.5">{nav.reason}</p>}
+        {nav.reason && <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{nav.reason}</p>}
       </div>
       <button
         onClick={() => handleNavigate(nav.path || '/')}

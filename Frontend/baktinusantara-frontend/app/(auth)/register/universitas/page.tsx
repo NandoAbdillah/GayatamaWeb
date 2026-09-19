@@ -143,7 +143,7 @@ export default function RegisterUniversitasPage() {
           </Link>
         </div>
 
-        <Card className="p-6 sm:p-8 space-y-6 shadow-xl border-slate-200 dark:border-navy-800">
+        <Card className="p-6 sm:p-8 space-y-6 shadow-xl border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900">
           <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-navy-800">
             <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-6 h-6" />

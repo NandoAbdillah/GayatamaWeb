@@ -268,7 +268,7 @@ export default function AdminLaporanDosenPage() {
               </div>
 
               <div className="p-3.5 rounded-xl bg-primary-50/50 dark:bg-primary-950/30 border border-primary-100 dark:border-primary-900 text-xs text-navy-950 dark:text-slate-200">
-                <strong className="text-primary font-bold block mb-1">
+                <strong className="text-primary dark:text-primary-300 font-bold block mb-1">
                   Evaluasi & Catatan DPL:
                 </strong>
                 <p className="text-slate-600 dark:text-slate-300 italic line-clamp-2">
@@ -295,8 +295,8 @@ export default function AdminLaporanDosenPage() {
             </Card>
           ))}
           {filteredLaporan.length === 0 && (
-            <Card className="p-10 text-center border-dashed bg-white dark:bg-navy-900">
-              <p className="text-sm text-slate-500">Tidak ada laporan yang sesuai filter.</p>
+            <Card className="p-10 text-center border-dashed border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900">
+              <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada laporan yang sesuai filter.</p>
             </Card>
           )}
         </div>

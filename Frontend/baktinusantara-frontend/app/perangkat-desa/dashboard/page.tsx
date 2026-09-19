@@ -68,65 +68,65 @@ export default function PerangkatDesaDashboard() {
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Mahasiswa Bertugas</span>
-              <Users className="w-4 h-4 text-primary" />
+              <Users className="w-4 h-4 text-primary dark:text-primary-300" />
             </div>
-            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               5 Orang
             </p>
-            <p className="text-xs text-emerald-700 font-medium">
+            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
               Kelompok 14 (Aktif Lapangan)
             </p>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Pos Kebutuhan Diterbitkan</span>
-              <ClipboardList className="w-4 h-4 text-emerald-600" />
+              <ClipboardList className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               3 Pos
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               2 Dalam Pelaksanaan, 1 Terbuka
             </p>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Aspirasi Warga Masuk</span>
-              <MessageSquare className="w-4 h-4 text-tertiary-600" />
+              <MessageSquare className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
-            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               2 Usulan
             </p>
-            <span className="inline-flex text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full">
+            <span className="inline-flex text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/70 px-2 py-0.5 rounded-full">
               1 Perlu Tindak Lanjut
             </span>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Total Kelompok</span>
-              <Users className="w-4 h-4 text-indigo-600" />
+              <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             </div>
-            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               1 Kelompok
             </p>
-            <p className="text-xs text-slate-500">Aktif di Desa Sukamaju • 2026</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Aktif di Desa Sukamaju • 2026</p>
           </Card>
         </div>
 
         {/* Active KKN Team in Village */}
-        <Card className="p-6 border-slate-200 bg-white shadow-ambient space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <Card className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-ambient space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-navy-800 pb-3">
             <div>
-              <h2 className="text-base font-bold text-navy-950 font-epilogue">
+              <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
                 Kelompok Mahasiswa KKN Aktif di Desa Sukamaju
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Program: Digitalisasi Katalog Produk UMKM & Manajemen Irigasi
                 Cerdas
               </p>
@@ -139,34 +139,34 @@ export default function PerangkatDesaDashboard() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-4 rounded-2xl bg-surface-subtle border border-slate-200 space-y-1">
-              <span className="text-[11px] text-slate-400 font-semibold uppercase">
+            <div className="p-4 rounded-2xl bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 space-y-1">
+              <span className="text-[11px] text-slate-400 dark:text-slate-400 font-semibold uppercase">
                 Ketua Kelompok
               </span>
-              <p className="text-sm font-bold text-navy-950">M. Rian Pratama</p>
-              <p className="text-xs text-slate-500">
+              <p className="text-sm font-bold text-navy-950 dark:text-white">M. Rian Pratama</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Teknik Informatika (NIM: 21051204012)
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-surface-subtle border border-slate-200 space-y-1">
-              <span className="text-[11px] text-slate-400 font-semibold uppercase">
+            <div className="p-4 rounded-2xl bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 space-y-1">
+              <span className="text-[11px] text-slate-400 dark:text-slate-400 font-semibold uppercase">
                 Dosen Pembimbing
               </span>
-              <p className="text-sm font-bold text-navy-950">
+              <p className="text-sm font-bold text-navy-950 dark:text-white">
                 Dr. Ir. Hendra Gunawan, M.T.
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Departemen Teknologi Informasi & Biosistem
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-surface-subtle border border-slate-200 space-y-1">
-              <span className="text-[11px] text-slate-400 font-semibold uppercase">
+            <div className="p-4 rounded-2xl bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 space-y-1">
+              <span className="text-[11px] text-slate-400 dark:text-slate-400 font-semibold uppercase">
                 Realisasi Program
               </span>
-              <p className="text-sm font-bold text-emerald-700">71% Selesai</p>
-              <p className="text-xs text-slate-500">
+              <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">71% Selesai</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 3 Luaran Produk Siap Diserahterimakan
               </p>
             </div>
@@ -176,12 +176,12 @@ export default function PerangkatDesaDashboard() {
         {/* Aspirations Feed */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-navy-950 font-epilogue">
+            <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
               Aspirasi Masyarakat Desa Masuk
             </h2>
             <Link
               href="/perangkat-desa/aspirasi"
-              className="text-xs text-primary font-semibold hover:underline"
+              className="text-xs text-primary dark:text-primary-400 font-semibold hover:underline"
             >
               Buka Semua Aspirasi →
             </Link>
@@ -191,19 +191,19 @@ export default function PerangkatDesaDashboard() {
             {MOCK_ASPIRASI.map((asp) => (
               <Card
                 key={asp.id}
-                className="p-5 border-slate-200 space-y-2 bg-white"
+                className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold text-navy-900">
+                  <span className="font-mono text-xs font-bold text-navy-900 dark:text-primary-300">
                     {asp.ticket_number}
                   </span>
                   <StatusBadge status={asp.status} size="sm" />
                 </div>
-                <h3 className="text-sm font-bold text-navy-950">{asp.judul}</h3>
-                <p className="text-xs text-slate-600">{asp.deskripsi}</p>
-                <p className="text-[11px] text-slate-400">
+                <h3 className="text-sm font-bold text-navy-950 dark:text-white">{asp.judul}</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-300">{asp.deskripsi}</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">
                   Diajukan oleh:{" "}
-                  <span className="font-semibold text-navy-800">
+                  <span className="font-semibold text-navy-800 dark:text-slate-200">
                     {asp.nama_pengadu}
                   </span>{" "}
                   ({asp.nomor_kontak})

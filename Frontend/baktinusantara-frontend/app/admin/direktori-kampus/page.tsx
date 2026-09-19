@@ -134,7 +134,7 @@ export default function AdminDirektoriKampusPage() {
                     <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue leading-tight">
                       {u.nama_universitas}
                     </h3>
-                    <p className="text-xs font-mono text-primary font-semibold">Kode Kampus: {u.kode_univ}</p>
+                    <p className="text-xs font-mono text-primary dark:text-primary-300 font-semibold">Kode Kampus: {u.kode_univ}</p>
                     <p className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                       <MapPin className="w-3.5 h-3.5 text-slate-400" />
                       <span>{u.kota || 'Jawa Timur, Indonesia'}</span>

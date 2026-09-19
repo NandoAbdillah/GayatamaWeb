@@ -89,7 +89,7 @@ export default function DirektoriKampusDetailPage() {
               <img
                 src={getLogoUrl(kampus.domain)}
                 alt={`Logo ${kampus.kode_univ}`}
-                className="w-20 h-20 rounded-2xl object-contain bg-white border border-slate-100 dark:border-navy-700 p-1 shrink-0"
+                className="w-20 h-20 rounded-2xl object-contain bg-white dark:bg-navy-950 border border-slate-100 dark:border-navy-700 p-1 shrink-0"
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement;
                   target.style.display = 'none';

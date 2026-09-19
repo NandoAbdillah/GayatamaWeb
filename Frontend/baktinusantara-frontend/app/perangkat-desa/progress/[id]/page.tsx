@@ -346,16 +346,16 @@ export default function PerangkatDesaProgressDetailPage() {
             <Button
               variant="outline"
               size="sm"
-              className="gap-1.5 text-xs font-bold bg-white"
+              className="gap-1.5 text-xs font-bold bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-700 text-navy-950 dark:text-slate-100"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Daftar
             </Button>
           </Link>
-          <Card className="p-8 text-center bg-white border-slate-200">
-            <p className="text-sm font-bold text-navy-950">
+          <Card className="p-8 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <p className="text-sm font-bold text-navy-950 dark:text-white">
               Kelompok tidak ditemukan
             </p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               ID {params?.id} tidak ada di Desa Sukamaju.
             </p>
           </Card>
@@ -365,13 +365,13 @@ export default function PerangkatDesaProgressDetailPage() {
   }
 
   const statusInfo: Record<string, { label: string; color: string }> = {
-    perencanaan: { label: "Persiapan", color: "bg-slate-100 text-slate-700" },
-    pelaksanaan: { label: "Pelaksanaan", color: "bg-amber-100 text-amber-800" },
+    perencanaan: { label: "Persiapan", color: "bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-slate-300" },
+    pelaksanaan: { label: "Pelaksanaan", color: "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300" },
     penyusunan_luaran: {
       label: "Penyusunan Luaran",
-      color: "bg-indigo-100 text-indigo-700",
+      color: "bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300",
     },
-    selesai: { label: "Selesai", color: "bg-emerald-100 text-emerald-800" },
+    selesai: { label: "Selesai", color: "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300" },
   };
   const st = statusInfo[kelompok.status_program] ?? statusInfo.pelaksanaan;
 
@@ -383,7 +383,7 @@ export default function PerangkatDesaProgressDetailPage() {
           <Button
             variant="outline"
             size="sm"
-            className="gap-1.5 text-xs font-bold bg-white"
+            className="gap-1.5 text-xs font-bold bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-700 text-navy-950 dark:text-slate-100"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Kembali
           </Button>
@@ -437,32 +437,32 @@ export default function PerangkatDesaProgressDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-          {/* Projek - kiri (diukur untuk tentukan kapasitas list anggota) */}
-          <Card ref={projekRef} className="p-6 bg-white border-slate-200 shadow-sm space-y-4 h-full flex flex-col">
-            <h2 className="text-sm font-bold text-navy-950 font-epilogue flex items-center gap-2">
-              <Layers className="w-4 h-4 text-primary" />
+          {/* Projek - kiri */}
+          <Card ref={projekRef} className="p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm space-y-4 h-full flex flex-col">
+            <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue flex items-center gap-2">
+              <Layers className="w-4 h-4 text-primary dark:text-primary-400" />
               Projek yang Dikerjakan
             </h2>
             <div>
-              <p className="text-sm font-bold text-navy-950 leading-snug">{kelompok.pos_kebutuhan_judul}</p>
+              <p className="text-sm font-bold text-navy-950 dark:text-white leading-snug">{kelompok.pos_kebutuhan_judul}</p>
               {pos && (
-                <span className="inline-flex mt-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold">
+                <span className="inline-flex mt-1 px-2.5 py-0.5 rounded-full bg-primary/10 dark:bg-primary-950/70 text-primary dark:text-primary-300 text-[11px] font-bold">
                   {pos.kategori_sektor}
                 </span>
               )}
-              <p className="text-xs text-slate-600 leading-relaxed mt-3 whitespace-pre-line">
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mt-3 whitespace-pre-line">
                 {pos?.deskripsi || 'Deskripsi projek belum tersedia.'}
               </p>
             </div>
             {pos?.target_luaran && pos.target_luaran.length > 0 && (
               <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                   <Target className="w-3.5 h-3.5" />
                   Tujuan / Target Luaran
                 </p>
                 <ul className="mt-2 space-y-1.5">
                   {pos.target_luaran.map((t, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-slate-700">
+                    <li key={i} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
                       <span>{t}</span>
                     </li>
@@ -471,76 +471,75 @@ export default function PerangkatDesaProgressDetailPage() {
               </div>
             )}
             {pos?.kriteria_jurusan && (
-              <div className="pt-3 border-t border-slate-100 mt-auto">
-                <p className="text-[11px] font-bold text-slate-400 uppercase">Keahlian Dibutuhkan</p>
+              <div className="pt-3 border-t border-slate-100 dark:border-navy-800 mt-auto">
+                <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase">Keahlian Dibutuhkan</p>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {pos.kriteria_jurusan.map((j) => (
-                    <span key={j} className="px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[11px] font-medium text-slate-700">
+                    <span key={j} className="px-2.5 py-1 rounded-full bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 text-[11px] font-medium text-slate-700 dark:text-slate-300">
                       {j}
                     </span>
                   ))}
                 </div>
               </div>
             )}
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-indigo-50 border border-indigo-100 text-xs mt-3">
-              <GraduationCap className="w-4 h-4 text-indigo-600" />
-              <span className="text-slate-700">
-                Dosen Pembimbing: <strong className="text-navy-900">{kelompok.dosen_nama}</strong>
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 text-xs mt-3">
+              <GraduationCap className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <span className="text-slate-700 dark:text-slate-300">
+                Dosen Pembimbing: <strong className="text-navy-900 dark:text-white">{kelompok.dosen_nama}</strong>
               </span>
             </div>
           </Card>
 
-          {/* Anggota - kanan, tinggi mengikuti card projek */}
-          <Card className="p-6 bg-white border-slate-200 shadow-sm h-full flex flex-col">
-            <h2 className="text-sm font-bold text-navy-950 font-epilogue flex items-center gap-2">
-              <Users className="w-4 h-4 text-indigo-600" />
+          {/* Anggota - kanan */}
+          <Card className="p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm h-full flex flex-col">
+            <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue flex items-center gap-2">
+              <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               Daftar Anggota Kelompok
             </h2>
-            <p className="text-xs text-slate-500">{kelompok.total_anggota} Anggota</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{kelompok.total_anggota} Anggota</p>
 
             <div className="flex-1 flex flex-col mt-4">
-              {/* Tabel biasa - row tinggi sama, tidak stretch */}
-              <div className="border border-slate-200 rounded-xl overflow-hidden">
+              <div className="border border-slate-200 dark:border-navy-700 rounded-xl overflow-hidden">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <tr className="bg-slate-50 dark:bg-navy-950/80 border-b border-slate-200 dark:border-navy-700 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       <th className="px-3 py-2.5 text-left font-bold">Nama</th>
                       <th className="px-3 py-2.5 text-left font-bold">NIM</th>
                       <th className="px-3 py-2.5 text-left font-bold">Jurusan</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-slate-200 dark:divide-navy-700">
                     {paginatedAnggota.map((a) => (
-                      <tr key={a.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-3 py-3 text-xs font-semibold text-navy-950">
+                      <tr key={a.id} className="hover:bg-slate-50 dark:hover:bg-navy-800/60 transition-colors">
+                        <td className="px-3 py-3 text-xs font-semibold text-navy-950 dark:text-white">
                           <span className="flex items-center gap-1.5">
                             <span className="truncate">{a.nama}</span>
                             {a.role_kelompok === 'Ketua' && (
-                              <span className="shrink-0 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold">Ketua</span>
+                              <span className="shrink-0 px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[9px] font-bold">Ketua</span>
                             )}
                           </span>
                         </td>
-                        <td className="px-3 py-3 text-xs font-mono text-slate-600">{a.nim}</td>
-                        <td className="px-3 py-3 text-xs text-slate-600">{a.jurusan}</td>
+                        <td className="px-3 py-3 text-xs font-mono text-slate-600 dark:text-slate-300">{a.nim}</td>
+                        <td className="px-3 py-3 text-xs text-slate-600 dark:text-slate-300">{a.jurusan}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              {/* Spacer agar pagination tetap di bawah, card tetap tinggi mengikuti Projek tapi row tidak ketarik */}
+
               <div className="flex-1" />
 
               {/* Pagination ikon < > */}
               {totalAnggotaPages > 1 ? (
                 <div className="flex items-center justify-between mt-3">
-                  <span className="text-xs text-slate-500 font-medium">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                     Halaman {anggotaPage + 1} dari {totalAnggotaPages}
                   </span>
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => setAnggotaPage((p) => Math.max(0, p - 1))}
                       disabled={anggotaPage === 0}
-                      className="w-7 h-7 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="w-7 h-7 rounded-lg border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-navy-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       aria-label="Sebelumnya"
                     >
                       <ChevronLeft className="w-4 h-4" />
@@ -550,7 +549,7 @@ export default function PerangkatDesaProgressDetailPage() {
                         <button
                           key={i}
                           onClick={() => setAnggotaPage(i)}
-                          className={`w-2 h-2 rounded-full transition-all ${i === anggotaPage ? 'bg-navy-950 w-4' : 'bg-slate-300'}`}
+                          className={`w-2 h-2 rounded-full transition-all ${i === anggotaPage ? 'bg-navy-950 dark:bg-primary-400 w-4' : 'bg-slate-300 dark:bg-navy-700'}`}
                           aria-label={`Halaman ${i + 1}`}
                         />
                       ))}
@@ -558,7 +557,7 @@ export default function PerangkatDesaProgressDetailPage() {
                     <button
                       onClick={() => setAnggotaPage((p) => Math.min(totalAnggotaPages - 1, p + 1))}
                       disabled={anggotaPage === totalAnggotaPages - 1}
-                      className="w-7 h-7 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="w-7 h-7 rounded-lg border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-navy-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       aria-label="Berikutnya"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -572,40 +571,40 @@ export default function PerangkatDesaProgressDetailPage() {
           </Card>
         </div>
 
-        {/* Logbook Mingguan - dropdown smooth per minggu */}
-        <Card className="p-6 bg-white border-slate-200 shadow-sm space-y-5">
+        {/* Logbook Mingguan */}
+        <Card className="p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm space-y-5">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-sm font-bold text-navy-950 font-epilogue flex items-center gap-2">
-              <FileCheck2 className="w-4 h-4 text-emerald-600" />
+            <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue flex items-center gap-2">
+              <FileCheck2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               Logbook Mingguan — Laporan Kegiatan Lapangan
             </h2>
-            <span className="text-xs font-semibold text-slate-500">{logs.length} catatan</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{logs.length} catatan</span>
           </div>
 
           {logs.length === 0 ? (
-            <div className="py-10 text-center border border-dashed border-slate-200 rounded-2xl bg-slate-50">
-              <Calendar className="w-8 h-8 text-slate-300 mx-auto" />
-              <p className="text-sm font-semibold text-slate-600 mt-2">Belum ada logbook</p>
-              <p className="text-xs text-slate-500 mt-1">Kelompok ini belum mengunggah laporan mingguan.</p>
+            <div className="py-10 text-center border border-dashed border-slate-200 dark:border-navy-700 rounded-2xl bg-slate-50 dark:bg-navy-950">
+              <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
+              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-2">Belum ada logbook</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Kelompok ini belum mengunggah laporan mingguan.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {logsByWeek.map(([minggu, items]) => {
                 const isExpanded = expandedWeeks.has(minggu);
                 return (
-                  <div key={minggu} className="rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-sm">
+                  <div key={minggu} className="rounded-2xl border border-slate-200 dark:border-navy-800 overflow-hidden bg-white dark:bg-navy-900 shadow-sm">
                     <button
                       type="button"
                       onClick={() => toggleWeek(minggu)}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors duration-200"
+                      className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 dark:hover:bg-navy-800/60 transition-colors duration-200"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 rounded-full bg-navy-950 text-white text-xs font-bold shrink-0">Minggu {minggu}</span>
-                        <span className="text-xs text-slate-500 font-medium">{items.length} kegiatan</span>
+                        <span className="px-3 py-1 rounded-full bg-navy-950 dark:bg-primary-600 text-white text-xs font-bold shrink-0">Minggu {minggu}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{items.length} kegiatan</span>
                       </div>
                       <span
                         className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all duration-300 ${
-                          isExpanded ? 'bg-navy-950 text-white border-navy-950 rotate-180' : 'bg-white text-slate-500 border-slate-200'
+                          isExpanded ? 'bg-navy-950 dark:bg-primary-600 text-white border-navy-950 dark:border-primary-600 rotate-180' : 'bg-white dark:bg-navy-800 text-slate-500 dark:text-slate-300 border-slate-200 dark:border-navy-700'
                         }`}
                       >
                         <ChevronDown className="w-4 h-4" />
@@ -614,34 +613,34 @@ export default function PerangkatDesaProgressDetailPage() {
 
                     <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                       <div className="overflow-hidden">
-                        <div className="p-4 pt-0 space-y-4 bg-slate-50/60 border-t border-slate-100">
+                        <div className="p-4 pt-0 space-y-4 bg-slate-50/60 dark:bg-navy-950/60 border-t border-slate-100 dark:border-navy-800">
                           {items.map((log) => (
-                            <div key={log.id} className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 mt-4 shadow-sm">
+                            <div key={log.id} className="p-4 rounded-2xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 space-y-3 mt-4 shadow-sm">
                               <div className="flex items-start justify-between gap-3">
-                                <h3 className="text-sm font-bold text-navy-950 leading-snug flex-1 pr-2">{log.judul_kegiatan}</h3>
-                                <span className="shrink-0 inline-flex items-center gap-1.5 text-[11px] text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full font-medium whitespace-nowrap">
+                                <h3 className="text-sm font-bold text-navy-950 dark:text-white leading-snug flex-1 pr-2">{log.judul_kegiatan}</h3>
+                                <span className="shrink-0 inline-flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 px-2.5 py-1 rounded-full font-medium whitespace-nowrap">
                                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
                                   {log.tanggal}
                                 </span>
                               </div>
-                              <p className="text-[11px] font-semibold text-emerald-700">Target: {log.target_program_terkait}</p>
+                              <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">Target: {log.target_program_terkait}</p>
 
-                              <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-line">{log.deskripsi}</p>
+                              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">{log.deskripsi}</p>
 
                               {(log.foto_dokumentasi_urls?.length ?? 0) > 0 && (
                                 <div className="flex gap-2 overflow-x-auto pb-1">
                                   {log.foto_dokumentasi_urls!.map((url, i) => (
-                                    <img key={i} src={url} alt="Dokumentasi" className="w-24 h-24 rounded-xl object-cover border border-slate-200 shrink-0" />
+                                    <img key={i} src={url} alt="Dokumentasi" className="w-24 h-24 rounded-xl object-cover border border-slate-200 dark:border-navy-700 shrink-0" />
                                   ))}
                                 </div>
                               )}
 
                               {log.catatan_revisi_dpl && (
-                                <div className="flex items-start gap-2 p-3 rounded-xl bg-orange-50 border border-orange-200 text-xs">
-                                  <AlertCircle className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
+                                <div className="flex items-start gap-2 p-3 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/60 text-xs">
+                                  <AlertCircle className="w-4 h-4 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5" />
                                   <div>
-                                    <p className="font-bold text-orange-800">Catatan Revisi DPL:</p>
-                                    <p className="text-orange-900 leading-relaxed mt-0.5">{log.catatan_revisi_dpl}</p>
+                                    <p className="font-bold text-orange-800 dark:text-orange-300">Catatan Revisi DPL:</p>
+                                    <p className="text-orange-900 dark:text-orange-200 leading-relaxed mt-0.5">{log.catatan_revisi_dpl}</p>
                                   </div>
                                 </div>
                               )}

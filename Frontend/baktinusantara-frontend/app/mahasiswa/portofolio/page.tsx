@@ -54,10 +54,10 @@ export default function MahasiswaPortofolioPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               Luaran Akhir & Portofolio
             </h1>
-            <p className="text-xs text-slate-500 font-jakarta mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-jakarta mt-0.5">
               Setiap karya pengabdian yang disahkan akan diterbitkan menjadi portofolio publik terverifikasi.
             </p>
           </div>
@@ -98,35 +98,35 @@ export default function MahasiswaPortofolioPage() {
 
         {/* Luaran Grid */}
         <div className="space-y-4">
-          <h2 className="text-base font-bold text-navy-950 font-epilogue">
+          <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
             Daftar Berkas Luaran Kelompok 14
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {luaranList.map((item) => (
-              <Card key={item.id} className="p-5 border-slate-200 bg-white flex flex-col justify-between space-y-4 shadow-ambient">
+              <Card key={item.id} className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 flex flex-col justify-between space-y-4 shadow-ambient">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-primary-700 bg-primary-50 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[11px] font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/70 px-2.5 py-0.5 rounded-full">
                       {item.jenis}
                     </span>
                     <StatusBadge status={item.status_desa} size="sm" />
                   </div>
 
-                  <h3 className="text-sm font-bold text-navy-950 font-epilogue leading-snug">
+                  <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue leading-snug">
                     {item.judul}
                   </h3>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 space-y-2">
+                <div className="pt-3 border-t border-slate-100 dark:border-navy-800 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-400">Verifikasi DPL:</span>
-                    <span className="font-semibold text-navy-900 capitalize">{item.status_dpl}</span>
+                    <span className="font-semibold text-navy-900 dark:text-slate-200 capitalize">{item.status_dpl}</span>
                   </div>
                   {item.nilai && (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-400">Nilai Luaran:</span>
-                      <span className="font-bold text-emerald-700">{item.nilai} / 100</span>
+                      <span className="font-bold text-emerald-700 dark:text-emerald-400">{item.nilai} / 100</span>
                     </div>
                   )}
 

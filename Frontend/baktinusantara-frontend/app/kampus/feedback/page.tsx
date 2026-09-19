@@ -173,7 +173,7 @@ export default function AdminFeedbackPage() {
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
                   activeRoleFilter === tab.key
                     ? 'bg-primary text-white shadow-sm'
-                    : 'bg-white dark:bg-navy-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-navy-800 hover:bg-slate-50'
+                    : 'bg-white dark:bg-navy-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-navy-800 hover:bg-slate-50 dark:hover:bg-navy-800'
                 }`}
               >
                 {tab.label}
@@ -196,8 +196,8 @@ export default function AdminFeedbackPage() {
                       ? 'bg-amber-500 text-white shadow-sm'
                       : tab.key === 'selesai'
                         ? 'bg-emerald-600 text-white shadow-sm'
-                        : 'bg-navy-900 text-white shadow-sm'
-                    : 'bg-white dark:bg-navy-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-navy-800 hover:bg-slate-50'
+                        : 'bg-navy-900 dark:bg-white text-white dark:text-navy-950 shadow-sm'
+                    : 'bg-white dark:bg-navy-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-navy-800 hover:bg-slate-50 dark:hover:bg-navy-800'
                 }`}
               >
                 {tab.label}
@@ -222,7 +222,7 @@ export default function AdminFeedbackPage() {
             return (
               <Card
                 key={item.id}
-                className="p-6 space-y-4 border-slate-200 dark:border-navy-800 hover:shadow-md transition-shadow flex flex-col break-inside-avoid mb-4 inline-block w-full align-top"
+                className="p-6 space-y-4 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 hover:shadow-md transition-shadow flex flex-col break-inside-avoid mb-4 inline-block w-full align-top"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-navy-800">
                   <div className="space-y-1">
@@ -239,7 +239,7 @@ export default function AdminFeedbackPage() {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`w-3.5 h-3.5 ${star <= item.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-200'}`}
+                          className={`w-3.5 h-3.5 ${star <= item.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-200 dark:text-navy-700'}`}
                         />
                       ))}
                     </div>
@@ -260,7 +260,7 @@ export default function AdminFeedbackPage() {
                 {/* Input Beri Tanggapan - di bawah komentar, masih dalam card */}
                 {isEditing && (
                   <div className="rounded-xl bg-primary-50/60 dark:bg-primary-950/20 border border-primary-100 dark:border-primary-900 p-4 space-y-3 animate-in fade-in">
-                    <div className="flex items-center gap-2 text-xs font-bold text-primary">
+                    <div className="flex items-center gap-2 text-xs font-bold text-primary dark:text-primary-300">
                       <Reply className="w-3.5 h-3.5" />
                       <span>Tanggapan LPPM Kampus</span>
                     </div>
@@ -280,7 +280,7 @@ export default function AdminFeedbackPage() {
                           setEditingId(null);
                           setDraft('');
                         }}
-                        className="text-xs bg-white"
+                        className="text-xs bg-white dark:bg-navy-800 dark:text-slate-200 dark:border-navy-700"
                       >
                         Batal
                       </Button>
@@ -302,7 +302,7 @@ export default function AdminFeedbackPage() {
                   <div className="space-y-2">
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : item.id)}
-                      className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-600 transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-bold text-primary dark:text-primary-400 hover:text-primary-600 transition-colors"
                     >
                       {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                       <span>{isExpanded ? 'Sembunyikan Tanggapan' : 'Lihat Tanggapan LPPM'}</span>
@@ -340,7 +340,7 @@ export default function AdminFeedbackPage() {
                           setEditingId(item.id);
                           setDraft('');
                         }}
-                        className="text-xs font-bold gap-1.5 border-primary-200 text-primary hover:bg-primary-50 bg-white"
+                        className="text-xs font-bold gap-1.5 border-primary-200 dark:border-primary-800 text-primary dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-950/50 bg-white dark:bg-navy-900"
                         disabled={isEditing}
                       >
                         <Reply className="w-3.5 h-3.5" />
@@ -357,7 +357,7 @@ export default function AdminFeedbackPage() {
                       </Button>
                     </div>
                   ) : (
-                    <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" />
                       Selesai ditindaklanjuti
                     </span>
@@ -385,7 +385,7 @@ export default function AdminFeedbackPage() {
               </div>
             </div>
             <div className="flex gap-2 pt-1">
-              <Button variant="outline" onClick={() => setVerifyId(null)} className="w-1/2 text-xs bg-white">
+              <Button variant="outline" onClick={() => setVerifyId(null)} className="w-1/2 text-xs bg-white dark:bg-navy-800 dark:text-slate-200 dark:border-navy-700">
                 <X className="w-3.5 h-3.5 mr-1" />
                 <span>Batal</span>
               </Button>

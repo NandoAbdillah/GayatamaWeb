@@ -136,11 +136,11 @@ export default function MahasiswaKelompokPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               {kelompok.nama_kelompok}
             </h1>
-            <p className="text-xs text-slate-500 font-jakarta mt-0.5">
-              Lokasi Pengabdian: <span className="font-semibold text-navy-900">{kelompok.desa_nama || 'Desa Sukamaju, Jombang'}</span>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-jakarta mt-0.5">
+              Lokasi Pengabdian: <span className="font-semibold text-navy-900 dark:text-slate-200">{kelompok.desa_nama || 'Desa Sukamaju, Jombang'}</span>
             </p>
           </div>
 
@@ -165,11 +165,11 @@ export default function MahasiswaKelompokPage() {
               <span>Buat Tim Baru</span>
             </Button>
 
-            <div className="bg-white px-3.5 py-1.5 rounded-full border border-slate-200 text-xs font-mono font-bold text-primary flex items-center gap-2 shadow-sm">
+            <div className="bg-white dark:bg-navy-900 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-navy-800 text-xs font-mono font-bold text-primary dark:text-primary-400 flex items-center gap-2 shadow-sm">
               <span>{kelompok.kode_kelompok || 'KKN-UNESA-2026-01'}</span>
               <button
                 onClick={handleCopyCode}
-                className="text-slate-400 hover:text-primary transition-colors"
+                className="text-slate-400 hover:text-primary dark:hover:text-primary-300 transition-colors"
                 title="Salin Kode"
               >
                 <Copy className="w-3.5 h-3.5" />
@@ -180,15 +180,15 @@ export default function MahasiswaKelompokPage() {
 
         {/* Info Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <Card className="p-5 border-slate-200 space-y-2 bg-white flex flex-col justify-between">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 flex flex-col justify-between">
             <div>
               <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
                 Dosen Pembimbing Lapangan
               </span>
-              <p className="text-sm font-bold text-navy-950 font-epilogue mt-1">
+              <p className="text-sm font-bold text-navy-950 dark:text-white font-epilogue mt-1">
                 {kelompok.dosen_nama || 'Dr. Budi Santoso, M.Kom.'}
               </p>
-              <p className="text-xs text-primary-700 font-medium">Teknologi Informasi & Biosistem</p>
+              <p className="text-xs text-primary-700 dark:text-primary-400 font-medium">Teknologi Informasi & Biosistem</p>
             </div>
             <Button
               size="sm"
@@ -200,68 +200,68 @@ export default function MahasiswaKelompokPage() {
             </Button>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
             <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
               Pos Kebutuhan Terhubung
             </span>
-            <p className="text-sm font-bold text-navy-950 font-epilogue line-clamp-1">
+            <p className="text-sm font-bold text-navy-950 dark:text-white font-epilogue line-clamp-1">
               {kelompok.pos_kebutuhan_judul || 'Digitalisasi Branding dan E-Commerce UMKM'}
             </p>
-            <p className="text-xs text-emerald-700 font-semibold">Status: Disetujui Desa & DPL</p>
+            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">Status: Disetujui Desa & DPL</p>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
             <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
               Total Keanggotaan
             </span>
-            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               {kelompok.total_anggota || kelompok.anggota?.length || 5}{' '}
               <span className="text-xs font-normal text-slate-400">Mahasiswa</span>
             </p>
-            <p className="text-xs text-slate-500">Multidisiplin (UNESA)</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Multidisiplin (UNESA)</p>
           </Card>
         </div>
 
         {/* Anggota Roster Card */}
-        <Card className="p-6 border-slate-200 bg-white shadow-ambient space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <Card className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-ambient space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-navy-800 pb-3">
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-primary" />
-              <h2 className="text-base font-bold text-navy-950 font-epilogue">
+              <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
                 Daftar Mahasiswa Anggota Kelompok
               </h2>
             </div>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-500 dark:text-slate-400">
               Kuota Terisi: {kelompok.anggota?.length || 5}/5
             </span>
           </div>
 
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-navy-800">
             {(kelompok.anggota || []).map((mhs) => (
               <div key={mhs.id} className="py-3.5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <img
                     src={mhs.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
                     alt={mhs.nama}
-                    className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                    className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-navy-700"
                   />
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-xs sm:text-sm font-bold text-navy-950">{mhs.nama}</p>
+                      <p className="text-xs sm:text-sm font-bold text-navy-950 dark:text-white">{mhs.nama}</p>
                       {mhs.role_kelompok === 'Ketua' && (
-                        <span className="text-[10px] font-bold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-200">
+                        <span className="text-[10px] font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/70 px-2 py-0.5 rounded-full border border-primary-200 dark:border-primary-800">
                           Ketua Tim
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 font-medium">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                       {mhs.nim} • {mhs.jurusan}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                  <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                     Aktif di Lapangan
                   </span>
                 </div>
@@ -274,11 +274,11 @@ export default function MahasiswaKelompokPage() {
       {/* Modal Buat Kelompok */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-navy-900 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 border border-slate-200">
+          <div className="bg-white dark:bg-navy-900 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 border border-slate-200 dark:border-navy-800">
             <h3 className="text-lg font-bold text-navy-950 dark:text-white font-epilogue">
               Buat Kelompok KKN Baru
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Sebagai ketua, Anda akan mendapatkan kode undangan kelompok untuk dibagikan ke anggota tim.
             </p>
             <form onSubmit={handleCreateKelompok} className="space-y-4">
@@ -292,7 +292,7 @@ export default function MahasiswaKelompokPage() {
                   value={namaKelompokInput}
                   onChange={(e) => setNamaKelompokInput(e.target.value)}
                   placeholder="Contoh: KKN UNESA Desa Sukamaju 2026"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div className="flex items-center justify-end gap-2 pt-2">
@@ -312,11 +312,11 @@ export default function MahasiswaKelompokPage() {
       {/* Modal Gabung Kelompok */}
       {showJoinModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-navy-900 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 border border-slate-200">
+          <div className="bg-white dark:bg-navy-900 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 border border-slate-200 dark:border-navy-800">
             <h3 className="text-lg font-bold text-navy-950 dark:text-white font-epilogue">
               Gabung ke Kelompok KKN
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Masukkan ID kelompok dan program studi keahlian kontribusi Anda.
             </p>
             <form onSubmit={handleJoinKelompok} className="space-y-4">
@@ -330,7 +330,7 @@ export default function MahasiswaKelompokPage() {
                   value={kelompokIdJoin}
                   onChange={(e) => setKelompokIdJoin(e.target.value)}
                   placeholder="1"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
@@ -343,7 +343,7 @@ export default function MahasiswaKelompokPage() {
                   value={jurusanKontribusi}
                   onChange={(e) => setJurusanKontribusi(e.target.value)}
                   placeholder="Contoh: Desain Komunikasi Visual"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div className="flex items-center justify-end gap-2 pt-2">
@@ -363,11 +363,11 @@ export default function MahasiswaKelompokPage() {
       {/* Modal Tetapkan DPL */}
       {showSetDosenModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-navy-900 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 border border-slate-200">
+          <div className="bg-white dark:bg-navy-900 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 border border-slate-200 dark:border-navy-800">
             <h3 className="text-lg font-bold text-navy-950 dark:text-white font-epilogue">
               Pilih Dosen Pembimbing Lapangan
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Pilih dosen DPL dari universitas asal kelompok Anda.
             </p>
             <form onSubmit={handleSetDosen} className="space-y-4">
@@ -378,11 +378,11 @@ export default function MahasiswaKelompokPage() {
                 <select
                   value={selectedDosenId}
                   onChange={(e) => setSelectedDosenId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
                 >
-                  <option value="1">Dr. Budi Santoso, M.Kom. (UNESA - NIP: 198001012005011001)</option>
-                  <option value="2">Dr. Retno Wulandari, M.Pd. (UNESA - NIP: 198503152010122002)</option>
-                  <option value="3">Ir. Agus Setiawan, M.T. (ITS - NIP: 197808202003121002)</option>
+                  <option value="1" className="dark:bg-navy-900">Dr. Budi Santoso, M.Kom. (UNESA - NIP: 198001012005011001)</option>
+                  <option value="2" className="dark:bg-navy-900">Dr. Retno Wulandari, M.Pd. (UNESA - NIP: 198503152010122002)</option>
+                  <option value="3" className="dark:bg-navy-900">Ir. Agus Setiawan, M.T. (ITS - NIP: 197808202003121002)</option>
                 </select>
               </div>
               <div className="flex items-center justify-end gap-2 pt-2">

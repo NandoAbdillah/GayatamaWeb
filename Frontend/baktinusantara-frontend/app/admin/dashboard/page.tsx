@@ -487,7 +487,7 @@ export default function SuperadminDashboardPage() {
                 </div>
 
                 {/* Filtering bulan/tahun */}
-                <div className="flex flex-col sm:flex-row gap-3 sm:items-end sm:justify-between bg-slate-50/70 dark:bg-navy-800/50 rounded-xl p-3 border border-slate-100 dark:border-navy-700">
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-end sm:justify-between bg-slate-50/70 dark:bg-navy-950/70 rounded-xl p-3 border border-slate-100 dark:border-navy-800">
                   <div className="flex flex-wrap gap-3">
                     <div className="flex flex-col gap-1">
                       <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1">
@@ -498,7 +498,7 @@ export default function SuperadminDashboardPage() {
                         onChange={(e) =>
                           setSelectedYear(Number(e.target.value))
                         }
-                        className="h-9 min-w-[110px] rounded-lg border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 px-3 text-sm font-semibold text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        className="h-9 min-w-[110px] rounded-lg border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 px-3 text-sm font-semibold text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
                       >
                         {availableYears.map((y) => (
                           <option key={y} value={y}>
@@ -517,7 +517,7 @@ export default function SuperadminDashboardPage() {
                           const v = e.target.value;
                           setSelectedMonth(v === "all" ? "all" : Number(v));
                         }}
-                        className="h-9 min-w-[150px] rounded-lg border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 px-3 text-sm font-semibold text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        className="h-9 min-w-[150px] rounded-lg border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 px-3 text-sm font-semibold text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
                       >
                         {MONTH_OPTIONS.map((opt) => (
                           <option

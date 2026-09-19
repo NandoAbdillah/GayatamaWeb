@@ -114,8 +114,8 @@ export default function PerangkatDesaAspirasiPage() {
     <DashboardLayout title="Verifikasi Aspirasi Warga Desa">
       <div className="space-y-6 font-jakarta">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">Daftar Aspirasi Masuk dari Warga</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">Daftar Aspirasi Masuk dari Warga</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Tinjau usulan warga, verifikasi kebenaran lapangan, dan integrasikan menjadi pos kebutuhan KKN resmi desa.
           </p>
         </div>
@@ -129,16 +129,16 @@ export default function PerangkatDesaAspirasiPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari judul, deskripsi, pengusul, atau tiket..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm text-navy-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 rounded-2xl text-sm text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
             />
           </div>
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl p-1.5 shadow-sm overflow-x-auto">
+          <div className="flex items-center gap-2 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-2xl p-1.5 shadow-sm overflow-x-auto">
             {filterOptions.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setFilterStatus(opt.value)}
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                  filterStatus === opt.value ? 'bg-navy-950 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+                  filterStatus === opt.value ? 'bg-navy-950 dark:bg-primary text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-navy-800'
                 }`}
               >
                 {opt.label}
@@ -151,8 +151,8 @@ export default function PerangkatDesaAspirasiPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredAspirasi.length === 0 ? (
             <div className="col-span-full">
-              <Card className="p-10 text-center bg-white border-slate-200">
-                <p className="text-sm text-slate-500">Tidak ada aspirasi yang sesuai pencarian / filter.</p>
+              <Card className="p-10 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+                <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada aspirasi yang sesuai pencarian / filter.</p>
               </Card>
             </div>
           ) : (
@@ -163,32 +163,32 @@ export default function PerangkatDesaAspirasiPage() {
             const isMenunggu = badge.label === 'Menunggu';
 
             return (
-              <Card key={item.id} className="p-5 border-slate-200 bg-white shadow-sm flex flex-col">
+              <Card key={item.id} className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm flex flex-col">
                 {/* Header */}
-                <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-3">
-                  <span className="font-mono text-[11px] font-bold text-navy-900 bg-slate-100 px-2.5 py-1 rounded-full w-fit">
+                <div className="flex items-start justify-between gap-2 border-b border-slate-100 dark:border-navy-800 pb-3">
+                  <span className="font-mono text-[11px] font-bold text-navy-900 dark:text-primary-300 bg-slate-100 dark:bg-navy-800 px-2.5 py-1 rounded-full w-fit">
                     {item.ticket_number || `ASP-2026-#${item.id}`}
                   </span>
                   <StatusBadge status={badge.status} label={badge.label} size="sm" className="shrink-0" />
                 </div>
 
                 <div className="flex-1 space-y-3 pt-3">
-                  <h3 className="text-sm font-bold text-navy-950 font-epilogue leading-snug line-clamp-2">{item.judul}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{item.deskripsi}</p>
+                  <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue leading-snug line-clamp-2">{item.judul}</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">{item.deskripsi}</p>
 
                   {/* Info pengusul dengan background abu muda masing-masing */}
                   <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-600">
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 text-xs text-slate-600 dark:text-slate-300">
                       <span className="text-slate-400 mr-1.5">Pengusul:</span>
-                      <strong className="text-navy-900 font-semibold">{item.nama_pengadu || 'Warga'}</strong>
+                      <strong className="text-navy-900 dark:text-white font-semibold">{item.nama_pengadu || 'Warga'}</strong>
                     </span>
-                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-600">
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 text-xs text-slate-600 dark:text-slate-300">
                       <span className="text-slate-400 mr-1.5">Kontak:</span>
-                      <strong className="text-navy-900 font-semibold">{item.nomor_kontak || '-'}</strong>
+                      <strong className="text-navy-900 dark:text-white font-semibold">{item.nomor_kontak || '-'}</strong>
                     </span>
-                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-600">
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 text-xs text-slate-600 dark:text-slate-300">
                       <span className="text-slate-400 mr-1.5">Tanggal:</span>
-                      <strong className="text-navy-900 font-semibold">{item.created_at || 'Hari ini'}</strong>
+                      <strong className="text-navy-900 dark:text-white font-semibold">{item.created_at || 'Hari ini'}</strong>
                     </span>
                   </div>
 
@@ -199,9 +199,9 @@ export default function PerangkatDesaAspirasiPage() {
                     <div className="overflow-hidden">
                       <form
                         onSubmit={(e) => handleRejectSubmit(e, item)}
-                        className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3"
+                        className="p-4 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 space-y-3"
                       >
-                        <label className="block text-xs font-semibold text-navy-900">
+                        <label className="block text-xs font-semibold text-navy-900 dark:text-white">
                           Alasan Penolakan <span className="text-rose-500">*</span>
                         </label>
                         <textarea
@@ -211,7 +211,7 @@ export default function PerangkatDesaAspirasiPage() {
                           value={rejectReason}
                           onChange={(e) => setRejectReason(e.target.value)}
                           placeholder="Contoh: Aspirasi belum menjadi prioritas pembangunan desa tahun ini karena keterbatasan anggaran dan SDM..."
-                          className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                          className="w-full p-3 bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed"
                         />
                         <div className="flex items-center justify-end gap-2">
                           <Button type="button" variant="outline" size="sm" onClick={handleCancelReject} disabled={isSubmitting}>
@@ -228,18 +228,18 @@ export default function PerangkatDesaAspirasiPage() {
 
                   {/* Dropdown hasil penolakan — smooth, default tertutup */}
                   {item.status === 'rejected' && item.tanggapan_desa && !isRejectActive && (
-                    <div className="rounded-2xl bg-rose-50 border border-rose-200 overflow-hidden">
+                    <div className="rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 overflow-hidden">
                       <button
                         type="button"
                         onClick={() => toggleReject(item.id)}
-                        className="w-full flex items-center justify-between p-3 text-left hover:bg-rose-100/50 transition-colors"
+                        className="w-full flex items-center justify-between p-3 text-left hover:bg-rose-100/50 dark:hover:bg-rose-950/60 transition-colors"
                       >
-                        <span className="flex items-center gap-1.5 font-bold text-rose-800 text-xs">
+                        <span className="flex items-center gap-1.5 font-bold text-rose-800 dark:text-rose-300 text-xs">
                           <AlertCircle className="w-4 h-4" />
                           Alasan Penolakan:
                         </span>
                         <ChevronDown
-                          className={`w-4 h-4 text-rose-700 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                          className={`w-4 h-4 text-rose-700 dark:text-rose-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
                         />
                       </button>
                       <div
@@ -247,7 +247,7 @@ export default function PerangkatDesaAspirasiPage() {
                       >
                         <div className="overflow-hidden">
                           <div className="px-4 pb-3">
-                            <p className="text-xs text-rose-900 leading-relaxed whitespace-pre-line">{item.tanggapan_desa}</p>
+                            <p className="text-xs text-rose-900 dark:text-rose-200 leading-relaxed whitespace-pre-line">{item.tanggapan_desa}</p>
                           </div>
                         </div>
                       </div>
@@ -257,7 +257,7 @@ export default function PerangkatDesaAspirasiPage() {
                 </div>
 
                 {/* 2 button kanan bawah */}
-                <div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-slate-100">
+                <div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-navy-800">
                   {isMenunggu && (
                     <>
                       <Button
@@ -267,7 +267,7 @@ export default function PerangkatDesaAspirasiPage() {
                         }}
                         variant="outline"
                         size="sm"
-                        className="text-xs text-rose-600 border-rose-200 hover:bg-rose-50 font-semibold"
+                        className="text-xs text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-semibold"
                       >
                         Tolak
                       </Button>

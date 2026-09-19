@@ -88,103 +88,101 @@ export default function PerangkatDesaProgressPage() {
       <div className="space-y-6 font-jakarta">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">Kelompok KKN Aktif di Desa</h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">Kelompok KKN Aktif di Desa</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Daftar kelompok mahasiswa yang sedang melaksanakan pengabdian di wilayah Desa Sukamaju. Klik detail untuk melihat anggota, projek, dan logbook mingguan.
           </p>
         </div>
 
         {/* Summary ringkas */}
         <div className="grid grid-cols-3 gap-3">
-          <Card className="p-4 bg-white border-slate-200 text-center">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Kelompok</p>
-            <p className="text-xl font-extrabold text-navy-950 mt-1">{KELOMPOK_LIST.length}</p>
-            <p className="text-[11px] text-slate-500">Aktif 2026</p>
+          <Card className="p-4 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 text-center">
+            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Kelompok</p>
+            <p className="text-xl font-extrabold text-navy-950 dark:text-white mt-1">{KELOMPOK_LIST.length}</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Aktif 2026</p>
           </Card>
-          <Card className="p-4 bg-white border-slate-200 text-center">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Mahasiswa</p>
-            <p className="text-xl font-extrabold text-navy-950 mt-1">{totalMahasiswa} Orang</p>
-            <p className="text-[11px] text-slate-500">Tergabung</p>
+          <Card className="p-4 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 text-center">
+            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Mahasiswa</p>
+            <p className="text-xl font-extrabold text-navy-950 dark:text-white mt-1">{totalMahasiswa} Orang</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Tergabung</p>
           </Card>
-          <Card className="p-4 bg-white border-slate-200 text-center">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Rata-rata Progres</p>
-            <p className="text-xl font-extrabold text-emerald-600 mt-1">{avgProgres}%</p>
-            <p className="text-[11px] text-slate-500">Pelaksanaan</p>
+          <Card className="p-4 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 text-center">
+            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Rata-rata Progres</p>
+            <p className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">{avgProgres}%</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Pelaksanaan</p>
           </Card>
         </div>
 
         {/* Search */}
         <div className="relative max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-400" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari kelompok, projek, atau ketua..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm text-navy-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-2xl text-sm text-navy-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
           />
         </div>
 
         {/* Grid Card Kelompok - singkat */}
         {filtered.length === 0 ? (
-          <Card className="p-10 text-center bg-white border-slate-200">
-            <p className="text-sm text-slate-500">Tidak ada kelompok yang sesuai pencarian.</p>
+          <Card className="p-10 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada kelompok yang sesuai pencarian.</p>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filtered.map((k) => {
-              // const st = statusLabel[k.status_program] || statusLabel.pelaksanaan;
               const pos = MOCK_POS_KEBUTUHAN.find((p) => p.id === k.pos_kebutuhan_id);
               return (
-                <Card key={k.id} className="p-5 bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                <Card key={k.id} className="p-5 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-md transition-shadow flex flex-col">
                   {/* Top: kode + status */}
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 px-2 py-0.5 rounded-full">
                       {k.kode_kelompok}
                     </span>
-                    {/* <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${st.className}`}>{st.label}</span> */}
                   </div>
 
                   {/* Nama kelompok */}
-                  <h3 className="text-sm font-extrabold text-navy-950 font-epilogue mt-3 line-clamp-1 leading-tight">{k.nama_kelompok}</h3>
+                  <h3 className="text-sm font-extrabold text-navy-950 dark:text-white font-epilogue mt-3 line-clamp-1 leading-tight">{k.nama_kelompok}</h3>
 
                   {/* Meta singkat */}
-                  <div className="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500 font-medium">
+                  <div className="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                     <span className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5 text-primary" />
+                      <Users className="w-3.5 h-3.5 text-primary dark:text-primary-400" />
                       {k.total_anggota} Anggota
                     </span>
                     <span className="flex items-center gap-1">
-                      <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                      <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       {k.progres_persen}%
                     </span>
                   </div>
 
                   {/* Progress bar tipis */}
-                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-3">
+                  <div className="w-full h-1.5 bg-slate-100 dark:bg-navy-800 rounded-full overflow-hidden mt-3">
                     <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${k.progres_persen}%` }} />
                   </div>
 
                   {/* Projek - singkat 2 baris */}
-                  <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <div className="mt-3 p-3 rounded-xl bg-slate-50 dark:bg-navy-950/70 border border-slate-100 dark:border-navy-800">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                       <Layers className="w-3 h-3" />
                       Projek
                     </div>
-                    <p className="text-xs font-semibold text-navy-900 leading-snug line-clamp-2 mt-1">{k.pos_kebutuhan_judul}</p>
-                    {pos && <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{pos.kategori_sektor}</p>}
+                    <p className="text-xs font-semibold text-navy-900 dark:text-slate-100 leading-snug line-clamp-2 mt-1">{k.pos_kebutuhan_judul}</p>
+                    {pos && <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{pos.kategori_sektor}</p>}
                   </div>
 
                   {/* Ketua & DPL singkat */}
-                  <div className="flex items-center gap-2 mt-3 text-[11px] text-slate-600">
-                    <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                  <div className="flex items-center gap-2 mt-3 text-[11px] text-slate-600 dark:text-slate-300">
+                    <GraduationCap className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
                     <span className="truncate">
-                      Ketua: <strong className="text-navy-900">{k.ketua_nama}</strong>
+                      Ketua: <strong className="text-navy-900 dark:text-white">{k.ketua_nama}</strong>
                     </span>
                   </div>
 
                   {/* Button detail full width */}
                   <Link href={`/perangkat-desa/progress/${k.id}`} className="mt-4 block">
-                    <Button variant="outline" size="sm" className="w-full justify-between text-xs font-bold">
+                    <Button variant="outline" size="sm" className="w-full justify-between text-xs font-bold dark:border-navy-700 dark:text-slate-200">
                       <span>Lihat Detail</span>
                       <ArrowRight className="w-4 h-4" />
                     </Button>

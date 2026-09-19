@@ -155,21 +155,23 @@ export default function PerangkatDesaProposalPage() {
     <DashboardLayout title="Validasi Proposal Masuk Desa">
       <div className="space-y-6 font-jakarta">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">Validasi Proposal Program KKN Masuk Desa</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">Validasi Proposal Program KKN Masuk Desa</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Perangkat Desa memastikan usulan mahasiswa selaras dengan kebutuhan warga, kearifan lokal, dan kesiapan fasilitas
             lapangan sebelum diterjunkan.
           </p>
         </div>
 
         {/* Filter */}
-        <div className="flex flex-wrap gap-2 bg-white border border-slate-200 rounded-2xl p-1.5 shadow-sm w-fit">
+        <div className="flex flex-wrap gap-2 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-2xl p-1.5 shadow-sm w-fit">
           {filterOptions.map((opt) => (
             <button
               key={opt.value}
               onClick={() => setFilterStatus(opt.value)}
               className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                filterStatus === opt.value ? 'bg-navy-950 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+                filterStatus === opt.value
+                  ? 'bg-navy-950 dark:bg-primary-600 text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-navy-800'
               }`}
             >
               {opt.label}
@@ -179,8 +181,8 @@ export default function PerangkatDesaProposalPage() {
 
         <div className="space-y-4">
           {filtered.length === 0 ? (
-            <Card className="p-10 text-center bg-white border-slate-200">
-              <p className="text-sm text-slate-500">Tidak ada proposal pada filter ini.</p>
+            <Card className="p-10 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+              <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada proposal pada filter ini.</p>
             </Card>
           ) : (
             filtered.map((prop) => {
@@ -190,34 +192,34 @@ export default function PerangkatDesaProposalPage() {
               const showActions = prop.status === 'menunggu' || prop.status === 'revision';
 
               return (
-                <Card key={prop.id} className="p-6 border-slate-200 bg-white space-y-4 shadow-card">
+                <Card key={prop.id} className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-4 shadow-card">
                   {/* Judul sejajar dengan status */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b border-slate-100 pb-3">
-                    <h3 className="text-base font-bold text-navy-950 font-epilogue leading-snug flex-1 pr-2">{prop.judul}</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b border-slate-100 dark:border-navy-800 pb-3">
+                    <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue leading-snug flex-1 pr-2">{prop.judul}</h3>
                     <StatusBadge status={badge.status} label={badge.label} className="shrink-0" />
                   </div>
 
                   {/* Kelompok & Lokasi di bawah judul */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-xs text-slate-500 font-medium">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
                     <span className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-primary" />
+                      <Users className="w-3.5 h-3.5 text-primary dark:text-primary-400" />
                       {prop.kelompok}
                     </span>
                   </div>
 
                   {/* Tujuan */}
                   <div className="space-y-1">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tujuan Program KKN:</span>
-                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">{prop.tujuan}</p>
+                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tujuan Program KKN:</span>
+                    <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">{prop.tujuan}</p>
                   </div>
 
                   {/* File proposal + download icon */}
-                  <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-navy-950/70 border border-slate-200 dark:border-navy-800">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
-                        <FileText className="w-4 h-4 text-primary" />
+                      <div className="w-8 h-8 rounded-lg bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 flex items-center justify-center shrink-0">
+                        <FileText className="w-4 h-4 text-primary dark:text-primary-400" />
                       </div>
-                      <span className="text-xs font-medium text-navy-950 truncate">{prop.file_name}</span>
+                      <span className="text-xs font-medium text-navy-950 dark:text-slate-100 truncate">{prop.file_name}</span>
                     </div>
                     <a
                       href={prop.file_url}
@@ -228,7 +230,7 @@ export default function PerangkatDesaProposalPage() {
                           toast.info('File proposal akan diunduh (mock).');
                         }
                       }}
-                      className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-navy-950 hover:text-white hover:border-navy-950 transition-colors shrink-0"
+                      className="w-8 h-8 rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-navy-950 dark:hover:bg-primary-600 hover:text-white transition-colors shrink-0"
                       title="Download proposal"
                     >
                       <Download className="w-4 h-4" />
@@ -237,21 +239,21 @@ export default function PerangkatDesaProposalPage() {
 
                   {/* Catatan revisi dropdown (jika ada) */}
                   {prop.catatan_revisi && (
-                    <div className="rounded-2xl bg-orange-50 border border-orange-200 overflow-hidden">
+                    <div className="rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/60 overflow-hidden">
                       <button
                         type="button"
                         onClick={() => toggleRevision(prop.id)}
                         className="w-full flex items-center justify-between p-4 text-left"
                       >
-                        <span className="flex items-center gap-1.5 font-bold text-orange-800 text-xs">
+                        <span className="flex items-center gap-1.5 font-bold text-orange-800 dark:text-orange-300 text-xs">
                           <AlertCircle className="w-4 h-4" />
                           Catatan Revisi dari Desa:
                         </span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4 text-orange-700" /> : <ChevronDown className="w-4 h-4 text-orange-700" />}
+                        {isExpanded ? <ChevronUp className="w-4 h-4 text-orange-700 dark:text-orange-400" /> : <ChevronDown className="w-4 h-4 text-orange-700 dark:text-orange-400" />}
                       </button>
                       {isExpanded && (
                         <div className="px-4 pb-4 -mt-1">
-                          <p className="text-xs text-orange-950 leading-relaxed whitespace-pre-line">{prop.catatan_revisi}</p>
+                          <p className="text-xs text-orange-950 dark:text-orange-200 leading-relaxed whitespace-pre-line">{prop.catatan_revisi}</p>
                         </div>
                       )}
                     </div>
@@ -261,9 +263,9 @@ export default function PerangkatDesaProposalPage() {
                   {isRevisionActive && (
                     <form
                       onSubmit={(e) => handleSendRevision(e, prop)}
-                      className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 animate-in fade-in"
+                      className="p-4 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 space-y-3 animate-in fade-in"
                     >
-                      <label className="block text-xs font-semibold text-navy-900">
+                      <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200">
                         Alasan Revisi <span className="text-rose-500">*</span>
                       </label>
                       <textarea
@@ -273,10 +275,10 @@ export default function PerangkatDesaProposalPage() {
                         value={revisionNotes}
                         onChange={(e) => setRevisionNotes(e.target.value)}
                         placeholder="Contoh: Mohon sesuaikan jadwal kegiatan dengan agenda desa, tambahkan pelibatan karang taruna dan rincian anggaran konsumsi..."
-                        className="w-full p-3.5 bg-white border border-slate-300 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-jakarta leading-relaxed"
+                        className="w-full p-3.5 bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary font-jakarta leading-relaxed"
                       />
                       <div className="flex items-center justify-end gap-2">
-                        <Button type="button" variant="outline" size="sm" onClick={handleCancelRevision}>
+                        <Button type="button" variant="outline" size="sm" onClick={handleCancelRevision} className="dark:border-navy-700 dark:text-slate-300">
                           Batal
                         </Button>
                         <Button type="submit" variant="amber" size="sm" className="gap-1.5 font-bold">
@@ -288,8 +290,8 @@ export default function PerangkatDesaProposalPage() {
                   )}
 
                   {/* Bottom bar: tanggal kiri, button kanan */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
-                    <span className="text-xs text-slate-500 font-medium order-1">{prop.created_at}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-navy-800">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium order-1">{prop.created_at}</span>
                     {showActions ? (
                       <div className="flex items-center gap-2 order-2 sm:justify-end">
                         <Button
@@ -299,9 +301,9 @@ export default function PerangkatDesaProposalPage() {
                           }}
                           variant="outline"
                           size="sm"
-                          className="text-xs gap-1"
+                          className="text-xs gap-1 dark:border-navy-700 dark:text-slate-200"
                         >
-                          <MessageSquare className="w-3.5 h-3.5 text-orange-600" />
+                          <MessageSquare className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
                           <span>Beri Catatan Revisi</span>
                         </Button>
                         <Button
@@ -315,7 +317,7 @@ export default function PerangkatDesaProposalPage() {
                         </Button>
                       </div>
                     ) : (
-                      <span className="order-2 text-xs font-semibold text-emerald-700">
+                      <span className="order-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                         Disetujui {(prop.disetujui_pada ?? prop.created_at).split(' ')[0].slice(0, 10)}
                       </span>
                     )}
@@ -329,19 +331,19 @@ export default function PerangkatDesaProposalPage() {
         {/* Popup konfirmasi Setujui */}
         {pendingApprove && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5">
-              <div className="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
+            <div className="bg-white dark:bg-navy-900 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-navy-800 space-y-5">
+              <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
                 <ShieldCheck className="w-8 h-8" />
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-lg font-extrabold text-navy-950 font-epilogue">Setujui Proposal Masuk Desa?</h3>
-                <p className="text-xs text-slate-600 font-jakarta leading-relaxed">
-                  Anda akan menyetujui <strong>{pendingApprove.judul}</strong> dari <strong>{pendingApprove.kelompok}</strong>{' '}
+                <h3 className="text-lg font-extrabold text-navy-950 dark:text-white font-epilogue">Setujui Proposal Masuk Desa?</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-300 font-jakarta leading-relaxed">
+                  Anda akan menyetujui <strong className="text-navy-950 dark:text-white">{pendingApprove.judul}</strong> dari <strong className="text-navy-950 dark:text-white">{pendingApprove.kelompok}</strong>{' '}
                   sebagai program resmi di desa. Aksi ini tidak dapat dibatalkan. Pastikan sudah selaras dengan kebutuhan warga.
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="md" className="flex-1" onClick={() => setPendingApprove(null)}>
+                <Button variant="outline" size="md" className="flex-1 dark:border-navy-700 dark:text-slate-300" onClick={() => setPendingApprove(null)}>
                   Batal
                 </Button>
                 <Button variant="emerald" size="md" className="flex-1 font-semibold" onClick={confirmApprove}>

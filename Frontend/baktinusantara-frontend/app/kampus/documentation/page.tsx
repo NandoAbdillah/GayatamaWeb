@@ -183,7 +183,7 @@ export default function AdminDocumentationPage() {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                   selectedRole === tab.id
                     ? "bg-primary text-white shadow-sm"
-                    : "bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
+                    : "bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-navy-700"
                 }`}
               >
                 {tab.label}
@@ -199,7 +199,7 @@ export default function AdminDocumentationPage() {
             const visual = SOP_VISUALS[doc.id] || {
               icon: BookOpen,
               bg: "bg-primary-50 dark:bg-primary-950/50",
-              text: "text-primary",
+              text: "text-primary dark:text-primary-300",
             };
             const Icon = visual.icon;
 
@@ -234,7 +234,7 @@ export default function AdminDocumentationPage() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-navy-800 flex items-center justify-center text-slate-500">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-navy-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
                       <ChevronDown
                         className={`w-4 h-4 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${isExpanded ? "rotate-180" : "rotate-0"}`}
                       />
@@ -246,13 +246,13 @@ export default function AdminDocumentationPage() {
                   className={`grid transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
                 >
                   <div className="overflow-hidden">
-                    <div className="px-5 pb-5 pt-2 border-slate-100 dark:border-navy-800  dark:bg-navy-950/30 space-y-4">
+                    <div className="px-5 pb-5 pt-2 border-slate-100 dark:border-navy-800 dark:bg-navy-950/30 space-y-4">
                       <div className="p-4 rounded-xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed font-sans">
                         {doc.content}
                       </div>
 
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs pt-1">
-                        <span className="text-slate-400">
+                        <span className="text-slate-400 dark:text-slate-400">
                           Terakhir diperbarui: Revisi LPPM 2025/2026
                         </span>
                         <Button

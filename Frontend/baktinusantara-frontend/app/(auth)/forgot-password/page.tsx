@@ -291,7 +291,7 @@ export default function ForgotPasswordPage() {
             </p>
           </div>
 
-          <Card className="p-4 min-[360px]:p-5 sm:p-6 lg:p-8 bg-white/90 backdrop-blur-xl border border-white/50 shadow-2xl rounded-2xl sm:rounded-3xl transition-all">
+          <Card className="p-4 min-[360px]:p-5 sm:p-6 lg:p-8 bg-white/90 dark:bg-navy-900/90 backdrop-blur-xl border border-white/50 dark:border-navy-700/80 shadow-2xl rounded-2xl sm:rounded-3xl transition-all">
             {/* Mode Switcher Banner (Forgot Password vs Forgot Email) */}
             <div className="flex items-center justify-between p-1 bg-slate-100 dark:bg-navy-900 rounded-xl mb-5 text-xs font-semibold">
               <button

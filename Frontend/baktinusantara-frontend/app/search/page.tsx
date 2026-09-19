@@ -91,34 +91,34 @@ export default function SearchPage() {
   });
 
   return (
-    <div className="min-h-screen bg-surface-canvas flex flex-col font-jakarta">
+    <div className="min-h-screen bg-surface-canvas dark:bg-[#071629] flex flex-col font-jakarta transition-colors duration-200">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header Title */}
         <div className="space-y-1">
-          <span className="text-xs font-bold text-primary-700 uppercase tracking-wider">
+          <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider">
             Eksplorasi Program Pengabdian Desa
           </span>
-          <h1 className="text-3xl font-extrabold text-navy-950 font-epilogue">
+          <h1 className="text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
             Katalog Pos Kebutuhan KKN Tematik
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
             Temukan pos KKN yang relevan dengan latar belakang keilmuan dan minat pengabdian kelompok Anda.
           </p>
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-card space-y-4">
+        <div className="bg-white dark:bg-navy-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-navy-800 shadow-card space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-400" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari kata kunci desa, tema, atau jurusan..."
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-navy-950 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-navy-950/80 border border-slate-200 dark:border-navy-700 rounded-xl text-xs sm:text-sm text-navy-950 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -126,7 +126,7 @@ export default function SearchPage() {
               <select
                 value={selectedSector}
                 onChange={(e) => setSelectedSector(e.target.value)}
-                className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="px-4 py-2.5 bg-slate-50 dark:bg-navy-950/80 border border-slate-200 dark:border-navy-700 rounded-xl text-xs font-semibold text-navy-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="Semua">Semua Sektor</option>
                 <option value="Digitalisasi">Digitalisasi & Teknologi</option>
@@ -137,7 +137,7 @@ export default function SearchPage() {
 
               <Link href="/maps">
                 <Button variant="secondary" size="md" className="gap-1.5 text-xs whitespace-nowrap rounded-xl">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                  <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>Peta</span>
                 </Button>
               </Link>
@@ -145,9 +145,9 @@ export default function SearchPage() {
           </div>
 
           {/* Distance Filter Slider */}
-          <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">
+          <div className="pt-3 border-t border-slate-100 dark:border-navy-800 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600 dark:text-slate-300">
             <div className="flex items-center gap-3">
-              <span className="font-semibold text-navy-900">Maksimal Jarak dari Kampus:</span>
+              <span className="font-semibold text-navy-900 dark:text-slate-100">Maksimal Jarak dari Kampus:</span>
               <input
                 type="range"
                 min="5"
@@ -156,13 +156,13 @@ export default function SearchPage() {
                 onChange={(e) => setMaxDistance(Number(e.target.value))}
                 className="accent-primary w-36"
               />
-              <span className="font-bold text-navy-900 px-2 py-0.5 rounded-md bg-slate-100">
+              <span className="font-bold text-navy-900 dark:text-slate-100 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-navy-800">
                 {maxDistance} km
               </span>
             </div>
 
-            <div className="text-slate-500">
-              Menampilkan <span className="font-bold text-navy-950">{filteredItems.length}</span> pos kebutuhan
+            <div className="text-slate-500 dark:text-slate-400">
+              Menampilkan <span className="font-bold text-navy-950 dark:text-white">{filteredItems.length}</span> pos kebutuhan
             </div>
           </div>
         </div>
@@ -170,7 +170,7 @@ export default function SearchPage() {
         {/* Results Grid with Authentic Photos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((pos) => (
-            <Card key={pos.id} hoverEffect className="overflow-hidden flex flex-col justify-between border-slate-200 shadow-card">
+            <Card key={pos.id} hoverEffect className="overflow-hidden flex flex-col justify-between border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-card">
               <div className="space-y-3">
                 {/* Photo Header */}
                 <div className="h-44 overflow-hidden relative">
@@ -196,24 +196,24 @@ export default function SearchPage() {
                 </div>
 
                 <div className="p-5 space-y-2">
-                  <span className="text-[11px] font-bold text-primary-700 uppercase tracking-wide">
+                  <span className="text-[11px] font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wide">
                     {pos.kategori_sektor}
                   </span>
-                  <h3 className="text-base font-bold text-navy-950 font-epilogue line-clamp-2">
+                  <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue line-clamp-2">
                     {pos.judul}
                   </h3>
-                  <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
                     {pos.deskripsi}
                   </p>
 
-                  <div className="pt-2 space-y-1.5 border-t border-slate-100">
-                    <div className="text-xs text-slate-500 font-medium flex items-center justify-between">
+                  <div className="pt-2 space-y-1.5 border-t border-slate-100 dark:border-navy-800">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center justify-between">
                       <span className="flex items-center gap-1">
                         <MapPin className="w-3.5 h-3.5 text-rose-500" />
                         {pos.nama_desa}, {pos.kabupaten}
                       </span>
                       {pos.distance_km && (
-                        <span className="text-[11px] font-semibold text-slate-600">
+                        <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                           {pos.distance_km} km
                         </span>
                       )}
@@ -223,7 +223,7 @@ export default function SearchPage() {
                       {pos.kriteria_jurusan.map((jur, i) => (
                         <span
                           key={i}
-                          className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700"
+                          className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-slate-300"
                         >
                           {jur}
                         </span>
@@ -233,10 +233,10 @@ export default function SearchPage() {
                 </div>
               </div>
 
-              <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-100 mt-2">
+              <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-100 dark:border-navy-800 mt-2">
                 <div className="text-xs">
-                  <span className="text-slate-400">Kuota: </span>
-                  <strong className="text-navy-950">
+                  <span className="text-slate-400 dark:text-slate-400">Kuota: </span>
+                  <strong className="text-navy-950 dark:text-white">
                     {pos.terisi_mahasiswa}/{pos.kuota_mahasiswa}
                   </strong>
                 </div>

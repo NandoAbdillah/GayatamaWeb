@@ -221,13 +221,13 @@ export default function LaporanDosenReviewPage() {
             variant="outline"
             size="sm"
             onClick={() => router.push("/kampus/laporan-dosen")}
-            className="gap-1.5 bg-white border-slate-200 shadow-sm"
+            className="gap-1.5 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-700 text-slate-700 dark:text-slate-200 shadow-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali</span>
           </Button>
-          <Card className="p-10 text-center border-dashed">
-            <p className="text-sm font-bold text-slate-600">
+          <Card className="p-10 text-center border-dashed dark:border-navy-800 dark:bg-navy-900">
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
               Laporan tidak ditemukan
             </p>
             <p className="text-xs text-slate-400 mt-1">
@@ -244,22 +244,22 @@ export default function LaporanDosenReviewPage() {
   return (
     <DashboardLayout title={`Review — ${laporan.jenis_supervisi}`}>
       <div className="space-y-6 w-full">
-        {/* Tombol Kembali - putih */}
+        {/* Tombol Kembali */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => router.push("/kampus/laporan-dosen")}
-          className="gap-1.5 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm font-semibold"
+          className="gap-1.5 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-navy-800 shadow-sm font-semibold"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali</span>
         </Button>
 
-        {/* Single Card - semua digabung jadi satu, dibatasi garis hitam tipis */}
+        {/* Single Card - semua digabung jadi satu, dibatasi garis tipis */}
         <Card className="overflow-hidden border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-md p-0">
           {/* Baris 1: Identitas Dosen Pembimbing */}
           <div className="p-6 space-y-4 border-slate-200 dark:border-navy-800">
-            <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-bold text-primary dark:text-primary-400 uppercase tracking-wider">
               <GraduationCap className="w-4 h-4" />
               <span>Identitas Dosen Pembimbing</span>
             </div>
@@ -271,8 +271,8 @@ export default function LaporanDosenReviewPage() {
                 <h3 className="text-lg font-black text-navy-950 dark:text-white font-epilogue leading-tight">
                   {laporan.dosen}
                 </h3>
-                <p className="text-xs font-mono text-slate-500 mt-1 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
                   NIP {laporan.nip}
                 </p>
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -327,7 +327,7 @@ export default function LaporanDosenReviewPage() {
                 <button
                   type="button"
                   onClick={() => setRevisiExpanded((v) => !v)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-600 transition-colors"
+                  className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-600 dark:text-primary-400 transition-colors"
                 >
                   {revisiExpanded ? (
                     <ChevronUp className="w-3.5 h-3.5" />
@@ -336,7 +336,7 @@ export default function LaporanDosenReviewPage() {
                   )}
                   <span>
                     {revisiExpanded
-                      ? "Sembunyikan Tanggapan"
+                       ? "Sembunyikan Tanggapan"
                       : "Lihat Tanggapan"}
                   </span>
                   {laporan.alasanRevisiAt && (
@@ -375,7 +375,7 @@ export default function LaporanDosenReviewPage() {
                       value={revisiNote}
                       onChange={(e) => setRevisiNote(e.target.value)}
                       placeholder="Tuliskan alasan revisi / tanggapan untuk DPL..."
-                      className="w-full p-3 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs sm:text-sm text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed"
+                      className="w-full p-3 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs sm:text-sm text-navy-950 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed"
                     />
                     <div className="flex gap-2 justify-end">
                       <Button
@@ -383,7 +383,7 @@ export default function LaporanDosenReviewPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setRevisiMode(false)}
-                        className="text-xs bg-white"
+                        className="text-xs bg-white dark:bg-navy-900 dark:border-navy-700 dark:text-slate-200"
                       >
                         Batal
                       </Button>
@@ -407,7 +407,7 @@ export default function LaporanDosenReviewPage() {
           {/* Garis tipis */}
           <div className="h-px bg-slate-200 dark:bg-navy-800" />
 
-          {/* Lampiran + Aksi sejajar: kiri nama file + ikon hitam, kanan tombol revisi/setujui */}
+          {/* Lampiran + Aksi sejajar: kiri nama file + ikon, kanan tombol revisi/setujui */}
           <div className="p-6">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               {/* Kiri: Lampiran */}
@@ -421,13 +421,13 @@ export default function LaporanDosenReviewPage() {
                       onClick={handleDownload}
                       title="Unduh lampiran"
                       aria-label="Unduh lampiran"
-                      className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-black hover:bg-slate-50 shadow-sm shrink-0"
+                      className="w-8 h-8 rounded-lg bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-navy-800 shadow-sm shrink-0"
                     >
                       <Download className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500 italic">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 italic">
                     Tidak Ada File Terkirim
                   </p>
                 )}
@@ -443,7 +443,7 @@ export default function LaporanDosenReviewPage() {
                     }}
                     variant="outline"
                     size="sm"
-                    className={`gap-1.5 font-bold border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:hover:bg-rose-950 bg-white ${revisiMode ? "bg-rose-50" : ""}`}
+                    className={`gap-1.5 font-bold border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:hover:bg-rose-950 bg-white dark:bg-navy-900 ${revisiMode ? "bg-rose-50 dark:bg-rose-950/50" : ""}`}
                   >
                     <XCircle className="w-3.5 h-3.5" />
                     <span>{revisiMode ? "Tutup Revisi" : "Revisi"}</span>
@@ -505,7 +505,7 @@ export default function LaporanDosenReviewPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setShowApproveConfirm(false)}
-                className="w-1/2 text-xs bg-white"
+                className="w-1/2 text-xs bg-white dark:bg-navy-900 dark:border-navy-700 dark:text-slate-200"
                 disabled={submitting}
               >
                 <X className="w-3.5 h-3.5 mr-1" />

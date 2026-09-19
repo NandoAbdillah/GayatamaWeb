@@ -139,6 +139,22 @@
   animation: airaPulseSoft 2.8s ease-in-out infinite;
 }
 
+/* Night scene star twinkle animation */
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.15);
+  }
+}
+
+.animate-star-twinkle {
+  animation: starTwinkle 3.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-aira-float,
   .animate-aira-fade,

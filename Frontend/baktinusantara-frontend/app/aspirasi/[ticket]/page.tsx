@@ -161,7 +161,7 @@ export default function DetailTicketAspirasiPage({
         </div>
 
         {/* Hero Card Tiket */}
-        <Card className="p-6 sm:p-8 space-y-6 border-slate-200 dark:border-navy-800 shadow-xl">
+        <Card className="p-6 sm:p-8 space-y-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-xl">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-6 border-b border-slate-100 dark:border-navy-800">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
@@ -297,7 +297,7 @@ export default function DetailTicketAspirasiPage({
                       >
                         <Star
                           className={`w-5 h-5 ${
-                            star <= rating ? 'text-amber-500 fill-amber-500' : 'text-slate-300'
+                            star <= rating ? 'text-amber-500 fill-amber-500' : 'text-slate-300 dark:text-slate-600'
                           }`}
                         />
                       </button>

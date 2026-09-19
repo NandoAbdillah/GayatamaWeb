@@ -65,22 +65,22 @@ export default function BastNilaiPage() {
     <DashboardLayout title={`Penilaian ${kelompok.nama_kelompok}`}>
       <div className="space-y-6 font-jakarta w-full max-w-2xl">
         <Link href="/perangkat-desa/bast">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs font-bold bg-white">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs font-bold bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
             <ArrowLeft className="w-3.5 h-3.5" /> Kembali
           </Button>
         </Link>
 
         <div>
-          <h1 className="text-xl font-extrabold text-navy-950 font-epilogue">Penilaian Kelompok</h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <h1 className="text-xl font-extrabold text-navy-950 dark:text-white font-epilogue">Penilaian Kelompok</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {kelompok.nama_kelompok} • {kelompok.kode_kelompok}
           </p>
         </div>
 
-        <Card className="p-6 bg-white border-slate-200 shadow-sm">
+        <Card className="p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm">
           <form onSubmit={handleSimpan} className="space-y-5">
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-navy-900">1. Kedisiplinan & Kesantunan Sosial di Desa:</label>
+              <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">1. Kedisiplinan & Kesantunan Sosial di Desa:</label>
               <input
                 type="number"
                 min={0}
@@ -89,12 +89,12 @@ export default function BastNilaiPage() {
                 value={skor1}
                 onChange={(e) => setSkor1(Number(e.target.value))}
                 placeholder="0 - 100"
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-navy-900">2. Kebermanfaatan & Dampak Nyata bagi Warga:</label>
+              <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">2. Kebermanfaatan & Dampak Nyata bagi Warga:</label>
               <input
                 type="number"
                 min={0}
@@ -103,12 +103,12 @@ export default function BastNilaiPage() {
                 value={skor2}
                 onChange={(e) => setSkor2(Number(e.target.value))}
                 placeholder="0 - 100"
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-navy-900">3. Kualitas Produk / Luaran yang Diserahkan:</label>
+              <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">3. Kualitas Produk / Luaran yang Diserahkan:</label>
               <input
                 type="number"
                 min={0}
@@ -117,16 +117,16 @@ export default function BastNilaiPage() {
                 value={skor3}
                 onChange={(e) => setSkor3(Number(e.target.value))}
                 placeholder="0 - 100"
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nilai Akhir</p>
-              <p className="text-2xl font-extrabold text-navy-950 mt-1">{nilaiAkhir} / 100</p>
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 text-center">
+              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nilai Akhir</p>
+              <p className="text-2xl font-extrabold text-navy-950 dark:text-white mt-1">{nilaiAkhir} / 100</p>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-navy-800">
               <Link href="/perangkat-desa/bast">
                 <Button type="button" variant="outline" size="md" className="text-xs">
                   Batal

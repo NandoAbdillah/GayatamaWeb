@@ -142,7 +142,7 @@ export default function PosDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column: Details */}
           <div className="lg:col-span-2 space-y-6">
-            <Card className="p-6 sm:p-8 space-y-6 border-slate-200 dark:border-navy-800 shadow-card">
+            <Card className="p-6 sm:p-8 space-y-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-card">
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={pos.status} />
                 {pos.matching_score && (
@@ -227,15 +227,15 @@ export default function PosDetailPage() {
 
               <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
                 <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-navy-800">
-                  <span className="text-slate-400">Jarak dari Kampus:</span>
+                  <span className="text-slate-500 dark:text-slate-400">Jarak dari Kampus:</span>
                   <span className="font-bold text-navy-900 dark:text-slate-100">{pos.distance_km || 18.4} km</span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-navy-800">
-                  <span className="text-slate-400">Periode KKN:</span>
+                  <span className="text-slate-500 dark:text-slate-400">Periode KKN:</span>
                   <span className="font-bold text-navy-900 dark:text-slate-100">Semester Ganjil 2026</span>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-slate-400">Durasi Pengabdian:</span>
+                  <span className="text-slate-500 dark:text-slate-400">Durasi Pengabdian:</span>
                   <span className="font-bold text-navy-900 dark:text-slate-100">45 Hari (200 Jam)</span>
                 </div>
               </div>

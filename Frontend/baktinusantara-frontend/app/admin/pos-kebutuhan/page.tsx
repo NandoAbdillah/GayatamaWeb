@@ -110,7 +110,7 @@ export default function AdminPosKebutuhanPage() {
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize whitespace-nowrap transition-all ${
                     activeKategori === cat.key
                       ? 'bg-primary text-white shadow-sm'
-                      : 'bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                      : 'bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-navy-700'
                   }`}
                 >
                   {cat.label}
@@ -175,7 +175,7 @@ export default function AdminPosKebutuhanPage() {
                   <div className="space-y-3">
                     {/* Top Badges */}
                     <div className="flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary capitalize">
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-300 capitalize">
                         <Icon className="w-3.5 h-3.5" />
                         <span>{pos.kategori}</span>
                       </span>
@@ -185,7 +185,7 @@ export default function AdminPosKebutuhanPage() {
 
                     {/* Judul & Deskripsi */}
                     <div>
-                      <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue line-clamp-2 group-hover:text-primary transition-colors">
+                      <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue line-clamp-2 group-hover:text-primary dark:group-hover:text-primary-400 transition-colors">
                         {pos.judul}
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed">
@@ -199,7 +199,7 @@ export default function AdminPosKebutuhanPage() {
                         <Building className="w-3.5 h-3.5 text-primary" />
                         <span>{pos.desa?.nama_desa || 'Desa Mitra'}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
                         <MapPin className="w-3 h-3 text-slate-400" />
                         <span>{pos.desa?.kecamatan}, {pos.desa?.kabupaten}</span>
                       </div>

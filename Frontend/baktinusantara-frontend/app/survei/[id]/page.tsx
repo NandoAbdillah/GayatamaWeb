@@ -198,7 +198,7 @@ export default function SurveiKepuasanMasyarakatPage({
                         </span>
                       </div>
                     </div>
-                    <p className="text-[11px] text-slate-500 leading-relaxed">{q.desc}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{q.desc}</p>
                   </div>
                 ))}
               </div>

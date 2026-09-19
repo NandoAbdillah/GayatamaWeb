@@ -73,7 +73,7 @@ export default function AdminSebaranProgramPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 border-b border-slate-200 dark:border-navy-800">
+                <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-navy-800">
                   <th className="p-3.5 font-bold whitespace-nowrap">Nama Universitas</th>
                   <th className="p-3.5 font-bold whitespace-nowrap">Kode Universitas</th>
                   <th className="p-3.5 font-bold whitespace-nowrap">Kabupaten/Kota</th>
@@ -84,7 +84,7 @@ export default function AdminSebaranProgramPage() {
               <tbody className="divide-y divide-slate-100 dark:divide-navy-800">
                 {paginated.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-sm text-slate-500">
+                    <td colSpan={5} className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
                       Tidak ada universitas yang sesuai pencarian.
                     </td>
                   </tr>
@@ -95,7 +95,7 @@ export default function AdminSebaranProgramPage() {
                         <p className="font-bold text-navy-950 dark:text-white">{u.nama}</p>
                       </td>
                       <td className="p-3.5">
-                        <span className="font-mono font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full text-[11px]">{u.kode}</span>
+                        <span className="font-mono font-bold text-primary dark:text-primary-300 bg-primary/10 dark:bg-primary/20 px-2.5 py-1 rounded-full text-[11px]">{u.kode}</span>
                       </td>
                       <td className="p-3.5 font-medium text-slate-700 dark:text-slate-300">{u.kabupaten_kota}</td>
                       <td className="p-3.5 font-medium text-slate-700 dark:text-slate-300">{u.provinsi}</td>
@@ -118,7 +118,7 @@ export default function AdminSebaranProgramPage() {
           </div>
 
           <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-navy-800 bg-slate-50/50 dark:bg-navy-950/50">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Halaman {currentPage} dari {totalPages}
             </p>
             <div className="flex items-center gap-1.5">
