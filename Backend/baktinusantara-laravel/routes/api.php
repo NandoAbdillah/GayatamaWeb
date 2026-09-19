@@ -23,6 +23,7 @@ use App\Http\Controllers\MedsosPostController;
 use App\Http\Controllers\AiContextController;
 use App\Http\Controllers\GeospatialController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\AdminVerifikasiController;
 
 // E-Sertifikat & Public Verification Endpoints
 Route::get('/certificate/verify/{code}', [CertificateController::class, 'verify']);
@@ -78,6 +79,8 @@ Route::post('/register/desa', [DesaController::class, 'register']);
 Route::post('/register/universitas', [UniversitasController::class, 'register']);
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/admin/verifikasi-entitas', [AdminVerifikasiController::class, 'index']);
+    Route::get('/admin/verifikasi-entitas/{type}/{id}', [AdminVerifikasiController::class, 'show']);
     Route::patch('/admin/desa/{profilDesa}/verify', [DesaController::class, 'verify']);
     Route::patch('/admin/mahasiswa/{profilMahasiswa}/verify', [MahasiswaController::class, 'verify']);
     Route::patch('/admin/universitas/{profilUniversitas}/verify', [UniversitasController::class, 'verify']);

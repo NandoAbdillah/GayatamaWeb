@@ -4,7 +4,7 @@ import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth, SEEDED_ACCOUNTS } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { UserRole } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -18,8 +18,6 @@ import {
   Mail,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
-  Shield,
   Eye,
   EyeOff,
   KeyRound,
@@ -37,73 +35,37 @@ function LoginFormContent() {
   const [selectedRole, setSelectedRole] = useState<UserRole>('mahasiswa');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const demoAccounts: {
+  const roleOptions: {
     role: UserRole;
     title: string;
-    subtitle: string;
-    email: string;
+    description: string;
     icon: React.ElementType;
-    badge: string;
-    color: string;
   }[] = [
-      {
-        role: 'mahasiswa',
-        title: 'Mahasiswa',
-        subtitle: 'Ahmad Fauzi (Ketua Tim UNESA)',
-        email: SEEDED_ACCOUNTS.mahasiswa.email,
-        icon: GraduationCap,
-        badge: 'Mahasiswa KKN',
-        color: 'border-primary/40 text-primary bg-primary/5',
-      },
-      {
-        role: 'perangkat_desa',
-        title: 'Mitra Desa',
-        subtitle: 'Kantor Pemdes Sukamaju',
-        email: SEEDED_ACCOUNTS.perangkat_desa.email,
-        icon: Home,
-        badge: 'Pemerintah Desa',
-        color: 'border-emerald-500/40 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/30',
-      },
-      {
-        role: 'dosen',
-        title: 'Dosen (DPL)',
-        subtitle: 'Dr. Budi Santoso, M.Kom.',
-        email: SEEDED_ACCOUNTS.dosen.email,
-        icon: BookOpen,
-        badge: 'Dosen Pembimbing',
-        color: 'border-amber-500/40 text-amber-600 bg-amber-50/50 dark:bg-amber-950/30',
-      },
-      {
-        role: 'universitas',
-        title: 'LPPM Univ',
-        subtitle: 'LPPM UNESA Surabaya',
-        email: SEEDED_ACCOUNTS.universitas.email,
-        icon: ShieldCheck,
-        badge: 'Pengelola Kampus',
-        color: 'border-indigo-500/40 text-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/30',
-      },
-      {
-        role: 'admin',
-        title: 'Super Admin',
-        subtitle: 'Admin Platform Pusat',
-        email: SEEDED_ACCOUNTS.admin.email,
-        icon: Shield,
-        badge: 'Administrator',
-        color: 'border-purple-500/40 text-purple-600 bg-purple-50/50 dark:bg-purple-950/30',
-      },
-    ];
-
-  const handleSelectRole = (acc: (typeof demoAccounts)[0]) => {
-    setSelectedRole(acc.role);
-    setErrorMsg(null);
-  };
-
-  const handleFillDemoAccount = () => {
-    const activeAcc = demoAccounts.find((a) => a.role === selectedRole) || demoAccounts[0];
-    setEmail(activeAcc.email);
-    setPassword('password');
-    toast.info(`Kredensial demo untuk peran ${activeAcc.title} telah diisi.`);
-  };
+    {
+      role: 'mahasiswa',
+      title: 'Mahasiswa',
+      description: 'Peserta & Pelaksana KKN',
+      icon: GraduationCap,
+    },
+    {
+      role: 'perangkat_desa',
+      title: 'Mitra Desa',
+      description: 'Pemerintah Desa / Kelurahan',
+      icon: Home,
+    },
+    {
+      role: 'dosen',
+      title: 'Dosen (DPL)',
+      description: 'Pembimbing Lapangan (DPL)',
+      icon: BookOpen,
+    },
+    {
+      role: 'universitas',
+      title: 'LPPM Univ',
+      description: 'Pengelola KKN Kampus',
+      icon: ShieldCheck,
+    },
+  ];
 
   const getDashboardRoute = (role: UserRole) => {
     switch (role) {
@@ -151,6 +113,7 @@ function LoginFormContent() {
   };
 
   return (
+<<<<<<< Updated upstream
     <Card className="p-4 min-[360px]:p-5 sm:p-6 lg:p-8 bg-white/85 dark:bg-navy-900/90 backdrop-blur-xl lg:bg-transparent lg:backdrop-blur-none lg:dark:bg-navy-900/90 lg:dark:backdrop-blur-xl border border-white/40 dark:border-navy-800 lg:border-0 lg:dark:border lg:dark:border-navy-800 shadow-xl lg:shadow-none lg:dark:shadow-2xl rounded-2xl sm:rounded-3xl transition-all">
       {/* Role selector chips (tanpa auto-fill) */}
       <div className="mb-5">
@@ -168,15 +131,24 @@ function LoginFormContent() {
             <span>Isi Demo</span>
           </button>
         </div>
+=======
+    <Card className="p-4 min-[360px]:p-5 sm:p-6 lg:p-8 bg-white/85 backdrop-blur-xl lg:bg-transparent lg:backdrop-blur-none border border-white/40 lg:border-0 shadow-xl lg:shadow-none rounded-2xl sm:rounded-3xl transition-all">
+      {/* Role selector cards */}
+      <div className="mb-5">
+        <label className="block text-xs font-bold text-navy-900 dark:text-slate-200 mb-2">
+          Anda sebagai:
+        </label>
+>>>>>>> Stashed changes
 
-        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
-          {demoAccounts.map((acc) => {
-            const Icon = acc.icon;
-            const isSelected = selectedRole === acc.role;
+        <div className="grid grid-cols-2 gap-2.5">
+          {roleOptions.map((opt) => {
+            const Icon = opt.icon;
+            const isSelected = selectedRole === opt.role;
             return (
               <button
-                key={acc.role}
+                key={opt.role}
                 type="button"
+<<<<<<< Updated upstream
                 onClick={() => handleSelectRole(acc)}
                 className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition-all duration-200 ${isSelected
                     ? 'border-primary dark:border-primary-500 bg-primary-50/90 dark:bg-navy-800 text-primary-900 dark:text-slate-100 ring-2 ring-primary/40 dark:ring-primary-500/30 font-semibold shadow-sm'
@@ -195,6 +167,38 @@ function LoginFormContent() {
                 <span className={`text-[10px] truncate w-full font-normal ${isSelected ? 'text-primary-700 dark:text-slate-300' : 'text-slate-500 dark:text-slate-300'}`}>
                   {acc.subtitle}
                 </span>
+=======
+                onClick={() => {
+                  setSelectedRole(opt.role);
+                  setErrorMsg(null);
+                }}
+                className={`group relative flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all duration-200 ${
+                  isSelected
+                    ? 'border-[#377832] bg-[#377832]/10 dark:bg-[#377832]/25 text-[#255221] dark:text-emerald-300 ring-2 ring-[#377832]/30 shadow-sm font-semibold'
+                    : 'border-slate-200 dark:border-navy-700 hover:border-slate-300 dark:hover:border-navy-600 hover:bg-slate-50/80 dark:hover:bg-navy-800/60 text-navy-900 dark:text-slate-200'
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                    isSelected
+                      ? 'bg-[#377832] text-white shadow-xs'
+                      : 'bg-slate-100 dark:bg-navy-800 text-slate-500 dark:text-slate-400 group-hover:text-navy-900 dark:group-hover:text-white'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold truncate">{opt.title}</span>
+                    {isSelected && (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#377832] dark:text-emerald-400 shrink-0 ml-1" />
+                    )}
+                  </div>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate block font-normal">
+                    {opt.description}
+                  </span>
+                </div>
+>>>>>>> Stashed changes
               </button>
             );
           })}
