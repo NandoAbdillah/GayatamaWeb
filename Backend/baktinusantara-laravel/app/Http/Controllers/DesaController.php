@@ -29,6 +29,20 @@ class DesaController extends Controller
         return response()->json(['message' => 'Desa berhasil diverifikasi']);
     }
 
+    public function suspend(ProfilDesa $profilDesa)
+    {
+        $this->desaService->suspend($profilDesa);
+
+        return response()->json(['message' => 'Akun desa berhasil dinonaktifkan (suspended)']);
+    }
+
+    public function activate(ProfilDesa $profilDesa)
+    {
+        $this->desaService->activate($profilDesa);
+
+        return response()->json(['message' => 'Akun desa berhasil diaktifkan kembali']);
+    }
+
     public function downloadSk(ProfilDesa $profilDesa, Request $request)
     {
         $user = $request->user();

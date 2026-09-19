@@ -11,6 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string, roleHint?: UserRole) => Promise<User>;
+  loginWithGoogle: (idToken: string) => Promise<{ user: User; redirectRoute: string }>;
   register: (role: UserRole, payload: any) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<User | null>;
@@ -175,6 +176,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async (idToken: string): Promise<{ user: User; redirectRoute: string }> => {
+    setIsLoading(true);
+    try {
+      const res = await authService.loginGoogle(idToken);
+      if (res?.success && res?.token && res?.user) {
+        saveAuthSession(res.token, res.user);
+        setIsLoading(false);
+        return {
+          user: res.user,
+          redirectRoute: res.redirect_route || '/mahasiswa/dashboard',
+        };
+      }
+      throw new Error(res?.message || 'Login Google gagal');
+    } catch (err: any) {
+      setIsLoading(false);
+      throw err;
+    }
+  };
+
   const register = async (role: UserRole, payload: any): Promise<User> => {
     setIsLoading(true);
     try {
@@ -260,6 +280,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         isAuthenticated: !!token && !!user,
         login,
+        loginWithGoogle,
         register,
         logout,
         refreshUser,

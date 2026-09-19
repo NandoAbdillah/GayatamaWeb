@@ -38,6 +38,24 @@ class UniversitasController extends Controller
         ]);
     }
 
+    public function suspend(ProfilUniversitas $profilUniversitas)
+    {
+        $this->universitasService->suspend($profilUniversitas);
+
+        return response()->json([
+            'message' => 'Akun universitas berhasil dinonaktifkan (suspended)',
+        ]);
+    }
+
+    public function activate(ProfilUniversitas $profilUniversitas)
+    {
+        $this->universitasService->activate($profilUniversitas);
+
+        return response()->json([
+            'message' => 'Akun universitas berhasil diaktifkan kembali',
+        ]);
+    }
+
     public function storeDosen(StoreDosenRequest $request)
     {
         $dosen = $this->universitasService->createDosen(
@@ -107,5 +125,64 @@ class UniversitasController extends Controller
             'message' => 'Daftar logbook harian / mingguan mahasiswa KKN kampus berhasil dimuat',
             'data' => $this->universitasService->listLogbookByUniv($request->user()),
         ]);
+    }
+
+    public function storeMahasiswa(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'nim' => 'required|string|max:50|unique:profil_mahasiswa,nim',
+            'jurusan' => 'required|string|max:100',
+            'semester' => 'nullable|integer|min:1|max:14',
+            'phone_wa' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $mhs = $this->universitasService->createMahasiswa($request->user(), $validated);
+
+        return response()->json([
+            'message' => 'Mahasiswa berhasil didaftarkan oleh LPPM Kampus',
+            'data' => $mhs,
+        ], 201);
+    }
+
+    public function batchMahasiswa(Request $request)
+    {
+        $request->validate([
+            'students' => 'required|array|min:1',
+            'students.*.name' => 'required|string|max:255',
+            'students.*.email' => 'required|email|unique:users,email',
+            'students.*.nim' => 'required|string|max:50|unique:profil_mahasiswa,nim',
+            'students.*.jurusan' => 'required|string|max:100',
+            'students.*.semester' => 'nullable|integer',
+            'students.*.phone_wa' => 'nullable|string',
+        ]);
+
+        $results = $this->universitasService->batchCreateMahasiswa($request->user(), $request->students);
+
+        return response()->json([
+            'message' => count($results) . ' mahasiswa berhasil diimpor/didaftarkan oleh LPPM',
+            'data' => $results,
+        ], 201);
+    }
+
+    public function batchDosen(Request $request)
+    {
+        $request->validate([
+            'lecturers' => 'required|array|min:1',
+            'lecturers.*.name' => 'required|string|max:255',
+            'lecturers.*.email' => 'required|email|unique:users,email',
+            'lecturers.*.nip' => 'required|string|max:50|unique:profil_dosen,nip',
+            'lecturers.*.phone_wa' => 'nullable|string',
+            'lecturers.*.password' => 'nullable|string|min:6',
+        ]);
+
+        $results = $this->universitasService->batchCreateDosen($request->user(), $request->lecturers);
+
+        return response()->json([
+            'message' => count($results) . ' dosen pembimbing berhasil didaftarkan oleh LPPM',
+            'data' => $results,
+        ], 201);
     }
 }

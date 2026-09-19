@@ -119,6 +119,18 @@ export const authService = {
   },
 
   /**
+   * Login with Google ID token / credential
+   * Endpoint: POST /api/auth/google/token
+   */
+  async loginGoogle(idTokenOrCredential: string): Promise<any> {
+    const res = await apiClient.post('/api/auth/google/token', {
+      id_token: idTokenOrCredential,
+      credential: idTokenOrCredential,
+    });
+    return res.data;
+  },
+
+  /**
    * Logout and invalidate token
    * Endpoint: POST /api/logout
    */

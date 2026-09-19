@@ -24,10 +24,18 @@ use App\Http\Controllers\AiContextController;
 use App\Http\Controllers\GeospatialController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\GoogleAuthController;
 
 // E-Sertifikat & Public Verification Endpoints
 Route::get('/certificate/verify/{code}', [CertificateController::class, 'verify']);
 Route::get('/certificate/{code}/download', [CertificateController::class, 'download']);
+
+// Google OAuth 2.0 Endpoints
+Route::prefix('auth/google')->middleware('throttle:15,1')->group(function () {
+    Route::get('/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
+    Route::get('/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+    Route::post('/token', [GoogleAuthController::class, 'handleGoogleToken']);
+});
 
 // Geospatial & Map Engine Endpoints
 Route::prefix('geospatial')->group(function () {
@@ -81,10 +89,16 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::patch('/admin/desa/{profilDesa}/verify', [DesaController::class, 'verify']);
+    Route::patch('/admin/desa/{profilDesa}/suspend', [DesaController::class, 'suspend']);
+    Route::patch('/admin/desa/{profilDesa}/activate', [DesaController::class, 'activate']);
     Route::get('/admin/desa/{profilDesa}/sk', [DesaController::class, 'downloadSk']);
+
     Route::patch('/admin/mahasiswa/{profilMahasiswa}/verify', [MahasiswaController::class, 'verify']);
     Route::get('/admin/mahasiswa/{profilMahasiswa}/ktm', [MahasiswaController::class, 'downloadKtm']);
+
     Route::patch('/admin/universitas/{profilUniversitas}/verify', [UniversitasController::class, 'verify']);
+    Route::patch('/admin/universitas/{profilUniversitas}/suspend', [UniversitasController::class, 'suspend']);
+    Route::patch('/admin/universitas/{profilUniversitas}/activate', [UniversitasController::class, 'activate']);
 });
 
 Route::get('/pos-kebutuhan', [PosKebutuhanController::class, 'index']);
@@ -115,6 +129,9 @@ Route::middleware(['auth:sanctum', 'role:perangkat_desa'])->group(function () {
 
 Route::middleware(['auth:sanctum', 'role:universitas'])->group(function () {
     Route::post('/universitas/dosen', [UniversitasController::class, 'storeDosen']);
+    Route::post('/universitas/dosen/batch', [UniversitasController::class, 'batchDosen']);
+    Route::post('/universitas/mahasiswa', [UniversitasController::class, 'storeMahasiswa']);
+    Route::post('/universitas/mahasiswa/batch', [UniversitasController::class, 'batchMahasiswa']);
     Route::get('/universitas/dosen', [UniversitasController::class, 'listDosen']);
     Route::get('/universitas/laporan-dosen', [UniversitasController::class, 'listLaporan']);
     Route::patch('/universitas/laporan-dosen/{laporanDosen}/status', [UniversitasController::class, 'updateLaporan']);
