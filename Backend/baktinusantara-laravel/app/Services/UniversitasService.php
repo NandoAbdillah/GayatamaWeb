@@ -46,9 +46,29 @@ class UniversitasService
     public function verifyByAdmin(ProfilUniversitas $univ): ProfilUniversitas
     {
         $univ->update(['verified_at' => now()]);
-        $univ->user()->update(['is_verified' => true]);
+        $univ->user()->update([
+            'is_verified' => true,
+            'account_status' => 'active',
+        ]);
 
         return $univ->load('user');
+    }
+
+    public function suspend(ProfilUniversitas $univ): ProfilUniversitas
+    {
+        $univ->user()->update(['account_status' => 'suspended']);
+        $univ->user->tokens()->delete();
+        return $univ;
+    }
+
+    public function activate(ProfilUniversitas $univ): ProfilUniversitas
+    {
+        $univ->update(['verified_at' => now()]);
+        $univ->user()->update([
+            'is_verified' => true,
+            'account_status' => 'active',
+        ]);
+        return $univ;
     }
 
     public function createDosen(User $userUniv, array $data): ProfilDosen
@@ -63,11 +83,12 @@ class UniversitasService
 
         $userDosen = User::create([
             'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'phone_wa' => $data['no_hp'] ?? null,
+            'email' => strtolower(trim($data['email'])),
+            'password' => !empty($data['password']) ? Hash::make($data['password']) : null,
+            'phone_wa' => $data['no_hp'] ?? $data['phone_wa'] ?? null,
             'role' => 'dosen',
             'is_verified' => true,
+            'account_status' => 'active',
         ]);
 
         return ProfilDosen::create([
@@ -75,8 +96,57 @@ class UniversitasService
             'universitas_id' => $univ->id,
             'ditambahkan_oleh' => $userUniv->id,
             'nip' => $data['nip'],
-            'no_hp' => $data['no_hp'] ?? null,
+            'no_hp' => $data['no_hp'] ?? $data['phone_wa'] ?? null,
         ])->load('user', 'universitas');
+    }
+
+    public function createMahasiswa(User $userUniv, array $data): \App\Models\ProfilMahasiswa
+    {
+        $univ = $userUniv->profilUniversitas;
+
+        if (!$univ || !$univ->verified_at) {
+            throw ValidationException::withMessages([
+                'universitas' => 'Institusi universitas belum diverifikasi oleh admin platform.',
+            ]);
+        }
+
+        $userMhs = User::create([
+            'name' => $data['name'],
+            'email' => strtolower(trim($data['email'])),
+            'password' => !empty($data['password']) ? Hash::make($data['password']) : null,
+            'phone_wa' => $data['phone_wa'] ?? null,
+            'role' => 'mahasiswa',
+            'is_verified' => true,
+            'account_status' => 'active',
+        ]);
+
+        return \App\Models\ProfilMahasiswa::create([
+            'user_id' => $userMhs->id,
+            'universitas_id' => $univ->id,
+            'nim' => $data['nim'],
+            'jurusan' => $data['jurusan'],
+            'semester' => $data['semester'] ?? 5,
+            'ktm_file_url' => $data['ktm_file_url'] ?? null,
+            'verified_at' => now(),
+        ])->load('user', 'universitas');
+    }
+
+    public function batchCreateMahasiswa(User $userUniv, array $students): array
+    {
+        $results = [];
+        foreach ($students as $data) {
+            $results[] = $this->createMahasiswa($userUniv, $data);
+        }
+        return $results;
+    }
+
+    public function batchCreateDosen(User $userUniv, array $lecturers): array
+    {
+        $results = [];
+        foreach ($lecturers as $data) {
+            $results[] = $this->createDosen($userUniv, $data);
+        }
+        return $results;
     }
 
     public function listDosenByUniv(User $userUniv)
@@ -258,6 +328,31 @@ class UniversitasService
             ->with('user')
             ->latest()
             ->take(50)
+            ->get();
+    }
+
+    /**
+     * Monitoring seluruh logbook harian / mingguan kelompok KKN civitas kampus sendiri.
+     */
+    public function listLogbookByUniv(User $userUniv)
+    {
+        $univId = $userUniv->profilUniversitas?->id;
+        if (!$univId) {
+            abort(403, 'Profil universitas tidak ditemukan.');
+        }
+
+        $kelompokIds = \App\Models\Kelompok::where(function ($q) use ($univId) {
+            $q->whereHas('dosen', fn($dq) => $dq->where('universitas_id', $univId))
+              ->orWhereHas('ketua.profilMahasiswa', fn($mq) => $mq->where('universitas_id', $univId));
+        })->pluck('id');
+
+        return \App\Models\ProgressMingguan::whereHas('proposal', fn($q) => $q->whereIn('kelompok_id', $kelompokIds))
+            ->with([
+                'proposal.kelompok.ketua.profilMahasiswa',
+                'proposal.kelompok.dosen.user',
+                'proposal.posKebutuhan.desa'
+            ])
+            ->orderBy('created_at', 'desc')
             ->get();
     }
 }

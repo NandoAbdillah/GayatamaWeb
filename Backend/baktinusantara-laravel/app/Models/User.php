@@ -19,7 +19,18 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ['name', 'email', 'password', 'phone_wa', 'role', 'is_verified', 'email_verified_at'];
+    protected $fillable = [
+        'name',
+        'email',
+        'google_id',
+        'password',
+        'phone_wa',
+        'avatar',
+        'role',
+        'is_verified',
+        'account_status',
+        'email_verified_at',
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -50,4 +61,19 @@ class User extends Authenticatable
     public function profilUniversitas() { return $this->hasOne(ProfilUniversitas::class); }
     public function kelompokDiketuai() { return $this->hasMany(Kelompok::class, 'ketua_id'); }
     public function notifikasi() { return $this->hasMany(Notifikasi::class); }
+
+    public function isSuspended(): bool
+    {
+        return $this->account_status === 'suspended';
+    }
+
+    public function isActive(): bool
+    {
+        return $this->account_status === 'active';
+    }
+
+    public function isPending(): bool
+    {
+        return $this->account_status === 'pending';
+    }
 }

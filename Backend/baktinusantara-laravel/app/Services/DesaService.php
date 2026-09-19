@@ -54,7 +54,26 @@ class DesaService
     public function verify(ProfilDesa $desa): ProfilDesa
     {
         $desa->update(['verified_at' => now()]);
-        $desa->user()->update(['is_verified' => true]);
+        $desa->user()->update([
+            'is_verified' => true,
+            'account_status' => 'active',
+        ]);
+        return $desa;
+    }
+
+    public function suspend(ProfilDesa $desa): ProfilDesa
+    {
+        $desa->user()->update(['account_status' => 'suspended']);
+        $desa->user->tokens()->delete();
+        return $desa;
+    }
+
+    public function activate(ProfilDesa $desa): ProfilDesa
+    {
+        $desa->user()->update([
+            'is_verified' => true,
+            'account_status' => 'active',
+        ]);
         return $desa;
     }
 }
