@@ -232,6 +232,13 @@ export default function MapsPage() {
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
+  // Dynamic collision detection between Detail Panel & Search/Filter Panel
+  const detailPanelRef = useRef<HTMLDivElement>(null);
+  const searchPanelRef = useRef<HTMLDivElement>(null);
+  const [searchXOffset, setSearchXOffset] = useState<number>(0);
+  const searchXOffsetRef = useRef<number>(0);
+  searchXOffsetRef.current = searchXOffset;
+
   // Center campus coordinate (Univ. Nusantara in Bogor)
   const campusCenter: [number, number] = [-6.595, 106.8166];
   const [mapCenter, setMapCenter] = useState<[number, number]>(campusCenter);
@@ -477,6 +484,69 @@ export default function MapsPage() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Collision Detection: Dynamically shift Search/Filter panel to prevent overlap with Detail Panel
+  useEffect(() => {
+    if (!isDetailOpen) {
+      setSearchXOffset(0);
+      return;
+    }
+
+    const checkCollision = () => {
+      if (!detailPanelRef.current || !searchPanelRef.current) {
+        setSearchXOffset(0);
+        return;
+      }
+
+      const detailRect = detailPanelRef.current.getBoundingClientRect();
+      const searchRect = searchPanelRef.current.getBoundingClientRect();
+
+      // Only adjust if detail panel has rendered dimensions
+      if (detailRect.width === 0 || detailRect.height === 0) {
+        setSearchXOffset(0);
+        return;
+      }
+
+      // Calculate unshifted left and right of search panel
+      const unshiftedSearchLeft = searchRect.left - searchXOffsetRef.current;
+      const unshiftedSearchRight = searchRect.right - searchXOffsetRef.current;
+
+      // Check vertical overlap
+      const verticalOverlap = detailRect.bottom > searchRect.top && detailRect.top < searchRect.bottom;
+
+      // Clearance gap (in px) between detail panel right edge and search panel left edge
+      const GAP = 16;
+      const overlapAmount = (detailRect.right + GAP) - unshiftedSearchLeft;
+
+      if (verticalOverlap && overlapAmount > 0) {
+        // Overlap detected: calculate the exact shift needed to clear the detail panel
+        const maxShift = Math.max(0, window.innerWidth - unshiftedSearchRight - GAP);
+        const shift = Math.min(overlapAmount, maxShift);
+        setSearchXOffset(shift);
+      } else {
+        // No overlap: keep search panel at default position
+        setSearchXOffset(0);
+      }
+    };
+
+    // Run on next animation frame after layout renders
+    const rafId = requestAnimationFrame(checkCollision);
+
+    window.addEventListener('resize', checkCollision);
+
+    const resizeObserver = new ResizeObserver(() => {
+      checkCollision();
+    });
+
+    if (detailPanelRef.current) resizeObserver.observe(detailPanelRef.current);
+    if (searchPanelRef.current) resizeObserver.observe(searchPanelRef.current);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', checkCollision);
+      resizeObserver.disconnect();
+    };
+  }, [isDetailOpen, rightPanelTab]);
 
   // Handler for Selecting a Search Item
   const handleSelectSearchItem = async (item: WilayahSearchItem) => {
@@ -853,7 +923,11 @@ export default function MapsPage() {
 
         {/* 2. TOP FLOATING SEARCH & FILTER ISLAND */}
         <div className="absolute top-3 sm:top-4 left-3 sm:left-6 right-3 sm:right-6 z-30 pointer-events-none flex justify-center">
-          <div className="pointer-events-auto w-full max-w-6xl bg-white/95 dark:bg-navy-900/95 rounded-3xl p-2.5 sm:p-3.5 border border-slate-200/90 dark:border-navy-700/90 shadow-2xl backdrop-blur-2xl space-y-2.5 transition-all">
+          <div
+            ref={searchPanelRef}
+            style={searchXOffset > 0 ? { transform: `translateX(${searchXOffset}px)` } : undefined}
+            className="pointer-events-auto w-full max-w-6xl bg-white/95 dark:bg-navy-900/95 rounded-3xl p-2.5 sm:p-3.5 border border-slate-200/90 dark:border-navy-700/90 shadow-2xl backdrop-blur-2xl space-y-2.5 transition-all"
+          >
           
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
               {/* Live search input - Elongated with Kemendagri live autocomplete */}
@@ -1113,7 +1187,10 @@ export default function MapsPage() {
         </div>
 
         {/* 3. UNIFIED LEFT SPATIAL INSPECTOR DRAWER (Positioned at top-left, 60vh max-height) */}
-        <div className="absolute top-3 sm:top-4 left-3 sm:left-6 w-[390px] sm:w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-start">
+        <div
+          ref={detailPanelRef}
+          className="absolute top-3 sm:top-4 left-3 sm:left-6 w-[390px] sm:w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-start"
+        >
           {isDetailOpen ? (
             <div className="pointer-events-auto w-full max-h-[60vh] sm:max-h-[62vh] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-left-4">
               {/* Inspector Header: 5 Segmented Tabs + Minimize Button */}
