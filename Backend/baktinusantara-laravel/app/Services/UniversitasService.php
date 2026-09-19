@@ -446,6 +446,9 @@ class UniversitasService
                 'alamat_kampus' => $c['alamat_kampus'] ?? ($c['kabupaten_kota'] . ', ' . $c['provinsi']),
                 'provinsi' => $c['provinsi'] ?? '',
                 'kabupaten_kota' => $c['kabupaten_kota'] ?? '',
+                'website' => $c['website'] ?? null,
+                'latitude' => $c['latitude'] ?? null,
+                'longitude' => $c['longitude'] ?? null,
                 'is_verified' => false,
             ];
         }, $defaultMaster);

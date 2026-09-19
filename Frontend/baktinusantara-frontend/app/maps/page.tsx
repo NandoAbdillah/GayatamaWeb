@@ -15,7 +15,7 @@ import { RiwayatPengabdianCard, RiwayatPengabdianItem } from '@/components/maps/
 import { LiveReportCard, LiveReportItem } from '@/components/maps/LiveReportCard';
 import { MapFilterSelect } from '@/components/ui/MapFilterSelect';
 import { fetchWikipediaSummary, WikipediaSummary } from '@/lib/wikipedia';
-import { KampusService, KampusItem } from '@/lib/kampus-api';
+import { KampusService, KampusItem, generateCampusMonogramSvg } from '@/lib/kampus-api';
 import {
   MapPin,
   Navigation,
@@ -391,28 +391,30 @@ export default function MapsPage() {
     };
   }, [selectedVillageId, selectedDistrictId, selectedRegencyId, selectedProvinceId, villages, districts, regencies, provinces]);
 
-  // Load Kampus dari API Indonesia berdasarkan wilayah terpilih
+  // Load Kampus dari Master Database Berdasarkan Wilayah Terpilih (Stabil & Bebas Fluktuasi)
   useEffect(() => {
     async function loadCampusData() {
       setLoadingCampuses(true);
       try {
+        const provName = activeGovernance.provinceName || currentRegion?.name;
+        const regName = activeGovernance.regencyName || (activeGovernance.level === 'kabupaten' ? activeGovernance.name : undefined);
         const list = await KampusService.getKampusByWilayah({
           provinceId: selectedProvinceId,
-          provinceName: activeGovernance.provinceName || currentRegion?.name,
-          regencyName: activeGovernance.regencyName || (activeGovernance.level === 'kabupaten' ? activeGovernance.name : undefined),
+          provinceName: provName,
+          regencyName: regName,
           regionName: activeGovernance.name,
-          centerLat: activeGovernance.lat || mapCenter[0],
-          centerLng: activeGovernance.lng || mapCenter[1],
+          centerLat: activeGovernance.lat,
+          centerLng: activeGovernance.lng,
         });
         setCampuses(list);
       } catch (err) {
-        console.warn('Error loading kampus from API Indonesia:', err);
+        console.warn('Error loading kampus master database:', err);
       } finally {
         setLoadingCampuses(false);
       }
     }
     loadCampusData();
-  }, [selectedProvinceId, selectedRegencyId, selectedDistrictId, selectedVillageId, activeGovernance, currentRegion, mapCenter]);
+  }, [selectedProvinceId, selectedRegencyId, selectedDistrictId, selectedVillageId, currentRegion?.name, activeGovernance.provinceName, activeGovernance.regencyName]);
 
   // Load Wikipedia details whenever active governance unit or pos changes
   useEffect(() => {
@@ -1466,21 +1468,15 @@ export default function MapsPage() {
                                 className="p-2 rounded-xl bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 hover:border-indigo-400 cursor-pointer transition-all flex items-center justify-between gap-2 shadow-xs group"
                               >
                                 <div className="flex items-center gap-2 min-w-0">
-                                  {kmp.logo_url ? (
-                                    <img
-                                      src={kmp.logo_url}
-                                      alt={kmp.name}
-                                      className="w-7 h-7 object-contain rounded-lg p-0.5 bg-slate-50 border border-slate-100 shrink-0"
-                                      onError={(e) => {
-                                        (e.target as HTMLElement).style.display = 'none';
-                                        const fb = (e.target as HTMLElement).nextElementSibling as HTMLElement;
-                                        if (fb) fb.style.display = 'flex';
-                                      }}
-                                    />
-                                  ) : null}
-                                  <div className={`w-7 h-7 rounded-lg ${isPTN ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600'} flex items-center justify-center shrink-0 ${kmp.logo_url ? 'hidden' : 'flex'}`}>
-                                    <GraduationCap className="w-3.5 h-3.5" />
-                                  </div>
+                                  <img
+                                    src={kmp.logo_url || generateCampusMonogramSvg(kmp.name, kmp.kelompok)}
+                                    alt={kmp.name}
+                                    className="w-7 h-7 object-contain rounded-lg p-0.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 shrink-0 shadow-xs"
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.src = generateCampusMonogramSvg(kmp.name, kmp.kelompok);
+                                    }}
+                                  />
                                   <div className="min-w-0">
                                     <h4 className="text-[11px] font-bold text-navy-950 dark:text-white truncate group-hover:text-indigo-600">
                                       {kmp.short_name ? `${kmp.short_name} - ${kmp.name}` : kmp.name}
@@ -1783,27 +1779,15 @@ export default function MapsPage() {
                               }`}
                             >
                               <div className="flex items-start gap-2.5">
-                                {kmp.logo_url ? (
-                                  <img
-                                    src={kmp.logo_url}
-                                    alt={kmp.name}
-                                    className="w-10 h-10 object-contain rounded-xl p-1 bg-slate-50 border border-slate-200 shrink-0 shadow-xs"
-                                    onError={(e) => {
-                                      (e.target as HTMLElement).style.display = 'none';
-                                      const fb = (e.target as HTMLElement).nextElementSibling as HTMLElement;
-                                      if (fb) fb.style.display = 'flex';
-                                    }}
-                                  />
-                                ) : null}
-                                <div
-                                  className={`w-10 h-10 rounded-xl ${
-                                    isPTN
-                                      ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                      : 'bg-indigo-50 border-indigo-200 text-indigo-600'
-                                  } border flex items-center justify-center shrink-0 shadow-xs ${kmp.logo_url ? 'hidden' : 'flex'}`}
-                                >
-                                  <GraduationCap className="w-5 h-5" />
-                                </div>
+                                <img
+                                  src={kmp.logo_url || generateCampusMonogramSvg(kmp.name, kmp.kelompok)}
+                                  alt={kmp.name}
+                                  className="w-10 h-10 object-contain rounded-xl p-1 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 shrink-0 shadow-xs"
+                                  onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = generateCampusMonogramSvg(kmp.name, kmp.kelompok);
+                                  }}
+                                />
 
                                 <div className="min-w-0 flex-1 space-y-0.5">
                                   <div className="flex items-center gap-1.5 flex-wrap">
