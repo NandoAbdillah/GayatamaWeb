@@ -16,8 +16,8 @@ class GoogleAuthController extends Controller
      */
     public function redirectToGoogle(): RedirectResponse
     {
-        $clientId = config('services.google.client_id');
-        $redirectUri = config('services.google.redirect');
+        $clientId = config('services.google.client_id') ?: env('GOOGLE_CLIENT_ID', '411606118566-q1pupeff65t4r7enkpii2mfqg0cflj70.apps.googleusercontent.com');
+        $redirectUri = config('services.google.redirect') ?: 'http://localhost:8000/api/auth/google/callback';
         
         $query = http_build_query([
             'client_id' => $clientId,
@@ -46,11 +46,15 @@ class GoogleAuthController extends Controller
         }
 
         try {
+            $clientId = config('services.google.client_id') ?: env('GOOGLE_CLIENT_ID', '411606118566-q1pupeff65t4r7enkpii2mfqg0cflj70.apps.googleusercontent.com');
+            $clientSecret = config('services.google.client_secret') ?: env('GOOGLE_CLIENT_SECRET', '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');
+            $redirectUri = config('services.google.redirect') ?: 'http://localhost:8000/api/auth/google/callback';
+
             $tokenRes = Http::asForm()->post('https://oauth2.googleapis.com/token', [
                 'code' => $code,
-                'client_id' => config('services.google.client_id'),
-                'client_secret' => config('services.google.client_secret'),
-                'redirect_uri' => config('services.google.redirect'),
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+                'redirect_uri' => $redirectUri,
                 'grant_type' => 'authorization_code',
             ]);
 

@@ -93,9 +93,22 @@ function LoginFormContent() {
     setErrorMsg(null);
     setUnregisteredModal(null);
 
+    const clientId =
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      '411606118566-q1pupeff65t4r7enkpii2mfqg0cflj70.apps.googleusercontent.com';
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    // Redirect langsung ke endpoint OAuth Google di Backend
-    window.location.href = `${apiUrl}/api/auth/google/redirect`;
+    const redirectUri = `${apiUrl}/api/auth/google/callback`;
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'openid email profile',
+      access_type: 'offline',
+      prompt: 'select_account',
+    });
+
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
