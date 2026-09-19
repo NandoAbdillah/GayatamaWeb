@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -17,26 +17,108 @@ import {
   ArrowLeft,
   AlertTriangle,
   X,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/services';
-import { INITIAL_VERIFIKASI_DATA, getVerifikasiByKey } from '@/lib/data/verifikasi-data';
+import { getVerifikasiByKey, VerifikasiItem } from '@/lib/data/verifikasi-data';
 
 export default function DetailBerkasPage() {
   const params = useParams<{ key: string }>();
   const router = useRouter();
   const key = params?.key as string;
 
-  const initialItem = getVerifikasiByKey(key);
+  const [item, setItem] = useState<VerifikasiItem | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
-  const [item, setItem] = useState(initialItem || null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  useEffect(() => {
+    if (!key) return;
 
-  if (!initialItem || !item) {
+    const fetchDetail = async () => {
+      setIsLoading(true);
+      // Key format: e.g. "universitas-8" or "desa-1"
+      const parts = key.split('-');
+      const type = parts[0];
+      const id = parts.slice(1).join('-');
+
+      if ((type === 'universitas' || type === 'desa') && id) {
+        try {
+          const res = await api.admin.getVerifikasiDetail(type, id);
+          if (res && res.data) {
+            setItem(res.data);
+            setIsLoading(false);
+            return;
+          }
+        } catch (err) {
+          console.warn('Backend detail call returned error, checking fallback:', err);
+        }
+      }
+
+      // Fallback to local data
+      const localItem = getVerifikasiByKey(key);
+      if (localItem) {
+        setItem(localItem);
+      } else {
+        setItem(null);
+      }
+      setIsLoading(false);
+    };
+
+    fetchDetail();
+  }, [key]);
+
+  const handleApprove = async () => {
+    if (!item) return;
+    setIsProcessing(true);
+    try {
+      if (item.entity_type === 'desa') {
+        await api.admin.verifyDesa(item.id);
+      } else if (item.entity_type === 'universitas') {
+        await api.admin.verifyUniversitas(item.id);
+      }
+      toast.success(`Akun ${item.nama} berhasil disahkan dan diverifikasi secara resmi!`);
+      setItem((prev) => (prev ? { ...prev, status: 'verified' } : null));
+    } catch (err: any) {
+      console.error('Backend verification call error:', err);
+      const errMsg = err.response?.data?.message || `Gagal memverifikasi akun ${item.nama}`;
+      toast.error(errMsg);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (isLoading) {
     return (
       <DashboardLayout title="Detail Berkas Verifikasi">
-        <div className="space-y-4 font-jakarta">
+        <div className="space-y-4 font-jakarta max-w-4xl mx-auto">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/admin/verifikasi-entitas')}
+              className="gap-1.5 text-xs font-semibold"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Kembali
+            </Button>
+          </div>
+          <Card className="p-12 text-center border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-3">
+            <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+            <p className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
+              Memuat detail berkas verifikasi...
+            </p>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!item) {
+    return (
+      <DashboardLayout title="Detail Berkas Verifikasi">
+        <div className="space-y-4 font-jakarta max-w-4xl mx-auto">
           <Link
             href="/admin/verifikasi-entitas"
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary"
@@ -52,7 +134,7 @@ export default function DetailBerkasPage() {
               Berkas tidak ditemukan
             </p>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Key <span className="font-mono font-bold">{key}</span> tidak terdaftar atau telah dihapus.
+              Key <span className="font-mono font-bold">{key}</span> tidak terdaftar atau telah dihapus di server.
             </p>
             <div className="pt-2">
               <Link href="/admin/verifikasi-entitas">
@@ -63,87 +145,15 @@ export default function DetailBerkasPage() {
               </Link>
             </div>
           </Card>
-
-          {/* Popup Konfirmasi Verifikasi */}
-          {showConfirm && item && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-in fade-in duration-150">
-              <Card className="w-full max-w-md p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-2xl space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center shrink-0">
-                    <AlertTriangle className="w-5 h-5" />
-                  </div>
-                  <div className="space-y-1 flex-1">
-                    <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
-                      Konfirmasi Verifikasi
-                    </h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Apakah Anda yakin ingin memverifikasi <strong className="text-navy-950 dark:text-white">{item.nama}</strong> sebagai{' '}
-                      <strong>{item.entity_type === 'universitas' ? 'Perguruan Tinggi' : 'Mitra Desa'}</strong>? Tindakan ini akan memberikan otorisasi penuh di sistem.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowConfirm(false)}
-                    className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-navy-800"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowConfirm(false)}
-                    className="text-xs font-semibold"
-                    disabled={isProcessing}
-                  >
-                    Batal
-                  </Button>
-                  <Button
-                    variant="emerald"
-                    size="sm"
-                    isLoading={isProcessing}
-                    onClick={async () => {
-                      await handleApprove();
-                      setShowConfirm(false);
-                    }}
-                    className="font-bold text-xs gap-1.5"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Ya, Verifikasi
-                  </Button>
-                </div>
-              </Card>
-            </div>
-          )}
         </div>
       </DashboardLayout>
-  );
-}
-
-  const handleApprove = async () => {
-    setIsProcessing(true);
-    try {
-      if (item.entity_type === 'desa') {
-        await api.admin.verifyDesa(item.id);
-      } else if (item.entity_type === 'universitas') {
-        await api.admin.verifyUniversitas(item.id);
-      }
-      toast.success(`Akun ${item.nama} berhasil disahkan dan diverifikasi secara resmi!`);
-      setItem({ ...item, status: 'verified' });
-    } catch (err: any) {
-      console.warn('Backend verification call note:', err);
-      toast.success(`Akun ${item.nama} berhasil diverifikasi!`);
-      setItem({ ...item, status: 'verified' });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+    );
+  }
 
   return (
     <DashboardLayout title="Detail Berkas Verifikasi">
       <div className="space-y-6 font-jakarta max-w-4xl mx-auto">
-        {/* Back button - masih di dalam menu Verifikasi */}
+        {/* Back button */}
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -196,10 +206,10 @@ export default function DetailBerkasPage() {
                   Pemohon: <strong className="text-navy-950 dark:text-white">{item.pemohon}</strong>
                 </div>
                 <div>
-                  Kontak WA: <strong className="text-navy-950 dark:text-white font-mono">{item.kontak}</strong>
+                  Kontak: <strong className="text-navy-950 dark:text-white font-mono">{item.kontak}</strong>
                 </div>
                 <div>
-                  Email Resmi: <span className="font-mono">{item.email}</span>
+                  Email Resmi: <span className="font-mono text-navy-950 dark:text-white">{item.email}</span>
                 </div>
                 <div>
                   Diajukan Pada: <span>{item.tanggal_pengajuan}</span>
@@ -207,22 +217,23 @@ export default function DetailBerkasPage() {
               </div>
             </div>
 
-            {/* Detail Information Specs - sama seperti popup */}
+            {/* Detail Information Specs */}
             <div className="space-y-2">
               <p className="font-bold text-navy-950 dark:text-white text-xs uppercase tracking-wider">
                 Informasi Legalitas & Profil
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {item.detail_info.map((info, idx) => (
-                  <div key={idx} className="p-2.5 rounded-lg bg-slate-100/70 dark:bg-navy-800">
-                    <p className="text-[10px] text-slate-400 font-semibold">{info.label}</p>
-                    <p className="text-xs font-bold text-navy-950 dark:text-white mt-0.5">{info.value}</p>
-                  </div>
-                ))}
+                {item.detail_info &&
+                  item.detail_info.map((info, idx) => (
+                    <div key={idx} className="p-2.5 rounded-lg bg-slate-100/70 dark:bg-navy-800">
+                      <p className="text-[10px] text-slate-400 font-semibold">{info.label}</p>
+                      <p className="text-xs font-bold text-navy-950 dark:text-white mt-0.5">{info.value}</p>
+                    </div>
+                  ))}
               </div>
             </div>
 
-            {/* Document Attached - hanya menampilkan nama file, non-aktif popup */}
+            {/* Document Attached */}
             <div className="p-4 rounded-xl border border-dashed border-primary/40 bg-primary-50/30 dark:bg-primary-950/20 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -232,15 +243,27 @@ export default function DetailBerkasPage() {
                     <p className="text-[10px] text-slate-500">Dokumen Resmi (Tanda Tangan & Cap Sah)</p>
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => toast.info(`Membuka berkas dokumen: ${item.dokumen}`)}
-                  className="text-xs font-bold gap-1"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Unduh Berkas</span>
-                </Button>
+                {item.dokumen_url ? (
+                  <a
+                    href={item.dokumen_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-bold text-primary hover:bg-slate-50"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Unduh Berkas</span>
+                  </a>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => toast.info(`Membuka berkas dokumen: ${item.dokumen}`)}
+                    className="text-xs font-bold gap-1"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Unduh Berkas</span>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -274,6 +297,59 @@ export default function DetailBerkasPage() {
             )}
           </div>
         </Card>
+
+        {/* Popup Konfirmasi Verifikasi */}
+        {showConfirm && item && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-in fade-in duration-150">
+            <Card className="w-full max-w-md p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-2xl space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div className="space-y-1 flex-1">
+                  <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
+                    Konfirmasi Verifikasi
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Apakah Anda yakin ingin memverifikasi <strong className="text-navy-950 dark:text-white">{item.nama}</strong> sebagai{' '}
+                    <strong>{item.entity_type === 'universitas' ? 'Perguruan Tinggi' : 'Mitra Desa'}</strong>? Tindakan ini akan memberikan otorisasi penuh di sistem.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-navy-800"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowConfirm(false)}
+                  className="text-xs font-semibold"
+                  disabled={isProcessing}
+                >
+                  Batal
+                </Button>
+                <Button
+                  variant="emerald"
+                  size="sm"
+                  isLoading={isProcessing}
+                  onClick={async () => {
+                    await handleApprove();
+                    setShowConfirm(false);
+                  }}
+                  className="font-bold text-xs gap-1.5"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Ya, Verifikasi
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
