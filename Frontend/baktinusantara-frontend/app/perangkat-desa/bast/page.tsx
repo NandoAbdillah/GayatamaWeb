@@ -1,243 +1,171 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { MOCK_BAST } from '@/lib/mock-data';
-import {
-  Award,
-  CheckCircle2,
-  FileCheck2,
-  Building,
-  User,
-  Star,
-  Sparkles,
-  QrCode,
-  Printer,
-  Download,
-  ShieldCheck,
-} from 'lucide-react';
-import { toast } from 'sonner';
+import { MOCK_KELOMPOK_14 } from '@/lib/mock-data';
+import { Users, Eye, Star, Calendar, MapPin, Search } from 'lucide-react';
 
-export default function PerangkatDesaBASTPage() {
-  const [isSigned, setIsSigned] = useState(true);
-  const [skorKedisiplinan, setSkorKedisiplinan] = useState(95);
-  const [skorDampak, setSkorDampak] = useState(94);
-  const [skorKualitas, setSkorKualitas] = useState(93);
-  const [komentar, setKomentar] = useState(MOCK_BAST.komentar_evaluasi_desa);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+interface KelompokBast {
+  id: number;
+  nama_kelompok: string;
+  kode_kelompok: string;
+  ketua_nama: string;
+  total_anggota: number;
+  desa_nama: string;
+  periode: string;
+}
 
-  const averageScore = Math.round((skorKedisiplinan + skorDampak + skorKualitas) / 3);
+const KELOMPOK_BAST: KelompokBast[] = [
+  MOCK_KELOMPOK_14 as unknown as KelompokBast,
+  {
+    id: 15,
+    nama_kelompok: 'Kelompok 15 - Sukamaju Sejahtera',
+    kode_kelompok: 'KKN-2026-SKM-015',
+    ketua_nama: 'Salsabila Putri',
+    total_anggota: 4,
+    desa_nama: 'Desa Sukamaju, Bogor',
+    periode: '04 Agu - 06 Sep 2026',
+  },
+  {
+    id: 11,
+    nama_kelompok: 'Kelompok 11 - Sukamaju Kreatif',
+    kode_kelompok: 'KKN-2026-SKM-011',
+    ketua_nama: 'Dimas Arya Pamungkas',
+    total_anggota: 6,
+    desa_nama: 'Desa Sukamaju, Bogor',
+    periode: '04 Agu - 06 Sep 2026',
+  },
+];
 
-  const handleSignBAST = () => {
-    setIsSigned(true);
-    setShowSuccessModal(true);
-    toast.success('Berita Acara Serah Terima (BAST) Berhasil Divalidasi & Diterbitkan!');
-  };
+const normalizedKelompok: KelompokBast[] = KELOMPOK_BAST.map((k) => ({
+  ...k,
+  kode_kelompok: (k as any).kode_kelompok || 'KKN-2026-SKM-014',
+  periode: (k as any).periode || '04 Agu - 06 Sep 2026',
+  desa_nama: (k as any).desa_nama || 'Desa Sukamaju, Bogor',
+}));
+
+export default function PerangkatDesaBastListPage() {
+  const [penilaianMap, setPenilaianMap] = useState<Record<number, { nilaiAkhir: number }>>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'semua' | 'belum' | 'sudah'>('semua');
+
+  const filterOptions: { value: typeof filterStatus; label: string }[] = [
+    { value: 'semua', label: 'Semua' },
+    { value: 'belum', label: 'Belum Dinilai' },
+    { value: 'sudah', label: 'Sudah Dinilai' },
+  ];
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('bast-penilaian');
+      if (raw) setPenilaianMap(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  const filteredKelompok = useMemo(() => {
+    return normalizedKelompok.filter((k) => {
+      const sudahDinilai = !!penilaianMap[k.id];
+      if (filterStatus === 'belum' && sudahDinilai) return false;
+      if (filterStatus === 'sudah' && !sudahDinilai) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const haystack = [k.nama_kelompok, k.kode_kelompok, k.ketua_nama, k.desa_nama].join(' ').toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [penilaianMap, searchQuery, filterStatus]);
 
   return (
-    <DashboardLayout title="Penilaian Mitra Desa & Pengesahan BAST">
-      <div className="space-y-6">
+    <DashboardLayout title="Penilaian Kelompok KKN">
+      <div className="space-y-6 font-jakarta">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">
-            Penilaian Mitra Desa & Pengesahan Hasil KKN
-          </h1>
-          <p className="text-xs text-slate-500 font-jakarta">
-            Kepala Desa melakukan evaluasi performa mahasiswa dan menandatangani BAST digital serah terima program kerja.
-          </p>
+          <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">Daftar Kelompok KKN di Desa</h1>
+          <p className="text-xs text-slate-500 mt-1">Kelompok yang sedang melaksanakan KKN di Desa Sukamaju. Berikan penilaian akhir untuk setiap kelompok.</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Evaluation Form (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
-            <Card className="p-6 sm:p-8 border-slate-200 bg-white shadow-ambient space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h2 className="text-base font-bold text-navy-950 font-epilogue">
-                  Instrumen Evaluasi Kinerja Kelompok 14
-                </h2>
-                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-                  Nilai Akhir: {averageScore} / 100
-                </span>
-              </div>
-
-              {/* Scoring Sliders */}
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-semibold text-navy-900">
-                    <span>1. Kedisiplinan & Kesantunan Sosial di Desa:</span>
-                    <span className="text-primary font-bold">{skorKedisiplinan} / 100</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="60"
-                    max="100"
-                    value={skorKedisiplinan}
-                    onChange={(e) => setSkorKedisiplinan(Number(e.target.value))}
-                    className="w-full accent-primary"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-semibold text-navy-900">
-                    <span>2. Kebermanfaatan & Dampak Nyata bagi Warga:</span>
-                    <span className="text-primary font-bold">{skorDampak} / 100</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="60"
-                    max="100"
-                    value={skorDampak}
-                    onChange={(e) => setSkorDampak(Number(e.target.value))}
-                    className="w-full accent-primary"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-semibold text-navy-900">
-                    <span>3. Kualitas Produk / Luaran yang Diserahkan:</span>
-                    <span className="text-primary font-bold">{skorKualitas} / 100</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="60"
-                    max="100"
-                    value={skorKualitas}
-                    onChange={(e) => setSkorKualitas(Number(e.target.value))}
-                    className="w-full accent-primary"
-                  />
-                </div>
-              </div>
-
-              {/* Luaran Checklist */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <span className="text-xs font-bold text-navy-900">
-                  Daftar Luaran yang Diterima Pemerintah Desa:
-                </span>
-                <div className="space-y-2">
-                  {MOCK_BAST.daftar_luaran_diserahkan.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-2.5 p-3 rounded-2xl bg-surface-subtle text-xs text-navy-900 font-medium border border-slate-200"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Textarea Evaluasi */}
-              <div>
-                <label className="block text-xs font-semibold text-navy-900 mb-1">
-                  Catatan Apresiasi & Rekomendasi Kepala Desa
-                </label>
-                <textarea
-                  rows={3}
-                  value={komentar}
-                  onChange={(e) => setKomentar(e.target.value)}
-                  className="w-full p-3.5 bg-surface-canvas border border-slate-300 rounded-2xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-jakarta leading-relaxed"
-                />
-              </div>
-
-              <Button
-                onClick={handleSignBAST}
-                size="lg"
-                variant="emerald"
-                className="w-full shadow-glow-secondary font-bold text-sm"
+        <div className="flex flex-col lg:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari kelompok, kode, atau ketua..."
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm text-navy-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+            />
+          </div>
+          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl p-1.5 shadow-sm overflow-x-auto">
+            {filterOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setFilterStatus(opt.value)}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${filterStatus === opt.value ? 'bg-navy-950 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
               >
-                <FileCheck2 className="w-4 h-4 mr-2" />
-                <span>Bubuhkan Tanda Tangan Digital BAST Kepala Desa</span>
-              </Button>
-            </Card>
+                {opt.label}
+              </button>
+            ))}
           </div>
+        </div>
 
-          {/* Right Column: BAST Official Document Preview (5 cols) */}
-          <div className="lg:col-span-5 space-y-4">
-            <Card className="p-6 border-slate-200 bg-white shadow-ambient space-y-4 font-jakarta">
-              <div className="text-center pb-3 border-b border-slate-200 space-y-1">
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                  Pratinjau Berita Acara Resmi
-                </p>
-                <h3 className="text-sm font-bold text-navy-950 font-epilogue">
-                  PEMERINTAH DESA SUKAMAJU
-                </h3>
-                <p className="text-[10px] text-slate-500">
-                  Kecamatan Ciawi, Kabupaten Bogor, Jawa Barat
-                </p>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredKelompok.length === 0 ? (
+            <div className="col-span-full">
+              <Card className="p-10 text-center bg-white border-slate-200">
+                <p className="text-sm text-slate-500">Tidak ada kelompok yang sesuai pencarian / filter.</p>
+              </Card>
+            </div>
+          ) : (
+            filteredKelompok.map((k) => {
+              const penilaian = penilaianMap[k.id];
+              const sudahDinilai = !!penilaian;
+              return (
+                <Card key={k.id} className="p-5 bg-white border-slate-200 shadow-sm flex flex-col">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-[11px] font-mono font-bold text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full w-fit">
+                        {k.kode_kelompok}
+                      </p>
+                      <h3 className="text-sm font-bold text-navy-950 font-epilogue mt-2 leading-snug">{k.nama_kelompok}</h3>
+                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5" />
+                        Ketua: <strong className="text-navy-900">{k.ketua_nama}</strong>
+                      </p>
+                      <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {k.periode}
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold border ${sudahDinilai ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}
+                    >
+                      {sudahDinilai ? `Dinilai ${penilaian.nilaiAkhir}` : 'Belum Dinilai'}
+                    </span>
+                  </div>
 
-              <div className="p-3 rounded-2xl bg-surface-subtle text-center">
-                <span className="text-[10px] text-slate-400 font-mono">NOMOR DOKUMEN BAST:</span>
-                <p className="font-mono font-bold text-xs text-navy-950">{MOCK_BAST.nomor_surat}</p>
-              </div>
-
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Pada hari ini, <span className="font-bold text-navy-900">Minggu, 06 September 2026</span>, telah
-                diselesaikan kegiatan Kuliah Kerja Nyata (KKN) oleh kelompok mahasiswa dan seluruh luaran telah
-                diterima dengan baik oleh Pemerintah Desa Sukamaju.
-              </p>
-
-              {/* Signature status preview */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <div>
-                  <p className="text-[11px] text-slate-400">Kepala Desa Sukamaju:</p>
-                  <p className="font-bold text-navy-950">{MOCK_BAST.nama_kades}</p>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 mt-1">
-                    <CheckCircle2 className="w-3 h-3" /> Tanda Tangan Digital Sah
-                  </span>
-                </div>
-
-                <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
-                  <QrCode className="w-12 h-12 text-navy-900" />
-                </div>
-              </div>
-            </Card>
-          </div>
+                  <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+                    <Link href={`/perangkat-desa/progress/${k.id}`} className="flex-1">
+                      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
+                        <Eye className="w-3.5 h-3.5" />
+                        Detail
+                      </Button>
+                    </Link>
+                    <Link href={`/perangkat-desa/bast/${k.id}/nilai`} className="flex-1">
+                      <Button variant={sudahDinilai ? 'outline' : 'emerald'} size="sm" className="w-full gap-1.5 text-xs font-bold">
+                        <Star className="w-3.5 h-3.5" />
+                        {sudahDinilai ? 'Lihat Nilai' : 'Beri Nilai'}
+                      </Button>
+                    </Link>
+                  </div>
+                </Card>
+              );
+            })
+          )}
         </div>
       </div>
-
-      {/* Success Modal (Stitch: Konfirmasi Sukses Penerbitan BAST Desa - BaktiNusantara) */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-glow-secondary">
-              <ShieldCheck className="w-9 h-9" />
-            </div>
-
-            <h2 className="text-2xl font-extrabold text-navy-950 font-epilogue">
-              BAST Resmi Berhasil Diterbitkan!
-            </h2>
-
-            <p className="text-xs text-slate-600 font-jakarta leading-relaxed">
-              Dokumen Berita Acara Serah Terima nomor{' '}
-              <span className="font-mono font-bold text-navy-900">{MOCK_BAST.nomor_surat}</span> telah sah secara digital.
-              Data nilai evaluasi ({averageScore}/100) otomatis diteruskan ke portal DPL dan sistem LPPM Universitas.
-            </p>
-
-            <div className="p-4 rounded-2xl bg-surface-subtle border border-slate-200 flex items-center justify-between text-left text-xs">
-              <div>
-                <p className="font-bold text-navy-950">Kelompok 14 — Sukamaju Berdaya</p>
-                <p className="text-slate-500">Nilai Evaluasi Mitra: {averageScore} (Sangat Memuaskan)</p>
-              </div>
-              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-            </div>
-
-            <div className="pt-2 flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={() => setShowSuccessModal(false)}
-                variant="primary"
-                size="md"
-                className="flex-1 font-semibold"
-              >
-                Kembali ke Dashboard Desa
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </DashboardLayout>
   );
 }

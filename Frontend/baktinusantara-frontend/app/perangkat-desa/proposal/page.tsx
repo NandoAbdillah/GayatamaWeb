@@ -1,214 +1,354 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { FileText, CheckCircle2, XCircle, FileCheck2, User, Building, X, Send } from 'lucide-react';
+import {
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  MessageSquare,
+  Send,
+  ShieldCheck,
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  Users,
+  MapPin,
+  Download,
+} from 'lucide-react';
 import { toast } from 'sonner';
-import api from '@/lib/services';
+
+type ProposalStatus = 'menunggu' | 'revision' | 'approved';
+type FilterStatus = 'semua' | 'menunggu' | 'revisi' | 'disetujui';
+
+interface ProposalItem {
+  id: number;
+  judul: string;
+  kelompok: string;
+  lokasi: string;
+  tujuan: string;
+  file_name: string;
+  file_url: string;
+  status: ProposalStatus;
+  catatan_revisi?: string;
+  created_at: string;
+  disetujui_pada?: string;
+}
 
 export default function PerangkatDesaProposalPage() {
-  const [proposals, setProposals] = useState<any[]>([
+  const [proposals, setProposals] = useState<ProposalItem[]>([
     {
       id: 1,
-      kelompok: 'Kelompok 14 — Sukamaju Berdaya',
-      ketua: 'M. Rian Pratama (Teknik Informatika)',
       judul: 'Digitalisasi Katalog Produk UMKM & Manajemen Irigasi Cerdas',
-      anggaran: 'Rp 7.500.000',
-      status: 'submitted',
-      ringkasan:
-        'Pembuatan website marketplace UMKM desa, pelatihan foto produk untuk 42 UMKM, serta instalasi sistem monitoring debit air irigasi sawah barat.',
+      kelompok: 'Kelompok 14 — Sukamaju Berdaya',
+      lokasi: 'Desa Sukamaju, Ciawi, Bogor',
+      tujuan:
+        'Mendigitalisasi 42 pelaku UMKM keripik talas & madu hutan melalui katalog online terintegrasi, serta meningkatkan efisiensi distribusi air irigasi sawah blok barat dengan sistem monitoring IoT berbasis sensor ultrasonik.',
+      file_name: 'Proposal_KKN_Kelompok14_Sukamaju_Berdaya.pdf',
+      file_url: '#',
+      status: 'approved',
+      created_at: '2026-08-24',
+      disetujui_pada: '2026-08-26 10:30:00',
+    },
+    {
+      id: 2,
+      judul: 'Pengembangan Agrowisata Organik & Edukasi Zero Waste Desa',
+      kelompok: 'Kelompok 08 — Cibodas Asri',
+      lokasi: 'Desa Cibodas Asri, Cianjur',
+      tujuan:
+        'Membangun agrowisata sayur organik berkelanjutan, mengolah limbah sayur menjadi kompos bernilai ekonomi, serta membuat peta jalur hiking desa dengan QR Code untuk meningkatkan kunjungan wisata edukatif.',
+      file_name: 'Proposal_KKN_Kelompok08_Cibodas_Asri.pdf',
+      file_url: '#',
+      status: 'menunggu',
+      created_at: '2026-08-28',
+      catatan_revisi: '',
+    },
+    {
+      id: 3,
+      judul: 'Pemberdayaan Posyandu Digital & Pencegahan Stunting Balita',
+      kelompok: 'Kelompok 11 — Tanjung Karang Sehat',
+      lokasi: 'Desa Tanjung Karang, Bogor',
+      tujuan:
+        'Menyusun dashboard gizi balita terintegrasi WhatsApp reminder untuk ibu hamil dan menyusun modul MPASI berbasis pangan lokal untuk menekan angka stunting di 3 dusun prioritas.',
+      file_name: 'Proposal_KKN_Kelompok11_TanjungKarang.pdf',
+      file_url: '#',
+      status: 'revision',
+      created_at: '2026-08-27',
+      catatan_revisi:
+        'Mohon sesuaikan jadwal posyandu dengan hari pasar desa (Jumat) dan tambahkan pelibatan kader PKK pada lampiran. Lengkapi juga rincian kebutuhan PMT balita agar sinkron dengan anggaran desa.',
     },
   ]);
 
-  const [loading, setLoading] = useState(true);
-  const [actionModal, setActionModal] = useState<{ id: number; action: 'approve' | 'reject'; title: string } | null>(null);
-  const [catatan, setCatatan] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('semua');
+  const [activeRevisionId, setActiveRevisionId] = useState<number | null>(null);
+  const [revisionNotes, setRevisionNotes] = useState('');
+  const [expandedRevisions, setExpandedRevisions] = useState<Set<number>>(
+    () => new Set(proposals.filter((p) => !!p.catatan_revisi).map((p) => p.id))
+  );
+  const [pendingApprove, setPendingApprove] = useState<ProposalItem | null>(null);
 
-  useEffect(() => {
-    async function loadProposals() {
-      try {
-        setLoading(true);
-        const data = await api.proposal.getByDesa();
-        if (Array.isArray(data) && data.length > 0) {
-          const normalized = data.map((p: any) => ({
-            id: p.id,
-            kelompok: p.kelompok?.nama_kelompok || `Kelompok ${p.kelompok_id}`,
-            ketua: p.kelompok?.ketua?.name || 'Ketua Mahasiswa',
-            judul: p.judul || p.pos_kebutuhan?.judul || 'Proposal Rencana Pengabdian KKN',
-            anggaran: p.anggaran || 'Rp 7.500.000',
-            status: p.status || 'submitted',
-            ringkasan: p.draf_proker || p.ringkasan || 'Rencana program kerja mahasiswa selama KKN.',
-          }));
-          setProposals(normalized);
-        }
-      } catch (err) {
-        console.warn('Fallback to mock village proposals:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadProposals();
-  }, []);
+  const filtered = useMemo(() => {
+    return proposals.filter((p) => {
+      if (filterStatus === 'menunggu' && p.status !== 'menunggu') return false;
+      if (filterStatus === 'revisi' && p.status !== 'revision') return false;
+      if (filterStatus === 'disetujui' && p.status !== 'approved') return false;
+      return true;
+    });
+  }, [proposals, filterStatus]);
 
-  const handleDecision = async (e: React.FormEvent) => {
+  const handleSendRevision = (e: React.FormEvent, prop: ProposalItem) => {
     e.preventDefault();
-    if (!actionModal) return;
+    if (!revisionNotes.trim()) return;
+    setProposals((prev) =>
+      prev.map((p) => (p.id === prop.id ? { ...p, status: 'revision' as const, catatan_revisi: revisionNotes } : p))
+    );
+    setExpandedRevisions((prev) => new Set(prev).add(prop.id));
+    setActiveRevisionId(null);
+    setRevisionNotes('');
+    toast.success('Catatan revisi berhasil dikirim ke kelompok mahasiswa!');
+  };
 
-    setSubmitting(true);
-    try {
-      try {
-        await api.proposal.decideByDesa(actionModal.id, {
-          action: actionModal.action,
-          catatan_desa: catatan,
-        });
-      } catch (err: any) {
-        console.warn('Backend decide proposal error:', err);
-      }
+  const handleCancelRevision = () => {
+    setActiveRevisionId(null);
+    setRevisionNotes('');
+  };
 
-      setProposals((prev) =>
-        prev.map((p) =>
-          p.id === actionModal.id
-            ? { ...p, status: actionModal.action === 'approve' ? 'approved' : 'rejected' }
-            : p
-        )
-      );
+  const toggleRevision = (id: number) => {
+    setExpandedRevisions((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
-      toast.success(
-        actionModal.action === 'approve'
-          ? 'Proposal KKN telah disetujui resmi oleh Kepala Desa Sukamaju!'
-          : 'Proposal KKN telah ditolak dengan catatan.'
-      );
-      setActionModal(null);
-      setCatatan('');
-    } catch (err) {
-      toast.error('Gagal memperbarui status proposal');
-    } finally {
-      setSubmitting(false);
-    }
+  const confirmApprove = () => {
+    if (!pendingApprove) return;
+    setProposals((prev) =>
+      prev.map((p) =>
+        p.id === pendingApprove.id
+          ? { ...p, status: 'approved' as const, disetujui_pada: new Date().toISOString().replace('T', ' ').slice(0, 19) }
+          : p
+      )
+    );
+    setPendingApprove(null);
+    toast.success('Proposal berhasil disetujui Pemerintah Desa!');
+  };
+
+  const filterOptions: { value: FilterStatus; label: string }[] = [
+    { value: 'semua', label: 'Semua' },
+    { value: 'menunggu', label: 'Menunggu' },
+    { value: 'revisi', label: 'Revisi' },
+    { value: 'disetujui', label: 'Disetujui' },
+  ];
+
+  const getStatusBadgeProps = (status: ProposalStatus) => {
+    if (status === 'approved') return { status: 'approved' as const, label: 'Disetujui' };
+    if (status === 'revision') return { status: 'revision' as const, label: 'Perlu Revisi' };
+    return { status: 'submitted' as const, label: 'Menunggu' };
   };
 
   return (
-    <DashboardLayout title="Persetujuan Proposal Program KKN">
+    <DashboardLayout title="Validasi Proposal Masuk Desa">
       <div className="space-y-6 font-jakarta">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">
-            Proposal Mahasiswa Masuk ke Desa
-          </h1>
+          <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">Validasi Proposal Program KKN Masuk Desa</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Pemerintah desa berhak menyetujui, meminta revisi, atau menolak usulan rencana kerja kelompok mahasiswa.
+            Perangkat Desa memastikan usulan mahasiswa selaras dengan kebutuhan warga, kearifan lokal, dan kesiapan fasilitas
+            lapangan sebelum diterjunkan.
           </p>
         </div>
 
-        <div className="space-y-4">
-          {proposals.map((prop) => (
-            <Card key={prop.id} className="p-6 border-slate-200 bg-white space-y-4 shadow-card">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                <div>
-                  <h3 className="text-base font-bold text-navy-950 font-epilogue">{prop.judul}</h3>
-                  <p className="text-xs text-primary font-semibold mt-0.5">
-                    {prop.kelompok} • Ketua: {prop.ketua}
-                  </p>
-                </div>
-                <StatusBadge status={prop.status} />
-              </div>
-
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-jakarta">
-                {prop.ringkasan}
-              </p>
-
-              <div className="flex flex-wrap items-center justify-between pt-3 border-t border-slate-100 text-xs gap-3">
-                <span className="text-slate-500">
-                  Estimasi Anggaran Diusulkan: <strong className="text-navy-900">{prop.anggaran}</strong>
-                </span>
-
-                <div className="flex items-center gap-2">
-                  {prop.status !== 'approved' && (
-                    <Button
-                      onClick={() =>
-                        setActionModal({ id: prop.id, action: 'reject', title: prop.kelompok })
-                      }
-                      variant="outline"
-                      size="sm"
-                      className="text-xs text-rose-600 border-rose-200 hover:bg-rose-50 font-semibold"
-                    >
-                      <XCircle className="w-3.5 h-3.5 mr-1" />
-                      <span>Tolak Proposal</span>
-                    </Button>
-                  )}
-
-                  {prop.status !== 'approved' && (
-                    <Button
-                      onClick={() =>
-                        setActionModal({ id: prop.id, action: 'approve', title: prop.kelompok })
-                      }
-                      variant="emerald"
-                      size="sm"
-                      className="shadow-glow-secondary gap-1 font-bold text-xs"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Setujui Proposal</span>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Card>
+        {/* Filter */}
+        <div className="flex flex-wrap gap-2 bg-white border border-slate-200 rounded-2xl p-1.5 shadow-sm w-fit">
+          {filterOptions.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setFilterStatus(opt.value)}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                filterStatus === opt.value ? 'bg-navy-950 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              {opt.label}
+            </button>
           ))}
         </div>
 
-        {/* Modal Konfirmasi Keputusan Desa */}
-        {actionModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm">
-            <Card className="w-full max-w-md p-6 bg-white border-slate-200 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 className="text-base font-bold text-navy-950 font-epilogue">
-                  {actionModal.action === 'approve' ? 'Setujui Proposal Masuk' : 'Tolak Proposal'}
-                </h3>
-                <button
-                  onClick={() => setActionModal(null)}
-                  className="p-1 rounded-lg hover:bg-slate-100 text-slate-400"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleDecision} className="space-y-3 text-xs">
-                <p className="text-slate-600">
-                  {actionModal.action === 'approve'
-                    ? `Apakah Anda yakin menyetujui rencana kerja pengabdian ${actionModal.title}?`
-                    : `Berikan alasan penolakan atau perbaikan untuk ${actionModal.title}.`}
-                </p>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700">Catatan dari Pemerintah Desa</label>
-                  <textarea
-                    rows={3}
-                    placeholder="Contoh: Kami menyambut baik program irigasi dan siap mendampingi mahasiswa di balai desa..."
-                    value={catatan}
-                    onChange={(e) => setCatatan(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <Button type="button" variant="outline" onClick={() => setActionModal(null)} className="w-1/2">
-                    Batal
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant={actionModal.action === 'approve' ? 'emerald' : 'danger'}
-                    isLoading={submitting}
-                    className="w-1/2 font-bold gap-1"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Konfirmasi</span>
-                  </Button>
-                </div>
-              </form>
+        <div className="space-y-4">
+          {filtered.length === 0 ? (
+            <Card className="p-10 text-center bg-white border-slate-200">
+              <p className="text-sm text-slate-500">Tidak ada proposal pada filter ini.</p>
             </Card>
+          ) : (
+            filtered.map((prop) => {
+              const isRevisionActive = activeRevisionId === prop.id;
+              const isExpanded = expandedRevisions.has(prop.id);
+              const badge = getStatusBadgeProps(prop.status);
+              const showActions = prop.status === 'menunggu' || prop.status === 'revision';
+
+              return (
+                <Card key={prop.id} className="p-6 border-slate-200 bg-white space-y-4 shadow-card">
+                  {/* Judul sejajar dengan status */}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b border-slate-100 pb-3">
+                    <h3 className="text-base font-bold text-navy-950 font-epilogue leading-snug flex-1 pr-2">{prop.judul}</h3>
+                    <StatusBadge status={badge.status} label={badge.label} className="shrink-0" />
+                  </div>
+
+                  {/* Kelompok & Lokasi di bawah judul */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-xs text-slate-500 font-medium">
+                    <span className="flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-primary" />
+                      {prop.kelompok}
+                    </span>
+                  </div>
+
+                  {/* Tujuan */}
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tujuan Program KKN:</span>
+                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">{prop.tujuan}</p>
+                  </div>
+
+                  {/* File proposal + download icon */}
+                  <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                        <FileText className="w-4 h-4 text-primary" />
+                      </div>
+                      <span className="text-xs font-medium text-navy-950 truncate">{prop.file_name}</span>
+                    </div>
+                    <a
+                      href={prop.file_url}
+                      download={prop.file_name}
+                      onClick={(e) => {
+                        if (prop.file_url === '#') {
+                          e.preventDefault();
+                          toast.info('File proposal akan diunduh (mock).');
+                        }
+                      }}
+                      className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-navy-950 hover:text-white hover:border-navy-950 transition-colors shrink-0"
+                      title="Download proposal"
+                    >
+                      <Download className="w-4 h-4" />
+                    </a>
+                  </div>
+
+                  {/* Catatan revisi dropdown (jika ada) */}
+                  {prop.catatan_revisi && (
+                    <div className="rounded-2xl bg-orange-50 border border-orange-200 overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => toggleRevision(prop.id)}
+                        className="w-full flex items-center justify-between p-4 text-left"
+                      >
+                        <span className="flex items-center gap-1.5 font-bold text-orange-800 text-xs">
+                          <AlertCircle className="w-4 h-4" />
+                          Catatan Revisi dari Desa:
+                        </span>
+                        {isExpanded ? <ChevronUp className="w-4 h-4 text-orange-700" /> : <ChevronDown className="w-4 h-4 text-orange-700" />}
+                      </button>
+                      {isExpanded && (
+                        <div className="px-4 pb-4 -mt-1">
+                          <p className="text-xs text-orange-950 leading-relaxed whitespace-pre-line">{prop.catatan_revisi}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Inline input revisi */}
+                  {isRevisionActive && (
+                    <form
+                      onSubmit={(e) => handleSendRevision(e, prop)}
+                      className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 animate-in fade-in"
+                    >
+                      <label className="block text-xs font-semibold text-navy-900">
+                        Alasan Revisi <span className="text-rose-500">*</span>
+                      </label>
+                      <textarea
+                        rows={3}
+                        required
+                        autoFocus
+                        value={revisionNotes}
+                        onChange={(e) => setRevisionNotes(e.target.value)}
+                        placeholder="Contoh: Mohon sesuaikan jadwal kegiatan dengan agenda desa, tambahkan pelibatan karang taruna dan rincian anggaran konsumsi..."
+                        className="w-full p-3.5 bg-white border border-slate-300 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-jakarta leading-relaxed"
+                      />
+                      <div className="flex items-center justify-end gap-2">
+                        <Button type="button" variant="outline" size="sm" onClick={handleCancelRevision}>
+                          Batal
+                        </Button>
+                        <Button type="submit" variant="amber" size="sm" className="gap-1.5 font-bold">
+                          <Send className="w-3.5 h-3.5" />
+                          <span>Kirim</span>
+                        </Button>
+                      </div>
+                    </form>
+                  )}
+
+                  {/* Bottom bar: tanggal kiri, button kanan */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                    <span className="text-xs text-slate-500 font-medium order-1">{prop.created_at}</span>
+                    {showActions ? (
+                      <div className="flex items-center gap-2 order-2 sm:justify-end">
+                        <Button
+                          onClick={() => {
+                            setActiveRevisionId(prop.id);
+                            setRevisionNotes(prop.catatan_revisi || '');
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs gap-1"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-orange-600" />
+                          <span>Beri Catatan Revisi</span>
+                        </Button>
+                        <Button
+                          onClick={() => setPendingApprove(prop)}
+                          variant="emerald"
+                          size="sm"
+                          className="shadow-glow-secondary gap-1.5 text-xs font-semibold"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Setujui Proposal</span>
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="order-2 text-xs font-semibold text-emerald-700">
+                        Disetujui {(prop.disetujui_pada ?? prop.created_at).split(' ')[0].slice(0, 10)}
+                      </span>
+                    )}
+                  </div>
+                </Card>
+              );
+            })
+          )}
+        </div>
+
+        {/* Popup konfirmasi Setujui */}
+        {pendingApprove && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-in fade-in">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5">
+              <div className="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
+                <ShieldCheck className="w-8 h-8" />
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-extrabold text-navy-950 font-epilogue">Setujui Proposal Masuk Desa?</h3>
+                <p className="text-xs text-slate-600 font-jakarta leading-relaxed">
+                  Anda akan menyetujui <strong>{pendingApprove.judul}</strong> dari <strong>{pendingApprove.kelompok}</strong>{' '}
+                  sebagai program resmi di desa. Aksi ini tidak dapat dibatalkan. Pastikan sudah selaras dengan kebutuhan warga.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="md" className="flex-1" onClick={() => setPendingApprove(null)}>
+                  Batal
+                </Button>
+                <Button variant="emerald" size="md" className="flex-1 font-semibold" onClick={confirmApprove}>
+                  Ya, Setujui
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>
