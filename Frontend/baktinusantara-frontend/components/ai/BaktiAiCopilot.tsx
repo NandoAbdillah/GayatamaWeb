@@ -200,40 +200,78 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
   // Nonaktifkan AI di halaman login - harus setelah semua hooks agar tidak violate Rules of Hooks
   if (pathname?.startsWith('/login')) return null;
 
+  const isLandingPage = pathname === '/' || pathname === '';
+
   return (
     <>
-      {/* Floating Trigger Aira Button (Circular Floating Action Button located above Accessibility Widget) */}
+      {/* Floating Trigger Aira: Landing Page uses bottom-left Circular Avatar + Floating Text; other pages use existing bottom-right circular button */}
       {!isOpen && (
-        <div className="fixed bottom-[84px] right-[24px] z-40 flex items-center justify-center pointer-events-auto select-none">
-          <button
-            type="button"
-            onClick={() => setIsOpen(true)}
-            aria-label="Buka Asisten AI Aira"
-            title="Aira – AI Nusantara"
-            style={{
-              width: '48px',
-              height: '48px',
-              minWidth: '48px',
-              minHeight: '48px',
-              maxWidth: '48px',
-              maxHeight: '48px',
-              borderRadius: '50%',
-              aspectRatio: '1 / 1',
-              overflow: 'hidden',
-            }}
-            className="group relative flex items-center justify-center w-[48px] h-[48px] min-w-[48px] min-h-[48px] max-w-[48px] max-h-[48px] rounded-full aspect-square overflow-hidden bg-[#00D492] border-2 border-white/90 dark:border-white/80 shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40 p-0"
-          >
-            <Image
-              src="/icons/aira-circle.svg"
-              alt="Aira - AI Nusantara"
-              width={48}
-              height={48}
-              unoptimized
-              priority
-              className="w-full h-full object-cover rounded-full select-none transition-transform duration-200 group-hover:scale-110"
-            />
-          </button>
-        </div>
+        <>
+          {isLandingPage ? (
+            <div className="fixed bottom-5 left-4 sm:bottom-6 sm:left-6 z-40 flex items-center pointer-events-auto select-none animate-aira-fade">
+              <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                aria-label="Buka Asisten AI Aira"
+                title="Aira – AI Nusantara"
+                className="group flex items-center gap-2.5 sm:gap-3 bg-transparent p-0 border-0 shadow-none focus:outline-none cursor-pointer text-left transition-all duration-200"
+              >
+                {/* Circular Avatar with Subtle Float & Glow on Hover */}
+                <div className="relative shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-full aspect-square flex items-center justify-center bg-[#00D492] border-2 border-white dark:border-navy-800 shadow-md group-hover:shadow-[0_0_18px_rgba(0,212,146,0.45)] group-hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 animate-aira-float">
+                  <Image
+                    src="/icons/aira-circle.svg"
+                    alt="Aira - AI Nusantara"
+                    width={48}
+                    height={48}
+                    unoptimized
+                    priority
+                    className="w-full h-full object-cover rounded-full select-none"
+                  />
+                  {/* Soft Online Dot Indicator with Subtle Pulse */}
+                  <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-navy-950 shadow-xs flex items-center justify-center animate-aira-pulse" />
+                </div>
+
+                {/* Floating Greeting Text (Subtle 12-13px typography without container/card) */}
+                <div className="flex items-center min-w-0 animate-aira-text">
+                  <span className="text-xs sm:text-[13px] font-semibold text-navy-950/90 dark:text-slate-100 font-jakarta leading-snug tracking-tight drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] group-hover:text-primary dark:group-hover:text-primary-400 transition-colors">
+                    Halo! Saya Aira, siap membantu 👋
+                  </span>
+                </div>
+              </button>
+            </div>
+          ) : (
+            <div className="fixed bottom-[84px] right-[24px] z-40 flex items-center justify-center pointer-events-auto select-none">
+              <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                aria-label="Buka Asisten AI Aira"
+                title="Aira – AI Nusantara"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  minWidth: '48px',
+                  minHeight: '48px',
+                  maxWidth: '48px',
+                  maxHeight: '48px',
+                  borderRadius: '50%',
+                  aspectRatio: '1 / 1',
+                  overflow: 'hidden',
+                }}
+                className="group relative flex items-center justify-center w-[48px] h-[48px] min-w-[48px] min-h-[48px] max-w-[48px] max-h-[48px] rounded-full aspect-square overflow-hidden bg-[#00D492] border-2 border-white/90 dark:border-white/80 shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40 p-0"
+              >
+                <Image
+                  src="/icons/aira-circle.svg"
+                  alt="Aira - AI Nusantara"
+                  width={48}
+                  height={48}
+                  unoptimized
+                  priority
+                  className="w-full h-full object-cover rounded-full select-none transition-transform duration-200 group-hover:scale-110"
+                />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Interactive AI Copilot Modal / Drawer */}
@@ -242,6 +280,8 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
           className={`fixed z-50 transition-all duration-300 flex flex-col shadow-2xl rounded-3xl overflow-hidden border border-slate-200/90 dark:border-navy-800 bg-slate-50/70 dark:bg-navy-950 font-jakarta ${
             isExpanded
               ? 'inset-4 sm:inset-10'
+              : isLandingPage
+              ? 'bottom-5 left-4 sm:bottom-6 sm:left-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
               : 'bottom-6 right-6 sm:right-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
           }`}
         >
