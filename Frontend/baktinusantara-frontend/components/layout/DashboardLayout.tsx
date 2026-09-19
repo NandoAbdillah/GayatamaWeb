@@ -99,7 +99,7 @@ export const DashboardLayout: React.FC<{
           className={`hidden lg:block shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'w-[72px]' : 'w-64'}`}
           aria-hidden
         />
-        <main className="flex-1 min-w-0 w-full p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 min-w-0 w-full p-4 sm:p-6 lg:p-8 lg:pl-10">
           {breadcrumb && breadcrumb.length > 0 && (
             <nav className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-4 font-medium" aria-label="Breadcrumb">
               <Link href={user?.role === 'universitas' ? '/kampus/dashboard' : user?.role === 'admin' ? '/admin/dashboard' : '/'} className="hover:text-primary transition-colors">
@@ -132,17 +132,17 @@ export const DashboardLayout: React.FC<{
         />
       )}
 
-      {/* Toggle button di perbatasan garis sidebar - menempel, responsive semua ukuran */}
+      {/* Toggle button di perbatasan garis sidebar - menempel rapi tanpa menutupi konten */}
       <button
         onClick={() => setCollapsed((v) => !v)}
         aria-label={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
         title={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
-        className={`flex fixed top-[72px] left-0 z-30 w-8 h-8 items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 shadow-md text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-navy-800 hover:text-navy-900 dark:hover:text-white will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-          collapsed ? 'translate-x-[12px] lg:translate-x-[56px]' : 'translate-x-[240px]'
+        className={`flex fixed top-[76px] left-0 z-30 w-7 h-7 items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 shadow-md text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-navy-800 hover:text-navy-900 dark:hover:text-white will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          collapsed ? 'translate-x-[12px] lg:translate-x-[58px]' : 'translate-x-[242px]'
         }`}
       >
         <PanelLeftClose
-          className={`w-6 h-6 shrink-0 will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'rotate-180' : 'rotate-0'}`}
+          className={`w-4 h-4 shrink-0 will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'rotate-180' : 'rotate-0'}`}
         />
       </button>
     </div>

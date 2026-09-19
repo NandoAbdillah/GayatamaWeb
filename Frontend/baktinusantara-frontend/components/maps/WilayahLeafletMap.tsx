@@ -13,16 +13,21 @@ function ChangeView({ center, zoom, bounds }: { center: [number, number]; zoom: 
   const prevCenterKeyRef = React.useRef<string>('');
 
   useEffect(() => {
-    const boundsKey = bounds && bounds.isValid && bounds.isValid() ? bounds.toBBoxString() : '';
-    const centerKey = center ? `${center[0].toFixed(4)},${center[1].toFixed(4)},${zoom}` : '';
+    try {
+      if (!map) return;
+      const boundsKey = bounds && bounds.isValid && bounds.isValid() ? bounds.toBBoxString() : '';
+      const centerKey = center ? `${center[0].toFixed(4)},${center[1].toFixed(4)},${zoom}` : '';
 
-    if (boundsKey && boundsKey !== prevBoundsKeyRef.current) {
-      prevBoundsKeyRef.current = boundsKey;
-      prevCenterKeyRef.current = centerKey;
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
-    } else if (centerKey && centerKey !== prevCenterKeyRef.current) {
-      prevCenterKeyRef.current = centerKey;
-      map.flyTo(center, zoom, { duration: 1.2 });
+      if (boundsKey && boundsKey !== prevBoundsKeyRef.current) {
+        prevBoundsKeyRef.current = boundsKey;
+        prevCenterKeyRef.current = centerKey;
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+      } else if (centerKey && centerKey !== prevCenterKeyRef.current) {
+        prevCenterKeyRef.current = centerKey;
+        map.flyTo(center, zoom, { duration: 1.2 });
+      }
+    } catch (e) {
+      // ignore during unmount / navigation
     }
   }, [center, zoom, bounds, map]);
 
@@ -34,40 +39,36 @@ function ChangeView({ center, zoom, bounds }: { center: [number, number]; zoom: 
 function MapSizeInvalidator() {
   const map = useMap();
   useEffect(() => {
-    // Initial invalidate after mount (tiles + pane positions)
-    const tmaps = setTimeout(() => map.invalidateSize(), 150);
-    const onResize = () => map.invalidateSize();
-    window.addEventListener('resize', onResize);
-    const container = map.getContainer();
-    let ro: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(() => map.invalidateSize());
-      ro.observe(container);
-    }
-    // Also invalidate on scroll (fixes sticky overlay text due to composited layer)
-    window.addEventListener('scroll', onResize, { passive: true });
-    return () => {
-      clearTimeout(tmaps);
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('scroll', onResize);
-      if (ro) ro.disconnect();
-    };
-  }, [map]);
-  return null;
-}
-
-function LeafletContainerCleaner() {
-  const map = useMap();
-  useEffect(() => {
-    return () => {
+    const safeInvalidate = () => {
       try {
-        const container = map.getContainer();
-        if (container) {
-          (container as any)._leaflet_id = null;
+        if (map && map.getContainer()) {
+          map.invalidateSize();
         }
       } catch (e) {
-        // ignore cleanup error
+        // ignore if map is unmounted
       }
+    };
+
+    const tmaps = setTimeout(safeInvalidate, 150);
+    window.addEventListener('resize', safeInvalidate);
+    window.addEventListener('scroll', safeInvalidate, { passive: true });
+
+    let ro: ResizeObserver | null = null;
+    try {
+      const container = map.getContainer();
+      if (typeof ResizeObserver !== 'undefined' && container) {
+        ro = new ResizeObserver(safeInvalidate);
+        ro.observe(container);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    return () => {
+      clearTimeout(tmaps);
+      window.removeEventListener('resize', safeInvalidate);
+      window.removeEventListener('scroll', safeInvalidate);
+      if (ro) ro.disconnect();
     };
   }, [map]);
   return null;
@@ -76,12 +77,21 @@ function LeafletContainerCleaner() {
 function ZoomTracker({ onZoomChange }: { onZoomChange: (z: number) => void }) {
   const map = useMap();
   useEffect(() => {
-    onZoomChange(map.getZoom());
-    const onZoom = () => onZoomChange(map.getZoom());
-    map.on('zoomend', onZoom);
-    return () => {
-      map.off('zoomend', onZoom);
-    };
+    try {
+      if (!map) return;
+      onZoomChange(map.getZoom());
+      const onZoom = () => {
+        try {
+          if (map) onZoomChange(map.getZoom());
+        } catch (e) {}
+      };
+      map.on('zoomend', onZoom);
+      return () => {
+        try {
+          map.off('zoomend', onZoom);
+        } catch (e) {}
+      };
+    } catch (e) {}
   }, [map, onZoomChange]);
   return null;
 }
@@ -486,7 +496,6 @@ export default function WilayahLeafletMap({
         className="w-full h-full z-0"
         style={{ height: '100%', width: '100%' }}
       >
-        <LeafletContainerCleaner />
         <MapSizeInvalidator />
         <ZoomTracker onZoomChange={setCurrentZoomLevel} />
         <ChangeView center={center} zoom={zoom} bounds={polyBounds} />

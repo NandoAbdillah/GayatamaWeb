@@ -232,6 +232,13 @@ export default function MapsPage() {
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
+  // Dynamic collision detection between Detail Panel & Search/Filter Panel
+  const detailPanelRef = useRef<HTMLDivElement>(null);
+  const searchPanelRef = useRef<HTMLDivElement>(null);
+  const [searchXOffset, setSearchXOffset] = useState<number>(0);
+  const searchXOffsetRef = useRef<number>(0);
+  searchXOffsetRef.current = searchXOffset;
+
   // Center campus coordinate (Univ. Nusantara in Bogor)
   const campusCenter: [number, number] = [-6.595, 106.8166];
   const [mapCenter, setMapCenter] = useState<[number, number]>(campusCenter);
@@ -477,6 +484,69 @@ export default function MapsPage() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Collision Detection: Dynamically shift Search/Filter panel to prevent overlap with Detail Panel
+  useEffect(() => {
+    if (!isDetailOpen) {
+      setSearchXOffset(0);
+      return;
+    }
+
+    const checkCollision = () => {
+      if (!detailPanelRef.current || !searchPanelRef.current) {
+        setSearchXOffset(0);
+        return;
+      }
+
+      const detailRect = detailPanelRef.current.getBoundingClientRect();
+      const searchRect = searchPanelRef.current.getBoundingClientRect();
+
+      // Only adjust if detail panel has rendered dimensions
+      if (detailRect.width === 0 || detailRect.height === 0) {
+        setSearchXOffset(0);
+        return;
+      }
+
+      // Calculate unshifted left and right of search panel
+      const unshiftedSearchLeft = searchRect.left - searchXOffsetRef.current;
+      const unshiftedSearchRight = searchRect.right - searchXOffsetRef.current;
+
+      // Check vertical overlap
+      const verticalOverlap = detailRect.bottom > searchRect.top && detailRect.top < searchRect.bottom;
+
+      // Clearance gap (in px) between detail panel right edge and search panel left edge
+      const GAP = 16;
+      const overlapAmount = (detailRect.right + GAP) - unshiftedSearchLeft;
+
+      if (verticalOverlap && overlapAmount > 0) {
+        // Overlap detected: calculate the exact shift needed to clear the detail panel
+        const maxShift = Math.max(0, window.innerWidth - unshiftedSearchRight - GAP);
+        const shift = Math.min(overlapAmount, maxShift);
+        setSearchXOffset(shift);
+      } else {
+        // No overlap: keep search panel at default position
+        setSearchXOffset(0);
+      }
+    };
+
+    // Run on next animation frame after layout renders
+    const rafId = requestAnimationFrame(checkCollision);
+
+    window.addEventListener('resize', checkCollision);
+
+    const resizeObserver = new ResizeObserver(() => {
+      checkCollision();
+    });
+
+    if (detailPanelRef.current) resizeObserver.observe(detailPanelRef.current);
+    if (searchPanelRef.current) resizeObserver.observe(searchPanelRef.current);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', checkCollision);
+      resizeObserver.disconnect();
+    };
+  }, [isDetailOpen, rightPanelTab]);
 
   // Handler for Selecting a Search Item
   const handleSelectSearchItem = async (item: WilayahSearchItem) => {
@@ -853,13 +923,17 @@ export default function MapsPage() {
 
         {/* 2. TOP FLOATING SEARCH & FILTER ISLAND */}
         <div className="absolute top-3 sm:top-4 left-3 sm:left-6 right-3 sm:right-6 z-30 pointer-events-none flex justify-center">
-          <div className="pointer-events-auto w-full max-w-6xl bg-white/95 dark:bg-navy-900/95 rounded-3xl p-2.5 sm:p-3.5 border border-slate-200/90 dark:border-navy-700/90 shadow-2xl backdrop-blur-2xl space-y-2.5 transition-all">
+          <div
+            ref={searchPanelRef}
+            style={searchXOffset > 0 ? { transform: `translateX(${searchXOffset}px)` } : undefined}
+            className="pointer-events-auto w-full max-w-6xl bg-white/95 dark:bg-navy-900/95 rounded-3xl p-2.5 sm:p-3.5 border border-slate-200/90 dark:border-navy-700/90 shadow-2xl backdrop-blur-2xl space-y-2.5 transition-all"
+          >
           
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-2.5 min-w-0">
               {/* Live search input - Elongated with Kemendagri live autocomplete */}
-              <div ref={searchContainerRef} className="relative flex-1 min-w-[280px] sm:min-w-[340px]">
+              <div ref={searchContainerRef} className="relative flex-1 min-w-0">
                 <div className="relative">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 shrink-0 pointer-events-none" />
                   <input
                     type="text"
                     value={searchQuery}
@@ -868,7 +942,7 @@ export default function MapsPage() {
                       if (searchResults.length > 0) setShowSearchResults(true);
                     }}
                     placeholder="Cari desa, kecamatan, kabupaten, atau provinsi..."
-                    className="w-full pl-9 pr-8 py-2 rounded-2xl border border-slate-200 dark:border-navy-700 bg-slate-50/90 dark:bg-navy-950 text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-inner"
+                    className="w-full pl-9 pr-8 py-2 rounded-2xl border border-slate-200 dark:border-navy-700 bg-slate-50/90 dark:bg-navy-950 text-xs sm:text-sm font-semibold text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-inner truncate min-w-0"
                   />
                   {isSearching ? (
                     <Loader2 className="w-3.5 h-3.5 text-primary animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
@@ -888,7 +962,7 @@ export default function MapsPage() {
 
                 {/* Autocomplete Dropdown */}
                 {showSearchResults && searchResults.length > 0 && (
-                  <div className="absolute left-0 right-0 top-full mt-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
+                  <div className="absolute left-0 right-0 top-full mt-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800 w-full min-w-0">
                     <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
                       <span>HASIL WILAYAH RESMI KEMENDAGRI</span>
                       <span className="text-emerald-600 font-mono">38 Provinsi</span>
@@ -925,15 +999,15 @@ export default function MapsPage() {
               </div>
 
               {/* Layer Visibility Checkboxes (Kampus & POS KKN) + Pos Filter Dropdowns (Sektor & Radius) */}
-              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0 shrink">
                 {/* Checkbox Layer Controls */}
-                <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 dark:bg-navy-950/90 rounded-2xl border border-slate-200/90 dark:border-navy-800 shrink-0 select-none shadow-xs">
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-2 pr-1 flex items-center gap-1">
+                <div className="flex items-center gap-1 sm:gap-1.5 p-1 bg-slate-100/90 dark:bg-navy-950/90 rounded-2xl border border-slate-200/90 dark:border-navy-800 shrink select-none shadow-xs min-w-0">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-1.5 sm:pl-2 pr-0.5 sm:pr-1 flex items-center gap-1 shrink-0">
                     <Layers className="w-3 h-3 text-emerald-500" /> Tampil:
                   </span>
 
                   <label
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink min-w-0 ${
                       showCampusMarkers
                         ? 'bg-white dark:bg-navy-900 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 shadow-xs'
                         : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
@@ -943,14 +1017,14 @@ export default function MapsPage() {
                       type="checkbox"
                       checked={showCampusMarkers}
                       onChange={(e) => setShowCampusMarkers(e.target.checked)}
-                      className="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20 accent-indigo-600 cursor-pointer"
+                      className="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20 accent-indigo-600 cursor-pointer shrink-0"
                     />
-                    <GraduationCap className="w-3.5 h-3.5 text-indigo-600" />
-                    <span>Kampus ({filteredCampuses.length})</span>
+                    <GraduationCap className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                    <span className="truncate">Kampus ({filteredCampuses.length})</span>
                   </label>
 
                   <label
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink min-w-0 ${
                       showPosMarkers
                         ? 'bg-white dark:bg-navy-900 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shadow-xs'
                         : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
@@ -960,10 +1034,10 @@ export default function MapsPage() {
                       type="checkbox"
                       checked={showPosMarkers}
                       onChange={(e) => setShowPosMarkers(e.target.checked)}
-                      className="w-3.5 h-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20 accent-emerald-600 cursor-pointer"
+                      className="w-3.5 h-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20 accent-emerald-600 cursor-pointer shrink-0"
                     />
-                    <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Pos KKN ({filteredPos.length})</span>
+                    <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="truncate">Pos KKN ({filteredPos.length})</span>
                   </label>
                 </div>
 
@@ -975,6 +1049,7 @@ export default function MapsPage() {
                   options={SECTOR_FILTER_OPTIONS.map((s) => ({ value: s.key, label: s.label }))}
                   icon={<Layers className="w-3.5 h-3.5 text-emerald-500" />}
                   dropdownWidth="min-w-[200px]"
+                  className="shrink min-w-0"
                 />
 
                 {/* 2. Radius Dropdown */}
@@ -989,13 +1064,14 @@ export default function MapsPage() {
                   ]}
                   icon={<Compass className="w-3.5 h-3.5 text-sky-500" />}
                   dropdownWidth="min-w-[170px]"
+                  className="shrink min-w-0"
                 />
               </div>
             </div>
 
             {/* Tier 2: 4-Level Wilayah Hierarchy Filter Pills (Provinsi -> Kab/Kota -> Kecamatan -> Desa) */}
-            <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-slate-100 dark:border-navy-800/80">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pt-2 border-t border-slate-100 dark:border-navy-800/80 min-w-0">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-0.5 sm:mr-1 flex items-center gap-1">
                 <Navigation className="w-3 h-3 text-emerald-600" /> Wilayah:
               </span>
 
@@ -1018,6 +1094,7 @@ export default function MapsPage() {
                   />
                 }
                 dropdownWidth="min-w-[220px]"
+                className="flex-1 min-w-[130px] sm:min-w-[150px]"
               />
 
               {/* 2. Kab/Kota Dropdown with Official Logo */}
@@ -1056,6 +1133,7 @@ export default function MapsPage() {
                 }
                 icon={!selectedRegencyId ? <Building className="w-3.5 h-3.5 text-emerald-600" /> : undefined}
                 dropdownWidth="min-w-[240px]"
+                className="flex-1 min-w-[130px] sm:min-w-[150px]"
               />
 
               {/* 3. Kecamatan / Distrik Dropdown */}
@@ -1069,6 +1147,7 @@ export default function MapsPage() {
                 ]}
                 icon={<Landmark className="w-3.5 h-3.5 text-emerald-600" />}
                 dropdownWidth="min-w-[220px]"
+                className="flex-1 min-w-[130px] sm:min-w-[150px]"
               />
 
               {/* 4. Desa / Kelurahan Dropdown */}
@@ -1085,12 +1164,13 @@ export default function MapsPage() {
                 ]}
                 icon={<Home className="w-3.5 h-3.5 text-emerald-600" />}
                 dropdownWidth="min-w-[240px]"
+                className="flex-1 min-w-[130px] sm:min-w-[150px]"
               />
             </div>
 
             {/* Quick Province Ribbons */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none pt-1 border-t border-slate-100 dark:border-navy-800/80">
-              <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+            <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto pb-0.5 scrollbar-none pt-1 border-t border-slate-100 dark:border-navy-800/80 w-full min-w-0">
+              <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-0.5 sm:mr-1 flex items-center gap-1">
                 <Landmark className="w-3 h-3 text-emerald-600" /> Jelajahi:
               </span>
               {FEATURED_PROVINCES.map((prov) => (
@@ -1098,7 +1178,7 @@ export default function MapsPage() {
                   key={prov.id}
                   type="button"
                   onClick={() => handleProvinceChange(prov.id)}
-                  className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold shrink-0 transition-all border ${
+                  className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-lg text-xs font-bold shrink-0 transition-all border ${
                     selectedProvinceId === prov.id
                       ? 'bg-emerald-600 text-white border-emerald-500 shadow-xs scale-[1.02]'
                       : 'bg-slate-50 dark:bg-navy-950 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-navy-800 hover:border-emerald-300'
@@ -1112,10 +1192,13 @@ export default function MapsPage() {
           </div>
         </div>
 
-        {/* 3. UNIFIED RIGHT SPATIAL INSPECTOR DRAWER (Positioned below top island with safe screen margins) */}
-        <div className="absolute top-[180px] sm:top-[185px] right-3 sm:right-6 bottom-6 sm:bottom-8 w-[390px] sm:w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-end">
+        {/* 3. UNIFIED LEFT SPATIAL INSPECTOR DRAWER (Positioned at top-left, 60vh max-height) */}
+        <div
+          ref={detailPanelRef}
+          className="absolute top-3 sm:top-4 left-3 sm:left-6 w-[390px] sm:w-[420px] max-w-[calc(100vw-24px)] z-30 pointer-events-none flex flex-col items-start"
+        >
           {isDetailOpen ? (
-            <div className="pointer-events-auto w-full h-full max-h-[calc(100vh-215px)] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-right-4">
+            <div className="pointer-events-auto w-full max-h-[60vh] sm:max-h-[62vh] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-left-4">
               {/* Inspector Header: 5 Segmented Tabs + Minimize Button */}
               <div className="px-3.5 pt-3 pb-2.5 border-b border-slate-100 dark:border-navy-800 shrink-0 flex items-center justify-between gap-1.5">
                 <div className="flex items-center gap-0.5 p-1 rounded-2xl bg-slate-100 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-800 text-[10.5px] font-bold flex-1 overflow-x-auto scrollbar-none">
@@ -1897,7 +1980,7 @@ export default function MapsPage() {
               </div>
             </div>
           ) : (
-            /* Collapsed Floating Pill Button on Right Edge */
+            /* Collapsed Floating Pill Button on Left Edge */
             <button
               type="button"
               onClick={() => setIsDetailOpen(true)}
@@ -1917,7 +2000,7 @@ export default function MapsPage() {
                   {activeGovernance.name}
                 </strong>
               </div>
-              <ChevronLeft className="w-4 h-4 text-emerald-600 ml-1 shrink-0" />
+              <ChevronRight className="w-4 h-4 text-emerald-600 ml-1 shrink-0" />
             </button>
           )}
         </div>

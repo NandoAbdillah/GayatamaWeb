@@ -71,7 +71,7 @@ class OtpService
             $this->whatsAppService->send($identifier, $message);
         }
 
-        return [
+        $response = [
             'success' => true,
             'message' => "Kode OTP telah berhasil dikirimkan melalui " . strtoupper($channel) . ".",
             'target' => $this->maskIdentifier($identifier),
@@ -79,6 +79,12 @@ class OtpService
             'purpose' => $purpose,
             'expires_in_minutes' => 15,
         ];
+
+        if (config('app.debug')) {
+            $response['dev_otp'] = $otpCode;
+        }
+
+        return $response;
     }
 
     /**

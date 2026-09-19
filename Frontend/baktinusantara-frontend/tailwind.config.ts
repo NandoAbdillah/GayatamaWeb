@@ -27,6 +27,7 @@ const config: Config = {
           700: '#1558AA',
           800: '#0F4284',
           900: '#0A2D5C',
+          950: '#071A33',
         },
         secondary: {
           DEFAULT: '#16A34A',
@@ -40,6 +41,7 @@ const config: Config = {
           700: '#0F612E',
           800: '#0A4320',
           900: '#062B15',
+          950: '#031E0D',
         },
         tertiary: {
           DEFAULT: '#F59E0B',
@@ -53,6 +55,7 @@ const config: Config = {
           700: '#B45309',
           800: '#92400E',
           900: '#78350F',
+          950: '#451A03',
         },
         navy: {
           DEFAULT: '#0F294A',

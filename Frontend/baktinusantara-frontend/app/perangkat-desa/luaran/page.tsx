@@ -177,7 +177,7 @@ export default function VerifikasiLuaranDesaPage() {
           {luaranList.map((item) => (
             <Card
               key={item.id}
-              className="overflow-hidden flex flex-col justify-between border-slate-200 dark:border-navy-800 shadow-md"
+              className="bg-white dark:bg-navy-900 overflow-hidden flex flex-col justify-between border-slate-200 dark:border-navy-800 shadow-md"
             >
               <div className="space-y-3">
                 {/* Photo Header */}
@@ -206,7 +206,7 @@ export default function VerifikasiLuaranDesaPage() {
                     {item.deskripsi}
                   </p>
 
-                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-100 dark:border-navy-800">
+                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-navy-800">
                     <span>Ketua: {item.ketua}</span>
                     <span>DPL: {item.dpl}</span>
                   </div>
@@ -219,7 +219,7 @@ export default function VerifikasiLuaranDesaPage() {
                   href={item.file_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-navy-950 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+                  className="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-navy-950 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-navy-800"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Lihat Berkas / Demo Produk</span>
@@ -234,7 +234,7 @@ export default function VerifikasiLuaranDesaPage() {
                         setSelectedLuaran(item);
                         setShowRevisionModal(true);
                       }}
-                      className="flex-1 text-xs font-bold text-amber-700 border-amber-300 hover:bg-amber-50"
+                      className="flex-1 text-xs font-bold text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/40"
                     >
                       Revisi
                     </Button>
@@ -272,7 +272,7 @@ export default function VerifikasiLuaranDesaPage() {
                 </h3>
                 <button
                   onClick={() => setShowRevisionModal(false)}
-                  className="text-slate-400 hover:text-slate-600"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                 >
                   ✕
                 </button>
@@ -282,7 +282,7 @@ export default function VerifikasiLuaranDesaPage() {
                 <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   {selectedLuaran?.judul}
                 </p>
-                <p className="text-[11px] text-slate-500">Oleh: {selectedLuaran?.kelompok}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Oleh: {selectedLuaran?.kelompok}</p>
               </div>
 
               <textarea

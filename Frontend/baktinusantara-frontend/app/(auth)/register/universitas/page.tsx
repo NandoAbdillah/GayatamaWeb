@@ -18,6 +18,8 @@ import {
   Lock,
   Phone,
   Award,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api-client';
@@ -27,6 +29,7 @@ export default function RegisterUniversitasPage() {
   const router = useRouter();
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [mouFile, setMouFile] = useState<File | null>(null);
   const [uploadingMou, setUploadingMou] = useState(false);
   const [mouUploadedUrl, setMouUploadedUrl] = useState<string>('');
@@ -140,7 +143,7 @@ export default function RegisterUniversitasPage() {
           </Link>
         </div>
 
-        <Card className="p-6 sm:p-8 space-y-6 shadow-xl border-slate-200 dark:border-navy-800">
+        <Card className="p-6 sm:p-8 space-y-6 shadow-xl border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900">
           <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-navy-800">
             <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-6 h-6" />
@@ -217,13 +220,25 @@ export default function RegisterUniversitasPage() {
                   <div className="relative">
                     <Lock className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       required
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       placeholder="Minimal 8 karakter"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="w-full pl-10 pr-11 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-navy-900 dark:hover:text-white transition-colors"
+                      title={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>

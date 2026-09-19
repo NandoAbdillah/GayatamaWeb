@@ -41,24 +41,9 @@ export default function MahasiswaProgressPage() {
   const [deskripsi, setDeskripsi] = useState<string>('');
   const [fotoFile, setFotoFile] = useState<File | null>(null);
 
-  // Normalize ensures foto_dokumentasi_urls is always array (prevents "reading 'length'" crash)
+  // Normalize ensures all fields are properly structured and enriched
   const normalizeLogbook = (raw: any): LogbookEntry => {
-    const fotos: string[] = (() => {
-      if (Array.isArray(raw?.foto_dokumentasi_urls)) return raw.foto_dokumentasi_urls;
-      if (Array.isArray(raw?.foto_dokumentasi)) return raw.foto_dokumentasi;
-      if (Array.isArray(raw?.fotos)) return raw.fotos;
-      if (typeof raw?.foto === 'string' && raw.foto) return [raw.foto];
-      if (typeof raw?.foto_url === 'string' && raw.foto_url) return [raw.foto_url];
-      return [];
-    })();
-    return {
-      ...raw,
-      foto_dokumentasi_urls: fotos,
-      deskripsi: raw?.deskripsi ?? '',
-      judul_kegiatan: raw?.judul_kegiatan ?? raw?.judul ?? '',
-      target_program_terkait: raw?.target_program_terkait ?? '-',
-      status: raw?.status ?? 'submitted',
-    } as LogbookEntry;
+    return api.progress.normalizeEntry(raw);
   };
 
   useEffect(() => {
@@ -162,10 +147,10 @@ export default function MahasiswaProgressPage() {
         {/* Page Top Title & CTA */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               Logbook Harian KKN
             </h1>
-            <p className="text-xs text-slate-500 font-jakarta mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-jakarta mt-0.5">
               Catat setiap aktivitas pengabdian di desa untuk divalidasi oleh Dosen Pembimbing (DPL).
             </p>
           </div>
@@ -195,7 +180,7 @@ export default function MahasiswaProgressPage() {
               className={`px-4 py-2 rounded-full font-semibold transition-all whitespace-nowrap ${
                 filterStatus === tab.id
                   ? 'bg-primary text-white shadow-sm'
-                  : 'bg-white text-navy-800 hover:bg-surface-subtle border border-slate-200'
+                  : 'bg-white dark:bg-navy-900 text-navy-800 dark:text-slate-200 hover:bg-surface-subtle dark:hover:bg-navy-800 border border-slate-200 dark:border-navy-800'
               }`}
             >
               {tab.label}
@@ -206,23 +191,23 @@ export default function MahasiswaProgressPage() {
         {/* Logbook Timeline Cards */}
         <div className="space-y-4">
           {filteredLogs.map((log) => (
-            <Card key={log.id} className="p-6 border-slate-200 space-y-4 bg-white shadow-ambient">
+            <Card key={log.id} className="p-6 border-slate-200 dark:border-navy-800 space-y-4 bg-white dark:bg-navy-900 shadow-ambient">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
                     <Calendar className="w-3.5 h-3.5 text-primary" />
                     <span>{log.tanggal}</span>
                     <span>•</span>
                     <span>Minggu ke-{log.minggu_ke}</span>
                     <span>•</span>
-                    <span className="font-bold text-navy-900 bg-slate-100 px-2 py-0.5 rounded-md">
+                    <span className="font-bold text-navy-900 dark:text-slate-200 bg-slate-100 dark:bg-navy-800 px-2 py-0.5 rounded-md">
                       {log.durasi_jam} Jam Kerja
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-navy-950 font-epilogue mt-1">
+                  <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue mt-1">
                     {log.judul_kegiatan}
                   </h3>
-                  <p className="text-xs font-semibold text-primary-700">
+                  <p className="text-xs font-semibold text-primary-700 dark:text-primary-400">
                     Target: {log.target_program_terkait}
                   </p>
                 </div>
@@ -230,14 +215,14 @@ export default function MahasiswaProgressPage() {
                 <StatusBadge status={log.status} />
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-700 font-jakarta leading-relaxed whitespace-pre-line">
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-jakarta leading-relaxed whitespace-pre-line">
                 {log.deskripsi}
               </p>
 
               {/* Revision note box if any */}
               {log.catatan_revisi_dpl && (
-                <div className="p-4 rounded-2xl bg-orange-50 border border-orange-200 text-xs text-orange-950 space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-bold text-orange-800">
+                <div className="p-4 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/80 text-xs text-orange-950 dark:text-orange-200 space-y-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-orange-800 dark:text-orange-300">
                     <AlertCircle className="w-4 h-4" />
                     <span>Catatan Perbaikan dari DPL (Dr. Ir. Hendra Gunawan):</span>
                   </div>
@@ -257,7 +242,7 @@ export default function MahasiswaProgressPage() {
                         key={i}
                         src={url}
                         alt="Dokumentasi"
-                        className="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm"
+                        className="w-24 h-24 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm"
                       />
                     ))}
                   </div>
@@ -271,22 +256,22 @@ export default function MahasiswaProgressPage() {
       {/* Modal Popup Pengisian Logbook (Stitch Screen: Modal Interaktif Pengisian Logbook Harian) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-white dark:bg-navy-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-navy-800 max-h-[90vh] overflow-y-auto space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-navy-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-primary-100 text-primary flex items-center justify-center">
+                <div className="w-9 h-9 rounded-full bg-primary-100 dark:bg-primary-950/80 text-primary dark:text-primary-300 flex items-center justify-center">
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-navy-950 font-epilogue">
+                  <h2 className="text-lg font-bold text-navy-950 dark:text-white font-epilogue">
                     Formulir Logbook Harian KKN
                   </h2>
-                  <p className="text-xs text-slate-500">Kelompok 14 — Desa Sukamaju</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Kelompok 14 — Desa Sukamaju</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded-full text-slate-400 hover:bg-slate-100"
+                className="p-1.5 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-navy-800"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -295,7 +280,7 @@ export default function MahasiswaProgressPage() {
             <form onSubmit={handleCreateLog} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-navy-900 mb-1">
+                  <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                     Tanggal Pelaksanaan
                   </label>
                   <input
@@ -303,11 +288,11 @@ export default function MahasiswaProgressPage() {
                     required
                     value={tanggal}
                     onChange={(e) => setTanggal(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-navy-900 mb-1">
+                  <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                     Minggu KKN Ke-
                   </label>
                   <input
@@ -317,11 +302,11 @@ export default function MahasiswaProgressPage() {
                     required
                     value={mingguKe}
                     onChange={(e) => setMingguKe(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-navy-900 mb-1">
+                  <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                     Durasi (Jam)
                   </label>
                   <input
@@ -331,13 +316,13 @@ export default function MahasiswaProgressPage() {
                     required
                     value={durasiJam}
                     onChange={(e) => setDurasiJam(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-navy-900 mb-1">
+                <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                   Judul Ringkas Kegiatan
                 </label>
                 <input
@@ -346,28 +331,28 @@ export default function MahasiswaProgressPage() {
                   value={judul}
                   onChange={(e) => setJudul(e.target.value)}
                   placeholder="Contoh: Pengujian Sensor Irigasi Blok Sawah Barat"
-                  className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-navy-900 mb-1">
+                <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                   Terkait Program Kerja
                 </label>
                 <select
                   value={targetProgram}
                   onChange={(e) => setTargetProgram(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-surface-canvas border border-slate-300 rounded-full text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="Pelatihan Branding & Kemasan UMKM">Pelatihan Branding & Kemasan UMKM</option>
-                  <option value="Website Marketplace & Katalog Desa">Website Marketplace & Katalog Desa</option>
-                  <option value="Modul Panduan Irigasi Terpadu">Modul Panduan Irigasi Terpadu</option>
-                  <option value="Sosialisasi Sanitasi Air Bersih">Sosialisasi Sanitasi Air Bersih</option>
+                  <option value="Pelatihan Branding & Kemasan UMKM" className="dark:bg-navy-900">Pelatihan Branding & Kemasan UMKM</option>
+                  <option value="Website Marketplace & Katalog Desa" className="dark:bg-navy-900">Website Marketplace & Katalog Desa</option>
+                  <option value="Modul Panduan Irigasi Terpadu" className="dark:bg-navy-900">Modul Panduan Irigasi Terpadu</option>
+                  <option value="Sosialisasi Sanitasi Air Bersih" className="dark:bg-navy-900">Sosialisasi Sanitasi Air Bersih</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-navy-900 mb-1">
+                <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                   Deskripsi Kegiatan Lapangan & Hasil Capaian
                 </label>
                 <textarea
@@ -376,24 +361,24 @@ export default function MahasiswaProgressPage() {
                   value={deskripsi}
                   onChange={(e) => setDeskripsi(e.target.value)}
                   placeholder="Tuliskan secara objektif apa yang dikerjakan, siapa saja yang terlibat, serta kendala/solusi..."
-                  className="w-full p-3.5 bg-surface-canvas border border-slate-300 rounded-2xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary font-jakarta leading-relaxed"
+                  className="w-full p-3.5 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-2xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary font-jakarta leading-relaxed"
                 />
               </div>
 
               {/* Upload Foto */}
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-navy-900 mb-1">
+                <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                   Unggah Foto Dokumentasi Lapangan (Opsional)
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => setFotoFile(e.target.files?.[0] || null)}
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary hover:file:bg-primary-100"
+                  className="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 dark:file:bg-primary-950/70 file:text-primary dark:file:text-primary-300 hover:file:bg-primary-100 dark:hover:file:bg-primary-900"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-navy-800">
                 <Button
                   type="button"
                   variant="outline"

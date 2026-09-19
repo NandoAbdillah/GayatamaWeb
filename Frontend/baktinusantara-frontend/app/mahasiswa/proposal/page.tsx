@@ -100,21 +100,21 @@ export default function MahasiswaProposalPage() {
     <DashboardLayout title="Pengajuan & Validasi Proposal KKN">
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">
+          <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
             Proposal Program Kerja KKN
           </h1>
-          <p className="text-xs text-slate-500 font-jakarta mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-jakarta mt-0.5">
             Proposal dievaluasi secara berjenjang oleh Dosen Pembimbing Lapangan (DPL) dan Kepala Desa Mitra.
           </p>
         </div>
 
         {/* Long distance warning if applicable */}
         {isJarakJauh && (
-          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3 animate-in fade-in">
-            <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 flex items-start gap-3 animate-in fade-in">
+            <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div className="space-y-1 text-xs">
               <p className="font-bold">Perhatian: KKN Jarak Jauh (&gt; 1.000 km)</p>
-              <p className="text-amber-800">
+              <p className="text-amber-800 dark:text-amber-300">
                 Lokasi desa sasaran berjarak lebih dari 1.000 km dari domisili kampus. Sistem mewajibkan unggah Surat Izin Orang Tua yang telah ditandatangani bermaterai.
               </p>
             </div>
@@ -122,42 +122,42 @@ export default function MahasiswaProposalPage() {
         )}
 
         {/* Proposal Details Form */}
-        <Card className="p-6 sm:p-8 border-slate-200 bg-white shadow-ambient space-y-5">
-          <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
+        <Card className="p-6 sm:p-8 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-ambient space-y-5">
+          <div className="flex items-center gap-2.5 border-b border-slate-100 dark:border-navy-800 pb-3">
             <FileText className="w-5 h-5 text-primary" />
-            <h2 className="text-base font-bold text-navy-950 font-epilogue">
+            <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
               Formulir Pengajuan Proposal KKN
             </h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-navy-900 mb-1">
+              <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                 Pilih Pos Kebutuhan Sasaran
               </label>
               <select
                 value={selectedPosId}
                 onChange={(e) => setSelectedPosId(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs font-semibold text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {posList.length > 0 ? (
                   posList.map((pos) => (
-                    <option key={pos.id} value={pos.id}>
+                    <option key={pos.id} value={pos.id} className="dark:bg-navy-900">
                       {pos.judul} ({pos.nama_desa || 'Desa Sukamaju'} - {pos.distance_km || 15} km)
                     </option>
                   ))
                 ) : (
                   <>
-                    <option value="1">Digitalisasi Pemasaran UMKM (Desa Sukamaju - 15 km)</option>
-                    <option value="2">Pemberdayaan Posyandu Balita (Desa Sukamaju - 15 km)</option>
-                    <option value="3">Optimalisasi Biogas & Sanitasi (Desa Berkah Makmur - 45 km)</option>
+                    <option value="1" className="dark:bg-navy-900">Digitalisasi Pemasaran UMKM (Desa Sukamaju - 15 km)</option>
+                    <option value="2" className="dark:bg-navy-900">Pemberdayaan Posyandu Balita (Desa Sukamaju - 15 km)</option>
+                    <option value="3" className="dark:bg-navy-900">Optimalisasi Biogas & Sanitasi (Desa Berkah Makmur - 45 km)</option>
                   </>
                 )}
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-navy-900 mb-1">
+              <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                 Draf Program Kerja & Sasaran Dampak
               </label>
               <textarea
@@ -165,47 +165,47 @@ export default function MahasiswaProposalPage() {
                 required
                 value={drafProker}
                 onChange={(e) => setDrafProker(e.target.value)}
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                className="w-full p-4 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed"
                 placeholder="Jelaskan tahapan implementasi, rencana kegiatan mingguan, dan target luaran..."
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 space-y-2">
-                <label className="block text-xs font-bold text-navy-900">
+              <div className="p-4 rounded-xl border border-dashed border-slate-300 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 space-y-2">
+                <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">
                   Unggah Berkas Proposal (PDF)
                 </label>
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => setProposalFile(e.target.files?.[0] || null)}
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary hover:file:bg-primary-100"
+                  className="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 dark:file:bg-primary-950/70 file:text-primary dark:file:text-primary-300 hover:file:bg-primary-100 dark:hover:file:bg-primary-900"
                 />
               </div>
 
-              <div className="p-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 space-y-2">
-                <label className="block text-xs font-bold text-navy-900">
+              <div className="p-4 rounded-xl border border-dashed border-slate-300 dark:border-navy-700 bg-slate-50 dark:bg-navy-950 space-y-2">
+                <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">
                   Surat Pengantar Kampus (Opsional PDF)
                 </label>
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => setSuratPengantarFile(e.target.files?.[0] || null)}
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary hover:file:bg-primary-100"
+                  className="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 dark:file:bg-primary-950/70 file:text-primary dark:file:text-primary-300 hover:file:bg-primary-100 dark:hover:file:bg-primary-900"
                 />
               </div>
             </div>
 
             {isJarakJauh && (
-              <div className="p-4 rounded-xl border border-amber-300 bg-amber-50/50 space-y-2">
-                <label className="block text-xs font-bold text-amber-950">
+              <div className="p-4 rounded-xl border border-amber-300 dark:border-amber-800/80 bg-amber-50/50 dark:bg-amber-950/40 space-y-2">
+                <label className="block text-xs font-bold text-amber-950 dark:text-amber-200">
                   Surat Izin Orang Tua (Wajib untuk Jarak &gt; 1.000 km)
                 </label>
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => setSuratOrtuFile(e.target.files?.[0] || null)}
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200"
+                  className="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-100 dark:file:bg-amber-950/70 file:text-amber-900 dark:file:text-amber-300 hover:file:bg-amber-200"
                 />
               </div>
             )}
@@ -234,18 +234,18 @@ export default function MahasiswaProposalPage() {
 
         {/* My Proposals List */}
         {myProposals.length > 0 && (
-          <Card className="p-6 border-slate-200 bg-white shadow-ambient space-y-4">
-            <h3 className="text-base font-bold text-navy-950 font-epilogue">
+          <Card className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-ambient space-y-4">
+            <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
               Riwayat Pengajuan Proposal Kelompok
             </h3>
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100 dark:divide-navy-800">
               {myProposals.map((prop) => (
                 <div key={prop.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-navy-950">
+                    <p className="text-sm font-bold text-navy-950 dark:text-white">
                       {prop.pos_kebutuhan?.judul || `Proposal #${prop.id}`}
                     </p>
-                    <p className="text-xs text-slate-500 line-clamp-1">{prop.ringkasan_eksekutif || prop.judul_program}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{prop.ringkasan_eksekutif || prop.judul_program}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <StatusBadge status={prop.status_desa || 'pending'} size="sm" />

@@ -80,3 +80,90 @@
   animation: mapSweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
+/* Subtle Aira Landing Page Animations */
+@keyframes airaFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes airaFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes airaTextIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes airaPulseSoft {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-aira-float {
+  animation: airaFloat 4s ease-in-out infinite;
+}
+
+.animate-aira-fade {
+  animation: airaFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-aira-text {
+  animation: airaTextIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.animate-aira-pulse {
+  animation: airaPulseSoft 2.8s ease-in-out infinite;
+}
+
+/* Night scene star twinkle animation */
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.15);
+  }
+}
+
+.animate-star-twinkle {
+  animation: starTwinkle 3.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-aira-float,
+  .animate-aira-fade,
+  .animate-aira-text,
+  .animate-aira-pulse {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+}
+

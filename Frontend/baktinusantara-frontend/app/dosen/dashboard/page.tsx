@@ -38,7 +38,7 @@ export default function DosenDashboard() {
               {user?.name || 'Dr. Ir. Hendra Gunawan, M.T.'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-200 font-jakarta leading-relaxed">
-              NIP: 197804122005011002 • Membina 3 Kelompok KKN (Total 15 Mahasiswa)
+              NIP: 197804122005011002
             </p>
 
             <div className="pt-3 flex flex-wrap items-center gap-3">
@@ -60,80 +60,80 @@ export default function DosenDashboard() {
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Logbook Perlu Tindakan</span>
               <CheckSquare className="w-4 h-4 text-amber-500" />
             </div>
-            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               {pendingLogs.length} Entri
             </p>
-            <span className="inline-flex text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full">
+            <span className="inline-flex text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/70 px-2 py-0.5 rounded-full">
               1 Menunggu Validasi, 1 Dalam Revisi
             </span>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Kelompok Binaan</span>
               <Users className="w-4 h-4 text-primary" />
             </div>
-            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">3 Kelompok</p>
-            <p className="text-xs text-slate-500">Desa Sukamaju, Desa Cibodas, Desa Tanjung Karang</p>
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">3 Kelompok</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Desa Sukamaju, Desa Cibodas, Desa Tanjung Karang</p>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+              <span>Mahasiswa Binaan</span>
+              <GraduationCap className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">15 Mahasiswa</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">dari 3 kelompok binaan</p>
+          </Card>
+
+          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Proposal Divalidasi</span>
-              <FileText className="w-4 h-4 text-emerald-600" />
+              <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <p className="text-2xl font-extrabold text-navy-950 font-epilogue">3 / 3 Disetujui</p>
-            <p className="text-xs text-emerald-700 font-medium">Kelayakan Akademik 100%</p>
-          </Card>
-
-          <Card className="p-5 border-slate-200 space-y-2 bg-white">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span>Rekap Nilai Kelulusan</span>
-              <Award className="w-4 h-4 text-indigo-600" />
-            </div>
-            <p className="text-sm font-bold text-navy-950 font-epilogue">Siap Diterbitkan</p>
-            <p className="text-xs text-slate-500">Menunggu Finalisasi Luaran</p>
+            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">3 / 3 Disetujui</p>
+            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">Kelayakan Akademik 100%</p>
           </Card>
         </div>
 
         {/* Action List of Pending Logbooks */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-navy-950 font-epilogue">
+            <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
               Logbook Mahasiswa Menunggu Tinjauan DPL
             </h2>
-            <Link href="/dosen/logbook" className="text-xs text-primary font-semibold hover:underline">
+            <Link href="/dosen/logbook" className="text-xs text-primary dark:text-primary-400 font-semibold hover:underline">
               Buka Semua Logbook →
             </Link>
           </div>
 
           <div className="space-y-3">
             {pendingLogs.map((log) => (
-              <Card key={log.id} className="p-6 border-slate-200 bg-white space-y-3 shadow-ambient">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b border-slate-100 pb-3">
+              <Card key={log.id} className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-3 shadow-ambient">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b border-slate-100 dark:border-navy-800 pb-3">
                   <div>
-                    <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
                       <span>{log.tanggal}</span>
                       <span>•</span>
-                      <strong className="text-navy-900">{log.mahasiswa_nama} ({log.mahasiswa_nim})</strong>
+                      <strong className="text-navy-900 dark:text-slate-200">{log.mahasiswa_nama} ({log.mahasiswa_nim})</strong>
                       <span>•</span>
-                      <span className="text-primary font-bold">{log.durasi_jam} Jam</span>
+                      <span className="text-primary dark:text-primary-400 font-bold">{log.durasi_jam} Jam</span>
                     </div>
-                    <h3 className="text-sm font-bold text-navy-950 font-epilogue mt-1">
+                    <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue mt-1">
                       {log.judul_kegiatan}
                     </h3>
                   </div>
                   <StatusBadge status={log.status} size="sm" />
                 </div>
 
-                <p className="text-xs text-slate-600 font-jakarta leading-relaxed">{log.deskripsi}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 font-jakarta leading-relaxed">{log.deskripsi}</p>
 
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-navy-800">
                   <Link href="/dosen/logbook">
                     <Button variant="primary" size="sm" className="text-xs">
                       Tinjau & Berikan Penilaian

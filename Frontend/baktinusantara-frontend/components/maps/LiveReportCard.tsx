@@ -83,13 +83,13 @@ export const LiveReportCard: React.FC<LiveReportCardProps> = ({ report, classNam
                 <h5 className="text-xs font-bold text-navy-950 dark:text-white truncate">
                   {report.penulis}
                 </h5>
-                <p className="text-[10px] text-slate-400 truncate">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
                   {report.role}
                 </p>
               </div>
             </div>
 
-            <span className="text-[10px] text-slate-400 flex items-center gap-1 shrink-0">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 shrink-0">
               <Clock className="w-3 h-3 text-slate-400" />
               {report.waktu}
             </span>
@@ -102,7 +102,7 @@ export const LiveReportCard: React.FC<LiveReportCardProps> = ({ report, classNam
 
         {/* Footer Verification Tag */}
         <div className="pt-2.5 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between text-[10px]">
-          <div className="flex items-center gap-1 text-slate-500 truncate">
+          <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 truncate">
             <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
             <span className="truncate">{report.desa_nama}, {report.kabupaten}</span>
           </div>

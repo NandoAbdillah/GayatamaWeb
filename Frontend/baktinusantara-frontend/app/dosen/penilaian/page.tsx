@@ -90,10 +90,10 @@ export default function DosenPenilaianPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-extrabold text-navy-950 font-epilogue">
+            <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
               Rekapitulasi Penilaian Kelompok 14 (Desa Sukamaju)
             </h1>
-            <p className="text-xs text-slate-500 font-jakarta">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-jakarta">
               Pembobotan: Logbook (25%), Eksekusi Program (35%), Luaran Akhir (25%), Evaluasi Mitra Desa (15%).
             </p>
           </div>
@@ -110,10 +110,10 @@ export default function DosenPenilaianPage() {
         </div>
 
         {/* Grades Table */}
-        <Card className="border-slate-200 bg-white overflow-hidden shadow-ambient">
+        <Card className="border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 overflow-hidden shadow-ambient">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700">
-              <thead className="bg-surface-subtle text-[11px] font-bold text-navy-950 uppercase tracking-wider border-b border-slate-200">
+            <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+              <thead className="bg-surface-subtle dark:bg-navy-950 text-[11px] font-bold text-navy-950 dark:text-white uppercase tracking-wider border-b border-slate-200 dark:border-navy-800">
                 <tr>
                   <th className="p-4">Mahasiswa</th>
                   <th className="p-4 text-center">Logbook (25%)</th>
@@ -124,11 +124,11 @@ export default function DosenPenilaianPage() {
                   <th className="p-4 text-center">Nilai Huruf</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-jakarta">
+              <tbody className="divide-y divide-slate-100 dark:divide-navy-800 font-jakarta">
                 {mahasiswaGrades.map((m) => (
-                  <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-navy-800/60 transition-colors">
                     <td className="p-4">
-                      <p className="font-bold text-navy-950 text-xs">{m.nama}</p>
+                      <p className="font-bold text-navy-950 dark:text-white text-xs">{m.nama}</p>
                       <p className="text-[11px] text-slate-400 font-mono">
                         {m.nim} • {m.jurusan}
                       </p>
@@ -137,11 +137,11 @@ export default function DosenPenilaianPage() {
                     <td className="p-4 text-center font-medium">{m.eksekusi}</td>
                     <td className="p-4 text-center font-medium">{m.luaran}</td>
                     <td className="p-4 text-center font-medium">{m.desa}</td>
-                    <td className="p-4 text-center font-extrabold text-navy-950 text-sm">
+                    <td className="p-4 text-center font-extrabold text-navy-950 dark:text-white text-sm">
                       {m.nilaiAkhir}
                     </td>
                     <td className="p-4 text-center">
-                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs">
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-extrabold text-xs">
                         {m.huruf}
                       </span>
                     </td>
@@ -151,9 +151,9 @@ export default function DosenPenilaianPage() {
             </table>
           </div>
 
-          <div className="p-4 bg-surface-subtle border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-emerald-800 font-semibold">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <div className="p-4 bg-surface-subtle dark:bg-navy-950 border-t border-slate-200 dark:border-navy-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Seluruh anggota kelompok memenuhi syarat kelulusan KKN (Minimal 200 jam kerja).</span>
             </div>
 
@@ -171,28 +171,28 @@ export default function DosenPenilaianPage() {
       {/* Official Printable Berita Acara Modal (Stitch: Pratinjau Cetak Berita Acara Penilaian Luaran KKN) */}
       {showPrintModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-10 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-6 font-jakarta">
+          <div className="bg-white dark:bg-navy-900 rounded-3xl max-w-3xl w-full p-6 sm:p-10 shadow-2xl border border-slate-200 dark:border-navy-800 max-h-[90vh] overflow-y-auto space-y-6 font-jakarta">
             {/* Document Header */}
-            <div className="text-center pb-4 border-b-2 border-slate-800 space-y-1">
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
+            <div className="text-center pb-4 border-b-2 border-slate-800 dark:border-navy-700 space-y-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                 LEMBAGA PENELITIAN DAN PENGABDIAN KEPADA MASYARAKAT (LPPM)
               </p>
-              <h2 className="text-lg font-extrabold text-navy-950 font-epilogue uppercase">
+              <h2 className="text-lg font-extrabold text-navy-950 dark:text-white font-epilogue uppercase">
                 BERITA ACARA PENILAIAN HASIL & LUARAN KKN
               </h2>
-              <p className="text-xs text-slate-600">
+              <p className="text-xs text-slate-600 dark:text-slate-400">
                 Nomor: BA/014/DPL-KKN/UNIV/IX/2026 • Tahun Akademik 2026/2027
               </p>
             </div>
 
-            <div className="text-xs space-y-2 text-slate-700 leading-relaxed">
+            <div className="text-xs space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
               <p>
-                Pada hari ini, <strong className="text-navy-950">Minggu, 06 September 2026</strong>, bertempat di
+                Pada hari ini, <strong className="text-navy-950 dark:text-white">Minggu, 06 September 2026</strong>, bertempat di
                 Sekretariat LPPM Universitas, Dosen Pembimbing Lapangan bersama Pemerintah Desa Sukamaju telah
                 melakukan evaluasi dan pengesahan hasil program kerja KKN:
               </p>
 
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 space-y-1">
                 <p><strong>Kelompok:</strong> Kelompok 14 — Sukamaju Berdaya</p>
                 <p><strong>Lokasi:</strong> Desa Sukamaju, Kecamatan Ciawi, Kabupaten Bogor</p>
                 <p><strong>Dosen Pembimbing (DPL):</strong> Dr. Ir. Hendra Gunawan, M.T. (NIP: 197804122005011002)</p>
@@ -201,26 +201,26 @@ export default function DosenPenilaianPage() {
             </div>
 
             {/* Compact Table */}
-            <table className="w-full text-left text-xs border border-slate-300">
-              <thead className="bg-slate-100 font-bold text-navy-900 border-b border-slate-300">
+            <table className="w-full text-left text-xs border border-slate-300 dark:border-navy-700">
+              <thead className="bg-slate-100 dark:bg-navy-950 font-bold text-navy-900 dark:text-white border-b border-slate-300 dark:border-navy-700">
                 <tr>
-                  <th className="p-2 border-r border-slate-300">No</th>
-                  <th className="p-2 border-r border-slate-300">NIM</th>
-                  <th className="p-2 border-r border-slate-300">Nama Mahasiswa</th>
-                  <th className="p-2 border-r border-slate-300">Program Studi</th>
-                  <th className="p-2 border-r border-slate-300 text-center">Nilai Angka</th>
+                  <th className="p-2 border-r border-slate-300 dark:border-navy-700">No</th>
+                  <th className="p-2 border-r border-slate-300 dark:border-navy-700">NIM</th>
+                  <th className="p-2 border-r border-slate-300 dark:border-navy-700">Nama Mahasiswa</th>
+                  <th className="p-2 border-r border-slate-300 dark:border-navy-700">Program Studi</th>
+                  <th className="p-2 border-r border-slate-300 dark:border-navy-700 text-center">Nilai Angka</th>
                   <th className="p-2 text-center">Nilai Huruf</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-slate-200 dark:divide-navy-800">
                 {mahasiswaGrades.map((m, idx) => (
                   <tr key={m.id}>
-                    <td className="p-2 border-r border-slate-300 text-center">{idx + 1}</td>
-                    <td className="p-2 border-r border-slate-300 font-mono">{m.nim}</td>
-                    <td className="p-2 border-r border-slate-300 font-bold text-navy-950">{m.nama}</td>
-                    <td className="p-2 border-r border-slate-300">{m.jurusan}</td>
-                    <td className="p-2 border-r border-slate-300 text-center font-bold">{m.nilaiAkhir}</td>
-                    <td className="p-2 text-center font-extrabold text-emerald-700">{m.huruf}</td>
+                    <td className="p-2 border-r border-slate-300 dark:border-navy-700 text-center">{idx + 1}</td>
+                    <td className="p-2 border-r border-slate-300 dark:border-navy-700 font-mono">{m.nim}</td>
+                    <td className="p-2 border-r border-slate-300 dark:border-navy-700 font-bold text-navy-950 dark:text-white">{m.nama}</td>
+                    <td className="p-2 border-r border-slate-300 dark:border-navy-700">{m.jurusan}</td>
+                    <td className="p-2 border-r border-slate-300 dark:border-navy-700 text-center font-bold">{m.nilaiAkhir}</td>
+                    <td className="p-2 text-center font-extrabold text-emerald-700 dark:text-emerald-400">{m.huruf}</td>
                   </tr>
                 ))}
               </tbody>
@@ -229,24 +229,24 @@ export default function DosenPenilaianPage() {
             {/* Signature Blocks */}
             <div className="grid grid-cols-2 gap-8 pt-4 text-xs">
               <div className="text-center space-y-12">
-                <p className="text-slate-500">Mengetahui,<br /><strong>Kepala Desa Sukamaju</strong></p>
+                <p className="text-slate-500 dark:text-slate-400">Mengetahui,<br /><strong>Kepala Desa Sukamaju</strong></p>
                 <div className="space-y-1">
-                  <p className="font-bold text-navy-950 underline">H. Ahmad Subardjo</p>
-                  <p className="text-[10px] text-emerald-700 font-semibold">[Tanda Tangan Digital Sah]</p>
+                  <p className="font-bold text-navy-950 dark:text-white underline">H. Ahmad Subardjo</p>
+                  <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">[Tanda Tangan Digital Sah]</p>
                 </div>
               </div>
 
               <div className="text-center space-y-12">
-                <p className="text-slate-500">Disahkan oleh,<br /><strong>Dosen Pembimbing Lapangan</strong></p>
+                <p className="text-slate-500 dark:text-slate-400">Disahkan oleh,<br /><strong>Dosen Pembimbing Lapangan</strong></p>
                 <div className="space-y-1">
-                  <p className="font-bold text-navy-950 underline">Dr. Ir. Hendra Gunawan, M.T.</p>
-                  <p className="text-[10px] text-slate-500">NIP. 197804122005011002</p>
+                  <p className="font-bold text-navy-950 dark:text-white underline">Dr. Ir. Hendra Gunawan, M.T.</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">NIP. 197804122005011002</p>
                 </div>
               </div>
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-navy-800">
               <Button onClick={() => setShowPrintModal(false)} variant="outline" size="md">
                 Tutup
               </Button>

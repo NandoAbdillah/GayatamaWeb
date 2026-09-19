@@ -69,81 +69,81 @@ export default function MahasiswaDashboard() {
 
         {/* Progress & Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-5 border-slate-200 space-y-2">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Jam Kerja Lapangan</span>
-              <Clock className="w-4 h-4 text-primary" />
+              <Clock className="w-4 h-4 text-primary dark:text-primary-400" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-extrabold text-navy-950 font-epilogue">{totalJam}</span>
-              <span className="text-xs text-slate-400 font-medium">/ {targetJam} Jam</span>
+              <span className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">{totalJam}</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">/ {targetJam} Jam</span>
             </div>
-            <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-slate-100 dark:bg-navy-800 rounded-full h-2 overflow-hidden">
               <div className="bg-primary h-full rounded-full transition-all" style={{ width: `${percentJam}%` }} />
             </div>
-            <p className="text-[11px] text-emerald-700 font-semibold">{percentJam}% dari target wajib</p>
+            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">{percentJam}% dari target wajib</p>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Status Kelompok</span>
-              <Users className="w-4 h-4 text-emerald-600" />
+              <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <p className="text-lg font-bold text-navy-950 font-epilogue truncate">Kelompok 14</p>
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-              <Building className="w-3.5 h-3.5 text-slate-400" />
+            <p className="text-lg font-bold text-navy-950 dark:text-white font-epilogue truncate">Kelompok 14</p>
+            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
+              <Building className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
               <span>Desa Sukamaju, Bogor</span>
             </div>
-            <p className="text-[11px] text-slate-400">5 Mahasiswa Lintas Jurusan</p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">5 Mahasiswa Lintas Jurusan</p>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Dosen Pembimbing (DPL)</span>
-              <Award className="w-4 h-4 text-amber-500" />
+              <Award className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             </div>
-            <p className="text-xs font-bold text-navy-950 font-epilogue line-clamp-1">
+            <p className="text-xs font-bold text-navy-950 dark:text-white font-epilogue line-clamp-1">
               Dr. Ir. Hendra Gunawan, M.T.
             </p>
-            <p className="text-[11px] text-slate-500">NIP: 197804122005011002</p>
-            <span className="inline-flex text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">NIP: 197804122005011002</p>
+            <span className="inline-flex text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
               DPL Terhubung Aktif
             </span>
           </Card>
 
-          <Card className="p-5 border-slate-200 space-y-2">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span>Capaian Program Kerja</span>
-              <CheckCircle2 className="w-4 h-4 text-indigo-600" />
+              <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-extrabold text-navy-950 font-epilogue">
+              <span className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
                 {kelompok.progres_persen}%
               </span>
-              <span className="text-xs text-slate-400 font-medium">Eksekusi</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">Eksekusi</span>
             </div>
-            <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-slate-100 dark:bg-navy-800 rounded-full h-2 overflow-hidden">
               <div
                 className="bg-indigo-600 h-full rounded-full transition-all"
                 style={{ width: `${kelompok.progres_persen}%` }}
               />
             </div>
-            <p className="text-[11px] text-slate-500">3 dari 4 target luaran tercapai</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">3 dari 4 target luaran tercapai</p>
           </Card>
         </div>
 
         {/* Action Attention Alert if any revision */}
         {pendingLogbook && pendingLogbook.status === 'revision' && (
-          <div className="p-4 sm:p-5 rounded-3xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-ambient-sm">
+          <div className="p-4 sm:p-5 rounded-3xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-ambient-sm">
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-2xl bg-amber-100 text-amber-800 shrink-0 mt-0.5">
+              <div className="p-2 rounded-2xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 shrink-0 mt-0.5">
                 <AlertCircle className="w-5 h-5" />
               </div>
               <div className="space-y-1">
-                <p className="text-xs font-bold text-amber-900 uppercase tracking-wide">
+                <p className="text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wide">
                   Perhatian: Catatan Revisi Logbook dari DPL
                 </p>
-                <p className="text-xs text-amber-950 leading-relaxed">
+                <p className="text-xs text-amber-950 dark:text-amber-200 leading-relaxed">
                   &ldquo;{pendingLogbook.catatan_revisi_dpl}&rdquo;
                 </p>
               </div>
@@ -162,41 +162,41 @@ export default function MahasiswaDashboard() {
           {/* Recent Logbooks (8 cols) */}
           <div className="lg:col-span-8 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-navy-950 font-epilogue">
+              <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
                 Riwayat Logbook Harian Terakhir
               </h2>
-              <Link href="/mahasiswa/progress" className="text-xs text-primary font-semibold hover:underline">
+              <Link href="/mahasiswa/progress" className="text-xs text-primary dark:text-primary-400 font-semibold hover:underline">
                 Lihat Semua ({MOCK_LOGBOOKS.length}) →
               </Link>
             </div>
 
             <div className="space-y-3">
               {MOCK_LOGBOOKS.map((log) => (
-                <Card key={log.id} className="p-5 border-slate-200 space-y-3">
+                <Card key={log.id} className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
                         <Calendar className="w-3.5 h-3.5" />
                         <span>{log.tanggal}</span>
                         <span>•</span>
                         <span>Minggu ke-{log.minggu_ke}</span>
                         <span>•</span>
-                        <span className="font-bold text-primary">{log.durasi_jam} Jam Kerja</span>
+                        <span className="font-bold text-primary dark:text-primary-400">{log.durasi_jam} Jam Kerja</span>
                       </div>
-                      <h3 className="text-sm font-bold text-navy-950 font-epilogue mt-1">
+                      <h3 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue mt-1">
                         {log.judul_kegiatan}
                       </h3>
                     </div>
                     <StatusBadge status={log.status} size="sm" />
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed font-jakarta">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-jakarta">
                     {log.deskripsi}
                   </p>
 
                   {log.catatan_revisi_dpl && (
-                    <div className="p-3 rounded-2xl bg-orange-50/80 border border-orange-200 text-xs text-orange-950 space-y-1">
-                      <span className="font-bold text-orange-800">Catatan DPL:</span>
+                    <div className="p-3 rounded-2xl bg-orange-50/80 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/60 text-xs text-orange-950 dark:text-orange-200 space-y-1">
+                      <span className="font-bold text-orange-800 dark:text-orange-300">Catatan DPL:</span>
                       <p>{log.catatan_revisi_dpl}</p>
                     </div>
                   )}
@@ -207,11 +207,11 @@ export default function MahasiswaDashboard() {
 
           {/* Target Milestones & Quick Info (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <h2 className="text-base font-bold text-navy-950 font-epilogue">
+            <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
               Target Luaran & BAST Desa
             </h2>
 
-            <Card className="p-5 border-slate-200 space-y-4 bg-white">
+            <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-4 bg-white dark:bg-navy-900">
               <div className="space-y-2">
                 {[
                   { name: 'Katalog Marketplace UMKM Desa Sukamaju', done: true },
@@ -219,20 +219,20 @@ export default function MahasiswaDashboard() {
                   { name: 'Instalasi Monitoring Irigasi Cerdas IoT', done: true },
                   { name: 'Penerbitan BAST & Pengesahan Desa', done: false },
                 ].map((task, i) => (
-                  <div key={i} className="flex items-center gap-2.5 text-xs text-navy-900">
+                  <div key={i} className="flex items-center gap-2.5 text-xs text-navy-900 dark:text-slate-200">
                     <CheckCircle2
                       className={`w-4 h-4 shrink-0 ${
-                        task.done ? 'text-emerald-600' : 'text-slate-300'
+                        task.done ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-600'
                       }`}
                     />
-                    <span className={task.done ? 'font-medium' : 'text-slate-400'}>{task.name}</span>
+                    <span className={task.done ? 'font-medium dark:text-slate-200' : 'text-slate-400 dark:text-slate-500'}>{task.name}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="pt-3 border-t border-slate-100">
+              <div className="pt-3 border-t border-slate-100 dark:border-navy-800">
                 <Link href="/mahasiswa/portofolio">
-                  <Button variant="outline" size="sm" className="w-full text-xs font-semibold">
+                  <Button variant="outline" size="sm" className="w-full text-xs font-semibold dark:border-navy-700 dark:text-slate-200">
                     Kelola Berkas Luaran Akhir
                   </Button>
                 </Link>

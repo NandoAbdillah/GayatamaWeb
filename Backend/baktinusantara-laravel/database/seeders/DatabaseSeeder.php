@@ -705,41 +705,41 @@ class DatabaseSeeder extends Seeder
         // 9. PROGRESS MINGGUAN (PROPOSAL 1 & 2)
         // ==========================================
         // Progres Proposal 1 (4 Minggu Selesai 100%)
-        ProgressMingguan::firstOrCreate(
+        ProgressMingguan::updateOrCreate(
             ['proposal_id' => $proposal1->id, 'minggu_ke' => 1],
             [
                 'persentase' => 25,
-                'deskripsi' => 'Survei mendalam ke 15 pengrajin kripik singkong, pendataan bahan baku, dan identifikasi kelemahan kemasan lama.',
+                'deskripsi' => '[Survei & Pendataan UMKM Desa] Survei mendalam ke 15 pengrajin kripik singkong, pendataan bahan baku, dan identifikasi kelemahan kemasan lama.',
                 'foto_url' => 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800',
                 'is_locked' => true,
                 'created_at' => now()->subDays(21),
             ]
         );
-        ProgressMingguan::firstOrCreate(
+        ProgressMingguan::updateOrCreate(
             ['proposal_id' => $proposal1->id, 'minggu_ke' => 2],
             [
                 'persentase' => 50,
-                'deskripsi' => 'Desain ulang logo "Keripik Singkong Barokah Sukamaju", pembuatan template standing pouch kedap udara, dan sesi foto katalog produk.',
+                'deskripsi' => '[Desain Ulang Kemasan & Sesi Foto Katalog] Desain ulang logo "Keripik Singkong Barokah Sukamaju", pembuatan template standing pouch kedap udara, dan sesi foto katalog produk.',
                 'foto_url' => 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800',
                 'is_locked' => true,
                 'created_at' => now()->subDays(14),
             ]
         );
-        ProgressMingguan::firstOrCreate(
+        ProgressMingguan::updateOrCreate(
             ['proposal_id' => $proposal1->id, 'minggu_ke' => 3],
             [
                 'persentase' => 75,
-                'deskripsi' => 'Pendaftaran akun resmi marketplace Shopee & Tokopedia, integrasi sistem pembayaran QRIS, serta launching website katalog UMKM desa.',
+                'deskripsi' => '[Pendaftaran Marketplace & Launching Web Katalog] Pendaftaran akun resmi marketplace Shopee & Tokopedia, integrasi sistem pembayaran QRIS, serta launching website katalog UMKM desa.',
                 'foto_url' => 'https://images.unsplash.com/photo-1556742049-0a67e557224f?w=800',
                 'is_locked' => true,
                 'created_at' => now()->subDays(7),
             ]
         );
-        ProgressMingguan::firstOrCreate(
+        ProgressMingguan::updateOrCreate(
             ['proposal_id' => $proposal1->id, 'minggu_ke' => 4],
             [
                 'persentase' => 100,
-                'deskripsi' => 'Pelatihan pembukuan keuangan digital melalui aplikasi BukuKas, serah terima aset digital kepada perangkat desa, dan evaluasi penjualan awal.',
+                'deskripsi' => '[Pelatihan Pembukuan Digital & Serah Terima Aset] Pelatihan pembukuan keuangan digital melalui aplikasi BukuKas, serah terima aset digital kepada perangkat desa, dan evaluasi penjualan awal.',
                 'foto_url' => 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800',
                 'is_locked' => true,
                 'created_at' => now()->subDays(2),
@@ -747,21 +747,21 @@ class DatabaseSeeder extends Seeder
         );
 
         // Progres Proposal 2 (2 Minggu Berjalan)
-        ProgressMingguan::firstOrCreate(
+        ProgressMingguan::updateOrCreate(
             ['proposal_id' => $proposal2->id, 'minggu_ke' => 1],
             [
                 'persentase' => 30,
-                'deskripsi' => 'Penggalian lahan digester biogas dan penyiapan instalasi pipa distribusi ke rumah warga.',
+                'deskripsi' => '[Penggalian Lahan & Penyiapan Pipa Biogas] Penggalian lahan digester biogas dan penyiapan instalasi pipa distribusi ke rumah warga.',
                 'foto_url' => 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800',
                 'is_locked' => true,
                 'created_at' => now()->subDays(10),
             ]
         );
-        ProgressMingguan::firstOrCreate(
+        ProgressMingguan::updateOrCreate(
             ['proposal_id' => $proposal2->id, 'minggu_ke' => 2],
             [
                 'persentase' => 60,
-                'deskripsi' => 'Pemasangan kubah penampung gas metana dan uji coba pengisian awal kotoran ternak ke dalam inlet biodigester.',
+                'deskripsi' => '[Pemasangan Kubah & Uji Coba Pengisian Biogas] Pemasangan kubah penampung gas metana dan uji coba pengisian awal kotoran ternak ke dalam inlet biodigester.',
                 'foto_url' => 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800',
                 'is_locked' => true,
                 'created_at' => now()->subDays(3),

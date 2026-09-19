@@ -200,22 +200,46 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
   // Nonaktifkan AI di halaman login - harus setelah semua hooks agar tidak violate Rules of Hooks
   if (pathname?.startsWith('/login')) return null;
 
-  // Deteksi rute dashboard (Superadmin, LPPM Kampus, Mahasiswa, Perangkat Desa, Dosen)
-  const isDashboard = Boolean(
-    pathname?.startsWith('/admin') ||
-    pathname?.startsWith('/kampus') ||
-    pathname?.startsWith('/mahasiswa') ||
-    pathname?.startsWith('/perangkat-desa') ||
-    pathname?.startsWith('/dosen')
-  );
+  const isLandingPage = pathname === '/' || pathname === '';
 
   return (
     <>
-      {/* Floating Trigger Aira Button */}
+      {/* Floating Trigger Aira: Landing Page uses bottom-left Circular Avatar + Floating Text; other pages use existing bottom-right circular button */}
       {!isOpen && (
         <>
-          {isDashboard ? (
-            /* DASHBOARD MODE: Floating circular button persis seperti Accessibility Widget (48px × 48px, circle, right: 24px, bottom: 84px) */
+          {isLandingPage ? (
+            <div className="fixed bottom-5 left-4 sm:bottom-6 sm:left-6 z-40 flex items-center pointer-events-auto select-none animate-aira-fade">
+              <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                aria-label="Buka Asisten AI Aira"
+                title="Aira – AI Nusantara"
+                className="group flex items-center gap-2.5 sm:gap-3 bg-transparent p-0 border-0 shadow-none focus:outline-none cursor-pointer text-left transition-all duration-200"
+              >
+                {/* Circular Avatar with Subtle Float & Glow on Hover */}
+                <div className="relative shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-full aspect-square flex items-center justify-center bg-[#00D492] border-2 border-white dark:border-navy-800 shadow-md group-hover:shadow-[0_0_18px_rgba(0,212,146,0.45)] group-hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 animate-aira-float">
+                  <Image
+                    src="/icons/aira-circle.svg"
+                    alt="Aira - AI Nusantara"
+                    width={48}
+                    height={48}
+                    unoptimized
+                    priority
+                    className="w-full h-full object-cover rounded-full select-none"
+                  />
+                  {/* Soft Online Dot Indicator with Subtle Pulse */}
+                  <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-navy-950 shadow-xs flex items-center justify-center animate-aira-pulse" />
+                </div>
+
+                {/* Floating Greeting Text (Subtle 12-13px typography without container/card) */}
+                <div className="flex items-center min-w-0 animate-aira-text">
+                  <span className="text-xs sm:text-[13px] font-semibold text-navy-950/90 dark:text-slate-100 font-jakarta leading-snug tracking-tight drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] group-hover:text-primary dark:group-hover:text-primary-400 transition-colors">
+                    Halo! Saya Aira, siap membantu 👋
+                  </span>
+                </div>
+              </button>
+            </div>
+          ) : (
             <div className="fixed bottom-[84px] right-[24px] z-40 flex items-center justify-center pointer-events-auto select-none">
               <button
                 type="button"
@@ -246,31 +270,6 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
                 />
               </button>
             </div>
-          ) : (
-            /* LANDING PAGE / PUBLIC MODE: Pertahankan 100% desain existing di kiri bawah dengan speech bubble */
-            <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3">
-              <button
-                onClick={() => setIsOpen(true)}
-                aria-label="Buka Aira - AI Nusantara"
-                className="group relative flex items-center justify-center w-14 h-14 bg-transparent hover:scale-110 active:scale-95 transition-all duration-300 drop-shadow-xl"
-              >
-                <Image
-                  src="/icons/logochat.svg"
-                  alt="Aira - AI Nusantara"
-                  width={56}
-                  height={56}
-                  unoptimized
-                  className="w-14 h-14 rounded-2xl object-contain drop-shadow-md group-hover:rotate-6 transition-transform duration-300"
-                  priority
-                />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-white dark:border-navy-950 rounded-full z-10 shadow-sm" />
-              </button>
-
-              <div className="hidden sm:flex items-center gap-2 bg-white/95 dark:bg-navy-900/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-navy-700 shadow-lg text-xs font-bold text-navy-950 dark:text-white animate-bounce">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Butuh bantuan? Aira siap bantu</span>
-              </div>
-            </div>
           )}
         </>
       )}
@@ -281,9 +280,9 @@ Ceritakan saja ke aku. Kita mulai dari sini, ya.`,
           className={`fixed z-50 transition-all duration-300 flex flex-col shadow-2xl rounded-3xl overflow-hidden border border-slate-200/90 dark:border-navy-800 bg-slate-50/70 dark:bg-navy-950 font-jakarta ${
             isExpanded
               ? 'inset-4 sm:inset-10'
-              : isDashboard
-              ? 'bottom-6 right-6 sm:right-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
-              : 'bottom-6 left-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
+              : isLandingPage
+              ? 'bottom-5 left-4 sm:bottom-6 sm:left-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
+              : 'bottom-6 right-6 sm:right-6 w-full max-w-lg sm:max-w-xl h-[650px] max-h-[85vh]'
           }`}
         >
           {/* Friendly Profile Header */}

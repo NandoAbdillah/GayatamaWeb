@@ -121,7 +121,7 @@ export default function SuratTugasDesaPage() {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 selectedKelompokId === k.id
                   ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'bg-white dark:bg-navy-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-navy-800 hover:bg-slate-50'
+                  : 'bg-white dark:bg-navy-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-navy-800 hover:bg-slate-50 dark:hover:bg-navy-800'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
@@ -133,13 +133,13 @@ export default function SuratTugasDesaPage() {
         {/* Dokumen Surat Tugas Full Display Card */}
         <Card className="p-8 sm:p-12 border-slate-200 dark:border-navy-800 shadow-2xl bg-white dark:bg-navy-900 max-w-4xl mx-auto space-y-8 font-serif">
           {/* Kop Surat Desa */}
-          <div className="text-center pb-6 border-b-4 border-double border-navy-950 dark:border-white space-y-1">
+          <div className="text-center pb-6 border-b-4 border-double border-navy-950 dark:border-navy-600 space-y-1">
             <div className="flex items-center justify-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold font-sans text-xl">
                 DS
               </div>
               <div className="text-left font-sans">
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                   PEMERINTAH KABUPATEN BOGOR • KECAMATAN CIAWI
                 </p>
                 <h2 className="text-xl sm:text-2xl font-black text-navy-950 dark:text-white uppercase tracking-tight">
@@ -221,12 +221,12 @@ export default function SuratTugasDesaPage() {
             </div>
 
             <div className="space-y-1 text-xs">
-              <p>Sukamaju, {activeKelompok.tanggal_terbit}</p>
-              <p className="font-bold">Kepala Desa Sukamaju</p>
+              <p className="text-slate-700 dark:text-slate-300">Sukamaju, {activeKelompok.tanggal_terbit}</p>
+              <p className="font-bold text-navy-950 dark:text-white">Kepala Desa Sukamaju</p>
 
               {/* Cap Stempel Digital */}
               <div className="h-20 flex items-center justify-center relative">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500 bg-emerald-50 text-emerald-700 font-bold text-[10px] uppercase tracking-wider rotate-[-6deg] shadow-sm">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 font-bold text-[10px] uppercase tracking-wider rotate-[-6deg] shadow-sm">
                   <Stamp className="w-3.5 h-3.5" />
                   <span>TERDAFTAR & SAH DIGITAL</span>
                 </div>
@@ -244,14 +244,14 @@ export default function SuratTugasDesaPage() {
         {showPreviewModal && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-navy-900 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-navy-800 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
                 <Printer className="w-6 h-6" />
               </div>
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
                   Siap Mencetak Surat Tugas Resmi
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Dokumen Surat Tugas {activeKelompok.nomor_surat} siap dikirim ke antrian pencetak atau diunduh sebagai PDF beresolusi tinggi.
                 </p>
               </div>

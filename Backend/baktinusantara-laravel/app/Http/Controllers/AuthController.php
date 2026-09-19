@@ -144,7 +144,17 @@ class AuthController extends Controller
 
         $purpose = $request->input('purpose', 'forgot_password');
 
-        $otpRecord = Otp::where('identifier', $request->identifier)
+        $user = User::where('email', $request->identifier)
+            ->orWhere('phone_wa', $request->identifier)
+            ->first();
+
+        $identifiers = array_unique(array_filter([
+            $request->identifier,
+            $user?->email,
+            $user?->phone_wa,
+        ]));
+
+        $otpRecord = Otp::whereIn('identifier', $identifiers)
             ->where('purpose', $purpose)
             ->where('otp', trim($request->otp))
             ->where('expires_at', '>', now())
@@ -174,14 +184,6 @@ class AuthController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        $verified = $this->otpService->verify($request->identifier, $request->otp, 'forgot_password');
-
-        if (!$verified) {
-            return response()->json([
-                'message' => 'Kode OTP tidak valid atau telah kadaluwarsa.',
-            ], 422);
-        }
-
         $user = User::where('email', $request->identifier)
             ->orWhere('phone_wa', $request->identifier)
             ->first();
@@ -190,6 +192,26 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Pengguna tidak ditemukan.',
             ], 404);
+        }
+
+        $identifiers = array_unique(array_filter([
+            $request->identifier,
+            $user->email,
+            $user->phone_wa,
+        ]));
+
+        $verified = false;
+        foreach ($identifiers as $id) {
+            if ($this->otpService->verify($id, $request->otp, 'forgot_password')) {
+                $verified = true;
+                break;
+            }
+        }
+
+        if (!$verified) {
+            return response()->json([
+                'message' => 'Kode OTP tidak valid atau telah kadaluwarsa.',
+            ], 422);
         }
 
         // Update password baru

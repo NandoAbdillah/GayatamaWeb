@@ -244,7 +244,7 @@ export const MedsosEmbedCard: React.FC<MedsosEmbedCardProps> = ({ post, classNam
             href={post.post_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 text-slate-500 hover:text-navy-950 dark:hover:text-white transition-colors font-medium text-xs"
+            className="flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white transition-colors font-medium text-xs"
             title="Bagikan Postingan"
           >
             <Share2 className="w-3.5 h-3.5" />
@@ -289,7 +289,7 @@ export const MedsosEmbedCard: React.FC<MedsosEmbedCardProps> = ({ post, classNam
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <p className="text-xs text-slate-400">Embed tidak tersedia secara langsung.</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Embed tidak tersedia secara langsung.</p>
               )}
             </div>
 
@@ -298,7 +298,7 @@ export const MedsosEmbedCard: React.FC<MedsosEmbedCardProps> = ({ post, classNam
                 {post.caption}
               </p>
               <div className="flex items-center justify-between pt-2">
-                <span className="text-[10px] text-slate-400">
+                <span className="text-[10px] text-slate-400 dark:text-slate-500">
                   Oleh {post.author_name} ({post.author_username || meta.name})
                 </span>
                 <a
