@@ -126,7 +126,7 @@ class ProgressService
             $isAdmin = $user->role === 'admin';
 
             if (!$isMember && !$isDesa && !$isDosen && !$isUniversitas && !$isAdmin) {
-                // If not strictly matched, allow proposal progress read for student/demo viewing if needed
+                abort(403, 'Anda tidak memiliki wewenang untuk melihat timeline progres proposal ini.');
             }
         }
 

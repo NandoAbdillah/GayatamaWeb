@@ -25,6 +25,7 @@ use App\Http\Controllers\GeospatialController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\AdminVerifikasiController;
 
 // E-Sertifikat & Public Verification Endpoints
 Route::get('/certificate/verify/{code}', [CertificateController::class, 'verify']);
@@ -88,6 +89,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/admin/verifikasi-entitas', [AdminVerifikasiController::class, 'index']);
+    Route::get('/admin/verifikasi-entitas/{type}/{id}', [AdminVerifikasiController::class, 'show']);
     Route::patch('/admin/desa/{profilDesa}/verify', [DesaController::class, 'verify']);
     Route::patch('/admin/desa/{profilDesa}/suspend', [DesaController::class, 'suspend']);
     Route::patch('/admin/desa/{profilDesa}/activate', [DesaController::class, 'activate']);

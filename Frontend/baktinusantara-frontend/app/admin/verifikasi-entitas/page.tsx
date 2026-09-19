@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
@@ -15,6 +15,8 @@ import {
   Clock,
   AlertTriangle,
   X,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/services';
@@ -23,11 +25,38 @@ import { INITIAL_VERIFIKASI_DATA, VerifikasiItem } from '@/lib/data/verifikasi-d
 export default function AdminVerifikasiPage() {
   const router = useRouter();
   const [verifikasiList, setVerifikasiList] = useState<VerifikasiItem[]>(INITIAL_VERIFIKASI_DATA);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'all' | 'universitas' | 'desa'>('all');
   const [activeStatus, setActiveStatus] = useState<'all' | 'pending' | 'verified'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [confirmItem, setConfirmItem] = useState<VerifikasiItem | null>(null);
+
+  const fetchVerifikasiData = async (silent = false) => {
+    if (!silent) setIsLoading(true);
+    else setIsRefreshing(true);
+
+    try {
+      const res = await api.admin.getVerifikasiList();
+      if (res && res.data && Array.isArray(res.data)) {
+        setVerifikasiList(res.data);
+      }
+    } catch (err: any) {
+      console.error('Gagal memuat data verifikasi entitas dari backend:', err);
+      // If error (e.g. not logged in or backend booting), keep existing data
+      if (!silent) {
+        toast.error('Gagal mengambil data terbaru dari server. Menampilkan cache lokal.');
+      }
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVerifikasiData();
+  }, []);
 
   const handleApprove = async (item: VerifikasiItem) => {
     const key = `${item.entity_type}-${item.id}`;
@@ -39,10 +68,7 @@ export default function AdminVerifikasiPage() {
         await api.admin.verifyUniversitas(item.id);
       }
       toast.success(`Akun ${item.nama} berhasil disahkan dan diverifikasi secara resmi!`);
-    } catch (err: any) {
-      console.warn('Backend verification call note:', err);
-      toast.success(`Akun ${item.nama} berhasil diverifikasi!`);
-    } finally {
+      // Update local state
       setVerifikasiList((prev) =>
         prev.map((v) =>
           v.id === item.id && v.entity_type === item.entity_type
@@ -50,6 +76,11 @@ export default function AdminVerifikasiPage() {
             : v
         )
       );
+    } catch (err: any) {
+      console.error('Backend verification call error:', err);
+      const errMsg = err.response?.data?.message || `Gagal memverifikasi akun ${item.nama}`;
+      toast.error(errMsg);
+    } finally {
       setProcessingId(null);
     }
   };
@@ -59,10 +90,10 @@ export default function AdminVerifikasiPage() {
     const matchStatus = activeStatus === 'all' || item.status === activeStatus;
     const q = searchQuery.toLowerCase();
     const matchSearch =
-      item.nama.toLowerCase().includes(q) ||
-      item.pemohon.toLowerCase().includes(q) ||
-      item.email.toLowerCase().includes(q) ||
-      item.dokumen.toLowerCase().includes(q);
+      (item.nama || '').toLowerCase().includes(q) ||
+      (item.pemohon || '').toLowerCase().includes(q) ||
+      (item.email || '').toLowerCase().includes(q) ||
+      (item.dokumen || '').toLowerCase().includes(q);
     return matchTab && matchStatus && matchSearch;
   });
 
@@ -82,6 +113,16 @@ export default function AdminVerifikasiPage() {
               Super Admin platform memvalidasi Surat Keputusan (SK) Lembaga Kampus dan SK Kepala Desa sebelum diberikan otorisasi penuh di sistem.
             </p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchVerifikasiData(true)}
+            disabled={isRefreshing || isLoading}
+            className="text-xs font-semibold gap-1.5 self-start sm:self-auto border-slate-200 dark:border-navy-700"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-primary' : ''}`} />
+            <span>{isRefreshing ? 'Menyinkronkan...' : 'Sinkronkan Data'}</span>
+          </Button>
         </div>
 
         {/* Quick Summary Cards */}
@@ -126,7 +167,7 @@ export default function AdminVerifikasiPage() {
         {/* Filter and Search Controls */}
         <Card className="p-4 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm space-y-3">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-            {/* Entity Tabs - Mahasiswa KKN dihapus */}
+            {/* Entity Tabs */}
             <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
               {[
                 { key: 'all', label: 'Semua Entitas', icon: FileText },
@@ -189,7 +230,17 @@ export default function AdminVerifikasiPage() {
 
         {/* Verification Items List */}
         <div className="space-y-3">
-          {filteredItems.length === 0 ? (
+          {isLoading ? (
+            <Card className="p-12 text-center border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-3">
+              <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+              <p className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">
+                Memuat data entitas dari server...
+              </p>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Sinkronisasi profil perguruan tinggi dan mitra desa secara real-time.
+              </p>
+            </Card>
+          ) : filteredItems.length === 0 ? (
             <Card className="p-12 text-center border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-3">
               <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-navy-800 text-slate-400 flex items-center justify-center mx-auto">
                 <Search className="w-6 h-6" />
@@ -264,7 +315,12 @@ export default function AdminVerifikasiPage() {
                         </p>
 
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 pt-0.5">
-                          <span>Pemohon: <strong className="text-navy-900 dark:text-slate-200">{item.pemohon}</strong></span>
+                          <span>
+                            Pemohon: <strong className="text-navy-900 dark:text-slate-200">{item.pemohon}</strong>
+                          </span>
+                          <span>
+                            Email: <span className="font-mono text-slate-600 dark:text-slate-300">{item.email}</span>
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -272,7 +328,6 @@ export default function AdminVerifikasiPage() {
                     {/* Document & Actions */}
                     <div className="flex flex-wrap items-center lg:flex-col lg:items-end justify-between gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-navy-800">
                       <div className="flex items-center gap-2">
-                        {/* Hanya menampilkan nama file, non-aktif popup */}
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-slate-200 text-xs font-semibold">
                           <FileText className="w-3.5 h-3.5 text-primary" />
                           <span className="font-mono truncate max-w-[180px]">{item.dokumen}</span>

@@ -1,0 +1,171 @@
+# =============================================================================
+# GAYATAMA WEB / BAKTI NUSANTARA - COMPREHENSIVE ROOT .GITIGNORE
+# Covers Frontend (Next.js), Backend (Laravel), AI Agent Artifacts & Environment
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. AI AGENTS, LOCAL BRAIN ARTIFACTS & IDE METADATA
+# -----------------------------------------------------------------------------
+.gemini/
+.agents/
+.opencode/
+.cursor/
+.claude/
+.goopspec/
+.aider*
+*.local.md
+AGENT_BRIEFING_*.md
+ANTIGRAVITY_TO_*.md
+setup-log.txt
+
+# -----------------------------------------------------------------------------
+# 2. OPERATING SYSTEM & EDITOR SPECIFICS
+# -----------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDEs and Editors
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.bak
+
+# -----------------------------------------------------------------------------
+# 3. ENVIRONMENT & SECRETS (FRONTEND & BACKEND)
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!.env.local.example
+*.env
+*.env.*
+!.env.testing
+
+# Local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+Frontend/**/.env
+Frontend/**/.env.local
+Frontend/**/.env.*.local
+Backend/**/.env
+Backend/**/.env.*
+!Backend/**/.env.example
+
+# SSL & Security Keys
+*.pem
+*.key
+*.pub
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# -----------------------------------------------------------------------------
+# 4. FRONTEND (NEXT.JS, REACT, NODE.JS)
+# -----------------------------------------------------------------------------
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Next.js build output & cache
+.next/
+**/.next/
+out/
+**/out/
+build/
+dist/
+**/dist/
+
+# TypeScript compiler cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel & Turbo
+.vercel
+.turbo
+
+# Test & Coverage
+coverage/
+**/coverage/
+.nyc_output/
+cypress/videos/
+cypress/screenshots/
+
+# -----------------------------------------------------------------------------
+# 5. BACKEND (LARAVEL, PHP, COMPOSER)
+# -----------------------------------------------------------------------------
+vendor/
+**/vendor/
+
+# Laravel Storage & Framework Cache
+Backend/**/storage/app/*
+!Backend/**/storage/app/.gitignore
+Backend/**/storage/app/public/*
+!Backend/**/storage/app/public/.gitignore
+Backend/**/storage/framework/cache/*
+!Backend/**/storage/framework/cache/.gitignore
+Backend/**/storage/framework/cache/data/*
+!Backend/**/storage/framework/cache/data/.gitignore
+Backend/**/storage/framework/sessions/*
+!Backend/**/storage/framework/sessions/.gitignore
+Backend/**/storage/framework/testing/*
+!Backend/**/storage/framework/testing/.gitignore
+Backend/**/storage/framework/views/*
+!Backend/**/storage/framework/views/.gitignore
+Backend/**/storage/logs/*
+!Backend/**/storage/logs/.gitignore
+Backend/**/storage/oauth-*.key
+Backend/**/storage/*.key
+
+# Laravel Public Assets & Symlinks
+Backend/**/public/storage
+Backend/**/public/hot
+Backend/**/public/build
+
+# SQLite Databases & Cache
+Backend/**/database/*.sqlite
+Backend/**/database/*.sqlite-journal
+Backend/**/database/*.sqlite-shm
+Backend/**/database/*.sqlite-wal
+Backend/**/database/database.sqlite
+
+# PHPUnit & Testing Cache
+Backend/**/.phpunit.result.cache
+Backend/**/.phpunit.cache
+Backend/**/phpunit.xml.bak
+Backend/**/Homestead.json
+Backend/**/Homestead.yaml
+.phpunit.result.cache
+
+# -----------------------------------------------------------------------------
+# 6. LOGS & TEMPORARY SCRATCH FILES
+# -----------------------------------------------------------------------------
+*.log
+logs/
+**/logs/
+*.tmp
+*.temp
+scratch/
+tmp/
+temp/
+*.png

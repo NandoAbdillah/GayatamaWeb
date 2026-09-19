@@ -147,6 +147,18 @@ mix-manifest.json
 .agents/
 .opencode/
 
+implementation/
+
+AGENT_BRIEFING_ANTIGRAVITY.md
+ANTIGRAVITY_TO_OPENCODE.md
+FRONTEND_BACKEND_ALIGNMENT.md
+IMPLEMENTATION_PLAN.md
+RAW_BACKEND_FEAT.md
+RAW_FEATURE.md
+PLAN.md
+SPEC.md
+
+
 # ============================================
 # END OF .gitignore
 # ============================================
