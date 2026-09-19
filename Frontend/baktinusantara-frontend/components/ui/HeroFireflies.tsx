@@ -56,13 +56,12 @@ interface HeroFirefliesProps {
 export const HeroFireflies: React.FC<HeroFirefliesProps> = ({
   count = 26,
   className = '',
-  interactive = true,
   darkModeOnly = true,
 }) => {
   const [mounted, setMounted] = useState(false);
+  const [isInView, setIsInView] = useState(true);
   const { theme } = useTheme();
   const shouldReduceMotion = useReducedMotion();
-  const mousePos = useRef<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Generate realistic, randomized fireflies on client-side to prevent SSR hydration mismatch
@@ -178,31 +177,20 @@ export const HeroFireflies: React.FC<HeroFirefliesProps> = ({
     setMounted(true);
   }, []);
 
-  // Subtle interactive breeze on mouse move
+  // Performance optimization: Pause animations when Hero is scrolled out of viewport
   useEffect(() => {
-    if (!interactive || !mounted) return;
+    if (!mounted || !containerRef.current) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      mousePos.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { rootMargin: '100px 0px' }
+    );
 
-    const handleMouseLeave = () => {
-      mousePos.current = null;
-    };
-
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('mouseleave', handleMouseLeave);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, [interactive, mounted]);
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [mounted]);
 
   if (!mounted) return null;
   if (darkModeOnly && theme !== 'dark') return null;
@@ -214,95 +202,96 @@ export const HeroFireflies: React.FC<HeroFirefliesProps> = ({
       className={`hidden dark:block absolute inset-0 overflow-hidden pointer-events-none z-0 ${className}`}
       style={{ contain: 'layout paint' }}
     >
-      {fireflies.map((fly) => {
-        return (
-          <motion.div
-            key={fly.id}
-            className="absolute rounded-full"
-            style={{
-              left: `${fly.initialX}%`,
-              top: `${fly.initialY}%`,
-              width: `${fly.size}px`,
-              height: `${fly.size}px`,
-              filter: fly.blur > 0 ? `blur(${fly.blur}px)` : 'none',
-              willChange: 'transform, opacity',
-            }}
-            initial={{
-              x: 0,
-              y: 0,
-              scale: 0.8,
-              opacity: 0,
-            }}
-            animate={
-              shouldReduceMotion
-                ? {
-                    opacity: [0.3, fly.baseOpacity, 0.4],
-                    transition: {
-                      duration: fly.flashDuration,
-                      repeat: Infinity,
-                      repeatType: 'reverse',
-                      ease: 'easeInOut',
-                    },
-                  }
-                : {
-                    // Flight wandering trajectory
-                    x: fly.keyframesX,
-                    y: fly.keyframesY,
-                    // Bioluminescent pulsing & breathing rhythm
-                    opacity: [
-                      0.05,
-                      fly.baseOpacity * 0.8,
-                      fly.baseOpacity,
-                      fly.baseOpacity * 0.35,
-                      fly.baseOpacity * 0.9,
-                      0.1,
-                      0.05,
-                    ],
-                    scale: [0.7, 1.15, 1.25, 0.9, 1.2, 0.75, 0.7],
-                  }
-            }
-            transition={{
-              x: {
-                duration: fly.duration,
-                repeat: Infinity,
-                repeatType: 'mirror',
-                ease: 'easeInOut',
-              },
-              y: {
-                duration: fly.duration * 0.9,
-                repeat: Infinity,
-                repeatType: 'mirror',
-                ease: 'easeInOut',
-              },
-              opacity: {
-                duration: fly.flashDuration,
-                delay: fly.flashDelay,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              },
-              scale: {
-                duration: fly.flashDuration,
-                delay: fly.flashDelay,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              },
-            }}
-          >
-            {/* Firefly glowing light core & ambient aura */}
-            <div
-              className="w-full h-full rounded-full"
+      {isInView &&
+        fireflies.map((fly) => {
+          return (
+            <motion.div
+              key={fly.id}
+              className="absolute rounded-full"
               style={{
-                backgroundColor: fly.color.core,
-                boxShadow: `
-                  0 0 ${fly.size * 2}px ${fly.size}px ${fly.color.glowInner},
-                  0 0 ${fly.haloSize}px ${fly.haloSize * 0.5}px ${fly.color.glowOuter},
-                  0 0 ${fly.haloSize * 1.6}px ${fly.haloSize * 0.8}px rgba(250, 204, 21, 0.15)
-                `,
+                left: `${fly.initialX}%`,
+                top: `${fly.initialY}%`,
+                width: `${fly.size}px`,
+                height: `${fly.size}px`,
+                filter: fly.blur > 0 ? `blur(${fly.blur}px)` : 'none',
+                willChange: 'transform, opacity',
               }}
-            />
-          </motion.div>
-        );
-      })}
+              initial={{
+                x: 0,
+                y: 0,
+                scale: 0.8,
+                opacity: 0,
+              }}
+              animate={
+                shouldReduceMotion
+                  ? {
+                      opacity: [0.3, fly.baseOpacity, 0.4],
+                      transition: {
+                        duration: fly.flashDuration,
+                        repeat: Infinity,
+                        repeatType: 'reverse',
+                        ease: 'easeInOut',
+                      },
+                    }
+                  : {
+                      // Flight wandering trajectory
+                      x: fly.keyframesX,
+                      y: fly.keyframesY,
+                      // Bioluminescent pulsing & breathing rhythm
+                      opacity: [
+                        0.05,
+                        fly.baseOpacity * 0.8,
+                        fly.baseOpacity,
+                        fly.baseOpacity * 0.35,
+                        fly.baseOpacity * 0.9,
+                        0.1,
+                        0.05,
+                      ],
+                      scale: [0.7, 1.15, 1.25, 0.9, 1.2, 0.75, 0.7],
+                    }
+              }
+              transition={{
+                x: {
+                  duration: fly.duration,
+                  repeat: Infinity,
+                  repeatType: 'mirror',
+                  ease: 'easeInOut',
+                },
+                y: {
+                  duration: fly.duration * 0.9,
+                  repeat: Infinity,
+                  repeatType: 'mirror',
+                  ease: 'easeInOut',
+                },
+                opacity: {
+                  duration: fly.flashDuration,
+                  delay: fly.flashDelay,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                },
+                scale: {
+                  duration: fly.flashDuration,
+                  delay: fly.flashDelay,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                },
+              }}
+            >
+              {/* Firefly glowing light core & ambient aura */}
+              <div
+                className="w-full h-full rounded-full"
+                style={{
+                  backgroundColor: fly.color.core,
+                  boxShadow: `
+                    0 0 ${fly.size * 2}px ${fly.size}px ${fly.color.glowInner},
+                    0 0 ${fly.haloSize}px ${fly.haloSize * 0.5}px ${fly.color.glowOuter},
+                    0 0 ${fly.haloSize * 1.6}px ${fly.haloSize * 0.8}px rgba(250, 204, 21, 0.15)
+                  `,
+                }}
+              />
+            </motion.div>
+          );
+        })}
     </div>
   );
 };
