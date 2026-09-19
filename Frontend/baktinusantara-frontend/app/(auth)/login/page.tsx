@@ -113,32 +113,12 @@ function LoginFormContent() {
   };
 
   return (
-<<<<<<< Updated upstream
     <Card className="p-4 min-[360px]:p-5 sm:p-6 lg:p-8 bg-white/85 dark:bg-navy-900/90 backdrop-blur-xl lg:bg-transparent lg:backdrop-blur-none lg:dark:bg-navy-900/90 lg:dark:backdrop-blur-xl border border-white/40 dark:border-navy-800 lg:border-0 lg:dark:border lg:dark:border-navy-800 shadow-xl lg:shadow-none lg:dark:shadow-2xl rounded-2xl sm:rounded-3xl transition-all">
-      {/* Role selector chips (tanpa auto-fill) */}
-      <div className="mb-5">
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-xs font-semibold text-navy-900 dark:text-slate-100">
-            Masuk Sebagai Peran:
-          </label>
-          <button
-            type="button"
-            onClick={handleFillDemoAccount}
-            className="text-[11px] font-semibold text-[#377832] dark:text-emerald-400 dark:hover:text-emerald-300 hover:underline inline-flex items-center gap-1 transition-colors"
-            title="Klik jika ingin mengisi form dengan akun demo peran terpilih"
-          >
-            <Sparkles className="w-3 h-3 text-[#377832] dark:text-emerald-400" />
-            <span>Isi Demo</span>
-          </button>
-        </div>
-=======
-    <Card className="p-4 min-[360px]:p-5 sm:p-6 lg:p-8 bg-white/85 backdrop-blur-xl lg:bg-transparent lg:backdrop-blur-none border border-white/40 lg:border-0 shadow-xl lg:shadow-none rounded-2xl sm:rounded-3xl transition-all">
       {/* Role selector cards */}
       <div className="mb-5">
-        <label className="block text-xs font-bold text-navy-900 dark:text-slate-200 mb-2">
+        <label className="block text-xs font-bold text-navy-900 dark:text-slate-100 mb-2">
           Anda sebagai:
         </label>
->>>>>>> Stashed changes
 
         <div className="grid grid-cols-2 gap-2.5">
           {roleOptions.map((opt) => {
@@ -148,26 +128,6 @@ function LoginFormContent() {
               <button
                 key={opt.role}
                 type="button"
-<<<<<<< Updated upstream
-                onClick={() => handleSelectRole(acc)}
-                className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition-all duration-200 ${isSelected
-                    ? 'border-primary dark:border-primary-500 bg-primary-50/90 dark:bg-navy-800 text-primary-900 dark:text-slate-100 ring-2 ring-primary/40 dark:ring-primary-500/30 font-semibold shadow-sm'
-                    : 'border-slate-200 dark:border-navy-700/80 hover:border-slate-300 dark:hover:border-navy-600 hover:bg-slate-50 dark:hover:bg-navy-800/80 bg-white/60 dark:bg-navy-950/60 text-navy-800 dark:text-slate-100'
-                  }`}
-              >
-                <div className="flex items-center gap-1.5 w-full mb-1">
-                  <Icon
-                    className={`w-4 h-4 shrink-0 ${isSelected ? 'text-primary dark:text-primary-400' : 'text-slate-500 dark:text-slate-400'
-                      }`}
-                  />
-                  <span className="text-xs truncate font-semibold dark:text-slate-100">
-                    {acc.title}
-                  </span>
-                </div>
-                <span className={`text-[10px] truncate w-full font-normal ${isSelected ? 'text-primary-700 dark:text-slate-300' : 'text-slate-500 dark:text-slate-300'}`}>
-                  {acc.subtitle}
-                </span>
-=======
                 onClick={() => {
                   setSelectedRole(opt.role);
                   setErrorMsg(null);
@@ -198,7 +158,6 @@ function LoginFormContent() {
                     {opt.description}
                   </span>
                 </div>
->>>>>>> Stashed changes
               </button>
             );
           })}
@@ -410,4 +369,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
