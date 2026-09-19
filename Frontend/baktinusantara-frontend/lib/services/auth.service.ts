@@ -126,6 +126,79 @@ export const authService = {
     const res = await apiClient.post<{ message: string }>('/api/logout');
     return res.data;
   },
+
+  /**
+   * Request OTP for forgot password
+   * Endpoint: POST /api/forgot-password
+   */
+  async forgotPassword(payload: { identifier: string; channel?: 'whatsapp' | 'sms' | 'email' }): Promise<{
+    success: boolean;
+    message: string;
+    target?: string;
+    channel?: string;
+    purpose?: string;
+    expires_in_minutes?: number;
+    dev_otp?: string;
+  }> {
+    const res = await apiClient.post('/api/forgot-password', payload);
+    return res.data;
+  },
+
+  /**
+   * Verify OTP code
+   * Endpoint: POST /api/otp/verify
+   */
+  async verifyOtp(payload: { identifier: string; otp: string; purpose?: string }): Promise<{
+    valid: boolean;
+    message: string;
+  }> {
+    const res = await apiClient.post('/api/otp/verify', payload);
+    return res.data;
+  },
+
+  /**
+   * Reset Password with OTP
+   * Endpoint: POST /api/reset-password
+   */
+  async resetPassword(payload: {
+    identifier: string;
+    otp: string;
+    password: string;
+    password_confirmation: string;
+  }): Promise<{ success: boolean; message: string }> {
+    const res = await apiClient.post('/api/reset-password', payload);
+    return res.data;
+  },
+
+  /**
+   * Resend OTP
+   * Endpoint: POST /api/otp/resend
+   */
+  async resendOtp(payload: {
+    identifier: string;
+    purpose?: string;
+    channel?: 'whatsapp' | 'sms' | 'email';
+  }): Promise<{
+    success: boolean;
+    message: string;
+    target?: string;
+    channel?: string;
+    purpose?: string;
+    expires_in_minutes?: number;
+    dev_otp?: string;
+  }> {
+    const res = await apiClient.post('/api/otp/resend', payload);
+    return res.data;
+  },
+
+  /**
+   * Forgot Email lookup
+   * Endpoint: POST /api/forgot-email
+   */
+  async forgotEmail(payload: { identifier: string; channel?: 'whatsapp' | 'sms' | 'email' }): Promise<any> {
+    const res = await apiClient.post('/api/forgot-email', payload);
+    return res.data;
+  },
 };
 
 export default authService;
