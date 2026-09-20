@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import {
   ShieldCheck,
+  ShieldAlert,
+  Sparkles,
   ArrowLeft,
   Upload,
   CheckCircle2,
@@ -158,6 +160,18 @@ export default function RegisterUniversitasPage() {
       return;
     }
 
+    // Zero-Trust Rule: Domain .ac.id is mandatory
+    const cleanEmail = formData.email.trim().toLowerCase();
+    if (!cleanEmail.endsWith('.ac.id') && !cleanEmail.includes('.ac.id')) {
+      toast.error('Pendaftaran wajib menggunakan email resmi institusi berakhiran .ac.id');
+      return;
+    }
+
+    if (!skFile) {
+      toast.error('Harap unggah berkas SK Penugasan / SK Rektorat untuk verifikasi keaslian institusi');
+      return;
+    }
+
     setLoading(true);
     try {
       const data = new FormData();
@@ -230,6 +244,21 @@ export default function RegisterUniversitasPage() {
             </div>
           </div>
 
+          {/* Zero-Trust Security Callout */}
+          <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 flex items-start gap-3">
+            <div className="p-2 rounded-xl bg-indigo-600 text-white shrink-0 mt-0.5 shadow-sm">
+              <ShieldAlert className="w-4 h-4" />
+            </div>
+            <div className="space-y-1 text-xs">
+              <p className="font-bold text-indigo-950 dark:text-indigo-200">
+                Protokol Keamanan Zero-Trust & Perlindungan Anti-Klaim Ganda
+              </p>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-[11px]">
+                Untuk mencegah oknum tak bertanggung jawab membajak identitas perguruan tinggi, setiap kampus hanya dapat didaftarkan <strong>1 kali (Single-Master)</strong> menggunakan email resmi dinas <code className="font-mono bg-white dark:bg-navy-900 px-1.5 py-0.5 rounded text-indigo-600 dark:text-indigo-300 font-bold">.ac.id</code> dan diaudit forensik oleh AI Document Inspector.
+              </p>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Bagian 1: Data Administrator */}
             <div className="space-y-4">
@@ -269,9 +298,24 @@ export default function RegisterUniversitasPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Email Resmi Institusi (.ac.id) <span className="text-rose-500">*</span>
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Email Resmi Institusi (.ac.id) <span className="text-rose-500">*</span>
+                    </label>
+                    {formData.email && (
+                      formData.email.toLowerCase().includes('.ac.id') ? (
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Domain Valid
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 inline-flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" />
+                          Wajib .ac.id
+                        </span>
+                      )
+                    )}
+                  </div>
                   <div className="relative">
                     <Mail className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
                     <input
@@ -280,9 +324,18 @@ export default function RegisterUniversitasPage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="lppm-kkn@unesa.ac.id"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 ${
+                        formData.email && !formData.email.toLowerCase().includes('.ac.id')
+                          ? 'border-amber-300 dark:border-amber-700 bg-amber-50/40 dark:bg-amber-950/20 focus:ring-amber-500/30'
+                          : 'border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 focus:ring-primary/30'
+                      }`}
                     />
                   </div>
+                  {formData.email && !formData.email.toLowerCase().includes('.ac.id') && (
+                    <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                      Perhatian: Email publik (@gmail, @yahoo) akan ditolak sistem. Gunakan email dinas kampus.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-1">
@@ -516,6 +569,10 @@ export default function RegisterUniversitasPage() {
                       <p className="text-[10px] text-slate-400 mt-0.5">
                         Dokumen digunakan untuk verifikasi resmi dan pengesahan akun
                       </p>
+                      <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                        <Sparkles className="w-3 h-3 text-indigo-500" />
+                        <span>Audit Forensik Otomatis oleh AI Document Inspector</span>
+                      </div>
                     </div>
                   )}
                 </label>

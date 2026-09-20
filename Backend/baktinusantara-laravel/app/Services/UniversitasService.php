@@ -13,26 +13,13 @@ class UniversitasService
 {
     public function __construct(
         protected NotificationService $notificationService,
-        protected OtpService $otpService
+        protected OtpService $otpService,
+        protected AiDocumentAuditorService $aiAuditorService
     ) {}
 
     public function register(array $data, $skFile = null): ProfilUniversitas
     {
-        $skPath = null;
-        if ($skFile) {
-            $skPath = $skFile->store('sk-universitas', 'local');
-        }
-
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'phone_wa' => $data['phone_wa'] ?? null,
-            'role' => 'universitas',
-            'is_verified' => false,
-        ]);
-
-        // Enforce Official PDDikti / BAN-PT Accreditation verification
+        // 1. Resolve Official PDDikti / BAN-PT Accreditation & Kode PT
         $realAkreditasi = $data['akreditasi'] ?? 'Baik';
         $kodeUniv = $data['kode_univ'] ?? null;
 
@@ -56,6 +43,42 @@ class UniversitasService
             }
         }
 
+        // 2. Anti-Claim Duplicate Protection (Zero-Trust Single-Master Policy)
+        if (!empty($kodeUniv)) {
+            $existing = ProfilUniversitas::where('kode_univ', $kodeUniv)->first();
+            if ($existing) {
+                throw ValidationException::withMessages([
+                    'nama_universitas' => "Institusi Perguruan Tinggi ini ({$data['nama_universitas']}) telah terdaftar atau dalam proses peninjauan LPPM resmi. Demi keamanan dan integritas kelembagaan, satu universitas hanya memiliki 1 akun induk LPPM. Silakan hubungi admin utama institusi Anda.",
+                ]);
+            }
+        }
+
+        // 3. Store SK document file
+        $skPath = null;
+        if ($skFile) {
+            $skPath = $skFile->store('sk-universitas', 'local');
+        }
+
+        // 4. Run AI Document & Fraud Risk Auditor (Gemini Flash Multimodal / Heuristic)
+        $aiAudit = $this->aiAuditorService->auditRegistrationDocument($skPath, [
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'nama_universitas' => $data['nama_universitas'],
+            'nip_admin' => $data['nip_admin'] ?? '',
+            'kode_univ' => $kodeUniv,
+        ]);
+
+        // 5. Create User
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'phone_wa' => $data['phone_wa'] ?? null,
+            'role' => 'universitas',
+            'is_verified' => false,
+        ]);
+
+        // 6. Create Profil Universitas with AI Audit Result
         $univ = ProfilUniversitas::create([
             'user_id' => $user->id,
             'nama_universitas' => $data['nama_universitas'],
@@ -64,6 +87,8 @@ class UniversitasService
             'nip_admin' => $data['nip_admin'] ?? null,
             'akreditasi' => $realAkreditasi,
             'alamat_kampus' => $data['alamat_kampus'] ?? null,
+            'ai_audit_result' => $aiAudit,
+            'ai_trust_score' => $aiAudit['trust_score'] ?? null,
             'verified_at' => null,
         ])->load('user');
 

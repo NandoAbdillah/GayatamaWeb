@@ -17,7 +17,14 @@ class ProfilUniversitas extends Model
         'alamat_kampus',
         'latitude',
         'longitude',
+        'ai_audit_result',
+        'ai_trust_score',
         'verified_at',
+    ];
+
+    protected $casts = [
+        'ai_audit_result' => 'array',
+        'ai_trust_score' => 'integer',
     ];
 
     public function user() { return $this->belongsTo(User::class); }
