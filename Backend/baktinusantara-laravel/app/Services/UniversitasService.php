@@ -17,13 +17,14 @@ class UniversitasService
         protected AiDocumentAuditorService $aiAuditorService
     ) {}
 
-    public function register(array $data, $skFile = null): ProfilUniversitas
+    public function register(array $data, $skFile = null, $sptjmFile = null, $signatureFile = null): ProfilUniversitas
     {
         // 1. Resolve Official PDDikti / BAN-PT Accreditation & Kode PT
         $realAkreditasi = $data['akreditasi'] ?? 'Baik';
         $kodeUniv = $data['kode_univ'] ?? null;
+        $isManual = !empty($data['is_manual_entry']);
 
-        if (!empty($kodeUniv) || !empty($data['nama_universitas'])) {
+        if (!$isManual && (!empty($kodeUniv) || !empty($data['nama_universitas']))) {
             $jsonPath = database_path('data/master_kampus_indonesia.json');
             if (file_exists($jsonPath)) {
                 $allCampuses = json_decode(file_get_contents($jsonPath), true) ?: [];
@@ -53,10 +54,36 @@ class UniversitasService
             }
         }
 
-        // 3. Store SK document file
+        // 3. Store SK & SPTJM document files
         $skPath = null;
         if ($skFile) {
             $skPath = $skFile->store('sk-universitas', 'local');
+        }
+
+        $sptjmPath = null;
+        if ($sptjmFile) {
+            $sptjmPath = $sptjmFile->store('sptjm-universitas', 'local');
+        }
+
+        // 3b. Store Signature (File or Base64 Canvas)
+        $signaturePath = null;
+        if ($signatureFile) {
+            $signaturePath = $signatureFile->store('signatures-universitas', 'local');
+        } elseif (!empty($data['signature_data'])) {
+            $base64Str = $data['signature_data'];
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64Str, $type)) {
+                $base64Str = substr($base64Str, strpos($base64Str, ',') + 1);
+                $ext = strtolower($type[1]);
+                if (!in_array($ext, ['jpg', 'jpeg', 'gif', 'png'])) {
+                    $ext = 'png';
+                }
+                $decoded = base64_decode($base64Str);
+                if ($decoded !== false) {
+                    $sigFileName = 'signatures-universitas/sig_' . time() . '_' . uniqid() . '.' . $ext;
+                    \Illuminate\Support\Facades\Storage::disk('local')->put($sigFileName, $decoded);
+                    $signaturePath = $sigFileName;
+                }
+            }
         }
 
         // 4. Run AI Document & Fraud Risk Auditor (Gemini Flash Multimodal / Heuristic)
@@ -78,12 +105,20 @@ class UniversitasService
             'is_verified' => false,
         ]);
 
-        // 6. Create Profil Universitas with AI Audit Result
+        // 6. Create Profil Universitas with AI Audit Result and Legalitas fields
         $univ = ProfilUniversitas::create([
             'user_id' => $user->id,
             'nama_universitas' => $data['nama_universitas'],
             'kode_univ' => $kodeUniv,
             'sk_file_url' => $skPath,
+            'sptjm_file_url' => $sptjmPath,
+            'tanda_tangan_url' => $signaturePath,
+            'is_manual_entry' => $isManual,
+            'website_kampus' => $data['website_kampus'] ?? null,
+            'nomor_sk' => $data['nomor_sk'] ?? ($aiAudit['extracted_data']['nomor_sk'] ?? null),
+            'judul_sk' => $data['judul_sk'] ?? ($aiAudit['extracted_data']['judul_sk'] ?? null),
+            'pejabat_penandatangan' => $data['pejabat_penandatangan'] ?? ($aiAudit['extracted_data']['nama_pejabat'] ?? null),
+            'berlaku_sampai' => $data['berlaku_sampai'] ?? ($aiAudit['extracted_data']['berlaku_sampai'] ?? null),
             'nip_admin' => $data['nip_admin'] ?? null,
             'akreditasi' => $realAkreditasi,
             'alamat_kampus' => $data['alamat_kampus'] ?? null,

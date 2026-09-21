@@ -28,8 +28,22 @@ class RegisterUniversitasRequest extends FormRequest
             'nip_admin' => 'nullable|string|max:50',
             'akreditasi' => 'nullable|string|max:50',
             'alamat_kampus' => 'nullable|string|max:1000',
+            'nomor_sk' => 'nullable|string|max:255',
+            'judul_sk' => 'nullable|string|max:255',
+            'pejabat_penandatangan' => 'nullable|string|max:255',
+            'berlaku_sampai' => 'nullable|string|max:100',
             'sk_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'mou_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'sptjm_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'signature_file' => 'nullable|file|mimes:png,jpg,jpeg|max:5120',
+            'signature_data' => 'nullable|string',
+            'is_manual_entry' => 'nullable|boolean',
+            'website_kampus' => 'nullable|string|max:255',
+            'singkatan_kampus' => 'nullable|string|max:50',
+            'bentuk_kampus' => 'nullable|string|max:50',
+            'jenis_kampus' => 'nullable|string|max:50',
+            'provinsi' => 'nullable|string|max:100',
+            'kabupaten' => 'nullable|string|max:100',
         ];
     }
 

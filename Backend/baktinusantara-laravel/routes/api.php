@@ -79,6 +79,8 @@ Route::middleware('throttle:15,1')->group(function () {
 
     Route::post('/register/mahasiswa', [MahasiswaController::class, 'register']);
     Route::post('/register/desa', [DesaController::class, 'register']);
+    Route::post('/register/universitas/check-kode', [UniversitasController::class, 'checkKodeAvailability']);
+    Route::post('/register/universitas/scan-sk', [UniversitasController::class, 'scanDocumentRealtime']);
     Route::post('/register/universitas', [UniversitasController::class, 'register']);
 });
 

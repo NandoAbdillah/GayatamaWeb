@@ -48,6 +48,68 @@ export const universitasService = {
   },
 
   /**
+   * Check if a university PDDikti code is already claimed
+   * Endpoint: POST /api/register/universitas/check-kode
+   */
+  async checkKodeAvailability(kode_univ: string): Promise<{
+    available: boolean;
+    is_registered: boolean;
+    message: string;
+  }> {
+    const res = await apiClient.post('/api/register/universitas/check-kode', { kode_univ });
+    return res.data;
+  },
+
+  /**
+   * Scan SK document in realtime and extract legal entities (e-KYC style)
+   * Endpoint: POST /api/register/universitas/scan-sk
+   */
+  async scanDocumentRealtime(file: File, context?: {
+    nama_universitas?: string;
+    kode_univ?: string;
+    email?: string;
+    name?: string;
+    nip_admin?: string;
+  }): Promise<{
+    success: boolean;
+    is_valid?: boolean;
+    status_verifikasi?: string;
+    engine?: string;
+    extracted?: {
+      judul_sk?: string;
+      nomor_sk?: string;
+      instansi_penerbit?: string;
+      pejabat_penandatangan?: string;
+      nama_tertulis?: string;
+      nip_tertulis?: string;
+      tanggal_sk?: string;
+      berlaku_sampai?: string;
+      has_kop_resmi?: boolean;
+      has_tte_or_qr_code?: boolean;
+      has_cap_stempel?: boolean;
+      has_materai?: boolean;
+      dokumen_filename?: string;
+    } | null;
+    trust_score?: number;
+    catatan?: string;
+  }> {
+    const form = new FormData();
+    form.append('file', file);
+    if (context?.nama_universitas) form.append('nama_universitas', context.nama_universitas);
+    if (context?.kode_univ) form.append('kode_univ', context.kode_univ);
+    if (context?.email) form.append('email', context.email);
+    if (context?.name) form.append('name', context.name);
+    if (context?.nip_admin) form.append('nip_admin', context.nip_admin);
+
+    const res = await apiClient.post('/api/register/universitas/scan-sk', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  },
+
+  /**
    * Register a new university with official SK file
    * Endpoint: POST /api/register/universitas
    */

@@ -12,6 +12,11 @@ class ProfilUniversitas extends Model
         'nama_universitas',
         'kode_univ',
         'sk_file_url',
+        'nomor_sk',
+        'judul_sk',
+        'pejabat_penandatangan',
+        'berlaku_sampai',
+        'sptjm_file_url',
         'nip_admin',
         'akreditasi',
         'alamat_kampus',
@@ -19,12 +24,16 @@ class ProfilUniversitas extends Model
         'longitude',
         'ai_audit_result',
         'ai_trust_score',
+        'tanda_tangan_url',
+        'is_manual_entry',
+        'website_kampus',
         'verified_at',
     ];
 
     protected $casts = [
         'ai_audit_result' => 'array',
         'ai_trust_score' => 'integer',
+        'is_manual_entry' => 'boolean',
     ];
 
     public function user() { return $this->belongsTo(User::class); }
