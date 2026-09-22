@@ -212,6 +212,8 @@ export interface PaginatedResponse<T> {
 
 export interface NationalMetrics {
   total_desa_terbantu: number;
+  total_desa_terdaftar?: number;
+  total_desa_all?: number;
   total_umkm_terdigitalisasi: number;
   total_kelompok_kkn: number;
   total_mahasiswa_terlibat: number;
@@ -224,6 +226,9 @@ export interface NationalMetrics {
   };
   total_luaran_terverifikasi: number;
   total_portofolio_publik: number;
+  total_universitas_terdaftar?: number;
+  total_universitas_all?: number;
+  total_universitas_aktif_kkn?: number;
   kategori_breakdown: Record<string, number>;
   sdgs_distribution: Record<string, number>;
 }

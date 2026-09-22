@@ -7,8 +7,6 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/services";
-import { FALLBACK_UNIV_DETAIL } from "@/lib/data/direktori-kampus-data";
-import { MONITORING_UNIV } from "@/lib/data/monitoring-data";
 import {
   ShieldCheck,
   Building2,
@@ -220,6 +218,8 @@ const MONTH_OPTIONS: { value: number | "all"; label: string }[] = [
 
 interface DashboardMetrics {
   total_desa_terbantu: number;
+  total_desa_terdaftar?: number;
+  total_desa_all?: number;
   total_umkm_terdigitalisasi: number;
   total_kelompok_kkn: number;
   total_mahasiswa_terlibat: number;
@@ -232,6 +232,9 @@ interface DashboardMetrics {
   };
   total_luaran_terverifikasi: number;
   total_portofolio_publik: number;
+  total_universitas_terdaftar?: number;
+  total_universitas_all?: number;
+  total_universitas_aktif_kkn?: number;
   kategori_breakdown: Record<string, number>;
   sdgs_distribution: Record<string, number>;
 }
@@ -242,6 +245,10 @@ export default function SuperadminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
+  // DB counts untuk Desa/Universitas Terdaftar (fallback/real-time dari DB)
+  const [desaTerdaftarCount, setDesaTerdaftarCount] = useState<number | null>(null);
+  const [univTerdaftarCount, setUnivTerdaftarCount] = useState<number | null>(null);
+  const [univAktifCount, setUnivAktifCount] = useState<number | null>(null);
 
   // Filtering bulan/tahun untuk line chart siklus KKN
   const availableYears = useMemo(
@@ -260,11 +267,37 @@ export default function SuperadminDashboardPage() {
       const res = await api.dashboard.getMetrics();
       if (res) {
         setMetrics(res);
+        // sync DB counts dari metrics jika sudah tersedia (backend baru)
+        if (typeof res.total_desa_terdaftar === 'number') setDesaTerdaftarCount(res.total_desa_terdaftar);
+        if (typeof res.total_universitas_terdaftar === 'number') setUnivTerdaftarCount(res.total_universitas_terdaftar);
+        if (typeof res.total_universitas_aktif_kkn === 'number') setUnivAktifCount(res.total_universitas_aktif_kkn);
       }
+
+      // Supplement langsung dari DB (jaminan realtime, sama seperti direktori-kampus/desa)
+      try {
+        const verifikasi = await api.admin.getVerifikasiList();
+        if (verifikasi && Array.isArray(verifikasi.data)) {
+          const desaVerified = (verifikasi.data as any[]).filter((v) => v.entity_type === 'desa' && v.status === 'verified').length;
+          const univVerifiedViaVerifikasi = (verifikasi.data as any[]).filter((v) => v.entity_type === 'universitas' && v.status === 'verified').length;
+          setDesaTerdaftarCount((prev) => (prev !== null ? prev : desaVerified));
+          // jika metrics belum kasih univ count, pakai dari verifikasi
+          if (univTerdaftarCount === null && univVerifiedViaVerifikasi > 0) {
+            // akan di-override oleh universitas list jika ada
+          }
+        }
+      } catch {}
+      try {
+        const univs = await api.universitas.getUniversitasList();
+        if (Array.isArray(univs)) {
+          setUnivTerdaftarCount((prev) => (prev !== null && prev !== 0 ? prev : univs.length));
+        }
+      } catch {}
+      // univ aktif: coba hitung dari metrics, fallback tetap null -> tampil 0
     } catch (err) {
       console.warn("Backend metrics fetch fallback:", err);
       setMetrics({
         total_desa_terbantu: 2,
+        total_desa_terdaftar: desaTerdaftarCount ?? 2,
         total_umkm_terdigitalisasi: 1,
         total_kelompok_kkn: 3,
         total_mahasiswa_terlibat: 7,
@@ -273,6 +306,8 @@ export default function SuperadminDashboardPage() {
         status_pos_breakdown: { open: 2, in_progress: 2, completed: 1 },
         total_luaran_terverifikasi: 1,
         total_portofolio_publik: 1,
+        total_universitas_terdaftar: univTerdaftarCount ?? 0,
+        total_universitas_aktif_kkn: univAktifCount ?? 0,
         kategori_breakdown: {
           umkm: 1,
           lingkungan: 1,
@@ -417,11 +452,11 @@ export default function SuperadminDashboardPage() {
               </div>
             </div>
             <p className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {loading ? "..." : `${metrics?.total_desa_terbantu || 0} Desa`}
+              {loading ? "..." : `${desaTerdaftarCount ?? metrics?.total_desa_terdaftar ?? metrics?.total_desa_all ?? metrics?.total_desa_terbantu ?? 0} Desa`}
             </p>
             <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5" />
-              <span>Mitra Terdaftar di Sistem</span>
+              <span>Mitra Terdaftar di Sistem (DB)</span>
             </p>
           </Card>
 
@@ -449,9 +484,9 @@ export default function SuperadminDashboardPage() {
               </div>
             </div>
             <p className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {loading ? "..." : `${FALLBACK_UNIV_DETAIL.length} Kampus`}
+              {loading ? "..." : `${univTerdaftarCount ?? metrics?.total_universitas_terdaftar ?? metrics?.total_universitas_all ?? 0} Kampus`}
             </p>
-            <p className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">Kampus Mitra Terverifikasi</p>
+            <p className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">Kampus Mitra Terverifikasi (DB)</p>
           </Card>
 
           <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 shadow-sm hover:shadow-md transition-shadow">
@@ -462,9 +497,9 @@ export default function SuperadminDashboardPage() {
               </div>
             </div>
             <p className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {loading ? "..." : `${MONITORING_UNIV.filter((u) => u.program_aktif > 0).length} Kampus`}
+              {loading ? "..." : `${univAktifCount ?? metrics?.total_universitas_aktif_kkn ?? 0} Kampus`}
             </p>
-            <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Aktif menjalankan KKN</p>
+            <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Aktif menjalankan KKN (DB)</p>
           </Card>
         </div>
 

@@ -186,6 +186,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             icon: Building,
           },
           {
+            href: "/admin/direktori-desa",
+            label: "Desa",
+            icon: Home,
+          },
+          {
             href: "/admin/sebaran-program",
             label: "Monitoring KKN",
             icon: MapPin,
@@ -241,6 +246,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             href: "/admin/direktori-kampus",
             label: "Direktori Kampus",
             icon: Building,
+          },
+          {
+            href: "/admin/direktori-desa",
+            label: "Direktori Desa",
+            icon: Home,
           },
           { href: "/admin/analisis-statistik", label: "Statistik SDG", icon: BarChart3 },
         ];

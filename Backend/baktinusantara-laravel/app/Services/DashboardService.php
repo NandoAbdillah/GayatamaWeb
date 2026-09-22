@@ -8,6 +8,7 @@ use App\Models\LuaranAkhir;
 use App\Models\PortofolioPublik;
 use App\Models\PosKebutuhan;
 use App\Models\ProfilDesa;
+use App\Models\ProfilUniversitas;
 use App\Models\ProgressMingguan;
 use App\Models\Proposal;
 use Illuminate\Support\Facades\DB;
@@ -67,13 +68,34 @@ class DashboardService
         $totalLuaranTerverifikasi = LuaranAkhir::where('status_verifikasi', 'verified')->count();
         $totalPortofolioPublik = PortofolioPublik::count();
 
-        // 7. Kategori Breakdown
+        // 7. Desa & Universitas Terdaftar (from database, verified only)
+        $totalDesaTerdaftar = ProfilDesa::whereNotNull('verified_at')->count();
+        $totalDesaAll = ProfilDesa::count();
+        $totalUniversitasTerdaftar = ProfilUniversitas::whereNotNull('verified_at')->count();
+        $totalUniversitasAll = ProfilUniversitas::count();
+        // Universitas sedang KKN = distinct kampus yang punya kelompok dengan proposal diterima / in_progress
+        $univAktifIds = Kelompok::whereHas('proposal', fn($q) => $q->where('status', 'diterima'))
+            ->whereNotNull('dosen_id')
+            ->with('dosen.universitas')
+            ->get()
+            ->pluck('dosen.universitas_id')
+            ->filter()
+            ->unique()
+            ->count();
+        // fallback: jika belum ada kelompok, hitung dari ProfilUniversitas yang punya dosen dengan kelompok
+        if ($univAktifIds === 0) {
+            $univAktifIds = \App\Models\ProfilDosen::whereHas('kelompokBinaan', fn($q) => $q->whereHas('proposal', fn($qq) => $qq->where('status', 'diterima')))
+                ->distinct('universitas_id')
+                ->count('universitas_id');
+        }
+
+        // 8. Kategori Breakdown
         $kategoriBreakdown = PosKebutuhan::select('kategori', DB::raw('count(*) as total'))
             ->groupBy('kategori')
             ->pluck('total', 'kategori')
             ->toArray();
 
-        // 8. SDGs Distribution
+        // 9. SDGs Distribution
         $allSdgs = PosKebutuhan::whereNotNull('sdg_codes')->pluck('sdg_codes');
         $sdgsDistribution = [];
         foreach ($allSdgs as $sdgList) {
@@ -88,6 +110,8 @@ class DashboardService
 
         return [
             'total_desa_terbantu' => $totalDesaTerbantu,
+            'total_desa_terdaftar' => $totalDesaTerdaftar,
+            'total_desa_all' => $totalDesaAll,
             'total_umkm_terdigitalisasi' => $totalUmkmTerdigitalisasi,
             'total_kelompok_kkn' => $totalKelompokKkn,
             'total_mahasiswa_terlibat' => $totalMahasiswaTerlibat,
@@ -96,6 +120,9 @@ class DashboardService
             'status_pos_breakdown' => $posKebutuhanBreakdown,
             'total_luaran_terverifikasi' => $totalLuaranTerverifikasi,
             'total_portofolio_publik' => $totalPortofolioPublik,
+            'total_universitas_terdaftar' => $totalUniversitasTerdaftar,
+            'total_universitas_all' => $totalUniversitasAll,
+            'total_universitas_aktif_kkn' => $univAktifIds,
             'kategori_breakdown' => $kategoriBreakdown,
             'sdgs_distribution' => $sdgsDistribution,
         ];

@@ -336,9 +336,9 @@ export default function KatalogPublikPage() {
         {/* ========================================================================= */}
         {/* 2. UNIFIED SEARCH & FILTER ISLAND (MATCHING HERO & MAPS STYLE) */}
         {/* ========================================================================= */}
-        <div className="w-full bg-white/95 dark:bg-navy-900/95 rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-navy-700/80 shadow-xl backdrop-blur-2xl space-y-4">
+        <div className="w-full bg-white/95 dark:bg-navy-900/95 rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-navy-700/80 shadow-xl backdrop-blur-2xl space-y-4 relative z-30 overflow-visible">
           {/* Row 1: Elongated Search Field + Filter Dropdowns */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 relative z-40 overflow-visible">
             {/* Elongated Search Input */}
             <div className="relative flex-1 min-w-[280px]">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -361,7 +361,7 @@ export default function KatalogPublikPage() {
             </div>
 
             {/* Dropdown Filters Group */}
-            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0 relative z-50 overflow-visible">
               {/* 1. Sektor SDG Dropdown */}
               <MapFilterSelect
                 label="Sektor SDG"
@@ -409,7 +409,7 @@ export default function KatalogPublikPage() {
           </div>
 
           {/* Row 2: Quick Sector Pills (Single-Click Fast Filtering) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-thin border-t border-slate-100 dark:border-navy-800/80">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-thin border-t border-slate-100 dark:border-navy-800/80 relative z-0">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0 mr-1 flex items-center gap-1">
               <Filter className="w-3 h-3 text-emerald-500" /> Sektor:
             </span>
@@ -453,7 +453,7 @@ export default function KatalogPublikPage() {
           </div>
 
           {/* Row 3: Result Summary & Map Shortcut */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-navy-800/80 text-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-navy-800/80 text-xs relative z-0">
             <div className="flex items-center gap-2 flex-wrap text-slate-500 dark:text-slate-400">
               <span>
                 {tkatalog('resultsPrefix')} <strong className="text-navy-950 dark:text-white font-extrabold">{filteredList.length}</strong> {tkatalog('resultsSuffix')}

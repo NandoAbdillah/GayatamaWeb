@@ -47,8 +47,36 @@ export default function PerangkatDesaPosKebutuhanPage() {
     api.posKebutuhan
       .getByDesa()
       .then((res) => {
-        if (Array.isArray(res) && res.length > 0) {
-          setPosList(res);
+        const rawList = Array.isArray(res) ? res : Array.isArray((res as any)?.data) ? (res as any).data : [];
+        if (rawList.length > 0) {
+          const normalized: PosKebutuhan[] = rawList.map((item: any) => ({
+            id: item.id,
+            desa_id: item.desa_id ?? item.desa?.id ?? 0,
+            judul: item.judul ?? item.title ?? 'Pos Kebutuhan',
+            deskripsi: item.deskripsi ?? item.description ?? '',
+            nama_desa: item.nama_desa ?? item.desa?.nama_desa ?? 'Desa Mitra',
+            kecamatan: item.kecamatan ?? item.desa?.kecamatan ?? '-',
+            kabupaten: item.kabupaten ?? item.desa?.kabupaten ?? '-',
+            provinsi: item.provinsi ?? item.desa?.provinsi ?? '-',
+            latitude: item.latitude ?? 0,
+            longitude: item.longitude ?? 0,
+            kategori_sektor: item.kategori ?? item.kategori_sektor ?? 'Pemberdayaan UMKM',
+            kuota_mahasiswa: item.kuota_mahasiswa ?? item.kuota_kelompok ?? 0,
+            terisi_mahasiswa: item.terisi_mahasiswa ?? 0,
+            status: item.status ?? 'open',
+            target_luaran: Array.isArray(item.target_luaran)
+              ? item.target_luaran
+              : Array.isArray(item.target_output)
+                ? item.target_output
+                : Array.isArray(item.luaran)
+                  ? item.luaran
+                  : [],
+            kriteria_jurusan: Array.isArray(item.kriteria_jurusan) ? item.kriteria_jurusan : [],
+            matching_score: item.matching_score ?? 0,
+            distance_km: item.distance_km ?? 0,
+            created_at: item.created_at ?? new Date().toISOString(),
+          }));
+          setPosList(normalized);
         }
       })
       .catch((err) => {
@@ -130,12 +158,16 @@ export default function PerangkatDesaPosKebutuhanPage() {
                   <div className="pt-2 border-t border-slate-100 dark:border-navy-800 space-y-1">
                     <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase">Target Luaran:</span>
                     <div className="space-y-1 text-xs text-slate-700 dark:text-slate-300">
-                      {pos.target_luaran.slice(0, 2).map((luar, i) => (
-                        <div key={i} className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                          <span className="truncate">{luar}</span>
-                        </div>
-                      ))}
+                      {Array.isArray(pos.target_luaran) && pos.target_luaran.length > 0 ? (
+                        pos.target_luaran.slice(0, 2).map((luar, i) => (
+                          <div key={i} className="flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                            <span className="truncate">{luar}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs text-slate-400 italic">Belum ada target luaran.</p>
+                      )}
                     </div>
                   </div>
                 </div>

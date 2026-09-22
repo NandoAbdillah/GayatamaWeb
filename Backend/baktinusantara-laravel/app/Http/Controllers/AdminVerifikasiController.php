@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProfilDesa;
 use App\Models\ProfilUniversitas;
+use App\Services\AiDocumentAuditorService;
 use App\Services\DesaService;
 use App\Services\UniversitasService;
 use Carbon\Carbon;

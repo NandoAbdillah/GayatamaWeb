@@ -1,32 +1,75 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Search, Eye, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
-import { MONITORING_UNIV } from "@/lib/data/monitoring-data";
-import { FALLBACK_UNIV_DETAIL } from "@/lib/data/direktori-kampus-data";
+import { Search, Eye, ChevronLeft, ChevronRight, Building2, Loader2 } from "lucide-react";
+import { MONITORING_UNIV, MonitoringUniv } from "@/lib/data/monitoring-data";
+import api from "@/lib/services";
 
 export default function AdminSebaranProgramPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [univList, setUnivList] = useState<MonitoringUniv[]>(
+    // fallback awal hanya yang Terverifikasi agar konsisten dengan direktori-kampus
+    MONITORING_UNIV.filter((u) => u.status === "Terverifikasi")
+  );
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 5;
 
-  const totalUniversitasTerdaftar = FALLBACK_UNIV_DETAIL.length;
+  // Samakan dengan direktori-kampus: hanya universitas Terverifikasi via GET /api/universitas
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const univs = await api.universitas.getUniversitasList();
+        if (Array.isArray(univs) && univs.length > 0) {
+          const mapped: MonitoringUniv[] = (univs as any[]).map((u: any) => {
+            const kode: string = u.kode_univ;
+            const kodeLower = kode.toLowerCase();
+            // enrich dari MONITORING_UNIV agar provinsi/kabupaten & statistik program tetap ada
+            const fallback = MONITORING_UNIV.find((m) => m.kode.toLowerCase() === kodeLower || String(m.id).toLowerCase() === kodeLower);
+            return {
+              id: kodeLower, // pakai kode lower agar tetap match PROGRAM_KKN.universitas_id & getUnivById()
+              nama: u.nama_universitas,
+              kode,
+              provinsi: fallback?.provinsi || "-",
+              kabupaten_kota: fallback?.kabupaten_kota || "-",
+              status: "Terverifikasi" as const,
+              total_program: fallback?.total_program ?? 0,
+              program_aktif: fallback?.program_aktif ?? 0,
+              program_selesai: fallback?.program_selesai ?? 0,
+            };
+          });
+          setUnivList(mapped);
+        } else {
+          // API kosong -> tetap fallback terverifikasi saja
+          setUnivList(MONITORING_UNIV.filter((u) => u.status === "Terverifikasi"));
+        }
+      } catch (err) {
+        console.warn("Fallback to filtered monitoring data (verified only):", err);
+        setUnivList(MONITORING_UNIV.filter((u) => u.status === "Terverifikasi"));
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const totalUniversitasTerdaftar = univList.length;
 
   const filtered = useMemo(() => {
     const q = searchTerm.toLowerCase();
-    return MONITORING_UNIV.filter(
+    return univList.filter(
       (u) =>
         u.nama.toLowerCase().includes(q) ||
         u.kode.toLowerCase().includes(q) ||
         u.provinsi.toLowerCase().includes(q) ||
         u.kabupaten_kota.toLowerCase().includes(q)
     );
-  }, [searchTerm]);
+  }, [searchTerm, univList]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
   const paginated = useMemo(() => {
@@ -82,10 +125,18 @@ export default function AdminSebaranProgramPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-navy-800">
-                {paginated.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="p-8 text-center">
+                      <span className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" /> Memuat universitas terverifikasi...
+                      </span>
+                    </td>
+                  </tr>
+                ) : paginated.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
-                      Tidak ada universitas yang sesuai pencarian.
+                      Tidak ada universitas terverifikasi yang sesuai pencarian.
                     </td>
                   </tr>
                 ) : (

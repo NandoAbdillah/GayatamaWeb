@@ -79,7 +79,7 @@ export const MapFilterSelect: React.FC<MapFilterSelectProps> = ({
   });
 
   return (
-    <div ref={containerRef} className={`relative min-w-0 ${className}`}>
+    <div ref={containerRef} className={`relative min-w-0 ${isOpen ? 'z-[9999]' : 'z-0'} ${className}`} style={isOpen ? { isolation: 'isolate' } : undefined}>
       {/* Trigger Button */}
       <button
         type="button"
@@ -117,7 +117,8 @@ export const MapFilterSelect: React.FC<MapFilterSelectProps> = ({
       {/* Floating Popover Dropdown with Search */}
       {isOpen && (
         <div
-          className={`absolute top-full left-0 mt-1.5 ${dropdownWidth} max-w-[calc(100vw-32px)] bg-white/95 dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl border border-slate-200/90 dark:border-navy-700 shadow-2xl z-50 overflow-hidden flex flex-col p-1 animate-in fade-in zoom-in-95 duration-150 max-h-72`}
+          className={`absolute top-full left-0 mt-1.5 ${dropdownWidth} max-w-[calc(100vw-32px)] bg-white dark:bg-navy-900 backdrop-blur-2xl rounded-2xl border border-slate-200/90 dark:border-navy-700 shadow-2xl z-[9999] overflow-hidden flex flex-col p-1 animate-in fade-in zoom-in-95 duration-150 max-h-72`}
+          style={{ isolation: 'isolate' }}
         >
           {/* In-Dropdown Search Header */}
           {isSearchEnabled && (
