@@ -27,6 +27,7 @@ import apiClient from '@/lib/api-client';
 import api from '@/lib/services';
 import { WilayahSelect } from '@/components/wilayah/WilayahSelect';
 import { SelectedWilayahHierarchy } from '@/lib/wilayah-types';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 export default function RegisterPerangkatDesaPage() {
   const router = useRouter();
@@ -240,16 +241,16 @@ export default function RegisterPerangkatDesaPage() {
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     Jabatan Struktural
                   </label>
-                  <select
+                  <StyledSelect
                     value={formData.jabatan}
-                    onChange={(e) => setFormData({ ...formData, jabatan: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  >
-                    <option value="Kepala Desa">Kepala Desa (Kades)</option>
-                    <option value="Sekretaris Desa">Sekretaris Desa (Sekdes)</option>
-                    <option value="Kaur Perencanaan">Kaur Perencanaan / Ekbang</option>
-                    <option value="Lurah">Lurah</option>
-                  </select>
+                    onChange={(v) => setFormData({ ...formData, jabatan: String(v) })}
+                    options={[
+                      { value: 'Kepala Desa', label: 'Kepala Desa (Kades)' },
+                      { value: 'Sekretaris Desa', label: 'Sekretaris Desa (Sekdes)' },
+                      { value: 'Kaur Perencanaan', label: 'Kaur Perencanaan / Ekbang' },
+                      { value: 'Lurah', label: 'Lurah' },
+                    ]}
+                  />
                 </div>
 
                 <div className="space-y-1">

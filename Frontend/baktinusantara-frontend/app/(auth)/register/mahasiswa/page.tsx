@@ -39,6 +39,7 @@ import {
   validateStudentEmailFormat,
 } from '@/lib/campus-data';
 import api from '@/lib/services';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 export default function RegisterMahasiswaMultiPhasePage() {
   const router = useRouter();
@@ -764,21 +765,17 @@ export default function RegisterMahasiswaMultiPhasePage() {
                       Kode PT ID Unik Terintegrasi
                     </span>
                   </div>
-                  <div className="relative">
-                    <Building className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
-                    <select
-                      value={formData.is_custom_univ ? 'custom' : formData.universitas_id}
-                      onChange={(e) => handleUniversityChange(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      {INDONESIA_UNIVERSITIES.map((univ) => (
-                        <option key={univ.kode_pt} value={univ.id}>
-                          {univ.nama_universitas} (Kode PT: {univ.kode_pt} — Akreditasi {univ.akreditasi})
-                        </option>
-                      ))}
-                      <option value="custom">-- Perguruan Tinggi Lainnya (Input Manual) --</option>
-                    </select>
-                  </div>
+                  <StyledSelect
+                    value={formData.is_custom_univ ? 'custom' : formData.universitas_id}
+                    onChange={(v) => handleUniversityChange(String(v))}
+                    options={[
+                      ...INDONESIA_UNIVERSITIES.map((univ) => ({
+                        value: String(univ.id),
+                        label: `${univ.nama_universitas} (Kode PT: ${univ.kode_pt} — Akreditasi ${univ.akreditasi})`,
+                      })),
+                      { value: 'custom', label: '-- Perguruan Tinggi Lainnya (Input Manual) --' },
+                    ]}
+                  />
 
                   {formData.is_custom_univ && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
@@ -806,18 +803,14 @@ export default function RegisterMahasiswaMultiPhasePage() {
                     Fakultas <span className="text-rose-500">*</span>
                   </label>
                   {!formData.is_custom_univ && facultyOptions.length > 0 && !formData.is_custom_fakultas ? (
-                    <select
+                    <StyledSelect
                       value={formData.fakultas}
-                      onChange={(e) => handleFacultyChange(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      {facultyOptions.map((fac) => (
-                        <option key={fac} value={fac}>
-                          {fac}
-                        </option>
-                      ))}
-                      <option value="custom">-- Fakultas Lainnya (Ketik Manual) --</option>
-                    </select>
+                      onChange={(v) => handleFacultyChange(String(v))}
+                      options={[
+                        ...facultyOptions.map((fac) => ({ value: fac, label: fac })),
+                        { value: 'custom', label: '-- Fakultas Lainnya (Ketik Manual) --' },
+                      ]}
+                    />
                   ) : (
                     <div className="space-y-1">
                       <input
@@ -846,18 +839,14 @@ export default function RegisterMahasiswaMultiPhasePage() {
                     Program Studi / Jurusan <span className="text-rose-500">*</span>
                   </label>
                   {!formData.is_custom_univ && majorOptions.length > 0 && !formData.is_custom_jurusan ? (
-                    <select
+                    <StyledSelect
                       value={formData.jurusan}
-                      onChange={(e) => handleMajorChange(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      {majorOptions.map((maj) => (
-                        <option key={maj} value={maj}>
-                          {maj}
-                        </option>
-                      ))}
-                      <option value="custom">-- Program Studi Lainnya (Ketik Manual) --</option>
-                    </select>
+                      onChange={(v) => handleMajorChange(String(v))}
+                      options={[
+                        ...majorOptions.map((maj) => ({ value: maj, label: maj })),
+                        { value: 'custom', label: '-- Program Studi Lainnya (Ketik Manual) --' },
+                      ]}
+                    />
                   ) : (
                     <div className="space-y-1">
                       <input
@@ -885,16 +874,16 @@ export default function RegisterMahasiswaMultiPhasePage() {
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     Angkatan Masuk
                   </label>
-                  <select
+                  <StyledSelect
                     value={formData.angkatan}
-                    onChange={(e) => setFormData({ ...formData, angkatan: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                  </select>
+                    onChange={(v) => setFormData({ ...formData, angkatan: String(v) })}
+                    options={[
+                      { value: '2024', label: '2024' },
+                      { value: '2023', label: '2023' },
+                      { value: '2022', label: '2022' },
+                      { value: '2021', label: '2021' },
+                    ]}
+                  />
                 </div>
 
                 {/* Semester Berjalan */}
@@ -902,16 +891,16 @@ export default function RegisterMahasiswaMultiPhasePage() {
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     Semester Berjalan (Syarat KKN min. Sem. 5)
                   </label>
-                  <select
+                  <StyledSelect
                     value={formData.semester}
-                    onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="5">Semester 5</option>
-                    <option value="6">Semester 6</option>
-                    <option value="7">Semester 7</option>
-                    <option value="8">Semester 8+</option>
-                  </select>
+                    onChange={(v) => setFormData({ ...formData, semester: String(v) })}
+                    options={[
+                      { value: '5', label: 'Semester 5' },
+                      { value: '6', label: 'Semester 6' },
+                      { value: '7', label: 'Semester 7' },
+                      { value: '8', label: 'Semester 8+' },
+                    ]}
+                  />
                 </div>
               </div>
 

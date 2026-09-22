@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/services';
 import { ArrowLeft, FileText, Layers, Target, Tag, Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 const KATEGORI_OPTIONS: { value: string; label: string }[] = [
   { value: 'Digitalisasi & Teknologi Desa', label: 'Digitalisasi & Teknologi Desa' },
@@ -130,17 +131,11 @@ export default function BuatPosKebutuhanPage() {
                 <Tag className="w-3.5 h-3.5 text-slate-400" />
                 Kategori <span className="text-rose-500">*</span>
               </label>
-              <select
+              <StyledSelect
                 value={kategori}
-                onChange={(e) => setKategori(e.target.value)}
-                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              >
-                {KATEGORI_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setKategori(String(v))}
+                options={KATEGORI_OPTIONS}
+              />
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-navy-800">

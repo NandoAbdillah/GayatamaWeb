@@ -22,6 +22,7 @@ import {
   FileDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 export default function MahasiswaProposalPage() {
   const [posList, setPosList] = useState<PosKebutuhan[]>([]);
@@ -135,25 +136,22 @@ export default function MahasiswaProposalPage() {
               <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                 Pilih Pos Kebutuhan Sasaran
               </label>
-              <select
+              <StyledSelect
                 value={selectedPosId}
-                onChange={(e) => setSelectedPosId(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs font-semibold text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                {posList.length > 0 ? (
-                  posList.map((pos) => (
-                    <option key={pos.id} value={pos.id} className="dark:bg-navy-900">
-                      {pos.judul} ({pos.nama_desa || 'Desa Sukamaju'} - {pos.distance_km || 15} km)
-                    </option>
-                  ))
-                ) : (
-                  <>
-                    <option value="1" className="dark:bg-navy-900">Digitalisasi Pemasaran UMKM (Desa Sukamaju - 15 km)</option>
-                    <option value="2" className="dark:bg-navy-900">Pemberdayaan Posyandu Balita (Desa Sukamaju - 15 km)</option>
-                    <option value="3" className="dark:bg-navy-900">Optimalisasi Biogas & Sanitasi (Desa Berkah Makmur - 45 km)</option>
-                  </>
-                )}
-              </select>
+                onChange={(v) => setSelectedPosId(String(v))}
+                options={
+                  posList.length > 0
+                    ? posList.map((pos) => ({
+                        value: String(pos.id),
+                        label: `${pos.judul} (${pos.nama_desa || 'Desa Sukamaju'} - ${pos.distance_km || 15} km)`,
+                      }))
+                    : [
+                        { value: '1', label: 'Digitalisasi Pemasaran UMKM (Desa Sukamaju - 15 km)' },
+                        { value: '2', label: 'Pemberdayaan Posyandu Balita (Desa Sukamaju - 15 km)' },
+                        { value: '3', label: 'Optimalisasi Biogas & Sanitasi (Desa Berkah Makmur - 45 km)' },
+                      ]
+                }
+              />
             </div>
 
             <div>

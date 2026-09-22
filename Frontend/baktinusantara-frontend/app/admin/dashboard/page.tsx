@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/services";
+import { StyledSelect } from "@/components/ui/StyledSelect";
 import {
   ShieldCheck,
   Building2,
@@ -528,41 +529,23 @@ export default function SuperadminDashboardPage() {
                       <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1">
                         <Calendar className="w-3 h-3" /> Tahun
                       </label>
-                      <select
+                      <StyledSelect
                         value={selectedYear}
-                        onChange={(e) =>
-                          setSelectedYear(Number(e.target.value))
-                        }
-                        className="h-9 min-w-[110px] rounded-lg border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 px-3 text-sm font-semibold text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      >
-                        {availableYears.map((y) => (
-                          <option key={y} value={y}>
-                            {y}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(v) => setSelectedYear(Number(v))}
+                        options={availableYears.map((y) => ({ value: y, label: String(y) }))}
+                        className="min-w-[110px]"
+                      />
                     </div>
                     <div className="flex flex-col gap-1">
                       <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1">
                         <Filter className="w-3 h-3" /> Bulan
                       </label>
-                      <select
-                        value={selectedMonth}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setSelectedMonth(v === "all" ? "all" : Number(v));
-                        }}
-                        className="h-9 min-w-[150px] rounded-lg border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 px-3 text-sm font-semibold text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      >
-                        {MONTH_OPTIONS.map((opt) => (
-                          <option
-                            key={String(opt.value)}
-                            value={String(opt.value)}
-                          >
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
+                      <StyledSelect
+                        value={String(selectedMonth)}
+                        onChange={(v) => setSelectedMonth(v === "all" ? "all" : Number(v))}
+                        options={MONTH_OPTIONS.map((opt) => ({ value: String(opt.value), label: opt.label }))}
+                        className="min-w-[150px]"
+                      />
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

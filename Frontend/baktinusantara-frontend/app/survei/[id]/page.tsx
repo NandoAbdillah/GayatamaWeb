@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api-client';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 export default function SurveiKepuasanMasyarakatPage({
   params,
@@ -154,16 +155,16 @@ export default function SurveiKepuasanMasyarakatPage({
                     onChange={(e) => setFormData({ ...formData, nama_responden: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none"
                   />
-                  <select
+                  <StyledSelect
                     value={formData.status_warga}
-                    onChange={(e) => setFormData({ ...formData, status_warga: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none"
-                  >
-                    <option value="Warga / Petani">Warga Masyarakat / Petani</option>
-                    <option value="Pelaku UMKM">Pelaku UMKM / Pedagang Desa</option>
-                    <option value="Pengurus RT/RW">Pengurus RT / RW / Dusun</option>
-                    <option value="Kader Posyandu">Kader Posyandu / PKK</option>
-                  </select>
+                    onChange={(v) => setFormData({ ...formData, status_warga: String(v) })}
+                    options={[
+                      { value: 'Warga / Petani', label: 'Warga Masyarakat / Petani' },
+                      { value: 'Pelaku UMKM', label: 'Pelaku UMKM / Pedagang Desa' },
+                      { value: 'Pengurus RT/RW', label: 'Pengurus RT / RW / Dusun' },
+                      { value: 'Kader Posyandu', label: 'Kader Posyandu / PKK' },
+                    ]}
+                  />
                 </div>
               </div>
 

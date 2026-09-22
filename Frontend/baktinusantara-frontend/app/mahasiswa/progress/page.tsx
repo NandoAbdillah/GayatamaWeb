@@ -24,6 +24,7 @@ import {
   Camera,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 export default function MahasiswaProgressPage() {
   const [logbooks, setLogbooks] = useState<LogbookEntry[]>(MOCK_LOGBOOKS);
@@ -339,16 +340,16 @@ export default function MahasiswaProgressPage() {
                 <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                   Terkait Program Kerja
                 </label>
-                <select
+                <StyledSelect
                   value={targetProgram}
-                  onChange={(e) => setTargetProgram(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="Pelatihan Branding & Kemasan UMKM" className="dark:bg-navy-900">Pelatihan Branding & Kemasan UMKM</option>
-                  <option value="Website Marketplace & Katalog Desa" className="dark:bg-navy-900">Website Marketplace & Katalog Desa</option>
-                  <option value="Modul Panduan Irigasi Terpadu" className="dark:bg-navy-900">Modul Panduan Irigasi Terpadu</option>
-                  <option value="Sosialisasi Sanitasi Air Bersih" className="dark:bg-navy-900">Sosialisasi Sanitasi Air Bersih</option>
-                </select>
+                  onChange={(v) => setTargetProgram(String(v))}
+                  options={[
+                    { value: 'Pelatihan Branding & Kemasan UMKM', label: 'Pelatihan Branding & Kemasan UMKM' },
+                    { value: 'Website Marketplace & Katalog Desa', label: 'Website Marketplace & Katalog Desa' },
+                    { value: 'Modul Panduan Irigasi Terpadu', label: 'Modul Panduan Irigasi Terpadu' },
+                    { value: 'Sosialisasi Sanitasi Air Bersih', label: 'Sosialisasi Sanitasi Air Bersih' },
+                  ]}
+                />
               </div>
 
               <div>

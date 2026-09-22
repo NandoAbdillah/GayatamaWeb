@@ -24,6 +24,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 export default function MahasiswaKelompokPage() {
   const [kelompok, setKelompok] = useState<Kelompok>(MOCK_KELOMPOK_14);
@@ -375,15 +376,22 @@ export default function MahasiswaKelompokPage() {
                 <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                   Dosen DPL Tersedia
                 </label>
-                <select
+                <StyledSelect
                   value={selectedDosenId}
-                  onChange={(e) => setSelectedDosenId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
-                >
-                  <option value="1" className="dark:bg-navy-900">Dr. Budi Santoso, M.Kom. (UNESA - NIP: 198001012005011001)</option>
-                  <option value="2" className="dark:bg-navy-900">Dr. Retno Wulandari, M.Pd. (UNESA - NIP: 198503152010122002)</option>
-                  <option value="3" className="dark:bg-navy-900">Ir. Agus Setiawan, M.T. (ITS - NIP: 197808202003121002)</option>
-                </select>
+                  onChange={(v) => setSelectedDosenId(String(v))}
+                  options={
+                    dosenList.length > 0
+                      ? dosenList.map((d: any) => ({
+                          value: String(d.id ?? d.nip ?? d.name),
+                          label: `${d.name ?? d.nama ?? 'Dosen'} ${d.nip ? `(NIP: ${d.nip})` : ''}`.trim(),
+                        }))
+                      : [
+                          { value: '1', label: 'Dr. Budi Santoso, M.Kom. (UNESA - NIP: 198001012005011001)' },
+                          { value: '2', label: 'Dr. Retno Wulandari, M.Pd. (UNESA - NIP: 198503152010122002)' },
+                          { value: '3', label: 'Ir. Agus Setiawan, M.T. (ITS - NIP: 197808202003121002)' },
+                        ]
+                  }
+                />
               </div>
               <div className="flex items-center justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowSetDosenModal(false)}>

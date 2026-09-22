@@ -21,6 +21,7 @@ import {
   Building,
   SlidersHorizontal,
 } from 'lucide-react';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 export default function SearchPage() {
   const [items, setItems] = useState<PosKebutuhan[]>(MOCK_POS_KEBUTUHAN);
@@ -123,17 +124,17 @@ export default function SearchPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <select
+              <StyledSelect
                 value={selectedSector}
-                onChange={(e) => setSelectedSector(e.target.value)}
-                className="px-4 py-2.5 bg-slate-50 dark:bg-navy-950/80 border border-slate-200 dark:border-navy-700 rounded-xl text-xs font-semibold text-navy-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="Semua">Semua Sektor</option>
-                <option value="Digitalisasi">Digitalisasi & Teknologi</option>
-                <option value="Agrikultur">Agrikultur & Ketahanan Pangan</option>
-                <option value="Kesehatan">Kesehatan & Sanitasi</option>
-                <option value="UMKM">Pemberdayaan UMKM</option>
-              </select>
+                onChange={(v) => setSelectedSector(String(v))}
+                options={[
+                  { value: 'Semua', label: 'Semua Sektor' },
+                  { value: 'Digitalisasi', label: 'Digitalisasi & Teknologi' },
+                  { value: 'Agrikultur', label: 'Agrikultur & Ketahanan Pangan' },
+                  { value: 'Kesehatan', label: 'Kesehatan & Sanitasi' },
+                  { value: 'UMKM', label: 'Pemberdayaan UMKM' },
+                ]}
+              />
 
               <Link href="/maps">
                 <Button variant="secondary" size="md" className="gap-1.5 text-xs whitespace-nowrap rounded-xl">
@@ -233,7 +234,7 @@ export default function SearchPage() {
                 </div>
               </div>
 
-              <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-100 dark:border-navy-800 mt-2">
+              <div className="p-5 pt-5 flex items-center justify-between border-t border-slate-100 dark:border-navy-800 mt-2">
                 <div className="text-xs">
                   <span className="text-slate-400 dark:text-slate-400">Kuota: </span>
                   <strong className="text-navy-950 dark:text-white">

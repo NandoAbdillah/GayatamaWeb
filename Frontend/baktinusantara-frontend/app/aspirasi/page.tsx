@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 export default function AspirasiPage() {
   const t = useTranslations('aspirasi');
@@ -199,15 +200,15 @@ export default function AspirasiPage() {
                     <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                       {t('form.labels.village')}
                     </label>
-                    <select
+                    <StyledSelect
                       value={desaId}
-                      onChange={(e) => setDesaId(Number(e.target.value))}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/40 font-semibold cursor-pointer"
-                    >
-                      <option value={1} className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.villages.village1')}</option>
-                      <option value={2} className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.villages.village2')}</option>
-                      <option value={3} className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.villages.village3')}</option>
-                    </select>
+                      onChange={(v) => setDesaId(Number(v))}
+                      options={[
+                        { value: 1, label: t('form.labels.villages.village1') },
+                        { value: 2, label: t('form.labels.villages.village2') },
+                        { value: 3, label: t('form.labels.villages.village3') },
+                      ]}
+                    />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -228,17 +229,17 @@ export default function AspirasiPage() {
                       <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                         {t('form.labels.category')}
                       </label>
-                      <select
+                      <StyledSelect
                         value={kategori}
-                        onChange={(e) => setKategori(e.target.value as any)}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/40 font-semibold cursor-pointer"
-                      >
-                        <option value="umkm" className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.categories.umkm')}</option>
-                        <option value="kesehatan" className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.categories.kesehatan')}</option>
-                        <option value="lingkungan" className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.categories.lingkungan')}</option>
-                        <option value="pendidikan" className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.categories.pendidikan')}</option>
-                        <option value="fasilitas" className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.categories.fasilitas')}</option>
-                      </select>
+                        onChange={(v) => setKategori(v as any)}
+                        options={[
+                          { value: 'umkm', label: t('form.labels.categories.umkm') },
+                          { value: 'kesehatan', label: t('form.labels.categories.kesehatan') },
+                          { value: 'lingkungan', label: t('form.labels.categories.lingkungan') },
+                          { value: 'pendidikan', label: t('form.labels.categories.pendidikan') },
+                          { value: 'fasilitas', label: t('form.labels.categories.fasilitas') },
+                        ]}
+                      />
                     </div>
                   </div>
 
@@ -247,15 +248,15 @@ export default function AspirasiPage() {
                       <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                         {t('form.labels.urgency')}
                       </label>
-                      <select
+                      <StyledSelect
                         value={urgensi}
-                        onChange={(e) => setUrgensi(e.target.value as any)}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/40 font-semibold cursor-pointer"
-                      >
-                        <option value="rendah" className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.urgencies.rendah')}</option>
-                        <option value="sedang" className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.urgencies.sedang')}</option>
-                        <option value="mendesak" className="bg-white dark:bg-navy-900 text-navy-950 dark:text-slate-100">{t('form.labels.urgencies.mendesak')}</option>
-                      </select>
+                        onChange={(v) => setUrgensi(v as any)}
+                        options={[
+                          { value: 'rendah', label: t('form.labels.urgencies.rendah') },
+                          { value: 'sedang', label: t('form.labels.urgencies.sedang') },
+                          { value: 'mendesak', label: t('form.labels.urgencies.mendesak') },
+                        ]}
+                      />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">

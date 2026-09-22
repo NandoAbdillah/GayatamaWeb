@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api-client';
+import { StyledSelect } from '@/components/ui/StyledSelect';
 
 export default function MahasiswaProfilePage() {
   const { user } = useAuth();
@@ -236,16 +237,16 @@ export default function MahasiswaProfilePage() {
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   Golongan Darah (Untuk Data Medis KKN)
                 </label>
-                <select
+                <StyledSelect
                   value={profile.golongan_darah}
-                  onChange={(e) => setProfile({ ...profile, golongan_darah: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs font-semibold text-navy-950 dark:text-white focus:outline-none"
-                >
-                  <option value="A+">Golongan Darah A+</option>
-                  <option value="B+">Golongan Darah B+</option>
-                  <option value="AB+">Golongan Darah AB+</option>
-                  <option value="O+">Golongan Darah O+</option>
-                </select>
+                  onChange={(v) => setProfile({ ...profile, golongan_darah: String(v) })}
+                  options={[
+                    { value: 'A+', label: 'Golongan Darah A+' },
+                    { value: 'B+', label: 'Golongan Darah B+' },
+                    { value: 'AB+', label: 'Golongan Darah AB+' },
+                    { value: 'O+', label: 'Golongan Darah O+' },
+                  ]}
+                />
               </div>
             </div>
           </Card>
