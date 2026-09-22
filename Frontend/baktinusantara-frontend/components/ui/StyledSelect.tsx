@@ -33,6 +33,8 @@ export function StyledSelect({
   disabled = false,
 }: StyledSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,10 +47,25 @@ export function StyledSelect({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Smooth drop-down: turun halus dari atas (fade + scale + slide)
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      const raf = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+      });
+      return () => cancelAnimationFrame(raf);
+    } else {
+      setIsVisible(false);
+      const t = setTimeout(() => setShouldRender(false), 260);
+      return () => clearTimeout(t);
+    }
+  }, [isOpen]);
+
   const selected = options.find((o) => String(o.value) === String(value));
 
   return (
-    <div ref={containerRef} className={`relative ${isOpen ? 'z-[9999]' : 'z-0'} ${className}`} style={isOpen ? { isolation: 'isolate' } : undefined}>
+    <div ref={containerRef} className={`relative ${shouldRender ? 'z-[9999]' : 'z-0'} ${className}`} style={shouldRender ? { isolation: 'isolate' } : undefined}>
       <button
         type="button"
         disabled={disabled}
@@ -57,15 +74,17 @@ export function StyledSelect({
       >
         <span className="truncate text-left flex-1">{selected ? selected.label : placeholder}</span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform duration-200 shrink-0 ml-1 ${
+          className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0 ml-1 ${
             isOpen ? 'rotate-180 text-primary' : ''
           }`}
         />
       </button>
 
-      {isOpen && (
+      {shouldRender && (
         <div
-          className={`absolute left-0 mt-2 w-full min-w-[180px] origin-top rounded-2xl bg-white dark:bg-navy-900 p-1.5 shadow-2xl ring-1 ring-slate-900/10 dark:ring-black/40 border border-slate-100 dark:border-navy-800 z-[9999] animate-in fade-in zoom-in-95 duration-150 max-h-72 overflow-auto ${dropdownClassName}`}
+          className={`absolute left-0 mt-2 w-full min-w-[180px] origin-top rounded-2xl bg-white dark:bg-navy-900 p-1.5 shadow-2xl ring-1 ring-slate-900/10 dark:ring-black/40 border border-slate-100 dark:border-navy-800 z-[9999] max-h-72 overflow-auto will-change-transform transition-all duration-260 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top ${
+            isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.98] -translate-y-2 pointer-events-none'
+          } ${dropdownClassName}`}
           style={{ isolation: 'isolate' }}
         >
           {label && (

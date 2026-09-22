@@ -39,6 +39,8 @@ export const MapFilterSelect: React.FC<MapFilterSelectProps> = ({
   searchable = true,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -55,13 +57,28 @@ export const MapFilterSelect: React.FC<MapFilterSelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Smooth drop-down: turun halus dari atas
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      const raf = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+      });
+      return () => cancelAnimationFrame(raf);
+    } else {
+      setIsVisible(false);
+      const t = setTimeout(() => setShouldRender(false), 260);
+      return () => clearTimeout(t);
+    }
+  }, [isOpen]);
+
   // Auto focus search input when opened
   useEffect(() => {
     if (isOpen) {
-      // Small timeout to ensure element is mounted
+      // Small timeout to ensure element is mounted and visible
       const t = setTimeout(() => {
         searchInputRef.current?.focus();
-      }, 50);
+      }, 60);
       return () => clearTimeout(t);
     } else {
       setSearchQuery('');
@@ -79,7 +96,7 @@ export const MapFilterSelect: React.FC<MapFilterSelectProps> = ({
   });
 
   return (
-    <div ref={containerRef} className={`relative min-w-0 ${isOpen ? 'z-[9999]' : 'z-0'} ${className}`} style={isOpen ? { isolation: 'isolate' } : undefined}>
+    <div ref={containerRef} className={`relative min-w-0 ${shouldRender ? 'z-[9999]' : 'z-0'} ${className}`} style={shouldRender ? { isolation: 'isolate' } : undefined}>
       {/* Trigger Button */}
       <button
         type="button"
@@ -108,16 +125,18 @@ export const MapFilterSelect: React.FC<MapFilterSelectProps> = ({
         </div>
 
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ml-1 ${
+          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0 ml-1 ${
             isOpen ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''
           }`}
         />
       </button>
 
       {/* Floating Popover Dropdown with Search */}
-      {isOpen && (
+      {shouldRender && (
         <div
-          className={`absolute top-full left-0 mt-1.5 ${dropdownWidth} max-w-[calc(100vw-32px)] bg-white dark:bg-navy-900 backdrop-blur-2xl rounded-2xl border border-slate-200/90 dark:border-navy-700 shadow-2xl z-[9999] overflow-hidden flex flex-col p-1 animate-in fade-in zoom-in-95 duration-150 max-h-72`}
+          className={`absolute top-full left-0 mt-1.5 ${dropdownWidth} max-w-[calc(100vw-32px)] bg-white dark:bg-navy-900 backdrop-blur-2xl rounded-2xl border border-slate-200/90 dark:border-navy-700 shadow-2xl z-[9999] overflow-hidden flex flex-col p-1 will-change-transform transition-all duration-260 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top ${
+            isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.98] -translate-y-2 pointer-events-none'
+          } max-h-72`}
           style={{ isolation: 'isolate' }}
         >
           {/* In-Dropdown Search Header */}

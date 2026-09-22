@@ -44,6 +44,8 @@ function UKFlag({ className = 'w-[19px] h-[13px]' }: { className?: string }) {
 export function LanguageSwitcher({ className = '' }: { className?: string }) {
   const { locale, setLocale } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,6 +57,20 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      const raf = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+      });
+      return () => cancelAnimationFrame(raf);
+    } else {
+      setIsVisible(false);
+      const t = setTimeout(() => setShouldRender(false), 260);
+      return () => clearTimeout(t);
+    }
+  }, [isOpen]);
 
   const languages = [
     { code: 'id' as Locale, label: 'IDN' },
@@ -79,14 +95,18 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
           {currentLang.label}
         </span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform duration-200 ml-0.5 ${
+          className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ml-0.5 ${
             isOpen ? 'rotate-180 text-primary' : ''
           }`}
         />
       </button>
 
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-44 origin-top-right rounded-2xl bg-white dark:bg-navy-900 p-1.5 shadow-2xl ring-1 ring-slate-900/10 dark:ring-black/40 border border-slate-100 dark:border-navy-800 z-50 animate-in fade-in zoom-in-95 duration-150">
+      {shouldRender && (
+        <div
+          className={`absolute right-0 mt-2 w-44 origin-top-right rounded-2xl bg-white dark:bg-navy-900 p-1.5 shadow-2xl ring-1 ring-slate-900/10 dark:ring-black/40 border border-slate-100 dark:border-navy-800 z-50 will-change-transform transition-all duration-260 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top ${
+            isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.98] -translate-y-2 pointer-events-none'
+          }`}
+        >
           <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-navy-800/80 mb-1">
             Bahasa / Language
           </div>
