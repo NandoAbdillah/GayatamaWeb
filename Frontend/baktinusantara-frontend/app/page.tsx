@@ -263,7 +263,7 @@ export default function HomePage() {
       {/* 1. HERO SECTION (Clear Storytelling & Gateway) */}
       {/* ========================================================================= */}
       <section
-        className="relative -mt-20 min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 lg:pt-40 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-surface-canvas dark:bg-[#071629] border-b border-slate-200/80 dark:border-navy-800 transition-colors duration-200"
+        className="relative z-30 -mt-20 min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 lg:pt-40 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-visible bg-surface-canvas dark:bg-[#071629] border-b border-slate-200/80 dark:border-navy-800 transition-colors duration-200 isolate"
         style={{
           backgroundImage: "url('/images/BGhero.png')",
           backgroundSize: 'cover',
@@ -303,8 +303,8 @@ export default function HomePage() {
           </p>
 
           {/* Search Box Card */}
-          <div className="relative z-20 max-w-4xl xl:max-w-5xl mx-auto pt-1 sm:pt-2 text-left">
-            <div className="relative z-20 bg-white/95 dark:bg-navy-900/95 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-xl p-3.5 sm:p-4.5 lg:p-5 space-y-3 sm:space-y-3.5 backdrop-blur-xl">
+          <div className="relative z-40 max-w-4xl xl:max-w-5xl mx-auto pt-1 sm:pt-2 text-left isolate">
+            <div className="relative z-40 bg-white/95 dark:bg-navy-900/95 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-navy-700/80 shadow-xl p-3.5 sm:p-4.5 lg:p-5 space-y-3 sm:space-y-3.5 backdrop-blur-xl overflow-visible">
 
               {/* Top Header Bar */}
               <div className="relative z-10 flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-navy-800/80">
@@ -343,11 +343,11 @@ export default function HomePage() {
               </div>
 
               {/* Main Compact Input Fields Grid */}
-              <div className="relative z-10 grid grid-cols-1 sm:grid-cols-12 gap-2.5 sm:gap-3 items-stretch">
+              <div className="relative z-40 grid grid-cols-1 sm:grid-cols-12 gap-2.5 sm:gap-3 items-stretch overflow-visible">
                 {/* 1. Wilayah / Target Desa */}
                 <div
                   ref={locationContainerRef}
-                  className="sm:col-span-5 relative bg-slate-50/90 dark:bg-navy-950 p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between"
+                  className={`sm:col-span-5 relative bg-slate-50/90 dark:bg-navy-950 p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between ${showLocationDropdown ? 'z-50' : 'z-0'}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
@@ -385,7 +385,7 @@ export default function HomePage() {
                   </div>
 
                   {showLocationDropdown && locationSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-[100] divide-y divide-slate-100 dark:divide-navy-800">
                       <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
                         <span>PILIH WILAYAH RESMI KEMENDAGRI</span>
                         <span className="text-emerald-600 font-mono">38 Provinsi</span>
@@ -427,7 +427,7 @@ export default function HomePage() {
                 {/* 2. Tema / Sektor Pengabdian */}
                 <div
                   ref={sectorContainerRef}
-                  className="sm:col-span-4 relative bg-slate-50/90 dark:bg-navy-950 p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between"
+                  className={`sm:col-span-4 relative bg-slate-50/90 dark:bg-navy-950 p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 dark:border-navy-800 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col justify-between ${showSectorDropdown ? 'z-50' : 'z-0'}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
@@ -464,7 +464,7 @@ export default function HomePage() {
                   </button>
 
                   {showSectorDropdown && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-[9999] divide-y divide-slate-100 dark:divide-navy-800 isolate">
                       <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
                         <span>PILIH SEKTOR (MULTI-PILIHAN)</span>
                         <button
@@ -767,7 +767,7 @@ export default function HomePage() {
       {/* WRAPPER 1: IMAGE2.PNG (Gunung & Burung-burung Panorama Latar Belakang) */}
       {/* ========================================================================= */}
       <div
-        className="relative overflow-hidden w-full bg-cover sm:bg-[length:100%_auto] lg:bg-cover xl:bg-[length:100%_auto] bg-top bg-no-repeat"
+        className="relative z-0 overflow-hidden w-full bg-cover sm:bg-[length:100%_auto] lg:bg-cover xl:bg-[length:100%_auto] bg-top bg-no-repeat isolate"
         style={{
           backgroundImage: "url('/images/image2.png')",
           backgroundPosition: 'top center',
@@ -1251,7 +1251,7 @@ export default function HomePage() {
                   Sektor Prioritas: <strong className="text-emerald-600 dark:text-emerald-400">{activeRegionData.topSector}</strong>
                 </span>
                 <Link href={`/search?q=${encodeURIComponent(activeRegionData.shortName)}`}>
-                  <Button variant="primary" size="sm" className="rounded-xl text-xs font-bold gap-1">
+                  <Button variant="primary" size="sm" className="rounded-xl text-xs font-bold gap-1 whitespace-nowrap">
                     <span>Lihat Pos Wilayah Ini</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Button>
