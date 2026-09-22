@@ -75,8 +75,10 @@ class ProgressService
 
         $progress = ProgressMingguan::create([
             'proposal_id' => $proposal->id,
+            'title' => $data['title'] ?? ('Laporan Progres Minggu ke-' . $data['minggu_ke']),
             'minggu_ke' => $data['minggu_ke'],
             'persentase' => $data['persentase'],
+            'target' => $data['target'] ?? null,
             'deskripsi' => $data['deskripsi'],
             'foto_url' => $fotoUrl,
             'is_locked' => true,
@@ -103,20 +105,28 @@ class ProgressService
 
     public function getByProposal(Proposal $proposal, ?User $user = null)
     {
-        $proposal->load('kelompok.ketua', 'posKebutuhan.desa');
+        $proposal->load('kelompok.ketua.profilMahasiswa', 'kelompok.dosen', 'posKebutuhan.desa');
 
         if ($user) {
-            $isMember = $proposal->kelompok->anggota()->where('user_id', $user->id)->exists()
-                || $proposal->kelompok->ketua_id === $user->id;
+            $isMember = $proposal->kelompok && (
+                $proposal->kelompok->anggota()->where('user_id', $user->id)->exists()
+                || $proposal->kelompok->ketua_id === $user->id
+            );
 
             $isDesa = $user->profilDesa && $proposal->posKebutuhan && $proposal->posKebutuhan->desa_id === $user->profilDesa->id;
-
             $isDosen = $user->profilDosen && $proposal->kelompok && $proposal->kelompok->dosen_id === $user->profilDosen->id;
+
+            $univId = $user->profilUniversitas?->id;
+            $isUniversitas = $user->role === 'universitas' && $univId && (
+                ($proposal->kelompok && $proposal->kelompok->dosen && $proposal->kelompok->dosen->universitas_id === $univId)
+                || ($proposal->kelompok && $proposal->kelompok->ketua && $proposal->kelompok->ketua->profilMahasiswa && $proposal->kelompok->ketua->profilMahasiswa->universitas_id === $univId)
+                || ($proposal->kelompok && $proposal->kelompok->anggota()->whereHas('user.profilMahasiswa', fn($q) => $q->where('universitas_id', $univId))->exists())
+            );
 
             $isAdmin = $user->role === 'admin';
 
-            if (!$isMember && !$isDesa && !$isDosen && !$isAdmin) {
-                // If not strictly matched, allow proposal progress read for student/demo viewing
+            if (!$isMember && !$isDesa && !$isDosen && !$isUniversitas && !$isAdmin) {
+                abort(403, 'Anda tidak memiliki wewenang untuk melihat timeline progres proposal ini.');
             }
         }
 

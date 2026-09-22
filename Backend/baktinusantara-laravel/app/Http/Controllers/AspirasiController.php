@@ -26,7 +26,7 @@ class AspirasiController extends Controller
         ], 201);
     }
 
-    public function show(int $ticket)
+    public function show(int $ticket, Request $request)
     {
         $aspirasi = $this->aspirasiService->findByTicket($ticket);
 
@@ -34,7 +34,24 @@ class AspirasiController extends Controller
             return response()->json(['message' => 'Tiket tidak ditemukan'], 404);
         }
 
-        return response()->json($aspirasi);
+        $aspirasiData = $aspirasi->toArray();
+
+        // [SEC-03] PII Masking for public lookup
+        $isOwnerDesa = $request->user() && $request->user()->profilDesa && $request->user()->profilDesa->id === $aspirasi->desa_id;
+        if (!$isOwnerDesa && !empty($aspirasiData['pelapor_wa'])) {
+            $phone = (string)$aspirasiData['pelapor_wa'];
+            $len = strlen($phone);
+            if ($len >= 8) {
+                $aspirasiData['pelapor_wa'] = substr($phone, 0, 4) . '****' . substr($phone, -4);
+            } else {
+                $aspirasiData['pelapor_wa'] = '****';
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $aspirasiData,
+        ]);
     }
 
     public function indexByDesa(Request $request)

@@ -6,9 +6,7 @@ export interface GeminiKeySlot {
   lastUsed: number;
 }
 
-// Default fallback key pool from environment or user specifications
-const DEFAULT_PRIMARY_KEY = 'AQ.Ab8RN6L_C1aNCzUKJYhyOvoEtbzjY8AE1dz-7IBZoge4f2b5kg';
-
+// [SEC-01 Fix] Keys are strictly loaded from environment variables (process.env.GEMINI_API_KEY / GEMINI_API_KEYS)
 class GeminiKeyManager {
   private keySlots: GeminiKeySlot[] = [];
   private currentIndex = 0;
@@ -34,9 +32,7 @@ class GeminiKeyManager {
         },
       ];
     } else {
-      this.parseKeys(
-        `Default|${DEFAULT_PRIMARY_KEY}|true,UserAccount|${DEFAULT_PRIMARY_KEY}|true`
-      );
+      this.keySlots = [];
     }
   }
 

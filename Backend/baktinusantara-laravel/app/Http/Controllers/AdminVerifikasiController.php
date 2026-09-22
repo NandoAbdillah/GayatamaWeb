@@ -14,7 +14,8 @@ class AdminVerifikasiController extends Controller
 {
     public function __construct(
         protected DesaService $desaService,
-        protected UniversitasService $universitasService
+        protected UniversitasService $universitasService,
+        protected AiDocumentAuditorService $aiAuditorService
     ) {}
 
     /**
@@ -29,6 +30,17 @@ class AdminVerifikasiController extends Controller
             $dosenCount = $univ->dosen ? $univ->dosen->count() : 0;
             $namaUniv = $univ->nama_universitas ?: ($univ->user?->name ?: 'Universitas');
 
+            $aiAudit = $univ->ai_audit_result;
+            if (!$aiAudit) {
+                $aiAudit = $this->aiAuditorService->auditRegistrationDocument($univ->sk_file_url, [
+                    'name' => $univ->user?->name ?: 'Admin LPPM ' . $namaUniv,
+                    'email' => $univ->user?->email ?: 'lppm@kampus.ac.id',
+                    'nama_universitas' => $namaUniv,
+                    'nip_admin' => $univ->nip_admin ?: '',
+                    'kode_univ' => $univ->kode_univ ?: '',
+                ]);
+            }
+
             return [
                 'id' => (int) $univ->id,
                 'entity_type' => 'universitas',
@@ -37,11 +49,14 @@ class AdminVerifikasiController extends Controller
                 'pemohon' => $univ->user?->name ?: 'Admin LPPM ' . $namaUniv,
                 'email' => $univ->user?->email ?: '-',
                 'kontak' => $univ->user?->phone_wa ?: '-',
-                'dokumen' => 'SK_Rektor_Pendirian_LPPM_' . ($univ->kode_univ ?: $univ->id) . '.pdf',
-                'dokumen_url' => null,
+                'dokumen' => $univ->sk_file_url ? basename($univ->sk_file_url) : ('SK_Rektor_Pendirian_LPPM_' . ($univ->kode_univ ?: $univ->id) . '.pdf'),
+                'dokumen_url' => $univ->sk_file_url ? asset('storage/' . $univ->sk_file_url) : null,
                 'status' => $isVerified ? 'verified' : 'pending',
                 'tanggal_pengajuan' => $createdAt->translatedFormat('d F Y'),
                 'created_at_raw' => $createdAt->toIso8601String(),
+                'ai_trust_score' => $aiAudit['trust_score'] ?? 88,
+                'ai_risk_level' => $aiAudit['risk_level'] ?? 'low',
+                'ai_audit' => $aiAudit,
                 'detail_info' => [
                     ['label' => 'Kode Institusi', 'value' => $univ->kode_univ ?: 'UNIV-' . $univ->id],
                     ['label' => 'Status Legalitas', 'value' => $isVerified ? 'Terverifikasi Resmi oleh Admin Platform' : 'Menunggu Validasi Dokumen Legalitas'],
@@ -123,6 +138,17 @@ class AdminVerifikasiController extends Controller
             $dosenCount = $univ->dosen ? $univ->dosen->count() : 0;
             $namaUniv = $univ->nama_universitas ?: ($univ->user?->name ?: 'Universitas');
 
+            $aiAudit = $univ->ai_audit_result;
+            if (!$aiAudit) {
+                $aiAudit = $this->aiAuditorService->auditRegistrationDocument($univ->sk_file_url, [
+                    'name' => $univ->user?->name ?: 'Admin LPPM ' . $namaUniv,
+                    'email' => $univ->user?->email ?: 'lppm@kampus.ac.id',
+                    'nama_universitas' => $namaUniv,
+                    'nip_admin' => $univ->nip_admin ?: '',
+                    'kode_univ' => $univ->kode_univ ?: '',
+                ]);
+            }
+
             $data = [
                 'id' => (int) $univ->id,
                 'entity_type' => 'universitas',
@@ -131,10 +157,13 @@ class AdminVerifikasiController extends Controller
                 'pemohon' => $univ->user?->name ?: 'Admin LPPM ' . $namaUniv,
                 'email' => $univ->user?->email ?: '-',
                 'kontak' => $univ->user?->phone_wa ?: '-',
-                'dokumen' => 'SK_Rektor_Pendirian_LPPM_' . ($univ->kode_univ ?: $univ->id) . '.pdf',
-                'dokumen_url' => null,
+                'dokumen' => $univ->sk_file_url ? basename($univ->sk_file_url) : ('SK_Rektor_Pendirian_LPPM_' . ($univ->kode_univ ?: $univ->id) . '.pdf'),
+                'dokumen_url' => $univ->sk_file_url ? asset('storage/' . $univ->sk_file_url) : null,
                 'status' => $isVerified ? 'verified' : 'pending',
                 'tanggal_pengajuan' => $createdAt->translatedFormat('d F Y'),
+                'ai_trust_score' => $aiAudit['trust_score'] ?? 88,
+                'ai_risk_level' => $aiAudit['risk_level'] ?? 'low',
+                'ai_audit' => $aiAudit,
                 'detail_info' => [
                     ['label' => 'Kode Institusi', 'value' => $univ->kode_univ ?: 'UNIV-' . $univ->id],
                     ['label' => 'Status Legalitas', 'value' => $isVerified ? 'Terverifikasi Resmi oleh Admin Platform' : 'Menunggu Validasi Dokumen Legalitas'],
