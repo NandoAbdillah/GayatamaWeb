@@ -1,166 +1,166 @@
 # 🇮🇩 BaktiNusantara
-### *Platform Kolaborasi Terpadu Kuliah Kerja Nyata (KKN) & Pengabdian Masyarakat Berbasis SDGs dan Potensi Desa Presisi*
 
-<div align="center">
-
-![BaktiNusantara Showcase](https://raw.githubusercontent.com/NandoAbdillah/GayatamaWeb/main/Frontend/baktinusantara-frontend/public/images/hero-banner.png)
-
-**Karya Inovasi Teknologi Perangkat Lunak yang Menjembatani Kolaborasi 5 Stakeholder KKN (Pemerintah Desa, LPPM Kampus, Dosen Pembimbing, Mahasiswa, dan Warga) Berbasis AI, Geospasial, dan Bot WhatsApp.**
-
-[![SDGs Impact](https://img.shields.io/badge/SDGs-17_Pillars-E5243B?style=for-the-badge)](https://sdgs.un.org)
-[![Framework](https://img.shields.io/badge/Stack-Next.js_14_%7C_Laravel_11-000000?style=for-the-badge)](https://laravel.com)
-[![AI Engine](https://img.shields.io/badge/AI-Gemini_Smart_Matching-8E75B2?style=for-the-badge)](https://ai.google.dev)
-[![GIS Engine](https://img.shields.io/badge/GIS-Leaflet_Haversine-4285F4?style=for-the-badge)](https://leafletjs.com)
-[![WhatsApp Bot](https://img.shields.io/badge/Bot-Two--Way_WhatsApp-25D366?style=for-the-badge)](https://fonnte.com)
-
-</div>
+> **Menyelaraskan Kebutuhan Riil Desa dengan Program Kerja KKN Mahasiswa Berbasis 17 SDGs**  
+> *Karya Inovasi Teknologi Web untuk Pengabdian Masyarakat Berkelanjutan — Gayatama 5 International Web Technology Competition*
 
 ---
 
-## 📌 Gambaran Umum & Latar Belakang Inovasi
+## 🌾 Cerita Lapangan: Mengapa KKN Butuh BaktiNusantara?
 
-Pelaksanaan Kuliah Kerja Nyata (KKN) dan program pengabdian masyarakat di Indonesia selama ini masih menghadapi berbagai kendala:
-* **Ketidaksesuaian Kebutuhan Desa (*Skill Mismatch*)**: Program kerja mahasiswa sering tidak sesuai dengan masalah riil desa karena ketiadaan data kebutuhan yang terstruktur.
-* **Administrasi Terpisah & Manual**: Perizinan desa, penugasan dosen DPL, logbook harian, hingga Berita Acara Serah Terima (BAST) masih dilakukan manual tanpa integrasi sistem.
-* **Minimnya Partisipasi Warga**: Warga desa sulit menyampaikan aspirasi/aduan langsung ke mahasiswa atau perangkat desa.
-* **Ketiadaan Mitigasi Jarak & Keselamatan**: Lokasi KKN jarak jauh (>1.000 km) tidak terpantau secara geospasial dan sering luput dari verifikasi izin orang tua/wali.
+Setiap tahun, ratusan ribu mahasiswa dari berbagai perguruan tinggi di seluruh Indonesia berangkat menuju pelosok desa untuk menjalankan program Kuliah Kerja Nyata (KKN). Semangat yang dibawa sangat besar: mengabdi, belajar dari masyarakat, dan membawa perubahan positif.
 
-**BaktiNusantara** dibangun sebagai solusi satu pintu (*all-in-one platform*) yang mengintegrasikan seluruh tahapan KKN dari hulu ke hilir secara transparan, terukur, dan berdampak langsung pada capaian 17 Sustainable Development Goals (SDGs).
-
----
-
-## 🌟 Fitur Unggulan & Inovasi Aplikasi
+Namun, kenyataan di lapangan sering kali memperlihatkan jarak antara niat baik dan kebutuhan nyata warga:
 
 ```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                              5 PILAR INOVASI BAKTINUSANTARA                            │
-├──────────────────────────┬──────────────────────────┬──────────────────────────────────┤
-│ 1. 🤖 AI SMART MATCHING  │ 2. 🗺️ GIS & HAVERSINE    │ 3. 📱 BOT WHATSAPP DUA ARAH      │
-│ Rekomendasi pos desa     │ Peta sebaran KKN         │ Warga bisa kirim aspirasi & cek  │
-│ sesuai jurusan mhs (0-100%) & Safety gate (>1.000 km) status via chat WhatsApp instan. │
-├──────────────────────────┴──────────────────────────┴──────────────────────────────────┤
-│ 4. 🔐 MULTI-ROLE GOVERNANCE                         │ 5. 📜 E-SERTIFIKAT & QR CODE     │
-│ Hak akses 5 peran (Admin, LPPM, Dosen, Desa, Mhs). │ QR Code ISO 18004 anti-pemalsuan.│
-└─────────────────────────────────────────────────────┴──────────────────────────────────┘
+                      MASALAH KKN KONVENSIONAL
+  ┌─────────────────────────────────────────────────────────────┐
+  │ Mahasiswa datang membawa program kerja dari asumsi kampus   │
+  │                              ▼                              │
+  │ Terjadi salah sasaran (desa butuh A, mahasiswa buat B)      │
+  │                              ▼                              │
+  │ Program selesai → Mahasiswa pulang → Hasil kerja terputus   │
+  └─────────────────────────────────────────────────────────────┘
 ```
 
-### 1. 🤖 Rekomendasi Pos KKN Berbasis AI (*Smart Matching Engine*)
-* Menghitung persentase kecocokan (*matching score*) antara keahlian/jurusan mahasiswa dengan deskripsi pos kebutuhan desa.
-* Menyediakan **AI Copilot (Aira)** untuk membantu penyusunan draf proposal program kerja dan logbook mingguan secara otomatis.
+Mahasiswa kerap menyusun rencana kegiatan sebelum mengenal desa tujuan secara langsung. Akibatnya, muncul program seremonial yang kurang menyentuh akar persoalan desa. Di sisi lain, kepala desa dan pengelola BUMDes belum memiliki wadah resmi untuk menyuarakan apa yang sesungguhnya mereka butuhkan—mulai dari legalitas kemasan UMKM, penanganan stunting, hingga penataan arsip desa. Ketika periode pengabdian selesai, hasil karya mahasiswa kerap tersimpan dalam tumpukan berkas laporan yang sulit dilanjutkan oleh kelompok periode berikutnya.
 
-### 2. 🗺️ Peta Interaktif Sebaran KKN & Kalkulasi Jarak (*GIS Engine*)
-* Visualisasi peta digital interaktif berbasis Leaflet yang menampilkan sebaran pos kebutuhan desa di seluruh Indonesia.
-* Algoritma jarak **Haversine Formula** yang secara otomatis mendeteksi jika lokasi KKN melebihi 1.000 km dan mewajibkan unggah *Surat Izin Orang Tua*.
-
-### 3. 📱 Integrasi WhatsApp Bot Dua Arah untuk Warga (*Fonnte Gateway*)
-* Warga masyarakat dapat mengirimkan aduan/aspirasi desa langsung melalui WhatsApp tanpa perlu membuka website.
-* Sistem bot membalas dengan nomor tiket aduan yang dapat dilacak status penanganannya secara realtime.
-
-### 4. 🔐 Tata Kelola Hak Akses Berjenjang & Google OAuth 2.0
-* **Super Admin**: Verifikasi legalitas SK Kepala Desa & Akun Kampus.
-* **LPPM Kampus**: Pendaftaran dan monitoring dosen DPL & mahasiswa internal.
-* **Dosen Pembimbing (DPL)**: Validasi kelayakan proposal & evaluasi berkala.
-* **Perangkat Desa**: Publikasi pos kebutuhan, approval proposal, & validasi luaran/BAST.
-* **Mahasiswa**: Pembentukan kelompok, pengajuan proposal, logbook harian, & submit luaran.
-
-### 5. 📜 E-Sertifikat Digital & Verifikasi QR Code Resmi
-* Penerbitan e-sertifikat PDF otomatis untuk seluruh anggota kelompok setelah luaran akhir disetujui Kepala Desa.
-* Dilengkapi kode verifikasi unik dan QR Code berstandar ISO/IEC 18004 yang dapat dipindai oleh publik.
+BaktiNusantara hadir untuk menjembatani ruang komunikasi itu. Platform ini menata kembali hubungan antara desa, mahasiswa, dan perguruan tinggi agar setiap langkah pengabdian bertumpu pada persoalan nyata masyarakat.
 
 ---
 
-## 🔄 Alur Kerja Sistem (System Workflow)
+## 💡 Gagasan Solusi: Menghubungkan Desa dan Kampus
+
+BaktiNusantara membalik alur yang selama ini berjalan keliru. Inisiatif dimulai dari desa yang mengunggah persoalan riil di lingkungannya, kemudian mahasiswa memilih program yang sejalan dengan bidang ilmu dan keahlian kelompok mereka.
 
 ```
-[PERANGKAT DESA]                                   [MAHASISWA KKN]
-  Mempublikasikan Pos Kebutuhan KKN                  Mencari Pos KKN (Filter AI & Jarak)
-        │                                                  │
-        │                                                  ▼
-        │                                            Membentuk Kelompok & Pilih DPL
-        │                                                  │
-        │                                                  ▼
-        │                                            Mengajukan Proposal Program Kerja
-        │                                                  │
-        ▼                                                  ▼
-  Menerima & Menyetujui Proposal ◄────────────── [DOSEN DPL] Validasi Kelayakan Proposal
-        │
-        ▼
-  Pelaksanaan KKN: Mahasiswa Mengisi Logbook Mingguan (Ditinjau Dosen & Desa)
-        │
-        ▼
-  Penyelesaian KKN: Mahasiswa Mengunggah Luaran Akhir & Dokumen BAST
-        │
-        ▼
-  [KEPALA DESA] Memverifikasi Luaran & Menyetujui BAST
-        │
-        ▼
-  Sistem Menerbitkan Portofolio Publik Desa & E-Sertifikat Digital Mahasiswa (QR Code)
+                    ALUR BARU BAKTINUSANTARA
+  ┌───────────────┐       ┌────────────────┐       ┌─────────────────┐
+  │  DESA BICARA  │ ────► │ MAHASISWA PILIH│ ────► │ DAMPAK NYATA    │
+  │ Unggah Pos    │       │ Sesuai Jurusan │       │ Portofolio &    │
+  │ Masalah Riil  │       │ & Validasi DPL │       │ E-Sertifikat    │
+  └───────────────┘       └────────────────┘       └─────────────────┘
+```
+
+Dengan pendekatan ini, desa tidak lagi diposisikan sebagai objek penerima program semata, melainkan mitra utama yang menentukan arah pembangunan wilayahnya sendiri.
+
+---
+
+## 🧭 Alur Kerja Sederhana
+
+Proses kolaborasi dalam platform dirancang ringkas agar mudah digunakan oleh siapa saja, termasuk perangkat desa yang baru pertama kali memanfaatkan sistem digital.
+
+```
+[Diagram Alur: Masuk Platform ──► Telusuri Kebutuhan Desa ──► Sesuaikan Keahlian ──► Ajukan Program ──► Validasi DPL & Desa ──► Catat Progres ──► Terbit Portofolio]
+```
+
+1. **Desa Menyampaikan Kebutuhan**  
+   Perangkat desa menuliskan kendala atau program yang membutuhkan bantuan mahasiswa, lengkap dengan lokasi desa dan jumlah kelompok yang diharapkan.
+2. **Mahasiswa Memilih Program yang Tepat**  
+   Kelompok mahasiswa menjelajahi daftar kebutuhan desa, meninjau kesesuaian bidang ilmu, serta melihat perkiraan jarak perjalanan dari kampus menuju lokasi.
+3. **Penyusunan Rencana & Persetujuan Bersama**  
+   Mahasiswa menyusun rancangan kegiatan yang dibimbing oleh Dosen Pembimbing Lapangan (DPL). Proposal ini kemudian ditinjau langsung oleh pihak desa untuk disetujui.
+4. **Pelaksanaan & Pencatatan Progres**  
+   Selama masa pengabdian, mahasiswa mendokumentasikan capaian mingguan yang dapat dipantau oleh dosen dan perangkat desa.
+5. **Konfirmasi Hasil & Dokumentasi Abadi**  
+   Setelah masa pengabdian tuntas, hasil karya mahasiswa disahkan oleh desa menjadi portofolio resmi dan sertifikat digital yang tersimpan rapi untuk rujukan periode KKN berikutnya.
+
+---
+
+## 🤝 Manfaat Nyata untuk Semua Pihak
+
+Kolaborasi yang sehat tercipta karena setiap pihak memperoleh nilai manfaat yang jelas dan saling menguatkan:
+
+| Pihak Pengguna | Manfaat Utama yang Dirasakan |
+| :--- | :--- |
+| **Pemerintah & Mitra Desa** | Memperoleh bantuan tenaga dan keahlian mahasiswa yang tepat sasaran, memiliki arsip hasil kegiatan yang rapi, serta memegang kendali penuh atas program yang masuk ke desa. |
+| **Mahasiswa KKN** | Mendapatkan kepastian informasi lokasi dan program sebelum berangkat, menjalankan kegiatan yang sesuai dengan jurusan kuliah, serta memiliki portofolio pengabdian yang diakui resmi oleh desa. |
+| **DPL & Lembaga Kampus** | Memantau aktivitas bimbingan mahasiswa secara terpusat, mempermudah evaluasi lapangan, serta memastikan keselamatan mahasiswa melalui pencatatan jarak lokasi pengabdian. |
+| **Warga & Pelaku UMKM** | Memiliki kanal aduan langsung untuk menyampaikan aspirasi lingkungan, serta memperoleh pendampingan usaha dari mahasiswa secara berkelanjutan. |
+
+---
+
+## 🎯 Keterkaitan Nyata dengan 17 SDGs
+
+Setiap kebutuhan desa yang diunggah dikaitkan langsung dengan Tujuan Pembangunan Berkelanjutan (*Sustainable Development Goals* / SDGs), sehingga kontribusi mahasiswa dapat diukur dampaknya secara nyata:
+
+```
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │                        KONTRIBUSI NYATA 17 SDGs                        │
+  ├────────────────────────────────────┬───────────────────────────────────┤
+  │ 🔴 SDG 1: Tanpa Kemiskinan         │ Pendampingan pembukuan & UMKM     │
+  │ 🟢 SDG 3: Kehidupan Sehat          │ Edukasi gizi & pencegahan stunting│
+  │ 🔵 SDG 4: Pendidikan Berkualitas   │ Bimbingan belajar & literasi desa │
+  │ 🟡 SDG 8: Pekerjaan Layak          │ Digitalisasi pemasaran produk desa│
+  │ 🟣 SDG 9: Industri & Inovasi       │ Penataan administrasi & web desa  │
+  │ 🟠 SDG 11: Kawasan Berkelanjutan   │ Pemetaan wilayah & potensi lokal  │
+  │ 🟢 SDG 13: Penanganan Perubahan    │ Pengelolaan sampah & penghijauan  │
+  │ 🔵 SDG 17: Kemitraan Menyeluruh    │ Sinergi Perguruan Tinggi dan Desa │
+  └────────────────────────────────────┴───────────────────────────────────┘
 ```
 
 ---
 
-## 🎯 Relevansi dengan 17 Sustainable Development Goals (SDGs)
+## ⚡ Panduan Singkat Menjalankan Aplikasi
 
-Setiap pos kebutuhan KKN yang diunggah oleh desa dikategorikan ke dalam 17 pilar SDGs:
-* **SDG 1 (Tanpa Kemiskinan)**: Program pendampingan dan digitalisasi UMKM desa.
-* **SDG 3 (Kehidupan Sehat)**: Program posyandu, pencegahan stunting, dan sanitasi lingkungan.
-* **SDG 4 (Pendidikan Berkualitas)**: Bimbingan belajar desa, pojok literasi, dan pelatihan digital.
-* **SDG 8 (Pekerjaan Layak & Pertumbuhan Ekonomi)**: Revitalisasi dan manajemen BUMDes.
-* **SDG 11 (Kota & Komunitas Berkelanjutan)**: Tata ruang desa dan pemetaan potensi wilayah.
+Aplikasi dibangun menggunakan arsitektur modern yang memisahkan antarmuka web (*Frontend Next.js*) dan layanan data (*Backend Laravel*).
 
----
+### 1. Prasyarat Sistem
+* PHP versi 8.2 atau lebih baru & Composer
+* Node.js versi 18 atau lebih baru & NPM
+* Server MySQL (tersedia melalui XAMPP atau instalasi mandiri)
 
-## 💻 Panduan Menjalankan Aplikasi (Quick Start)
-
-### 1. Menjalankan Backend (Laravel)
+### 2. Menjalankan Backend (Layanan API)
 ```bash
+# Masuk ke folder backend
 cd Backend/baktinusantara-laravel
+
+# Pasang dependensi dan siapkan database
 composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate --seed
 php artisan storage:link
+
+# Jalankan server lokal
 php artisan serve
 ```
-*Backend API aktif di:* `http://127.0.0.1:8000`
+*Layanan backend aktif pada alamat `http://127.0.0.1:8000`.*
 
-### 2. Menjalankan Frontend (Next.js)
+### 3. Menjalankan Frontend (Antarmuka Pengguna)
 ```bash
+# Buka terminal baru dan masuk ke folder frontend
 cd Frontend/baktinusantara-frontend
+
+# Pasang dependensi dan jalankan
 npm install
 cp .env.example .env.local
 npm run dev
 ```
-*Frontend Web aktif di:* `http://localhost:3000`
+*Buka peramban (browser) dan akses alamat `http://localhost:3000`.*
 
 ---
 
-## 🔑 Akun Demo Pengujian untuk Juri
+## 🔑 Akun Demo untuk Pengujian Dewan Juri
 
-Gunakan akun-akun berikut untuk menguji fitur tiap hak akses (*Password untuk semua akun: `password`*):
+Gunakan akun pengujian di bawah ini untuk mencoba seluruh sudut pandang peran pengguna di platform:
 
-| Peran (Role) | Email | Password | Fitur Utama yang Dapat Diuji |
-| :--- | :--- | :---: | :--- |
-| **🛡️ Super Admin** | `admin@baktinusantara.id` | `password` | Verifikasi SK Desa & akun kampus, freeze/suspend entitas. |
-| **🏛️ LPPM Kampus** | `unesa@unesa.ac.id` | `password` | Tambah dosen DPL, kelola mahasiswa, pantau metrik kampus. |
-| **👨‍🏫 Dosen DPL** | `dosen.budi@unesa.ac.id` | `password` | Bimbingan kelompok, validasi kelayakan proposal, review logbook. |
-| **🏡 Perangkat Desa** | `desa.sukamaju@desa.id` | `password` | Tambah pos kebutuhan, review proposal, verifikasi luaran & BAST. |
-| **🎓 Mahasiswa (Ketua)** | `ahmad.mhs@unesa.ac.id` | `password` | Ajukan proposal, unggah izin ortu, catat logbook mingguan. |
-| **🎓 Mahasiswa (Anggota)** | `siti.mhs@unesa.ac.id` | `password` | Cek kelompok bimbingan, pantau progres program kerja. |
+| Peran Pengguna | Alamat Email Demo | Kata Sandi | Halaman Utama |
+| :--- | :--- | :--- | :--- |
+| **Super Admin Platform** | `admin@baktinusantara.id` | `password` | `/admin/dashboard` |
+| **LPPM Perguruan Tinggi** | `unesa@unesa.ac.id` | `password` | `/kampus/dashboard` |
+| **Dosen Pembimbing (DPL)** | `dosen.budi@unesa.ac.id` | `password` | `/dosen/dashboard` |
+| **Perangkat Mitra Desa** | `desa.sukamaju@desa.id` | `password` | `/perangkat-desa/dashboard` |
+| **Mahasiswa KKN** | `mahasiswa.ahmad@mhs.unesa.ac.id` | `password` | `/mahasiswa/dashboard` |
 
----
-
-## 📚 Tautan Dokumentasi Terkait
-
-* 📖 [**Dokumentasi Integrasi API Frontend**](Backend/baktinusantara-laravel/FRONTEND_INTEGRATION_GUIDE.md)
-* 📖 [**Panduan WhatsApp Bot & Webhook**](Backend/baktinusantara-laravel/WHATSAPP_API_GUIDE.md)
-* 🛡️ [**Laporan Audit Keamanan Sistem**](AUDIT-REPORT.md)
+> *Catatan: Anda juga dapat masuk secara instan menggunakan tombol **Masuk dengan Akun Google** pada halaman login.*
 
 ---
 
-<div align="center">
+## 🌿 Penutup
 
-**🇮🇩 BaktiNusantara — Mengabdi untuk Negeri, Membangun Desa Presisi.**  
-*Karya Inovasi Teknologi Terpadu untuk Pendidikan Tinggi dan Desa Berkelanjutan di Indonesia.*
+BaktiNusantara lahir dari sebuah keyakinan sederhana: perubahan besar di desa bermula dari kepedulian yang terarah. Melalui keterbukaan informasi, kesesuaian ilmu pengetahuan, dan dokumentasi kerja yang berkelanjutan, pengabdian mahasiswa tidak lagi sekadar menjadi kewajiban semester, melainkan benih kemajuan yang terus tumbuh di pelosok Nusantara.
 
-</div>
+---
+
+**BaktiNusantara — Dari Kampus untuk Negeri, Bersama Membangun Desa.**  
+*Tim Pengembang Gayatama 5 • Universitas Negeri Surabaya • 2026*
