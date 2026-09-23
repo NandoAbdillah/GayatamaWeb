@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { MOCK_LOGBOOKS, MOCK_KELOMPOK_14 } from '@/lib/mock-data';
-import { LogbookEntry } from '@/lib/types';
+import { api } from '@/lib/services';
 import {
   CheckCircle2,
   AlertCircle,
@@ -14,55 +13,107 @@ import {
   Send,
   ShieldCheck,
   Search,
-  Filter,
   ChevronDown,
   ChevronUp,
   Users,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 type FilterStatus = 'semua' | 'menunggu' | 'revisi' | 'disetujui';
 
-const getKelompokLabel = (log: LogbookEntry) => {
-  if (log.kelompok_id === MOCK_KELOMPOK_14.id) return MOCK_KELOMPOK_14.nama_kelompok;
-  return `Kelompok ${log.kelompok_id}`;
-};
+interface LogItem {
+  id: number;
+  kelompok_id: number;
+  kelompok_nama: string;
+  mahasiswa_nama: string;
+  mahasiswa_nim: string;
+  judul_kegiatan: string;
+  deskripsi: string;
+  target_program_terkait: string;
+  tanggal: string;
+  durasi_jam: number;
+  status: 'submitted' | 'pending' | 'revision' | 'approved';
+  catatan_revisi_dpl?: string;
+  disahkan_pada?: string;
+  foto_dokumentasi_urls?: string[];
+}
 
 export default function DosenLogbookPage() {
-  const [logs, setLogs] = useState<LogbookEntry[]>(MOCK_LOGBOOKS);
+  const [logs, setLogs] = useState<LogItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('semua');
 
   // inline revisi
   const [activeRevisionId, setActiveRevisionId] = useState<number | null>(null);
   const [revisionNotes, setRevisionNotes] = useState('');
-  const [expandedRevisions, setExpandedRevisions] = useState<Set<number>>(
-    () => new Set(logs.filter((l) => !!l.catatan_revisi_dpl).map((l) => l.id))
-  );
+  const [expandedRevisions, setExpandedRevisions] = useState<Set<number>>(new Set());
 
   // approve confirmation
-  const [pendingApproveLog, setPendingApproveLog] = useState<LogbookEntry | null>(null);
+  const [pendingApproveLog, setPendingApproveLog] = useState<LogItem | null>(null);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const groups = await api.dosen.getBimbinganKelompok();
+      if (Array.isArray(groups)) {
+        const list: LogItem[] = [];
+        groups.forEach((k: any) => {
+          const progressList = Array.isArray(k.proposal?.progress_mingguan) ? k.proposal.progress_mingguan : [];
+          progressList.forEach((log: any) => {
+            list.push({
+              id: log.id,
+              kelompok_id: k.id,
+              kelompok_nama: k.nama_kelompok || `Kelompok #${k.id}`,
+              mahasiswa_nama: k.ketua?.name || 'Mahasiswa Binaan',
+              mahasiswa_nim: k.ketua?.profil_mahasiswa?.nim || '-',
+              judul_kegiatan: log.catatan_kegiatan || log.deskripsi || `Logbook Minggu ${log.minggu_ke || 1}`,
+              deskripsi: log.deskripsi || log.catatan_kegiatan || 'Laporan kegiatan pelaksanaan program pengabdian di desa.',
+              target_program_terkait: k.proposal?.pos_kebutuhan?.judul || 'Program KKN',
+              tanggal: log.created_at ? new Date(log.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '2026',
+              durasi_jam: 40,
+              status: log.persentase >= 100 ? 'approved' : 'submitted',
+              catatan_revisi_dpl: '',
+              foto_dokumentasi_urls: Array.isArray(log.foto_dokumentasi_urls) ? log.foto_dokumentasi_urls : [],
+            });
+          });
+        });
+        setLogs(list);
+      } else {
+        setLogs([]);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil logbook bimbingan dosen:', err);
+      toast.error('Gagal memuat logbook dari server.');
+      setLogs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
-      // status filter
       if (filterStatus !== 'semua') {
         const statusMap: Record<FilterStatus, string[]> = {
           semua: [],
-          menunggu: ['submitted', 'pending', 'draft'],
+          menunggu: ['submitted', 'pending'],
           revisi: ['revision'],
           disetujui: ['approved'],
         };
         if (!statusMap[filterStatus].includes(log.status)) return false;
       }
-      // search
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const haystack = [
           log.judul_kegiatan,
           log.deskripsi,
           log.target_program_terkait,
-          getKelompokLabel(log),
+          log.kelompok_nama,
           log.mahasiswa_nama,
           log.tanggal,
         ]
@@ -77,8 +128,8 @@ export default function DosenLogbookPage() {
   const confirmApprove = () => {
     if (!pendingApproveLog) return;
     const id = pendingApproveLog.id;
-    setLogs(
-      logs.map((l) =>
+    setLogs((prev) =>
+      prev.map((l) =>
         l.id === id
           ? {
               ...l,
@@ -92,17 +143,16 @@ export default function DosenLogbookPage() {
     toast.success('Logbook berhasil disahkan oleh Dosen Pembimbing Lapangan!');
   };
 
-  const handleSendRevision = (e: React.FormEvent, log: LogbookEntry) => {
+  const handleSendRevision = (e: React.FormEvent, log: LogItem) => {
     e.preventDefault();
     if (!revisionNotes.trim()) return;
 
-    setLogs(
-      logs.map((l) =>
+    setLogs((prev) =>
+      prev.map((l) =>
         l.id === log.id ? { ...l, status: 'revision' as const, catatan_revisi_dpl: revisionNotes } : l
       )
     );
     toast.success('Catatan revisi telah dikirimkan ke mahasiswa bersangkutan!');
-    // keep dropdown visible after send
     setExpandedRevisions((prev) => new Set(prev).add(log.id));
     setActiveRevisionId(null);
     setRevisionNotes('');
@@ -172,7 +222,12 @@ export default function DosenLogbookPage() {
 
         {/* Logbook Items */}
         <div className="space-y-4">
-          {filteredLogs.length === 0 ? (
+          {loading ? (
+            <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              <p className="text-xs">Memuat logbook mahasiswa binaan...</p>
+            </div>
+          ) : filteredLogs.length === 0 ? (
             <Card className="p-10 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
               <p className="text-sm text-slate-500 dark:text-slate-400 font-jakarta">Tidak ada logbook yang sesuai dengan pencarian / filter.</p>
             </Card>
@@ -189,7 +244,7 @@ export default function DosenLogbookPage() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
                         <Users className="w-3.5 h-3.5 text-primary" />
-                        <strong className="text-navy-950 dark:text-white">{getKelompokLabel(log)}</strong>
+                        <strong className="text-navy-950 dark:text-white">{log.kelompok_nama}</strong>
                       </div>
                       <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue mt-1">
                         {log.judul_kegiatan}
@@ -348,7 +403,7 @@ export default function DosenLogbookPage() {
               <h3 className="text-lg font-extrabold text-navy-950 dark:text-white font-epilogue">Sahkan Logbook Ini?</h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 font-jakarta leading-relaxed">
                 Anda akan menyetujui <strong>{pendingApproveLog.judul_kegiatan}</strong> dari{' '}
-                <strong>{getKelompokLabel(pendingApproveLog)}</strong> pada tanggal{' '}
+                <strong>{pendingApproveLog.kelompok_nama}</strong> pada tanggal{' '}
                 <strong>{pendingApproveLog.tanggal}</strong>. Pastikan logbook sudah sesuai.
               </p>
             </div>

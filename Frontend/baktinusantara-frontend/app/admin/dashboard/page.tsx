@@ -7,8 +7,6 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/services";
-import { FALLBACK_UNIV_DETAIL } from "@/lib/data/direktori-kampus-data";
-import { MONITORING_UNIV } from "@/lib/data/monitoring-data";
 import {
   ShieldCheck,
   Building2,
@@ -23,6 +21,7 @@ import {
   Filter,
   RotateCcw,
   LineChart as LineChartIcon,
+  Loader2,
 } from "lucide-react";
 import {
   LineChart,
@@ -35,171 +34,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Dummy data siklus KKN per bulan/tahun - tidak terlalu banyak (15 titik: Sep 2024 - Mar 2026)
-type KknCyclePoint = {
-  month: number; // 1-12
-  monthLabel: string;
-  year: number;
-  membutuhkan: number; // jumlah desa yang membutuhkan KKN
-  berjalan: number; // jumlah KKN yang sedang berjalan
-  selesai: number; // jumlah kelompok KKN yang sudah menyelesaikan
-  label: string; // "Jan 2025"
-};
-
-const DUMMY_KKN_CYCLE: KknCyclePoint[] = [
-  {
-    month: 9,
-    monthLabel: "Sep",
-    year: 2024,
-    membutuhkan: 11,
-    berjalan: 5,
-    selesai: 2,
-    label: "Sep 2024",
-  },
-  {
-    month: 10,
-    monthLabel: "Okt",
-    year: 2024,
-    membutuhkan: 13,
-    berjalan: 6,
-    selesai: 3,
-    label: "Okt 2024",
-  },
-  {
-    month: 11,
-    monthLabel: "Nov",
-    year: 2024,
-    membutuhkan: 12,
-    berjalan: 7,
-    selesai: 4,
-    label: "Nov 2024",
-  },
-  {
-    month: 12,
-    monthLabel: "Des",
-    year: 2024,
-    membutuhkan: 15,
-    berjalan: 8,
-    selesai: 5,
-    label: "Des 2024",
-  },
-  {
-    month: 1,
-    monthLabel: "Jan",
-    year: 2025,
-    membutuhkan: 14,
-    berjalan: 7,
-    selesai: 4,
-    label: "Jan 2025",
-  },
-  {
-    month: 2,
-    monthLabel: "Feb",
-    year: 2025,
-    membutuhkan: 16,
-    berjalan: 9,
-    selesai: 5,
-    label: "Feb 2025",
-  },
-  {
-    month: 3,
-    monthLabel: "Mar",
-    year: 2025,
-    membutuhkan: 18,
-    berjalan: 10,
-    selesai: 6,
-    label: "Mar 2025",
-  },
-  {
-    month: 4,
-    monthLabel: "Apr",
-    year: 2025,
-    membutuhkan: 15,
-    berjalan: 11,
-    selesai: 7,
-    label: "Apr 2025",
-  },
-  {
-    month: 5,
-    monthLabel: "Mei",
-    year: 2025,
-    membutuhkan: 17,
-    berjalan: 12,
-    selesai: 8,
-    label: "Mei 2025",
-  },
-  {
-    month: 6,
-    monthLabel: "Jun",
-    year: 2025,
-    membutuhkan: 14,
-    berjalan: 13,
-    selesai: 9,
-    label: "Jun 2025",
-  },
-  {
-    month: 7,
-    monthLabel: "Jul",
-    year: 2025,
-    membutuhkan: 13,
-    berjalan: 11,
-    selesai: 10,
-    label: "Jul 2025",
-  },
-  {
-    month: 8,
-    monthLabel: "Agu",
-    year: 2025,
-    membutuhkan: 12,
-    berjalan: 10,
-    selesai: 11,
-    label: "Agu 2025",
-  },
-  {
-    month: 9,
-    monthLabel: "Sep",
-    year: 2025,
-    membutuhkan: 10,
-    berjalan: 9,
-    selesai: 12,
-    label: "Sep 2025",
-  },
-  {
-    month: 10,
-    monthLabel: "Okt",
-    year: 2025,
-    membutuhkan: 11,
-    berjalan: 8,
-    selesai: 13,
-    label: "Okt 2025",
-  },
-  {
-    month: 1,
-    monthLabel: "Jan",
-    year: 2026,
-    membutuhkan: 9,
-    berjalan: 7,
-    selesai: 14,
-    label: "Jan 2026",
-  },
-  {
-    month: 2,
-    monthLabel: "Feb",
-    year: 2026,
-    membutuhkan: 8,
-    berjalan: 6,
-    selesai: 15,
-    label: "Feb 2026",
-  },
-  {
-    month: 3,
-    monthLabel: "Mar",
-    year: 2026,
-    membutuhkan: 10,
-    berjalan: 8,
-    selesai: 13,
-    label: "Mar 2026",
-  },
+const MONTH_NAMES = [
+  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+  "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
 ];
 
 const MONTH_OPTIONS: { value: number | "all"; label: string }[] = [
@@ -239,57 +76,32 @@ interface DashboardMetrics {
 export default function SuperadminDashboardPage() {
   const { user } = useAuth();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [universitasList, setUniversitasList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
 
-  // Filtering bulan/tahun untuk line chart siklus KKN
-  const availableYears = useMemo(
-    () =>
-      Array.from(new Set(DUMMY_KKN_CYCLE.map((d) => d.year))).sort(
-        (a, b) => a - b,
-      ),
-    [],
-  );
-  const [selectedYear, setSelectedYear] = useState<number>(2025);
+  const currentYear = new Date().getFullYear();
+  const availableYears = useMemo(() => [currentYear - 1, currentYear, currentYear + 1], [currentYear]);
+  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const [selectedMonth, setSelectedMonth] = useState<number | "all">("all");
 
   const fetchMetrics = async () => {
     try {
       setRefreshing(true);
-      const res = await api.dashboard.getMetrics();
-      if (res) {
-        setMetrics(res);
+      const [resMetrics, resUnivs] = await Promise.allSettled([
+        api.dashboard.getMetrics(),
+        api.universitas.getUniversitasList(),
+      ]);
+
+      if (resMetrics.status === "fulfilled" && resMetrics.value) {
+        setMetrics(resMetrics.value);
+      }
+      if (resUnivs.status === "fulfilled" && Array.isArray(resUnivs.value)) {
+        setUniversitasList(resUnivs.value);
       }
     } catch (err) {
-      console.warn("Backend metrics fetch fallback:", err);
-      setMetrics({
-        total_desa_terbantu: 2,
-        total_umkm_terdigitalisasi: 1,
-        total_kelompok_kkn: 3,
-        total_mahasiswa_terlibat: 7,
-        total_jam_pengabdian: 640,
-        total_pos_kebutuhan: 5,
-        status_pos_breakdown: { open: 2, in_progress: 2, completed: 1 },
-        total_luaran_terverifikasi: 1,
-        total_portofolio_publik: 1,
-        kategori_breakdown: {
-          umkm: 1,
-          lingkungan: 1,
-          kesehatan: 1,
-          pendidikan: 1,
-          fasilitas: 1,
-        },
-        sdgs_distribution: {
-          "SDG 3": 1,
-          "SDG 4": 1,
-          "SDG 8": 1,
-          "SDG 9": 2,
-          "SDG 11": 1,
-          "SDG 13": 1,
-          "SDG 15": 1,
-        },
-      });
+      console.error("Gagal mengambil metrik admin:", err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -309,48 +121,36 @@ export default function SuperadminDashboardPage() {
     );
   }, []);
 
-  // Data untuk line chart: jika filter spesifik bulan -> hanya tampil bulan itu saja
   const chartDisplayData = useMemo(() => {
-    const byYear = DUMMY_KKN_CYCLE.filter((d) => d.year === selectedYear);
-    if (selectedMonth === "all") return byYear;
-    return byYear.filter((d) => d.month === selectedMonth);
-  }, [selectedYear, selectedMonth]);
+    const openCount = metrics?.status_pos_breakdown?.open || 0;
+    const inProgressCount = metrics?.status_pos_breakdown?.in_progress || 0;
+    const completedCount = metrics?.status_pos_breakdown?.completed || 0;
 
-  // Snapshot untuk 3 card status: jika filter spesifik bulan -> angka bulan itu, jika semua -> angka bulan terakhir di tahun terpilih (snapshot terkini)
-  const snapshot = useMemo(() => {
-    if (selectedMonth !== "all") {
-      return (
-        DUMMY_KKN_CYCLE.find(
-          (d) => d.year === selectedYear && d.month === selectedMonth,
-        ) || null
-      );
-    }
-    const byYear = DUMMY_KKN_CYCLE.filter((d) => d.year === selectedYear);
-    return byYear.length ? byYear[byYear.length - 1] : null;
-  }, [selectedYear, selectedMonth]);
+    const months = Array.from({ length: 12 }, (_, i) => {
+      const mNum = i + 1;
+      return {
+        month: mNum,
+        monthLabel: MONTH_NAMES[i],
+        year: selectedYear,
+        membutuhkan: openCount,
+        berjalan: inProgressCount,
+        selesai: completedCount,
+        label: `${MONTH_NAMES[i]} ${selectedYear}`,
+      };
+    });
 
-  // Fallback ke metrics jika dummy tidak ada; jika filter spesifik bulan tanpa data tampilkan 0
-  const totalPos = metrics?.total_pos_kebutuhan || 0;
-  const snapshotMembutuhkan =
-    snapshot?.membutuhkan ??
-    (selectedMonth !== "all" ? 0 : (metrics?.status_pos_breakdown?.open ?? 0));
-  const snapshotBerjalan =
-    snapshot?.berjalan ??
-    (selectedMonth !== "all" ? 0 : (metrics?.status_pos_breakdown?.in_progress ?? 0));
-  const snapshotSelesai =
-    snapshot?.selesai ??
-    (selectedMonth !== "all" ? 0 : (metrics?.status_pos_breakdown?.completed ?? 0));
-  const snapshotTotal =
-    snapshot != null
-      ? snapshot.membutuhkan + snapshot.berjalan + snapshot.selesai
-      : selectedMonth !== "all"
-        ? 0
-        : totalPos;
-  const pctSelesai =
-    snapshotTotal > 0 ? Math.round((snapshotSelesai / snapshotTotal) * 100) : 0;
+    if (selectedMonth === "all") return months;
+    return months.filter((d) => d.month === selectedMonth);
+  }, [metrics, selectedYear, selectedMonth]);
+
+  const snapshotMembutuhkan = metrics?.status_pos_breakdown?.open ?? 0;
+  const snapshotBerjalan = metrics?.status_pos_breakdown?.in_progress ?? 0;
+  const snapshotSelesai = metrics?.status_pos_breakdown?.completed ?? 0;
+  const snapshotTotal = snapshotMembutuhkan + snapshotBerjalan + snapshotSelesai;
+  const pctSelesai = snapshotTotal > 0 ? Math.round((snapshotSelesai / snapshotTotal) * 100) : 0;
 
   const handleResetFilter = () => {
-    setSelectedYear(2025);
+    setSelectedYear(currentYear);
     setSelectedMonth("all");
   };
 
@@ -449,7 +249,7 @@ export default function SuperadminDashboardPage() {
               </div>
             </div>
             <p className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {loading ? "..." : `${FALLBACK_UNIV_DETAIL.length} Kampus`}
+              {loading ? "..." : `${universitasList.length} Kampus`}
             </p>
             <p className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">Kampus Mitra Terverifikasi</p>
           </Card>
@@ -462,7 +262,7 @@ export default function SuperadminDashboardPage() {
               </div>
             </div>
             <p className="text-2xl sm:text-3xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {loading ? "..." : `${MONITORING_UNIV.filter((u) => u.program_aktif > 0).length} Kampus`}
+              {loading ? "..." : `${universitasList.filter((u: any) => u.status === 'aktif' || u.status === 'verified').length} Kampus`}
             </p>
             <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Aktif menjalankan KKN</p>
           </Card>

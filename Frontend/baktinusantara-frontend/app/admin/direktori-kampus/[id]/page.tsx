@@ -22,7 +22,7 @@ import {
   Award,
   Loader2,
 } from 'lucide-react';
-import { FALLBACK_UNIV_DETAIL, getKampusById, getLogoUrl, UnivDetail } from '@/lib/data/direktori-kampus-data';
+import { getLogoUrl, UnivDetail } from '@/lib/data/direktori-kampus-data';
 import api from '@/lib/services';
 import { toast } from 'sonner';
 
@@ -30,7 +30,7 @@ export default function DirektoriKampusDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const id = Number(params?.id);
-  const [kampus, setKampus] = useState<UnivDetail | undefined>(() => getKampusById(id));
+  const [kampus, setKampus] = useState<UnivDetail | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -40,41 +40,34 @@ export default function DirektoriKampusDetailPage() {
     }
     async function loadFromProfilUniversitas() {
       try {
-        // Opsi A: ambil langsung dari tabel profil_universitas via verifikasi-entitas detail
-        // GET /api/admin/verifikasi-entitas/universitas/{id} -> AdminVerifikasiController@show
         const res = await api.admin.getVerifikasiDetail('universitas', id);
         const data = (res as any)?.data;
         if (data && data.entity_type === 'universitas') {
-          const fallback = getKampusById(id) || FALLBACK_UNIV_DETAIL[0];
           const kodeUniv =
             data.detail_info?.find((d: any) => d.label === 'Kode Institusi')?.value ||
-            fallback?.kode_univ ||
             `UNIV-${id}`;
-          const website =
-            fallback?.website || `https://www.${String(kodeUniv).toLowerCase()}.ac.id`;
-          const domain =
-            fallback?.domain ||
-            (() => {
-              try {
-                return new URL(website).hostname.replace(/^www\./, '');
-              } catch {
-                return `${String(kodeUniv).toLowerCase()}.ac.id`;
-              }
-            })();
+          const website = `https://www.${String(kodeUniv).toLowerCase()}.ac.id`;
+          const domain = (() => {
+            try {
+              return new URL(website).hostname.replace(/^www\./, '');
+            } catch {
+              return `${String(kodeUniv).toLowerCase()}.ac.id`;
+            }
+          })();
 
           const mapped: UnivDetail = {
             id: data.id,
             nama_universitas: data.nama,
             kode_univ: kodeUniv,
-            kota: fallback?.kota || data.sub_info || 'Indonesia',
+            kota: data.sub_info || 'Indonesia',
             status: data.status,
             tanggal_verifikasi: data.status === 'verified' ? data.tanggal_pengajuan : '-',
-            email: data.email || fallback?.email || '-',
-            telepon: data.kontak || fallback?.telepon || '-',
-            alamat_lengkap: fallback?.alamat_lengkap || data.sub_info || '-',
+            email: data.email || '-',
+            telepon: data.kontak || '-',
+            alamat_lengkap: data.sub_info || '-',
             website,
             domain,
-            statistik: fallback?.statistik || {
+            statistik: {
               jumlah_program_kkn: 0,
               jumlah_mahasiswa: 0,
               jumlah_dosen_dpl: Number(
@@ -84,13 +77,12 @@ export default function DirektoriKampusDetailPage() {
             },
           };
           setKampus(mapped);
+        } else {
+          setKampus(undefined);
         }
       } catch (err: any) {
-        console.warn('Gagal ambil detail profil_universitas, pakai fallback:', err);
-        // keep fallback; don't toast to avoid noise if offline, but show if 404
-        if (err?.response?.status === 404) {
-          toast.error('Data kampus tidak ditemukan di tabel profil_universitas');
-        }
+        console.error('Gagal ambil detail profil_universitas:', err);
+        setKampus(undefined);
       } finally {
         setLoading(false);
       }

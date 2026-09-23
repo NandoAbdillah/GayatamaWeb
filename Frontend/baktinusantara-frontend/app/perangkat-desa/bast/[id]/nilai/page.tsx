@@ -6,27 +6,48 @@ import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { MOCK_KELOMPOK_14 } from '@/lib/mock-data';
-import { ArrowLeft } from 'lucide-react';
+import { api } from '@/lib/services';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-
-const KELOMPOK_MAP: Record<number, { nama_kelompok: string; kode_kelompok: string }> = {
-  14: { nama_kelompok: MOCK_KELOMPOK_14.nama_kelompok, kode_kelompok: MOCK_KELOMPOK_14.kode_kelompok },
-  15: { nama_kelompok: 'Kelompok 15 - Sukamaju Sejahtera', kode_kelompok: 'KKN-2026-SKM-015' },
-  11: { nama_kelompok: 'Kelompok 11 - Sukamaju Kreatif', kode_kelompok: 'KKN-2026-SKM-011' },
-};
 
 export default function BastNilaiPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const id = Number(params?.id);
-  const kelompok = KELOMPOK_MAP[id] || { nama_kelompok: `Kelompok ${id}`, kode_kelompok: `KKN-2026-SKM-${String(id).padStart(3, '0')}` };
+
+  const [loading, setLoading] = useState(true);
+  const [kelompok, setKelompok] = useState<{ nama_kelompok: string; kode_kelompok: string }>({
+    nama_kelompok: `Kelompok #${id}`,
+    kode_kelompok: `KKN-2026-${String(id).padStart(3, '0')}`,
+  });
 
   const [skor1, setSkor1] = useState(0);
   const [skor2, setSkor2] = useState(0);
   const [skor3, setSkor3] = useState(0);
 
   useEffect(() => {
+    const fetchKelompok = async () => {
+      try {
+        setLoading(true);
+        const proposals = await api.proposal.getByDesa();
+        if (Array.isArray(proposals)) {
+          const match = proposals.find((p: any) => p.id === id || p.kelompok_id === id);
+          if (match) {
+            setKelompok({
+              nama_kelompok: match.kelompok?.nama_kelompok || `Kelompok #${match.kelompok_id || match.id}`,
+              kode_kelompok: match.kelompok?.kode_kelompok || `KKN-2026-${String(match.id).padStart(3, '0')}`,
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Gagal mengambil data kelompok:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchKelompok();
+
     try {
       const raw = localStorage.getItem('bast-penilaian');
       if (raw) {
@@ -70,74 +91,83 @@ export default function BastNilaiPage() {
           </Button>
         </Link>
 
-        <div>
-          <h1 className="text-xl font-extrabold text-navy-950 dark:text-white font-epilogue">Penilaian Kelompok</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            {kelompok.nama_kelompok} • {kelompok.kode_kelompok}
-          </p>
-        </div>
-
-        <Card className="p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm">
-          <form onSubmit={handleSimpan} className="space-y-5">
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">1. Kedisiplinan & Kesantunan Sosial di Desa:</label>
-              <input
-                type="number"
-                min={0}
-                max={100}
-                required
-                value={skor1}
-                onChange={(e) => setSkor1(Number(e.target.value))}
-                placeholder="0 - 100"
-                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
+        {loading ? (
+          <div className="py-12 flex flex-col items-center justify-center gap-3 text-slate-400">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <p className="text-xs">Memuat data kelompok...</p>
+          </div>
+        ) : (
+          <>
+            <div>
+              <h1 className="text-xl font-extrabold text-navy-950 dark:text-white font-epilogue">Penilaian Kelompok</h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                {kelompok.nama_kelompok} • {kelompok.kode_kelompok}
+              </p>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">2. Kebermanfaatan & Dampak Nyata bagi Warga:</label>
-              <input
-                type="number"
-                min={0}
-                max={100}
-                required
-                value={skor2}
-                onChange={(e) => setSkor2(Number(e.target.value))}
-                placeholder="0 - 100"
-                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
-            </div>
+            <Card className="p-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm">
+              <form onSubmit={handleSimpan} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">1. Kedisiplinan & Kesantunan Sosial di Desa:</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    required
+                    value={skor1}
+                    onChange={(e) => setSkor1(Number(e.target.value))}
+                    placeholder="0 - 100"
+                    className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
+                </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">3. Kualitas Produk / Luaran yang Diserahkan:</label>
-              <input
-                type="number"
-                min={0}
-                max={100}
-                required
-                value={skor3}
-                onChange={(e) => setSkor3(Number(e.target.value))}
-                placeholder="0 - 100"
-                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
-            </div>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">2. Kebermanfaatan & Dampak Nyata bagi Warga:</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    required
+                    value={skor2}
+                    onChange={(e) => setSkor2(Number(e.target.value))}
+                    placeholder="0 - 100"
+                    className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
+                </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 text-center">
-              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nilai Akhir</p>
-              <p className="text-2xl font-extrabold text-navy-950 dark:text-white mt-1">{nilaiAkhir} / 100</p>
-            </div>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-navy-900 dark:text-slate-200">3. Kualitas Produk / Luaran yang Diserahkan:</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    required
+                    value={skor3}
+                    onChange={(e) => setSkor3(Number(e.target.value))}
+                    placeholder="0 - 100"
+                    className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
+                </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-navy-800">
-              <Link href="/perangkat-desa/bast">
-                <Button type="button" variant="outline" size="md" className="text-xs">
-                  Batal
-                </Button>
-              </Link>
-              <Button type="submit" variant="emerald" size="md" className="text-xs font-bold">
-                Simpan
-              </Button>
-            </div>
-          </form>
-        </Card>
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 text-center">
+                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nilai Akhir</p>
+                  <p className="text-2xl font-extrabold text-navy-950 dark:text-white mt-1">{nilaiAkhir} / 100</p>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-navy-800">
+                  <Link href="/perangkat-desa/bast">
+                    <Button type="button" variant="outline" size="md" className="text-xs">
+                      Batal
+                    </Button>
+                  </Link>
+                  <Button type="submit" variant="emerald" size="md" className="text-xs font-bold">
+                    Simpan
+                  </Button>
+                </div>
+              </form>
+            </Card>
+          </>
+        )}
       </div>
     </DashboardLayout>
   );

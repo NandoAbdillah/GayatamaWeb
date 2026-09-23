@@ -66,12 +66,12 @@ export default function MahasiswaProposalPage() {
         latitude: -7.2575,
         longitude: 112.7521,
       };
-      if (proposalFile) {
-        payload.file_proposal = proposalFile;
-      } else {
-        // Create a dummy blob if no file is selected for demo
-        payload.file_proposal = new Blob(['Sample Proposal Document PDF'], { type: 'application/pdf' });
+      if (!proposalFile) {
+        toast.error('Harap unggah berkas draf proposal (PDF/DOCX)');
+        setIsSubmitting(false);
+        return;
       }
+      payload.file_proposal = proposalFile;
       if (suratPengantarFile) {
         payload.surat_pengantar = suratPengantarFile;
       }
@@ -89,8 +89,8 @@ export default function MahasiswaProposalPage() {
       const fresh = await api.proposal.getMyProposals();
       if (Array.isArray(fresh)) setMyProposals(fresh);
     } catch (err: any) {
-      console.warn('Backend proposal submit error, fallback toast:', err);
-      toast.success('Proposal berhasil diajukan! (Mode Demo Aktif)');
+      console.error('Backend proposal submit error:', err);
+      toast.error(err.response?.data?.message || 'Gagal mengajukan proposal KKN ke server.');
     } finally {
       setIsSubmitting(false);
     }

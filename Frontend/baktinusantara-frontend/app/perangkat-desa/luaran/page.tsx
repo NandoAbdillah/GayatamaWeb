@@ -22,134 +22,104 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/services';
+import apiClient from '@/lib/api-client';
 
 export default function VerifikasiLuaranDesaPage() {
-  const [luaranList, setLuaranList] = useState([
-    {
-      id: 1,
-      kelompok: 'Kelompok 14 (Desa Sukamaju)',
-      ketua: 'Muhammad Raihan Pratama',
-      judul: 'Alat IoT Sensor Kelembaban & Pintu Air Otomatis',
-      kategori: 'Teknologi Tepat Guna & IoT',
-      deskripsi:
-        'Sistem pemantauan level air dan kelembaban tanah terintegrasi mikrokontroler ESP32 dengan notifikasi peringatan dini ke grup WhatsApp pengurus Gapoktan.',
-      foto_url:
-        'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=600&auto=format&fit=crop&q=80',
-      file_url: 'https://storage.gayatama.ac.id/luaran/manual_alat_iot.pdf',
-      status: 'submitted',
-      tanggal_submit: '04 September 2026',
-      dpl: 'Dr. Ir. Hendra Gunawan, M.T.',
-    },
-    {
-      id: 2,
-      kelompok: 'Kelompok 14 (Desa Sukamaju)',
-      ketua: 'Muhammad Raihan Pratama',
-      judul: 'Buku Panduan SOP Budidaya Sayur Organik & Pengemasan Ramah Lingkungan',
-      kategori: 'Modul & SOP Pertanian',
-      deskripsi:
-        'Buku panduan teknis 45 halaman mengenai standardisasi pembuatan pupuk organik cair dan desain kemasan standing pouch untuk UMKM keripik pisang desa.',
-      foto_url:
-        'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&auto=format&fit=crop&q=80',
-      file_url: 'https://storage.gayatama.ac.id/luaran/buku_sop_organik.pdf',
-      status: 'approved',
-      tanggal_submit: '02 September 2026',
-      dpl: 'Dr. Ir. Hendra Gunawan, M.T.',
-    },
-    {
-      id: 3,
-      kelompok: 'Kelompok 08 (Desa Sukamaju)',
-      ketua: 'Anisa Rahmawati',
-      judul: 'Website Katalog Produk UMKM Desa Sukamaju & Payment QRIS',
-      kategori: 'Digitalisasi & E-Commerce',
-      deskripsi:
-        'Portal e-katalog memuat 24 produk unggulan UMKM desa dilengkapi integrasi peta lokasi gerai dan panduan pembayaran nontunai QRIS.',
-      foto_url:
-        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80',
-      file_url: 'https://sukamaju-umkm.id',
-      status: 'submitted',
-      tanggal_submit: '05 September 2026',
-      dpl: 'Dra. Hj. Nurul Hidayati, M.Si.',
-    },
-  ]);
-
+  const [luaranList, setLuaranList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedLuaran, setSelectedLuaran] = useState<any>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showRevisionModal, setShowRevisionModal] = useState(false);
   const [revisionNotes, setRevisionNotes] = useState('');
-  const [ringkasanDampak, setRingkasanDampak] = useState('Meningkatkan omzet dan jangkauan pasar produk UMKM desa hingga 65%.');
-  const [testimoniDesa, setTestimoniDesa] = useState('Sangat solutif, nyata dirasakan manfaatnya, dan membina warga dengan dedikasi tinggi.');
+  const [ringkasanDampak, setRingkasanDampak] = useState('');
+  const [testimoniDesa, setTestimoniDesa] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const fetchLuaran = async () => {
+    try {
+      setLoading(true);
+      const res = await api.luaran.getByDesa();
+      if (Array.isArray(res)) {
+        const normalized = res.map((r: any) => ({
+          id: r.id,
+          kelompok: r.proposal?.kelompok?.nama_kelompok || (r.kelompok?.nama_kelompok) || `Kelompok #${r.proposal?.kelompok_id || r.kelompok_id || r.id}`,
+          ketua: r.proposal?.kelompok?.ketua?.name || r.kelompok?.ketua?.name || 'Ketua Mahasiswa',
+          judul: r.judul || r.proposal?.pos_kebutuhan?.judul || 'Luaran Program KKN',
+          kategori: r.kategori || r.proposal?.pos_kebutuhan?.kategori || 'Teknologi & Digitalisasi',
+          deskripsi: r.deskripsi || 'Luaran hasil program pengabdian kelompok mahasiswa.',
+          foto_url: r.foto_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80',
+          file_url: r.file_deliverable_url || '#',
+          status: r.status_verifikasi || r.status || 'menunggu',
+          tanggal_submit: r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID') : 'Baru saja',
+          dpl: r.proposal?.kelompok?.dosen?.name || 'DPL KKN',
+          slug_public: r.portofolio?.slug_public,
+          sertifikat_pdf_url: r.portofolio?.sertifikat_pdf_url,
+        }));
+        setLuaranList(normalized);
+      } else {
+        setLuaranList([]);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil data luaran desa:', err);
+      toast.error('Gagal memuat luaran dari server.');
+      setLuaranList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    api.luaran.getByDesa()
-      .then((res) => {
-        if (Array.isArray(res) && res.length > 0) {
-          const normalized = res.map((r: any) => ({
-            id: r.id,
-            kelompok: r.kelompok?.nama_kelompok || `Kelompok ${r.kelompok_id}`,
-            ketua: r.kelompok?.ketua?.name || 'Ketua Mahasiswa',
-            judul: r.judul || 'Luaran Program KKN',
-            kategori: r.kategori || 'Digitalisasi',
-            deskripsi: r.deskripsi || '',
-            foto_url: r.foto_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80',
-            file_url: r.file_url || '#',
-            status: r.status_desa || r.status || 'submitted',
-            tanggal_submit: r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID') : '05 September 2026',
-            dpl: r.dpl || 'DPL KKN',
-          }));
-          setLuaranList(normalized);
-        }
-      })
-      .catch(() => {});
+    fetchLuaran();
   }, []);
 
   const openVerifyModal = (item: any) => {
     setSelectedLuaran(item);
+    setRingkasanDampak(item.deskripsi ? `Program ${item.judul} berhasil diimplementasikan di desa dan memberikan manfaat nyata bagi warga.` : '');
+    setTestimoniDesa('Hasil pengabdian mahasiswa sangat solutif, nyata dirasakan manfaatnya oleh warga, dan diselesaikan dengan dedikasi tinggi.');
     setShowVerifyModal(true);
-  };
-
-  const handleSendRevision = async () => {
-    if (!selectedLuaran || !revisionNotes.trim()) return;
-    try {
-      await api.luaran.verifyByDesa(selectedLuaran.id, {
-        status: 'rejected',
-        testimoni_desa: revisionNotes,
-        ringkasan_dampak: '',
-      });
-    } catch (e) {
-      console.warn('Backend reject luaran error:', e);
-    }
-    setLuaranList((prev) =>
-      prev.map((l) => (l.id === selectedLuaran.id ? { ...l, status: 'revision' } : l))
-    );
-    toast.info('Catatan revisi telah dikirimkan ke kelompok mahasiswa.');
-    setShowRevisionModal(false);
-    setRevisionNotes('');
   };
 
   const handleApprove = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedLuaran) return;
+    if (!ringkasanDampak.trim() || !testimoniDesa.trim()) {
+      toast.error('Harap lengkapi ringkasan dampak dan testimoni desa');
+      return;
+    }
     setIsSubmitting(true);
     try {
       await api.luaran.verifyByDesa(selectedLuaran.id, {
-        ringkasan_dampak: ringkasanDampak,
-        testimoni_desa: testimoniDesa,
-        status: 'approved',
+        ringkasan_dampak: ringkasanDampak.trim(),
+        testimoni_desa: testimoniDesa.trim(),
       });
-      setLuaranList((prev) =>
-        prev.map((l) => (l.id === selectedLuaran.id ? { ...l, status: 'approved' } : l))
-      );
-      toast.success('Luaran KKN berhasil disahkan & E-Sertifikat Digital resmi diterbitkan!');
+      toast.success('Luaran KKN berhasil diverifikasi & disahkan! E-Portofolio publik dan sertifikat resmi telah diterbitkan.');
       setShowVerifyModal(false);
-    } catch (e) {
-      setLuaranList((prev) =>
-        prev.map((l) => (l.id === selectedLuaran.id ? { ...l, status: 'approved' } : l))
-      );
-      toast.success('Luaran KKN disahkan & E-Sertifikat diterbitkan! (Mode Demo)');
-      setShowVerifyModal(false);
+      await fetchLuaran();
+    } catch (err: any) {
+      console.error('Gagal memverifikasi luaran:', err);
+      const errMsg = err?.response?.data?.message || 'Gagal memverifikasi luaran di server.';
+      toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDownloadDeliverable = async (item: any) => {
+    try {
+      const response = await apiClient.get(`/api/luaran/${item.id}/file`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Luaran_${item.kelompok.replace(/\s+/g, '_')}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Mengunduh berkas deliverable luaran...');
+    } catch (err: any) {
+      console.error('Gagal mengunduh berkas luaran:', err);
+      toast.error('Berkas deliverable belum tersedia di penyimpanan server.');
     }
   };
 
@@ -168,150 +138,223 @@ export default function VerifikasiLuaranDesaPage() {
           </div>
 
           <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-            {luaranList.filter((l) => l.status === 'submitted').length} Luaran Menunggu Pengesahan
+            {luaranList.filter((l) => l.status === 'verified').length} Telah Disahkan Resmi
           </span>
         </div>
 
-        {/* Grid Daftar Luaran */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {luaranList.map((item) => (
-            <Card
-              key={item.id}
-              className="bg-white dark:bg-navy-900 overflow-hidden flex flex-col justify-between border-slate-200 dark:border-navy-800 shadow-md"
-            >
-              <div className="space-y-3">
-                {/* Photo Header */}
-                <div className="h-44 overflow-hidden relative">
+        {/* Content Grid */}
+        {loading ? (
+          <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <p className="text-sm">Memuat daftar luaran akhir kelompok KKN...</p>
+          </div>
+        ) : luaranList.length === 0 ? (
+          <Card className="p-12 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <Award className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-navy-950 dark:text-white">Belum Ada Luaran KKN Masuk</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+              Kelompok mahasiswa yang bertugas di desa Anda belum mengunggah luaran akhir pengabdian untuk diverifikasi.
+            </p>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {luaranList.map((item) => (
+              <Card
+                key={item.id}
+                className="overflow-hidden border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm flex flex-col"
+              >
+                {/* Image Cover */}
+                <div className="relative h-44 w-full bg-slate-100 dark:bg-navy-950">
                   <img
                     src={item.foto_url}
                     alt={item.judul}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-3 left-3">
-                    <StatusBadge status={item.status} size="sm" />
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/90 dark:bg-navy-900/90 text-navy-900 dark:text-white backdrop-blur-md shadow-sm">
+                      {item.kategori}
+                    </span>
                   </div>
-                  <span className="absolute top-3 right-3 bg-navy-950/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded">
-                    {item.kategori}
-                  </span>
-                </div>
-
-                <div className="p-5 space-y-2">
-                  <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">
-                    {item.kelompok}
-                  </span>
-                  <h3 className="text-sm sm:text-base font-bold text-navy-950 dark:text-white font-epilogue line-clamp-2">
-                    {item.judul}
-                  </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed">
-                    {item.deskripsi}
-                  </p>
-
-                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-navy-800">
-                    <span>Ketua: {item.ketua}</span>
-                    <span>DPL: {item.dpl}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons Footer */}
-              <div className="p-5 pt-0 border-t border-slate-100 dark:border-navy-800 mt-2 flex flex-col gap-2">
-                <a
-                  href={item.file_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-navy-950 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-navy-800"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Lihat Berkas / Demo Produk</span>
-                </a>
-
-                {item.status === 'submitted' ? (
-                  <div className="flex gap-2">
-                    <Button
+                  <div className="absolute top-3 right-3">
+                    <StatusBadge
+                      status={item.status === 'verified' ? 'approved' : 'submitted'}
                       size="sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Card Body */}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-semibold text-primary dark:text-primary-300 flex items-center gap-1">
+                      <Users className="w-3.5 h-3.5" />
+                      {item.kelompok}
+                    </span>
+                    <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue leading-snug">
+                      {item.judul}
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">
+                      {item.deskripsi}
+                    </p>
+                  </div>
+
+                  {/* Metadata */}
+                  <div className="pt-3 border-t border-slate-100 dark:border-navy-800 space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                    <div className="flex items-center justify-between">
+                      <span>Ketua:</span>
+                      <span className="font-semibold text-navy-900 dark:text-slate-200">{item.ketua}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>DPL:</span>
+                      <span className="font-semibold text-navy-900 dark:text-slate-200">{item.dpl}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Tanggal:</span>
+                      <span>{item.tanggal_submit}</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="pt-2 flex items-center gap-2">
+                    <Button
                       variant="outline"
-                      onClick={() => {
-                        setSelectedLuaran(item);
-                        setShowRevisionModal(true);
-                      }}
-                      className="flex-1 text-xs font-bold text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/40"
-                    >
-                      Revisi
-                    </Button>
-                    <Button
                       size="sm"
-                      variant="emerald"
-                      onClick={() => openVerifyModal(item)}
-                      className="flex-1 text-xs font-bold gap-1"
+                      onClick={() => handleDownloadDeliverable(item)}
+                      className="text-xs flex-1 gap-1"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Sahkan Luaran</span>
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Berkas</span>
                     </Button>
-                  </div>
-                ) : item.status === 'approved' ? (
-                  <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-center text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                    ✓ Luaran Resmi Disahkan & Terbit
-                  </div>
-                ) : (
-                  <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-center text-xs font-bold text-amber-700 dark:text-amber-300">
-                    ⏳ Menunggu Perbaikan Mahasiswa
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
 
-        {/* Modal Catatan Revisi */}
-        {showRevisionModal && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-navy-900 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-navy-800">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-navy-800">
-                <h3 className="text-sm font-bold text-navy-950 dark:text-white">
-                  Instruksi Revisi Luaran Teknis
-                </h3>
+                    {item.status !== 'verified' ? (
+                      <Button
+                        variant="emerald"
+                        size="sm"
+                        onClick={() => openVerifyModal(item)}
+                        className="text-xs flex-1 gap-1 shadow-glow-secondary"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Sahkan</span>
+                      </Button>
+                    ) : (
+                      item.slug_public ? (
+                        <a
+                          href={`/portofolio/${item.slug_public}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1"
+                        >
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="text-xs w-full gap-1"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            <span>Portofolio</span>
+                          </Button>
+                        </a>
+                      ) : (
+                        <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 text-center flex-1">
+                          Disahkan Resmi
+                        </span>
+                      )
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Modal Pengesahan & Penerbitan Sertifikat */}
+        {showVerifyModal && selectedLuaran && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-3xl max-w-lg w-full p-6 shadow-ambient-xl space-y-4 font-jakarta">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-navy-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
+                      Sahkan Luaran KKN & Terbitkan E-Sertifikat
+                    </h3>
+                    <p className="text-xs text-slate-500">{selectedLuaran.judul}</p>
+                  </div>
+                </div>
                 <button
-                  onClick={() => setShowRevisionModal(false)}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  onClick={() => setShowVerifyModal(false)}
+                  className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
                 >
-                  ✕
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="space-y-1">
-                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  {selectedLuaran?.judul}
-                </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">Oleh: {selectedLuaran?.kelompok}</p>
-              </div>
+              <form onSubmit={handleApprove} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-navy-950 dark:text-white">
+                    Ringkasan Dampak Nyata bagi Warga / Desa:
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={ringkasanDampak}
+                    onChange={(e) => setRingkasanDampak(e.target.value)}
+                    placeholder="Jelaskan dampak nyata program, peningkatan produktivitas, atau efisiensi pelayanan warga..."
+                    className="w-full p-3 bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 rounded-2xl text-xs text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+                    required
+                  />
+                </div>
 
-              <textarea
-                rows={4}
-                required
-                value={revisionNotes}
-                onChange={(e) => setRevisionNotes(e.target.value)}
-                placeholder="Contoh: Harap lengkapi buku panduan dengan skema perawatan berkala dan lampirkan nota serah terima komponen fisik..."
-                className="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-950 text-xs text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-navy-950 dark:text-white">
+                    Ulasan & Testimoni Resmi Perangkat Desa:
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={testimoniDesa}
+                    onChange={(e) => setTestimoniDesa(e.target.value)}
+                    placeholder="Tuliskan testimoni apresiasi atau evaluasi kinerja mahasiswa KKN..."
+                    className="w-full p-3 bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 rounded-2xl text-xs text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+                    required
+                  />
+                </div>
 
-              <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowRevisionModal(false)}
-                  className="text-xs font-bold"
-                >
-                  Batal
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleSendRevision}
-                  className="text-xs font-bold"
-                >
-                  Kirim Catatan Revisi
-                </Button>
-              </div>
+                <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                  Pengesahan ini akan secara otomatis:
+                  <ul className="list-disc list-inside mt-1 space-y-0.5 font-medium">
+                    <li>Menerbitkan halaman Portofolio Publik berstandar nasional (Verified by Village).</li>
+                    <li>Menerbitkan E-Sertifikat Digital ber-QR Code dengan verifikasi keabsahan online.</li>
+                    <li>Mengirimkan notifikasi resmi via WhatsApp ke Ketua Kelompok & DPL.</li>
+                  </ul>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowVerifyModal(false)}
+                    className="text-xs"
+                    disabled={isSubmitting}
+                  >
+                    Batal
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="emerald"
+                    size="sm"
+                    className="text-xs gap-1.5 shadow-glow-secondary"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    )}
+                    <span>Sahkan & Terbitkan Sertifikat</span>
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
         )}

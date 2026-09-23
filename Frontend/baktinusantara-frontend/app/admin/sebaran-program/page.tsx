@@ -1,32 +1,52 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Search, Eye, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
-import { MONITORING_UNIV } from "@/lib/data/monitoring-data";
-import { FALLBACK_UNIV_DETAIL } from "@/lib/data/direktori-kampus-data";
+import { Search, Eye, ChevronLeft, ChevronRight, Building2, Loader2 } from "lucide-react";
+import api from "@/lib/services";
 
 export default function AdminSebaranProgramPage() {
   const router = useRouter();
+  const [universitasList, setUniversitasList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  const totalUniversitasTerdaftar = FALLBACK_UNIV_DETAIL.length;
+  useEffect(() => {
+    async function loadUniversitas() {
+      try {
+        setLoading(true);
+        const res = await api.universitas.getUniversitasList();
+        if (Array.isArray(res)) {
+          setUniversitasList(res);
+        } else {
+          setUniversitasList([]);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil data universitas sebaran:", err);
+        setUniversitasList([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadUniversitas();
+  }, []);
 
   const filtered = useMemo(() => {
     const q = searchTerm.toLowerCase();
-    return MONITORING_UNIV.filter(
-      (u) =>
-        u.nama.toLowerCase().includes(q) ||
-        u.kode.toLowerCase().includes(q) ||
-        u.provinsi.toLowerCase().includes(q) ||
-        u.kabupaten_kota.toLowerCase().includes(q)
-    );
-  }, [searchTerm]);
+    return universitasList.filter((u) => {
+      const nama = (u.nama_universitas || u.nama || "").toLowerCase();
+      const kode = (u.kode_univ || u.kode || "").toLowerCase();
+      const kota = (u.kota || "").toLowerCase();
+      const prov = (u.provinsi || "").toLowerCase();
+      return nama.includes(q) || kode.includes(q) || kota.includes(q) || prov.includes(q);
+    });
+  }, [universitasList, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
   const paginated = useMemo(() => {
@@ -34,7 +54,7 @@ export default function AdminSebaranProgramPage() {
     return filtered.slice(start, start + itemsPerPage);
   }, [filtered, currentPage]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
@@ -65,7 +85,7 @@ export default function AdminSebaranProgramPage() {
           </div>
           <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 px-3 py-2 rounded-xl whitespace-nowrap">
             <Building2 className="w-3.5 h-3.5 text-primary" />
-            <span>{totalUniversitasTerdaftar} Universitas Terdaftar</span>
+            <span>{universitasList.length} Universitas Terdaftar</span>
           </div>
         </Card>
 
@@ -82,7 +102,14 @@ export default function AdminSebaranProgramPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-navy-800">
-                {paginated.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="p-12 text-center text-slate-400">
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary mb-2" />
+                      Memuat daftar kampus dari server...
+                    </td>
+                  </tr>
+                ) : paginated.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
                       Tidak ada universitas yang sesuai pencarian.
@@ -92,13 +119,15 @@ export default function AdminSebaranProgramPage() {
                   paginated.map((u) => (
                     <tr key={u.id} className="hover:bg-slate-50/80 dark:hover:bg-navy-950/50 transition-colors">
                       <td className="p-3.5">
-                        <p className="font-bold text-navy-950 dark:text-white">{u.nama}</p>
+                        <p className="font-bold text-navy-950 dark:text-white">{u.nama_universitas || u.nama}</p>
                       </td>
                       <td className="p-3.5">
-                        <span className="font-mono font-bold text-primary dark:text-primary-300 bg-primary/10 dark:bg-primary/20 px-2.5 py-1 rounded-full text-[11px]">{u.kode}</span>
+                        <span className="font-mono font-bold text-primary dark:text-primary-300 bg-primary/10 dark:bg-primary/20 px-2.5 py-1 rounded-full text-[11px]">
+                          {u.kode_univ || u.kode || `UNIV-${u.id}`}
+                        </span>
                       </td>
-                      <td className="p-3.5 font-medium text-slate-700 dark:text-slate-300">{u.kabupaten_kota}</td>
-                      <td className="p-3.5 font-medium text-slate-700 dark:text-slate-300">{u.provinsi}</td>
+                      <td className="p-3.5 font-medium text-slate-700 dark:text-slate-300">{u.kota || "-"}</td>
+                      <td className="p-3.5 font-medium text-slate-700 dark:text-slate-300">{u.provinsi || "Indonesia"}</td>
                       <td className="p-3.5 text-right">
                         <Button
                           size="sm"

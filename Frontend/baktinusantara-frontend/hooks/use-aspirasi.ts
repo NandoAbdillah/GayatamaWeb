@@ -3,10 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import aspirasiService, { DecideAspirasiPayload, SubmitAspirasiPayload } from '@/lib/services/aspirasi.service';
 import { Aspirasi } from '@/lib/types';
-import { MOCK_ASPIRASI } from '@/lib/mock-data';
-
 export function useAspirasi() {
-  const [aspirasiList, setAspirasiList] = useState<Aspirasi[]>(MOCK_ASPIRASI);
+  const [aspirasiList, setAspirasiList] = useState<Aspirasi[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,12 +13,15 @@ export function useAspirasi() {
     setError(null);
     try {
       const data = await aspirasiService.getByDesa();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setAspirasiList(data);
+      } else {
+        setAspirasiList([]);
       }
     } catch (err: any) {
-      console.warn('Aspirasi desa fetch error, using fallback:', err);
+      console.error('Aspirasi desa fetch error:', err);
       setError(err?.message || 'Gagal memuat daftar aspirasi.');
+      setAspirasiList([]);
     } finally {
       setIsLoading(false);
     }

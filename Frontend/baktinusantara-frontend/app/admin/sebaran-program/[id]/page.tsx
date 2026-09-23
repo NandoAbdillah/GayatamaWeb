@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -19,23 +19,75 @@ import {
   GraduationCap,
   Calendar,
   BookOpen,
+  Loader2,
 } from "lucide-react";
-import { getUnivById, getProgramsByUnivId } from "@/lib/data/monitoring-data";
+import api from "@/lib/services";
 
 export default function SebaranProgramDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const univId = params?.id as string;
-  const univ = getUnivById(univId);
-  const allPrograms = useMemo(() => (univ ? getProgramsByUnivId(univId) : []), [univId, univ]);
+  const [univ, setUniv] = useState<any | null>(null);
+  const [programs, setPrograms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "Aktif" | "Selesai">("all");
   const [page, setPage] = useState(1);
   const perPage = 5;
 
+  useEffect(() => {
+    async function loadData() {
+      if (!univId) return;
+      try {
+        setLoading(true);
+        // 1. Fetch university list to find matching university
+        const univs = await api.universitas.getUniversitasList();
+        const found = Array.isArray(univs)
+          ? (univs as any[]).find((u) => String(u.id) === String(univId))
+          : null;
+
+        if (found) {
+          setUniv({
+            id: found.id,
+            nama: found.nama_universitas || found.nama,
+            kode: found.kode_univ || `UNIV-${found.id}`,
+            provinsi: found.provinsi || "Indonesia",
+            status: found.status === "aktif" || found.status === "verified" ? "Terverifikasi" : "Pending",
+            total_program: found.kelompok_count || 0,
+            program_aktif: found.kelompok_count || 0,
+            program_selesai: 0,
+          });
+        } else {
+          setUniv(null);
+        }
+
+        // 2. Fetch pos kebutuhan programs
+        const allPos = await api.posKebutuhan.getAll({});
+        if (Array.isArray(allPos)) {
+          setPrograms(
+            allPos.map((p) => ({
+              id: p.id,
+              nama_program: p.judul,
+              nama_desa: p.desa?.nama_desa || "Desa Mitra",
+              kabupaten_kota: p.desa?.kabupaten || "Wilayah",
+              status: p.status === "completed" ? "Selesai" : "Aktif",
+              sdg: p.sdg_target || "SDG",
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Gagal memuat detail sebaran program:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, [univId]);
+
   const filtered = useMemo(() => {
-    return allPrograms.filter((p) => {
+    return programs.filter((p) => {
       const matchStatus = statusFilter === "all" || p.status === statusFilter;
       const q = search.toLowerCase();
       const matchSearch =
@@ -44,7 +96,7 @@ export default function SebaranProgramDetailPage() {
         p.kabupaten_kota.toLowerCase().includes(q);
       return matchStatus && matchSearch;
     });
-  }, [allPrograms, search, statusFilter]);
+  }, [programs, search, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const paginated = useMemo(() => {
@@ -52,9 +104,20 @@ export default function SebaranProgramDetailPage() {
     return filtered.slice(start, start + perPage);
   }, [filtered, page]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setPage(1);
   }, [search, statusFilter]);
+
+  if (loading) {
+    return (
+      <DashboardLayout title="Detail Monitoring KKN">
+        <div className="p-16 flex flex-col items-center justify-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-xs text-slate-500">Memuat profil universitas...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!univ) {
     return (
@@ -65,7 +128,7 @@ export default function SebaranProgramDetailPage() {
           </Button>
           <Card className="p-12 text-center border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900">
             <p className="text-sm font-bold text-navy-950 dark:text-white">Universitas tidak ditemukan</p>
-            <p className="text-xs text-slate-500 mt-1">ID {String(univId)} tidak terdaftar.</p>
+            <p className="text-xs text-slate-500 mt-1">ID {String(univId)} tidak terdaftar dalam pangkalan data.</p>
             <Link href="/admin/sebaran-program">
               <Button size="sm" variant="outline" className="mt-4 gap-1.5">
                 <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Sebaran Program
@@ -121,9 +184,7 @@ export default function SebaranProgramDetailPage() {
                     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${
                       univ.status === "Terverifikasi"
                         ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50"
-                        : univ.status === "Aktif"
-                          ? "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/50"
-                          : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/50"
+                        : "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/50"
                     }`}
                   >
                     {univ.status}
@@ -139,7 +200,7 @@ export default function SebaranProgramDetailPage() {
           <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Program</p>
-              <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue mt-1">{univ.total_program}</p>
+              <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue mt-1">{programs.length}</p>
               <p className="text-[11px] text-slate-500 mt-0.5">Seluruh program KKN</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center">
@@ -149,7 +210,9 @@ export default function SebaranProgramDetailPage() {
           <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Program Aktif</p>
-              <p className="text-2xl font-extrabold text-emerald-600 font-epilogue mt-1">{univ.program_aktif}</p>
+              <p className="text-2xl font-extrabold text-emerald-600 font-epilogue mt-1">
+                {programs.filter((p) => p.status === "Aktif").length}
+              </p>
               <p className="text-[11px] text-slate-500 mt-0.5">Sedang berjalan</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center">
@@ -159,7 +222,9 @@ export default function SebaranProgramDetailPage() {
           <Card className="p-5 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Program Selesai</p>
-              <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue mt-1">{univ.program_selesai}</p>
+              <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue mt-1">
+                {programs.filter((p) => p.status === "Selesai").length}
+              </p>
               <p className="text-[11px] text-slate-500 mt-0.5">Telah tuntas</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
@@ -172,7 +237,7 @@ export default function SebaranProgramDetailPage() {
         <Card className="p-0 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-md overflow-hidden w-full">
           <div className="p-4 border-b border-slate-200 dark:border-navy-800 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">Program KKN</h2>
+              <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue">Program KKN Terkait</h2>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -211,48 +276,41 @@ export default function SebaranProgramDetailPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 border-b border-slate-200 dark:border-navy-800">
-                  <th className="p-3.5 font-bold whitespace-nowrap">Nama Program KKN</th>
-                  <th className="p-3.5 font-bold whitespace-nowrap">Nama Desa</th>
-                  <th className="p-3.5 font-bold whitespace-nowrap">Kabupaten/Kota</th>
-                  <th className="p-3.5 font-bold whitespace-nowrap text-center">Jumlah Mahasiswa</th>
-                  <th className="p-3.5 font-bold whitespace-nowrap">Periode</th>
-                  <th className="p-3.5 font-bold whitespace-nowrap">Status</th>
+                <tr className="bg-slate-50 dark:bg-navy-950 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-navy-800">
+                  <th className="p-3.5 font-bold">Nama Program</th>
+                  <th className="p-3.5 font-bold">Desa</th>
+                  <th className="p-3.5 font-bold">Kabupaten/Kota</th>
+                  <th className="p-3.5 font-bold">Target SDG</th>
+                  <th className="p-3.5 font-bold text-right">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-navy-800">
                 {paginated.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-8 text-center text-sm text-slate-500">
+                    <td colSpan={5} className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
                       Tidak ada program yang sesuai filter.
                     </td>
                   </tr>
                 ) : (
-                  paginated.map((prog) => (
-                    <tr key={prog.id} className="hover:bg-slate-50/60 dark:hover:bg-navy-950/50">
+                  paginated.map((p) => (
+                    <tr key={p.id} className="hover:bg-slate-50/80 dark:hover:bg-navy-950/50 transition-colors">
+                      <td className="p-3.5 font-bold text-navy-950 dark:text-white">{p.nama_program}</td>
+                      <td className="p-3.5 text-slate-700 dark:text-slate-300 font-medium">{p.nama_desa}</td>
+                      <td className="p-3.5 text-slate-600 dark:text-slate-400">{p.kabupaten_kota}</td>
                       <td className="p-3.5">
-                        <p className="font-bold text-navy-950 dark:text-white line-clamp-2">{prog.nama_program}</p>
-                      </td>
-                      <td className="p-3.5 font-medium text-slate-700 dark:text-slate-300">{prog.nama_desa}</td>
-                      <td className="p-3.5 text-slate-600 dark:text-slate-400">{prog.kabupaten_kota}</td>
-                      <td className="p-3.5 text-center">
-                        <span className="inline-flex items-center gap-1 font-bold text-navy-950 dark:text-white">
-                          <Users className="w-3.5 h-3.5 text-slate-400" />
-                          {prog.jumlah_mahasiswa}
+                        <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded-full">
+                          {p.sdg}
                         </span>
                       </td>
-                      <td className="p-3.5 whitespace-nowrap text-slate-600 dark:text-slate-400">{prog.periode}</td>
-                      <td className="p-3.5">
+                      <td className="p-3.5 text-right">
                         <span
-                          className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-bold border ${
-                            prog.status === "Aktif"
-                              ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50"
-                              : prog.status === "Selesai"
-                                ? "bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-navy-700"
-                                : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/50"
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                            p.status === "Aktif"
+                              ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300"
+                              : "bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-300"
                           }`}
                         >
-                          {prog.status}
+                          {p.status}
                         </span>
                       </td>
                     </tr>
@@ -260,45 +318,6 @@ export default function SebaranProgramDetailPage() {
                 )}
               </tbody>
             </table>
-          </div>
-
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-navy-800 bg-slate-50/50 dark:bg-navy-950/50">
-            <p className="text-xs text-slate-500">
-              Halaman {page} dari {totalPages}
-            </p>
-            <div className="flex items-center gap-1.5">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={page === 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="h-8 w-8 p-0"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPage(i + 1)}
-                  className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                    page === i + 1
-                      ? "bg-primary text-white shadow-sm"
-                      : "bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="h-8 w-8 p-0"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
           </div>
         </Card>
       </div>

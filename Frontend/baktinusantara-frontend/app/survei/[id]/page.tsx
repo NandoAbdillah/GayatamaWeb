@@ -67,23 +67,23 @@ export default function SurveiKepuasanMasyarakatPage({
     },
   ];
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
-      try {
-        await apiClient.post(`/api/survei/${proposalId}`, {
-          ...formData,
-          ratings,
-        });
-      } catch (err) {
-        // demo fallback
-      }
-
+      await apiClient.post(`/api/survei/${proposalId}`, {
+        ...formData,
+        ratings,
+      });
       setSubmitted(true);
       toast.success('Terima kasih! Survei evaluasi masyarakat berhasil dikirim.');
-    } catch (e) {
-      toast.error('Gagal mengirim survei');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Gagal mengirim survei evaluasi masyarakat');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

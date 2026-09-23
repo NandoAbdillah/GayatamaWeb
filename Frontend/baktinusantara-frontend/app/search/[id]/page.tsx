@@ -8,7 +8,6 @@ import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
 import { useAuth } from '@/context/AuthContext';
 import {
   MapPin,
@@ -22,6 +21,8 @@ import {
   Share2,
   Bookmark,
   CheckCircle,
+  Loader2,
+  Inbox,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/services';
@@ -33,9 +34,7 @@ export default function PosDetailPage() {
   const { user } = useAuth();
   const id = Number(params?.id || '1');
 
-  const [pos, setPos] = React.useState<PosKebutuhan>(
-    () => MOCK_POS_KEBUTUHAN.find((p) => p.id === id) || MOCK_POS_KEBUTUHAN[0]
-  );
+  const [pos, setPos] = React.useState<PosKebutuhan | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -72,9 +71,12 @@ export default function PosDetailPage() {
             distance_km: item.distance_km || 18.4,
             created_at: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja',
           });
+        } else {
+          setPos(null);
         }
       } catch (err) {
-        console.warn('Fallback to mock pos detail:', err);
+        console.error('Gagal memuat detail pos kebutuhan:', err);
+        setPos(null);
       } finally {
         setLoading(false);
       }
@@ -83,6 +85,7 @@ export default function PosDetailPage() {
   }, [id]);
 
   const handleApply = () => {
+    if (!pos) return;
     if (!user) {
       router.push(`/login?redirect=/search/${id}`);
       return;
@@ -93,6 +96,45 @@ export default function PosDetailPage() {
     }
     router.push(`/mahasiswa/proposal?pos_id=${pos.id}`);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-surface-canvas dark:bg-[#071629] flex flex-col font-jakarta">
+        <Navbar />
+        <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center justify-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-xs text-slate-500">Memuat rincian pos kebutuhan...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!pos) {
+    return (
+      <div className="min-h-screen bg-surface-canvas dark:bg-[#071629] flex flex-col font-jakarta">
+        <Navbar />
+        <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center space-y-4">
+          <Card className="p-12 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 max-w-md mx-auto space-y-3">
+            <Inbox className="w-10 h-10 text-slate-400 mx-auto" />
+            <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
+              Pos Kebutuhan Tidak Ditemukan
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Pos kebutuhan dengan ID {id} tidak terdaftar atau sudah tidak aktif.
+            </p>
+            <Link href="/search" className="inline-block pt-2">
+              <Button size="sm" variant="outline" className="gap-1.5 text-xs">
+                <ArrowLeft className="w-4 h-4" />
+                Kembali ke Pencarian
+              </Button>
+            </Link>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface-canvas dark:bg-[#071629] flex flex-col font-jakarta">

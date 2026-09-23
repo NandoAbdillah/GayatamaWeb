@@ -7,7 +7,6 @@ import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
 import { PosKebutuhan } from '@/lib/types';
 import api from '@/lib/services';
 import {
@@ -23,7 +22,7 @@ import {
 } from 'lucide-react';
 
 export default function SearchPage() {
-  const [items, setItems] = useState<PosKebutuhan[]>(MOCK_POS_KEBUTUHAN);
+  const [items, setItems] = useState<PosKebutuhan[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [selectedSector, setSelectedSector] = useState('Semua');
@@ -34,7 +33,7 @@ export default function SearchPage() {
       try {
         setLoading(true);
         const data = await api.posKebutuhan.getAll();
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           const normalized: PosKebutuhan[] = data.map((item: any) => ({
             id: item.id,
             desa_id: item.desa_id || 1,
@@ -63,9 +62,12 @@ export default function SearchPage() {
             created_at: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja',
           }));
           setItems(normalized);
+        } else {
+          setItems([]);
         }
       } catch (err) {
-        console.warn('Fallback to mock search items:', err);
+        console.error('Gagal mengambil pos kebutuhan:', err);
+        setItems([]);
       } finally {
         setLoading(false);
       }

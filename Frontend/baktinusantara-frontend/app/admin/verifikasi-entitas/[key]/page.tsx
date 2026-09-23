@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/services';
-import { getVerifikasiByKey, VerifikasiItem } from '@/lib/data/verifikasi-data';
+import { VerifikasiItem } from '@/lib/data/verifikasi-data';
 
 export default function DetailBerkasPage() {
   const params = useParams<{ key: string }>();
@@ -58,17 +58,11 @@ export default function DetailBerkasPage() {
             return;
           }
         } catch (err) {
-          console.warn('Backend detail call returned error, checking fallback:', err);
+          console.error('Backend detail call returned error:', err);
         }
       }
 
-      // Fallback to local data
-      const localItem = getVerifikasiByKey(key);
-      if (localItem) {
-        setItem(localItem);
-      } else {
-        setItem(null);
-      }
+      setItem(null);
       setIsLoading(false);
     };
 

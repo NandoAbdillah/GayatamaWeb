@@ -181,6 +181,42 @@ export const universitasService = {
     const res = await apiClient.post('/api/desa/laporan-dosen', payload);
     return res.data;
   },
+
+  /**
+   * Get comprehensive internal campus metrics & statistics
+   * Endpoint: GET /api/universitas/metrics
+   */
+  async getCampusMetrics(): Promise<any> {
+    const res = await apiClient.get<{ message: string; data: any }>('/api/universitas/metrics');
+    return res.data?.data || res.data;
+  },
+
+  /**
+   * Get list of groups under this university's supervision
+   * Endpoint: GET /api/universitas/kelompok
+   */
+  async getKelompokList(): Promise<any[]> {
+    const res = await apiClient.get<{ message: string; data: any[] }>('/api/universitas/kelompok');
+    return res.data?.data || res.data || [];
+  },
+
+  /**
+   * Get civitas audit logs and activity trail
+   * Endpoint: GET /api/universitas/logs
+   */
+  async getAuditLogs(): Promise<any[]> {
+    const res = await apiClient.get<{ message: string; data: any[] }>('/api/universitas/logs');
+    return res.data?.data || res.data || [];
+  },
+
+  /**
+   * Get logbooks of students under this university
+   * Endpoint: GET /api/universitas/logbook
+   */
+  async getLogbooks(): Promise<any[]> {
+    const res = await apiClient.get<{ message: string; data: any[] }>('/api/universitas/logbook');
+    return res.data?.data || res.data || [];
+  },
 };
 
 export default universitasService;

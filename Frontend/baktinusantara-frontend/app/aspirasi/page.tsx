@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { api } from '@/lib/services';
-import { MOCK_ASPIRASI } from '@/lib/mock-data';
 import { Aspirasi } from '@/lib/types';
 import {
   MessageSquare,
@@ -52,24 +51,16 @@ export default function AspirasiPage() {
     try {
       const ticketId = ticketQuery.replace(/\D/g, '') || ticketQuery.trim();
       const res = await api.aspirasi.getByTicket(ticketId);
-      if (res) {
+      if (res && res.id) {
         setSearchedTicket(res);
-        toast.success(t('toast.found'));
-      } else {
-        throw new Error('Not found');
-      }
-    } catch {
-      // Check fallback mock
-      const found = MOCK_ASPIRASI.find(
-        (a) => a.ticket_number.toLowerCase() === ticketQuery.trim().toLowerCase() || String(a.id) === ticketQuery.trim()
-      );
-      if (found) {
-        setSearchedTicket(found);
         toast.success(t('toast.found'));
       } else {
         toast.error(t('toast.notFound'));
         setSearchedTicket(null);
       }
+    } catch {
+      toast.error(t('toast.notFound'));
+      setSearchedTicket(null);
     } finally {
       setIsSearching(false);
     }
@@ -93,14 +84,16 @@ export default function AspirasiPage() {
         payload.foto = fotoFile;
       }
       const res = await api.aspirasi.submitAspirasi(payload);
-      const ticket = res.nomor_tiket || (res.data as any)?.id || `ASP-${Date.now().toString().slice(-4)}`;
-      setSubmittedTicket(ticket);
-      toast.success(t('toast.successWithTicket', { ticket: String(ticket) }));
+      const ticket = res.nomor_tiket || (res.data as any)?.id;
+      if (ticket) {
+        setSubmittedTicket(ticket);
+        toast.success(t('toast.successWithTicket', { ticket: String(ticket) }));
+      } else {
+        toast.success('Aspirasi berhasil dikirim!');
+      }
     } catch (err: any) {
-      console.warn('Backend submit error, using client fallback ticket:', err);
-      const fallbackTicket = `ASP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-      setSubmittedTicket(fallbackTicket);
-      toast.success(t('toast.recordedWithTicket', { ticket: fallbackTicket }));
+      console.error('Backend submit aspirasi error:', err);
+      toast.error(err.response?.data?.message || 'Gagal mengirimkan aspirasi ke desa.');
     } finally {
       setIsSubmitting(false);
     }
@@ -340,13 +333,18 @@ export default function AspirasiPage() {
                 <span>{t('track.demoLabel')}</span>
                 <button
                   type="button"
-                  onClick={() => {
-                    setTicketQuery('ASP-2026-SKM-0089');
-                    setSearchedTicket(MOCK_ASPIRASI[0]);
+                  onClick={async () => {
+                    setTicketQuery('1');
+                    try {
+                      const res = await api.aspirasi.getByTicket(1);
+                      if (res && res.id) setSearchedTicket(res);
+                    } catch {
+                      toast.error('Tiket #1 belum tersedia.');
+                    }
                   }}
                   className="font-mono text-primary dark:text-primary-400 font-bold hover:underline"
                 >
-                  ASP-2026-SKM-0089
+                  Tiket #1
                 </button>
               </div>
 

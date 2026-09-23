@@ -21,11 +21,11 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/services';
-import { INITIAL_VERIFIKASI_DATA, VerifikasiItem } from '@/lib/data/verifikasi-data';
+import { VerifikasiItem } from '@/lib/data/verifikasi-data';
 
 export default function AdminVerifikasiPage() {
   const router = useRouter();
-  const [verifikasiList, setVerifikasiList] = useState<VerifikasiItem[]>(INITIAL_VERIFIKASI_DATA);
+  const [verifikasiList, setVerifikasiList] = useState<VerifikasiItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'all' | 'universitas' | 'desa'>('all');
@@ -42,13 +42,15 @@ export default function AdminVerifikasiPage() {
       const res = await api.admin.getVerifikasiList();
       if (res && res.data && Array.isArray(res.data)) {
         setVerifikasiList(res.data);
+      } else {
+        setVerifikasiList([]);
       }
     } catch (err: any) {
       console.error('Gagal memuat data verifikasi entitas dari backend:', err);
-      // If error (e.g. not logged in or backend booting), keep existing data
       if (!silent) {
-        toast.error('Gagal mengambil data terbaru dari server. Menampilkan cache lokal.');
+        toast.error('Gagal mengambil data verifikasi dari server.');
       }
+      setVerifikasiList([]);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);

@@ -9,42 +9,8 @@ import { toast } from 'sonner';
 import api from '@/lib/services';
 
 export default function AdminDosenPage() {
-  const [dosenList, setDosenList] = useState<any[]>([
-    {
-      id: 1,
-      name: 'Dr. Ir. Hendra Gunawan, M.T.',
-      email: 'dosen.budi@unesa.ac.id',
-      nip: '197804122005011002',
-      no_hp: '081234567891',
-      fakultas: 'Teknik & Pertanian',
-      kelompokBinaan: 3,
-      kuota: 5,
-      lokasi: 'Bogor & Cianjur',
-    },
-    {
-      id: 2,
-      name: 'Dr. Siti Rahmawati, S.Sos., M.Si.',
-      email: 'siti.rahmawati@kampus.ac.id',
-      nip: '198203152008012001',
-      no_hp: '081234567892',
-      fakultas: 'Ilmu Sosial & Politik',
-      kelompokBinaan: 4,
-      kuota: 5,
-      lokasi: 'Sukabumi',
-    },
-    {
-      id: 3,
-      name: 'Prof. Dr. Agus Prasetyo, M.Kes.',
-      email: 'agus.prasetyo@kampus.ac.id',
-      nip: '197109201997021003',
-      no_hp: '081234567893',
-      fakultas: 'Kesehatan Masyarakat',
-      kelompokBinaan: 2,
-      kuota: 5,
-      lokasi: 'Bogor',
-    },
-  ]);
-
+  const [dosenList, setDosenList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -67,28 +33,36 @@ export default function AdminDosenPage() {
     lokasi: '',
   });
 
-  useEffect(() => {
-    async function loadDosen() {
-      try {
-        const list = await api.universitas.getDosenList();
-        if (Array.isArray(list) && list.length > 0) {
-          const normalized = list.map((d: any) => ({
-            id: d.id,
-            name: d.name || d.nama || 'Dosen Pembimbing',
-            email: d.email,
-            nip: d.nip || '198001012005011001',
-            no_hp: d.no_hp || '081234567890',
-            fakultas: d.fakultas || 'Teknologi Informasi & Rekayasa',
-            kelompokBinaan: d.kelompok_binaan_count || 1,
-            kuota: 5,
-            lokasi: 'Jawa Barat & Jawa Timur',
-          }));
-          setDosenList(normalized);
-        }
-      } catch (err) {
-        console.warn('Fallback to mock dosen list:', err);
+  const loadDosen = async () => {
+    try {
+      setLoading(true);
+      const list = await api.universitas.getDosenList();
+      if (Array.isArray(list)) {
+        const normalized = list.map((d: any) => ({
+          id: d.id,
+          name: d.user?.name || d.name || 'Dosen Pembimbing',
+          email: d.user?.email || d.email || '-',
+          nip: d.nip || '-',
+          no_hp: d.no_hp || d.user?.phone_wa || '-',
+          fakultas: d.fakultas || 'Teknologi Informasi & Sains Terapan',
+          kelompokBinaan: Array.isArray(d.kelompokBinaan) ? d.kelompokBinaan.length : (d.kelompok_binaan_count || 0),
+          kuota: 5,
+          lokasi: 'Wilayah KKN Kampus',
+        }));
+        setDosenList(normalized);
+      } else {
+        setDosenList([]);
       }
+    } catch (err) {
+      console.error('Gagal mengambil daftar dosen DPL:', err);
+      toast.error('Gagal memuat daftar dosen DPL dari server.');
+      setDosenList([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadDosen();
   }, []);
 
@@ -101,35 +75,21 @@ export default function AdminDosenPage() {
 
     setSubmitting(true);
     try {
-      try {
-        await api.universitas.addDosen({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password || 'Password123!',
-          nip: formData.nip,
-          no_hp: formData.no_hp || '081234567890',
-        });
-      } catch (err) {
-        console.warn('Backend add dosen response:', err);
-      }
-
-      const newDosen = {
-        id: Date.now(),
+      const res = await api.universitas.addDosen({
         name: formData.name,
         email: formData.email,
+        password: formData.password || 'Password123!',
         nip: formData.nip,
-        no_hp: formData.no_hp,
-        fakultas: 'Teknik & Terapan',
-        kelompokBinaan: 0,
-        kuota: 5,
-        lokasi: 'Jawa Barat',
-      };
-      setDosenList([newDosen, ...dosenList]);
-      toast.success(`Dosen DPL ${formData.name} berhasil ditugaskan!`);
+        no_hp: formData.no_hp || '',
+      });
+
+      toast.success(`Dosen DPL ${formData.name} berhasil ditambahkan!`);
       setModalOpen(false);
       setFormData({ name: '', email: '', password: '', nip: '', no_hp: '' });
+      await loadDosen();
     } catch (err: any) {
-      toast.error('Gagal menambahkan dosen DPL');
+      console.error('Gagal menambahkan dosen:', err);
+      toast.error(err?.response?.data?.message || 'Gagal menambahkan dosen DPL ke server.');
     } finally {
       setSubmitting(false);
     }
@@ -201,68 +161,83 @@ export default function AdminDosenPage() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {dosenList.map((d) => (
-            <Card key={d.id} className="relative p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-3 shadow-card hover:border-primary/30 transition-all">
-              {/* Menu Edit & Hapus - Pojok Kanan Atas */}
-              <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-                <button
-                  onClick={() => handleOpenEdit(d)}
-                  title="Edit dosen"
-                  aria-label={`Edit ${d.name}`}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-950/70 hover:border-primary/30 shadow-sm transition-all"
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => setDeleteTarget(d)}
-                  title="Hapus dosen"
-                  aria-label={`Hapus ${d.name}`}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/70 hover:border-rose-200 shadow-sm transition-all"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+        {loading ? (
+          <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-xs">Memuat daftar Dosen Pembimbing Lapangan...</p>
+          </div>
+        ) : dosenList.length === 0 ? (
+          <Card className="p-12 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <GraduationCap className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-navy-950 dark:text-white">Belum Ada Dosen DPL</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+              Institusi kampus Anda belum mendaftarkan Dosen Pembimbing Lapangan. Klik tombol "Tugaskan DPL Baru" di atas untuk menambahkan dosen.
+            </p>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {dosenList.map((d) => (
+              <Card key={d.id} className="relative p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-3 shadow-card hover:border-primary/30 transition-all">
+                {/* Menu Edit & Hapus - Pojok Kanan Atas */}
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                  <button
+                    onClick={() => handleOpenEdit(d)}
+                    title="Edit dosen"
+                    aria-label={`Edit ${d.name}`}
+                    className="w-8 h-8 rounded-xl flex items-center justify-center bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-950/70 hover:border-primary/30 shadow-sm transition-all"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteTarget(d)}
+                    title="Hapus dosen"
+                    aria-label={`Hapus ${d.name}`}
+                    className="w-8 h-8 rounded-xl flex items-center justify-center bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/70 hover:border-rose-200 shadow-sm transition-all"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-slate-100 dark:border-navy-800 pb-3 pr-20">
-                <div className="flex items-start gap-3">
-                  <div>
-                    <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">{d.name}</h3>
-                    <div className="space-y-1.5 mt-1">
-                      <p className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-mono">
-                        <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>NIP: {d.nip}</span>
-                      </p>
-                      <p className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-mono">
-                        <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="truncate">{d.email}</span>
-                      </p>
-                      <p className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
-                        <GraduationCap className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>{d.fakultas}</span>
-                      </p>
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-slate-100 dark:border-navy-800 pb-3 pr-20">
+                  <div className="flex items-start gap-3">
+                    <div>
+                      <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">{d.name}</h3>
+                      <div className="space-y-1.5 mt-1">
+                        <p className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-mono">
+                          <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>NIP: {d.nip}</span>
+                        </p>
+                        <p className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-mono">
+                          <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{d.email}</span>
+                        </p>
+                        <p className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+                          <GraduationCap className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{d.fakultas}</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
-                <span>
-                  Beban Bimbingan: <strong className="text-navy-950 dark:text-white">{d.kelompokBinaan} / {d.kuota} Kelompok</strong>
-                </span>
+                <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+                  <span>
+                    Beban Bimbingan: <strong className="text-navy-950 dark:text-white">{d.kelompokBinaan} / {d.kuota} Kelompok</strong>
+                  </span>
 
-                <Button
-                  onClick={() => toast.info(`Mengelola alokasi kelompok binaan untuk ${d.name}`)}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs font-semibold"
-                >
-                  Kelola Kelompok Binaan
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
+                  <Button
+                    onClick={() => toast.info(`Mengelola alokasi kelompok binaan untuk ${d.name}`)}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs font-semibold"
+                  >
+                    Kelola Kelompok Binaan
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Modal Tambah Dosen DPL */}
         {modalOpen && (

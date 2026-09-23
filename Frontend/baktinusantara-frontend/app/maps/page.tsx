@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/Button';
 import { RegionLogo } from '@/components/ui/RegionLogo';
-import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
 import { Province, Regency, District, Village, WilayahStats, WilayahSearchItem } from '@/lib/wilayah-types';
 import { WilayahService } from '@/lib/wilayah-api';
 import { MapMarkerItem } from '@/components/maps/WilayahLeafletMap';
@@ -16,6 +15,7 @@ import { LiveReportCard, LiveReportItem } from '@/components/maps/LiveReportCard
 import { MapFilterSelect } from '@/components/ui/MapFilterSelect';
 import { fetchWikipediaSummary, WikipediaSummary } from '@/lib/wikipedia';
 import { KampusService, KampusItem, generateCampusMonogramSvg } from '@/lib/kampus-api';
+import api from '@/lib/services';
 import {
   MapPin,
   Navigation,
@@ -85,97 +85,63 @@ const SECTOR_FILTER_OPTIONS = [
   { key: 'lingkungan', label: 'Lingkungan & Energi' },
 ];
 
-// Mock Riwayat Pengabdian (Alumni Archives)
-const MOCK_RIWAYAT_ARCHIVES: RiwayatPengabdianItem[] = [
-  {
-    id: 'rw-1',
-    desa_nama: 'Desa Sukamaju',
-    kabupaten: 'Kabupaten Jombang',
-    judul_program: 'Inovasi Kemasan Merek & Marketplace UMKM Keripik Singkong',
-    nama_kelompok: 'KKN UNESA 01 Sukamaju Digital',
-    universitas: 'Universitas Negeri Surabaya',
-    tahun: '2025/2026',
-    periode: 'Semester Ganjil',
-    jumlah_mahasiswa: 8,
-    rating: 4.9,
-    luaran_unggulan: ['Sertifikasi Halal & NIB 15 UMKM', 'Website Katalog Desa', 'SOP Kemasan Kedap Udara'],
-    ringkasan_dampak: 'Peningkatan omzet rata-rata pelaku usaha keripik lokal hingga 65% dalam 30 hari pasca-pelatihan branding digital.',
-    thumbnail: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80',
-    slug_portofolio: 'digitalisasi-branding-dan-e-commerce-umkm-kripik-singkong-sukamaju',
-  },
-  {
-    id: 'rw-2',
-    desa_nama: 'Desa Berkah Makmur',
-    kabupaten: 'Kabupaten Pasuruan',
-    judul_program: 'Instalasi Biodigester Kotoran Ternak Sapi untuk Energi Mandiri',
-    nama_kelompok: 'KKN ITS Berkah Hijau',
-    universitas: 'Institut Teknologi Sepuluh Nopember',
-    tahun: '2024/2025',
-    periode: 'Semester Genap',
-    jumlah_mahasiswa: 7,
-    rating: 4.8,
-    luaran_unggulan: ['2 Unit Reaktor Biogas Aktif', 'Buku Panduan Pemeliharaan', 'Reduksi 40% Limbah Kandang'],
-    ringkasan_dampak: 'Memasok kebutuhan gas memasak bagi 12 KK di sekitar peternakan komunal tanpa biaya LPG bulanan.',
-    thumbnail: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'rw-3',
-    desa_nama: 'Desa Cempaka Putih',
-    kabupaten: 'Kabupaten Mojokerto',
-    judul_program: 'Akademi Literasi Bahasa Inggris & Komputer Anak Pedesaan',
-    nama_kelompok: 'KKN Edukasi Cempaka',
-    universitas: 'Universitas Negeri Surabaya',
-    tahun: '2024/2025',
-    periode: 'Semester Ganjil',
-    jumlah_mahasiswa: 6,
-    rating: 4.9,
-    luaran_unggulan: ['Kurikulum Bimbel Interaktif', 'Modul Belajar Mandiri', 'Laboratorium Komputer Sederhana'],
-    ringkasan_dampak: 'Membina 95 siswa SD pedesaan dengan peningkatan nilai rerata bahasa Inggris sebesar 40%.',
-    thumbnail: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&auto=format&fit=crop&q=80',
-  },
-];
-
-// Mock Live Reports (Ongoing real-time logs)
-const MOCK_LIVE_REPORTS: LiveReportItem[] = [
-  {
-    id: 'lr-1',
-    desa_nama: 'Desa Sukamaju',
-    kabupaten: 'Kabupaten Jombang',
-    penulis: 'Ahmad Fauzi',
-    role: 'Ketua Tim Mahasiswa',
-    avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
-    waktu: '2 jam yang lalu',
-    minggu_ke: 3,
-    persentase: 75,
-    aktivitas: 'Uji coba instalasi sistem kasir digital POS dan pendampingan input stok produk 15 pelaku UMKM di Balai Desa Sukamaju.',
-    foto_dokumentasi: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80',
-    dpl_verified: true,
-    dpl_nama: 'Dr. Budi Santoso, M.Kom.',
-  },
-  {
-    id: 'lr-2',
-    desa_nama: 'Desa Berkah Makmur',
-    kabupaten: 'Kabupaten Pasuruan',
-    penulis: 'Dimas Pratama',
-    role: 'Koordinator Lapangan',
-    avatar_url: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&auto=format&fit=crop&q=80',
-    waktu: '5 jam yang lalu',
-    minggu_ke: 2,
-    persentase: 60,
-    aktivitas: 'Pemasangan kubah penampung gas metana biodigester dan uji kebocoran pipa distribusi bersama teknisi desa.',
-    foto_dokumentasi: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&auto=format&fit=crop&q=80',
-    dpl_verified: true,
-    dpl_nama: 'Ir. Agus Setiawan, M.T.',
-  },
-];
-
 export default function MapsPage() {
   const tmaps = useTranslations('maps');
 
-  // Pos KKN selection & filtering
-  const [selectedPos, setSelectedPos] = useState(MOCK_POS_KEBUTUHAN[0]);
+  // Pos KKN selection & dynamic API data
+  const [posList, setPosList] = useState<any[]>([]);
+  const [loadingPos, setLoadingPos] = useState<boolean>(true);
+  const [selectedPos, setSelectedPos] = useState<any | null>(null);
   const [radiusFilter, setRadiusFilter] = useState<number>(100);
   const [selectedSector, setSelectedSector] = useState<string>('all');
+
+  // Fetch Pos KKN data from API
+  useEffect(() => {
+    let mounted = true;
+    async function loadPos() {
+      try {
+        setLoadingPos(true);
+        const res = await api.posKebutuhan.getAll();
+        const items = Array.isArray(res) ? res : (res as any)?.data || [];
+        if (mounted) {
+          setPosList(items);
+          if (items.length > 0) {
+            setSelectedPos(items[0]);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load Pos Kebutuhan for map:', err);
+      } finally {
+        if (mounted) setLoadingPos(false);
+      }
+    }
+    loadPos();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Dynamic Riwayat Pengabdian (from completed Pos or API)
+  const riwayatArchives: RiwayatPengabdianItem[] = useMemo(() => {
+    return posList
+      .filter((pos) => pos.status === 'completed')
+      .map((pos) => ({
+        id: `rw-${pos.id}`,
+        desa_nama: pos.desa?.nama_desa || pos.nama_desa || 'Desa Mitra',
+        kabupaten: pos.desa?.kabupaten || pos.kabupaten || 'Kabupaten',
+        judul_program: pos.judul,
+        nama_kelompok: `Tim KKN #${pos.id}`,
+        universitas: 'Perguruan Tinggi Mitra',
+        tahun: new Date(pos.created_at || Date.now()).getFullYear().toString(),
+        periode: 'Semester Berjalan',
+        jumlah_mahasiswa: pos.terisi_mahasiswa || pos.kuota_mahasiswa || 0,
+        rating: 4.9,
+        luaran_unggulan: pos.target_luaran || ['Laporan Pengabdian', 'Dokumentasi Program'],
+        ringkasan_dampak: pos.deskripsi,
+        thumbnail: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80',
+        slug_portofolio: pos.id ? `program-${pos.id}` : undefined,
+      }));
+  }, [posList]);
 
   // Wilayah & Geodata state
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -778,14 +744,17 @@ export default function MapsPage() {
   };
 
   // Filter KKN Pos by radius & sector
-  const filteredPos = MOCK_POS_KEBUTUHAN.filter((pos) => {
-    const matchRadius = radiusFilter === 100 || (pos.distance_km ?? 0) <= radiusFilter;
-    const matchSector =
-      selectedSector === 'all' ||
-      pos.kategori_sektor.toLowerCase().includes(selectedSector) ||
-      pos.kategori_sektor.toLowerCase().includes(selectedSector.replace('&', ''));
-    return matchRadius && matchSector;
-  });
+  const filteredPos = useMemo(() => {
+    return posList.filter((pos) => {
+      const matchRadius = radiusFilter === 100 || (pos.distance_km ?? 0) <= radiusFilter;
+      const sector = (pos.kategori_sektor || pos.kategori || '').toLowerCase();
+      const matchSector =
+        selectedSector === 'all' ||
+        sector.includes(selectedSector) ||
+        sector.includes(selectedSector.replace('&', ''));
+      return matchRadius && matchSector;
+    });
+  }, [posList, radiusFilter, selectedSector]);
 
   // Filter Kampus by search query and type
   const filteredCampuses = useMemo(() => {
@@ -840,20 +809,21 @@ export default function MapsPage() {
   const mapMarkers: MapMarkerItem[] = useMemo(() => {
     const posMarkers: MapMarkerItem[] = showPosMarkers
       ? filteredPos.map((pos) => {
-          let lat = pos.latitude || campusCenter[0];
-          let lng = pos.longitude || campusCenter[1];
+          let lat = Number(pos.latitude) || campusCenter[0];
+          let lng = Number(pos.longitude) || campusCenter[1];
 
           // If province is switched to another province, intelligently offset markers near province centroid
           if (selectedProvinceId !== '32' && currentRegion?.lat && currentRegion?.lng) {
-            const latOffset = (pos.id % 2 === 0 ? 0.08 : -0.07) * (pos.id * 0.4);
-            const lngOffset = (pos.id % 3 === 0 ? 0.09 : -0.08) * (pos.id * 0.35);
+            const numId = Number(pos.id) || 1;
+            const latOffset = (numId % 2 === 0 ? 0.08 : -0.07) * (numId * 0.4);
+            const lngOffset = (numId % 3 === 0 ? 0.09 : -0.08) * (numId * 0.35);
             lat = currentRegion.lat + latOffset;
             lng = currentRegion.lng + lngOffset;
           }
 
           return {
             id: `pos-${pos.id}`,
-            name: pos.nama_desa,
+            name: pos.desa?.nama_desa || pos.nama_desa || pos.judul || 'Pos KKN',
             lat,
             lng,
             type: 'pos' as const,
@@ -882,16 +852,14 @@ export default function MapsPage() {
   return (
     <div className="h-[100dvh] w-screen flex flex-col bg-slate-900 font-jakarta overflow-hidden transition-colors selection:bg-emerald-100 selection:text-emerald-900 relative">
       {/* Top Main Navigation Bar - solid on maps, above map, not clipped */}
-      <div className="shrink-0 relative z-50 shadow-md">
+      <div className="relative z-50 shrink-0 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md">
         <Navbar />
       </div>
 
-      {/* ========================================================================= */}
-      {/* FULL-VIEWPORT SPATIAL WORKSPACE WITH MAP AS 100% BACKGROUND */}
-      {/* ========================================================================= */}
-      <div className="relative flex-1 min-h-0 w-full overflow-hidden">
-        {/* 1. BACKGROUND FULL-CANVAS INTERACTIVE MAP */}
-        <div className="absolute inset-0 w-full h-full z-0">
+      {/* Main Map Container */}
+      <div className="flex-1 relative w-full h-[calc(100dvh-64px)] overflow-hidden">
+        {/* 1. INTERACTIVE FULLSCREEN LEAFLET MAP ENGINE */}
+        <div className="absolute inset-0 z-0">
           <WilayahLeafletMap
             center={mapCenter}
             zoom={mapZoom}
@@ -904,7 +872,7 @@ export default function MapsPage() {
             regionArea={'totalArea' in activeGovernance ? activeGovernance.totalArea : undefined}
             markers={mapMarkers}
             radiusKm={radiusFilter === 100 ? undefined : radiusFilter}
-            selectedMarkerId={selectedCampus ? `kmp-${selectedCampus.id}` : `pos-${selectedPos.id}`}
+            selectedMarkerId={selectedCampus ? `kmp-${selectedCampus.id}` : selectedPos ? `pos-${selectedPos.id}` : undefined}
             isLoadingPolygon={loadingPolygon}
             className="w-full h-full relative z-0"
             showFloatingBadges={false}
@@ -1514,111 +1482,131 @@ export default function MapsPage() {
                         </button>
                       </div>
 
-                      {/* Photo Carousel Container */}
-                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-slate-900 group shrink-0">
-                        <img
-                          src={heroGalleryImages[heroImageIdx]}
-                          alt={selectedPos.judul}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
+                      {selectedPos ? (
+                        <>
+                          {/* Photo Carousel Container */}
+                          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-slate-900 group shrink-0">
+                            <img
+                              src={heroGalleryImages[heroImageIdx]}
+                              alt={selectedPos.judul || 'Pos KKN'}
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
 
-                        {/* Top Overlay Badges */}
-                        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 text-[10px] font-bold shadow-md">
-                            <Star className="w-3 h-3 text-amber-400 fill-current" />
-                            <span>4.9</span>
-                            <span className="text-[9px] text-emerald-400 font-semibold">• Terverifikasi</span>
+                            {/* Top Overlay Badges */}
+                            <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 text-[10px] font-bold shadow-md">
+                                <Star className="w-3 h-3 text-amber-400 fill-current" />
+                                <span>4.9</span>
+                                <span className="text-[9px] text-emerald-400 font-semibold">• Terverifikasi</span>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (typeof window !== 'undefined') {
+                                    navigator.clipboard?.writeText(window.location.href);
+                                    alert('Tautan pos berhasil disalin ke clipboard!');
+                                  }
+                                }}
+                                className="w-6 h-6 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-black/80 flex items-center justify-center transition-all border border-white/20 shadow-md"
+                                title="Bagikan Pos Ini"
+                              >
+                                <Share2 className="w-3 h-3" />
+                              </button>
+                            </div>
+
+                            {/* Slider Arrows */}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setHeroImageIdx((prev) => (prev === 0 ? heroGalleryImages.length - 1 : prev - 1))
+                              }
+                              className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                            >
+                              <ChevronLeft className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setHeroImageIdx((prev) => (prev === heroGalleryImages.length - 1 ? 0 : prev + 1))
+                              }
+                              className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                            >
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Pagination Dots */}
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+                              {heroGalleryImages.map((_, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setHeroImageIdx(idx)}
+                                  className={`h-1.5 rounded-full transition-all ${
+                                    heroImageIdx === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
+                                  }`}
+                                />
+                              ))}
+                            </div>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              navigator.clipboard?.writeText(window.location.href);
-                              alert('Tautan pos berhasil disalin ke clipboard!');
-                            }}
-                            className="w-6 h-6 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-black/80 flex items-center justify-center transition-all border border-white/20 shadow-md"
-                            title="Bagikan Pos Ini"
-                          >
-                            <Share2 className="w-3 h-3" />
-                          </button>
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between gap-1.5">
+                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 truncate">
+                                {selectedPos.kategori_sektor || selectedPos.kategori || 'Sektor KKN'}
+                              </span>
+                              <span className="text-[10px] font-bold text-slate-400 shrink-0">
+                                #{selectedPos.id}
+                              </span>
+                            </div>
+                            <h3 className="text-xs sm:text-sm font-extrabold text-navy-950 dark:text-white font-epilogue leading-snug">
+                              {selectedPos.judul}
+                            </h3>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
+                              <span className="truncate">
+                                {selectedPos.desa?.nama_desa || selectedPos.nama_desa || 'Desa Mitra'}
+                                {selectedPos.desa?.kabupaten || selectedPos.kabupaten ? `, ${selectedPos.desa?.kabupaten || selectedPos.kabupaten}` : ''}
+                              </span>
+                            </p>
+                          </div>
+
+                          {/* Main Action Buttons */}
+                          <div className="pt-1 flex items-center gap-2">
+                            <Link href={`/search/${selectedPos.id}`} className="flex-1">
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                className="w-full justify-center font-bold text-xs gap-1.5 rounded-2xl shadow-lg shadow-emerald-500/20 py-2.5"
+                              >
+                                <span>Buka Detail Pos</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </Button>
+                            </Link>
+                            <Link href={`/aspirasi`}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-2xl text-xs font-bold py-2.5 px-4"
+                              >
+                                Aspirasi
+                              </Button>
+                            </Link>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="p-4 rounded-2xl border border-dashed border-slate-200 dark:border-navy-800 text-center text-xs text-slate-500">
+                          {loadingPos ? (
+                            <div className="flex items-center justify-center gap-2 py-4">
+                              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                              <span>Memuat pos kebutuhan...</span>
+                            </div>
+                          ) : (
+                            <div className="py-4">Belum ada pos kebutuhan di wilayah ini.</div>
+                          )}
                         </div>
-
-                        {/* Slider Arrows */}
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setHeroImageIdx((prev) => (prev === 0 ? heroGalleryImages.length - 1 : prev - 1))
-                          }
-                          className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
-                        >
-                          <ChevronLeft className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setHeroImageIdx((prev) => (prev === heroGalleryImages.length - 1 ? 0 : prev + 1))
-                          }
-                          className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
-                        >
-                          <ChevronRight className="w-3.5 h-3.5" />
-                        </button>
-
-                        {/* Pagination Dots */}
-                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
-                          {heroGalleryImages.map((_, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => setHeroImageIdx(idx)}
-                              className={`h-1.5 rounded-full transition-all ${
-                                heroImageIdx === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between gap-1.5">
-                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 truncate">
-                            {selectedPos.kategori_sektor}
-                          </span>
-                          <span className="text-[10px] font-bold text-slate-400 shrink-0">
-                            #{selectedPos.id}
-                          </span>
-                        </div>
-                        <h3 className="text-xs sm:text-sm font-extrabold text-navy-950 dark:text-white font-epilogue leading-snug">
-                          {selectedPos.judul}
-                        </h3>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
-                          <span className="truncate">{selectedPos.nama_desa}, {selectedPos.kabupaten}</span>
-                        </p>
-                      </div>
-
-                      {/* Main Action Buttons */}
-                      <div className="pt-1 flex items-center gap-2">
-                        <Link href={`/search/${selectedPos.id}`} className="flex-1">
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            className="w-full justify-center font-bold text-xs gap-1.5 rounded-2xl shadow-lg shadow-emerald-500/20 py-2.5"
-                          >
-                            <span>Buka Detail Pos</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </Button>
-                        </Link>
-                        <Link href={`/aspirasi`}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="rounded-2xl text-xs font-bold py-2.5 px-4"
-                          >
-                            Aspirasi
-                          </Button>
-                        </Link>
-                      </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1870,63 +1858,77 @@ export default function MapsPage() {
                       <span className="font-bold">Ditemukan {filteredPos.length} Pos KKN di wilayah ini</span>
                     </div>
 
-                    {filteredPos.map((pos) => {
-                      const isSelected = pos.id === selectedPos.id;
-                      return (
-                        <div
-                          key={pos.id}
-                          onClick={() => {
-                            setSelectedPos(pos);
-                            setHeroImageIdx(0);
-                            if (pos.latitude && pos.longitude) {
-                              setMapCenter([pos.latitude, pos.longitude]);
-                              setMapZoom(12);
-                            }
-                          }}
-                          className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 space-y-2 group ${
-                            isSelected
-                              ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-500 ring-2 ring-emerald-400/40 shadow-md'
-                              : 'bg-slate-50/80 dark:bg-navy-950/60 border-slate-200/80 dark:border-navy-800 hover:border-emerald-300 hover:shadow-md'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider bg-emerald-100/70 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md truncate">
-                              {pos.kategori_sektor}
-                            </span>
-                            <span className="text-[10px] font-bold text-primary bg-primary-50 dark:bg-primary-950 px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
-                              <MapPin className="w-3 h-3 text-primary shrink-0" />
-                              <span>{pos.distance_km ?? 15} km</span>
-                            </span>
+                    {loadingPos ? (
+                      <div className="flex items-center justify-center gap-2 py-8 text-xs text-slate-500">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                        <span>Memuat daftar pos...</span>
+                      </div>
+                    ) : filteredPos.length === 0 ? (
+                      <div className="p-6 rounded-2xl border border-dashed border-slate-200 dark:border-navy-800 text-center text-xs text-slate-500">
+                        Tidak ada pos KKN yang sesuai dengan filter wilayah atau sektor ini.
+                      </div>
+                    ) : (
+                      filteredPos.map((pos) => {
+                        const isSelected = selectedPos && pos.id === selectedPos.id;
+                        return (
+                          <div
+                            key={pos.id}
+                            onClick={() => {
+                              setSelectedPos(pos);
+                              setHeroImageIdx(0);
+                              if (pos.latitude && pos.longitude) {
+                                setMapCenter([Number(pos.latitude), Number(pos.longitude)]);
+                                setMapZoom(12);
+                              }
+                            }}
+                            className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 space-y-2 group ${
+                              isSelected
+                                ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-500 ring-2 ring-emerald-400/40 shadow-md'
+                                : 'bg-slate-50/80 dark:bg-navy-950/60 border-slate-200/80 dark:border-navy-800 hover:border-emerald-300 hover:shadow-md'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider bg-emerald-100/70 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md truncate">
+                                {pos.kategori_sektor || pos.kategori || 'Sektor KKN'}
+                              </span>
+                              <span className="text-[10px] font-bold text-primary bg-primary-50 dark:bg-primary-950 px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-primary shrink-0" />
+                                <span>{pos.distance_km ?? 15} km</span>
+                              </span>
+                            </div>
+
+                            <h3 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                              {pos.judul}
+                            </h3>
+
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
+                              <span className="truncate">
+                                {pos.desa?.nama_desa || pos.nama_desa || 'Desa Mitra'}
+                                {pos.desa?.kabupaten || pos.kabupaten ? `, ${pos.desa?.kabupaten || pos.kabupaten}` : ''}
+                              </span>
+                            </p>
+
+                            <div className="pt-2 border-t border-slate-200/60 dark:border-navy-800 flex items-center justify-between text-[11px] font-bold">
+                              <span className="text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                                <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{pos.kuota_mahasiswa || pos.kuota_kelompok || 0} Mahasiswa Dibutuhkan</span>
+                              </span>
+                              <span
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedPos(pos);
+                                  setRightPanelTab('detail');
+                                }}
+                                className="text-emerald-600 hover:underline flex items-center gap-0.5 text-[10px]"
+                              >
+                                Detail <ChevronRight className="w-3 h-3" />
+                              </span>
+                            </div>
                           </div>
-
-                          <h3 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                            {pos.judul}
-                          </h3>
-
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
-                            <span className="truncate">{pos.nama_desa}, {pos.kabupaten}</span>
-                          </p>
-
-                          <div className="pt-2 border-t border-slate-200/60 dark:border-navy-800 flex items-center justify-between text-[11px] font-bold">
-                            <span className="text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                              <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                              <span>{pos.kuota_mahasiswa} Mahasiswa Dibutuhkan</span>
-                            </span>
-                            <span
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedPos(pos);
-                                setRightPanelTab('detail');
-                              }}
-                              className="text-emerald-600 hover:underline flex items-center gap-0.5 text-[10px]"
-                            >
-                              Detail <ChevronRight className="w-3 h-3" />
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                   </div>
                 )}
 
@@ -1934,11 +1936,17 @@ export default function MapsPage() {
                 {rightPanelTab === 'riwayat' && (
                   <div className="space-y-3.5 animate-in fade-in duration-200">
                     <div className="text-xs text-slate-500 pb-1 font-bold">
-                      Arsip Hasil Program KKN yang Telah Selesai ({MOCK_RIWAYAT_ARCHIVES.length})
+                      Arsip Hasil Program KKN yang Telah Selesai ({riwayatArchives.length})
                     </div>
-                    {MOCK_RIWAYAT_ARCHIVES.map((item) => (
-                      <RiwayatPengabdianCard key={item.id} item={item} className="w-full shadow-sm" />
-                    ))}
+                    {riwayatArchives.length === 0 ? (
+                      <div className="p-6 rounded-2xl border border-dashed border-slate-200 dark:border-navy-800 text-center text-xs text-slate-500">
+                        Belum ada arsip program KKN yang diselesaikan di wilayah ini.
+                      </div>
+                    ) : (
+                      riwayatArchives.map((item) => (
+                        <RiwayatPengabdianCard key={item.id} item={item} className="w-full shadow-sm" />
+                      ))
+                    )}
                   </div>
                 )}
 
@@ -1947,18 +1955,23 @@ export default function MapsPage() {
                   <div className="space-y-3.5 animate-in fade-in duration-200">
                     <div className="text-xs text-slate-500 pb-1 font-bold flex items-center justify-between">
                       <span>Dokumentasi Lapangan & Media Sosial</span>
-                      <span className="text-emerald-600 font-bold">{medsosPosts.length + MOCK_LIVE_REPORTS.length} Postingan</span>
+                      <span className="text-emerald-600 font-bold">{medsosPosts.length} Postingan</span>
                     </div>
 
-                    {/* Real-time Field Reports */}
-                    {MOCK_LIVE_REPORTS.map((report) => (
-                      <LiveReportCard key={report.id} report={report} className="w-full shadow-sm" />
-                    ))}
-
-                    {/* Social Media Post Cards */}
-                    {medsosPosts.map((post) => (
-                      <MedsosEmbedCard key={post.id} post={post} className="w-full shadow-sm" />
-                    ))}
+                    {loadingMedsos ? (
+                      <div className="flex items-center justify-center gap-2 py-8 text-xs text-slate-500">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                        <span>Memuat postingan media sosial...</span>
+                      </div>
+                    ) : medsosPosts.length === 0 ? (
+                      <div className="p-6 rounded-2xl border border-dashed border-slate-200 dark:border-navy-800 text-center text-xs text-slate-500">
+                        Belum ada dokumentasi media sosial untuk wilayah ini.
+                      </div>
+                    ) : (
+                      medsosPosts.map((post) => (
+                        <MedsosEmbedCard key={post.id} post={post} className="w-full shadow-sm" />
+                      ))
+                    )}
                   </div>
                 )}
               </div>
