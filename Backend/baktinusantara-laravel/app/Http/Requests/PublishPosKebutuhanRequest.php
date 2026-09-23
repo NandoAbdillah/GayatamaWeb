@@ -20,12 +20,15 @@ class PublishPosKebutuhanRequest extends FormRequest
         return [
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required|string|max:5000',
-            'kategori' => 'required|in:umkm,kesehatan,lingkungan,pendidikan,fasilitas',
+            'kategori' => 'required|string|max:255',
+            'target_luaran' => 'nullable',
+            'luaran' => 'nullable',
+            'luaran_diharapkan' => 'nullable',
+            'aspirasi_id' => 'nullable|exists:aspirasi,id',
             'sdg_codes' => 'nullable|array',
-            'kuota_kelompok' => 'required|integer|min:1',
-            'deadline' => 'required|date|after:today',
-            'jurusan_dibutuhkan' => 'required|array|min:1',
-            'jurusan_dibutuhkan.*' => 'required|integer|min:1|max:100',
+            'kuota_kelompok' => 'nullable|integer|min:1',
+            'deadline' => 'nullable',
+            'jurusan_dibutuhkan' => 'nullable',
         ];
     }
 }
