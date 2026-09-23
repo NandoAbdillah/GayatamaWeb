@@ -9,12 +9,14 @@
 
 // 1. Model Priority Pool
 export const DEFAULT_GEMINI_MODELS: string[] = [
-  'gemini-3.6-flash',      // Primary (Model utama cepat & cerdas)
-  'gemini-3.5-flash-lite', // Fallback 1 (Kapasitas tinggi: 15 RPM, 500 RPD)
-  'gemini-3.7-flash',      // Fallback 2
-  'gemini-3.8-flash',      // Fallback 3
-  'gemini-3.5-flash',      // Fallback 4
-  'gemini-3.1-flash-lite', // Fallback 5 (Kapasitas tinggi: 15 RPM, 500 RPD)
+  'gemini-3.5-flash',      // Primary (Model utama cepat & cerdas)
+  'gemini-3-flash',        // Model Flash generasi 3
+  'gemini-2.5-flash',      // Model Flash 2.5
+  'gemini-3.1-flash-lite', // Model Lite kapasitas tinggi
+  'gemini-2.5-flash-lite', // Model Lite 2.5
+  'gemma-4-26b',           // Open weights model 26B
+  'gemma-4-31b',           // Open weights model 31B
+  'gemini-1.5-flash',      // Fallback
 ];
 
 // 2. Cooldown & Attempt Settings

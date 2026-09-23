@@ -39,9 +39,9 @@ class GeminiKeyManager {
   private parseKeys(raw: string) {
     this.keySlots = raw
       .split(',')
-      .map((item) => item.trim())
+      .map((item) => item.trim().replace(/^["']|["']$/g, ''))
       .filter(Boolean)
-      .map((item) => {
+      .map((item, idx) => {
         const parts = item.split('|');
         if (parts.length >= 2) {
           return {
@@ -53,7 +53,7 @@ class GeminiKeyManager {
           };
         }
         return {
-          name: 'Default',
+          name: `Slot ${idx + 1}`,
           key: item.trim(),
           enabled: true,
           errorCount: 0,
