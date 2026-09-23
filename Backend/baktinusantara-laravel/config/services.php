@@ -46,7 +46,7 @@ return [
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
         'keys' => array_filter(explode(',', env('GEMINI_API_KEYS', ''))),
-        'model' => env('GEMINI_MODEL', 'gemini-1.5-flash'),
+        'model' => env('GEMINI_MODEL', 'gemini-3.5-flash'),
     ],
 
     'google' => [

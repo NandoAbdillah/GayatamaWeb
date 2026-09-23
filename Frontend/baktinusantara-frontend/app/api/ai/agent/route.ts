@@ -331,9 +331,17 @@ Ketika pengguna menanyakan topik di luar domain (Level 5):
       };
       fallbackReply = 'Saya telah mengarahkan Anda ke halaman **Penyusunan Proposal KKN**.';
     } else {
-      fallbackReply = `Halo! Bakti AI siap membantu Anda dalam eksplorasi pos KKN, penyusunan proposal, pencocokan keahlian mahasiswa, dan pendampingan desa binaan di seluruh Nusantara.
+      fallbackReply = `Halo! Aku Aira, asisten cerdas BaktiNusantara. 🇮🇩✨
 
-*(Catatan: Token Gemini sesi Anda telah kedaluwarsa. Silakan perbarui API Key permanen dari [Google AI Studio](https://aistudio.google.com/app/apikey) dengan format awalan \`AIzaSy...\`)*`;
+Aku siap menemani dan mendampingi kamu seputar kegiatan KKN, penelusuran desa binaan, dan program pengabdian masyarakat.
+
+Beberapa hal yang bisa kita lakukan bersama:
+• **Eksplorasi Desa & Pos KKN**: Tanya tentang desa binaan atau pos kebutuhan yang sedang dibuka
+• **Peta Wilayah**: Ketik *"tampilkan peta"* untuk melihat sebaran program KKN
+• **Penyusunan Proposal**: Bantuan merancang konsep program kerja KKN mahasiswa
+• **Layanan Aspirasi Warga**: Menyampaikan kebutuhan atau permasalahan fasilitas desa
+
+Ada yang ingin kamu tanyakan atau diskusikan denganku hari ini? 😊`;
     }
 
     return NextResponse.json({
