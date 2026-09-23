@@ -19,9 +19,19 @@ class AspirasiController extends Controller
             $request->file('foto')
         );
 
+        $botNumber = config('services.fonnte.bot_number', '085932883277');
+        $cleanBot = preg_replace('/[^0-9]/', '', (string)$botNumber);
+        if (str_starts_with($cleanBot, '0')) {
+            $cleanBot = '62' . substr($cleanBot, 1);
+        }
+        $prefilledText = urlencode("Halo AIIRA, saya baru saja mengajukan aspirasi melalui website dengan nomor tiket #{$aspirasi->id}. Mohon bantuan untuk memantau progres aduan ini.");
+        $waUrl = "https://wa.me/{$cleanBot}?text={$prefilledText}";
+
         return response()->json([
             'message' => 'Aspirasi berhasil diajukan',
             'nomor_tiket' => $aspirasi->id,
+            'wa_bot_number' => $botNumber,
+            'wa_url' => $waUrl,
             'data' => $aspirasi,
         ], 201);
     }

@@ -9,7 +9,10 @@ use Illuminate\Support\Facades\Storage;
 
 class AspirasiService
 {
-    public function __construct(protected PosKebutuhanService $posKebutuhanService) {}
+    public function __construct(
+        protected PosKebutuhanService $posKebutuhanService,
+        protected WhatsAppService $whatsAppService
+    ) {}
 
     public function create(array $data, $fotoFile = null): Aspirasi
     {
@@ -20,12 +23,12 @@ class AspirasiService
 
         $aspirasi = Aspirasi::create($data);
 
-        // Dispatch WA notification to citizen
+        // Kirim notifikasi WhatsApp naratif resmi langsung ke warga (Skema 1)
         if (! empty($aspirasi->pelapor_wa)) {
-            $desaNama = $aspirasi->desa?->nama_desa ?? 'Desa';
-            $pesan = "Halo *{$aspirasi->pelapor_nama}*,\n\nTerima kasih atas aspirasi yang Anda sampaikan untuk *{$desaNama}*.\n\n📌 *ID Tiket*: #{$aspirasi->id}\n📂 *Kategori*: " . strtoupper($aspirasi->kategori) . "\n📝 *Deskripsi*: {$aspirasi->deskripsi}\n\nAspirasi Anda telah diterima dan sedang ditinjau oleh Perangkat Desa. Anda dapat memantau status perkembangan aspirasi Anda secara berkala.\n\n_Salam hangat,_\n*Tim BaktiNusantara*";
+            $desaNama = $aspirasi->desa?->nama_desa ?? 'Desa Mitra';
+            $pesan = "Halo *{$aspirasi->pelapor_nama}*! 👋\n\nTerima kasih, aspirasi Anda untuk *{$desaNama}* telah berhasil dicatat secara resmi di platform BaktiNusantara.\n\n📋 *Rincian Tiket Aspirasi*:\n• *Nomor Tiket*: *#{$aspirasi->id}*\n• *Desa Sasaran*: {$desaNama}\n• *Kategori*: " . strtoupper($aspirasi->kategori) . "\n• *Tingkat Urgensi*: " . strtoupper($aspirasi->urgensi) . "\n• *Uraian Masalah*: {$aspirasi->deskripsi}\n• *Status*: ⏳ *Sedang Ditinjau Perangkat Desa*\n\n💡 *Pemantauan Mandiri via WhatsApp*:\nAnda tidak perlu membuka website lagi. Anda dapat memantau status atau bertanya langsung di ruang obrolan WhatsApp ini kapan saja (cukup ketik *STATUS* atau *CEK #{$aspirasi->id}*). AIIRA siap melayani Anda 24/7.\n\n_Salam hangat,_\n*AIIRA — Tim Layanan BaktiNusantara*";
 
-            SendWhatsAppNotificationJob::dispatch($aspirasi->pelapor_wa, $pesan);
+            $this->whatsAppService->send($aspirasi->pelapor_wa, $pesan);
         }
 
         return $aspirasi;
@@ -52,8 +55,8 @@ class AspirasiService
             ]);
 
             if (! empty($aspirasi->pelapor_wa)) {
-                $pesan = "Halo *{$aspirasi->pelapor_nama}*,\n\nUpdate status aspirasi Anda (Tiket *#{$aspirasi->id}*):\n❌ *Status*: DITOLAK oleh Perangkat Desa\n📋 *Alasan*: {$aspirasi->alasan_tolak}\n\nTerima kasih atas kepedulian Anda dalam menyuarakan aspirasi warga desa.\n\n_Salam hangat,_\n*Tim BaktiNusantara*";
-                SendWhatsAppNotificationJob::dispatch($aspirasi->pelapor_wa, $pesan);
+                $pesan = "Halo *{$aspirasi->pelapor_nama}*,\n\nUpdate status aspirasi Anda (Tiket *#{$aspirasi->id}*):\n❌ *Status*: DITOLAK oleh Perangkat Desa\n📋 *Alasan*: {$aspirasi->alasan_tolak}\n\nTerima kasih atas kepedulian Anda dalam menyuarakan aspirasi warga desa.\n\n_Salam hangat,_\n*AIIRA — Tim Layanan BaktiNusantara*";
+                $this->whatsAppService->send($aspirasi->pelapor_wa, $pesan);
             }
 
             return $aspirasi;
@@ -73,8 +76,8 @@ class AspirasiService
         ]);
 
         if (! empty($aspirasi->pelapor_wa)) {
-            $pesan = "Halo *{$aspirasi->pelapor_nama}*,\n\nKabar baik! Aspirasi Anda (Tiket *#{$aspirasi->id}*) telah ✅ *DISETUJUI & DIVERIFIKASI* oleh Perangkat Desa.\n\nAspirasi ini telah resmi dijadikan Pos Kebutuhan KKN Mahasiswa dengan judul:\n📌 *\"{$data['judul']}\"*\n\nTerima kasih atas kontribusi nyata Anda untuk kemajuan desa!\n\n_Salam hangat,_\n*Tim BaktiNusantara*";
-            SendWhatsAppNotificationJob::dispatch($aspirasi->pelapor_wa, $pesan);
+            $pesan = "Halo *{$aspirasi->pelapor_nama}*,\n\nKabar baik! Aspirasi Anda (Tiket *#{$aspirasi->id}*) telah ✅ *DISETUJUI & DIVERIFIKASI* oleh Perangkat Desa.\n\nAspirasi ini telah resmi dijadikan Pos Kebutuhan KKN Mahasiswa dengan judul:\n📌 *\"{$data['judul']}\"*\n\nTerima kasih atas kontribusi nyata Anda untuk kemajuan desa!\n\n_Salam hangat,_\n*AIIRA — Tim Layanan BaktiNusantara*";
+            $this->whatsAppService->send($aspirasi->pelapor_wa, $pesan);
         }
 
         return $aspirasi;

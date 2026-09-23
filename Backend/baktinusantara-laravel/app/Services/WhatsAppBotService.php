@@ -179,72 +179,44 @@ class WhatsAppBotService
      */
     protected function handlePublicRole(string $sender, string $message, ?string $senderName = null): string
     {
-        $lower = strtolower($message);
+        // Delegasikan percakapan interaktif ke AIIRA Conversational Engine
+        $aiResult = $this->aiService->chatWithAiira($sender, $message, $senderName);
 
-        // 1. Cek Status Tiket (misal: "TIKET #12", "CEK 12", "STATUS 12")
-        if (preg_match('/(?:tiket|cek|status)\s*#?\s*(\d+)/i', $lower, $matches)) {
-            $ticketId = (int) $matches[1];
-            $aspirasi = Aspirasi::with('desa')->find($ticketId);
+        // Jika user telah mengonfirmasi pembuatan tiket resmi (Skema 2: Auto-Ticketing)
+        if ($aiResult['action'] === 'create_ticket') {
+            $ticketData = $aiResult['ticket_data'];
+            $desa = ProfilDesa::find($ticketData['desa_id']);
 
-            if (!$aspirasi) {
-                return "❌ *Tiket #{$ticketId} Tidak Ditemukan*\n\nMohon pastikan nomor tiket yang Anda masukkan sudah benar.";
+            if (!$desa) {
+                return "Maaf, data desa belum valid. Silakan sebutkan kembali nama desa Anda.";
             }
 
-            $statusText = match ($aspirasi->status) {
-                'menunggu' => '⏳ *SEDANG DITINJAU* oleh Perangkat Desa',
-                'terverifikasi' => '✅ *DISETUJUI & DITERBITKAN* sebagai Pos Kebutuhan KKN Mahasiswa',
-                'ditolak' => "❌ *DITOLAK* oleh Perangkat Desa\n📋 *Alasan*: " . ($aspirasi->alasan_tolak ?? 'Tidak memenuhi kriteria prioritas desa'),
-                default => strtoupper($aspirasi->status),
-            };
+            // Simpan resmi ke database tabel `aspirasi` (POST terjadi di database)
+            $aspirasi = Aspirasi::create([
+                'desa_id' => $desa->id,
+                'pelapor_nama' => $ticketData['pelapor_nama'] ?: ($senderName ?: 'Warga ' . $desa->nama_desa),
+                'pelapor_wa' => $sender,
+                'kategori' => $ticketData['kategori'] ?? 'fasilitas',
+                'deskripsi' => $ticketData['deskripsi'],
+                'urgensi' => $ticketData['urgensi'] ?? 'sedang',
+                'latitude' => $desa->latitude ?? -7.54,
+                'longitude' => $desa->longitude ?? 112.23,
+                'status' => 'menunggu',
+            ]);
 
-            $desaNama = $aspirasi->desa?->nama_desa ?? 'Desa';
-            return "📄 *Status Aspirasi Warga (Tiket #{$aspirasi->id})*\n\n🏡 *Desa*: {$desaNama}\n📂 *Kategori*: " . strtoupper($aspirasi->kategori) . "\n📝 *Keluhan*: {$aspirasi->deskripsi}\n📊 *Status*: {$statusText}\n\n_Terima kasih atas partisipasi Anda dalam pembangunan desa._";
+            return "🎉 *Tiket Aduan Resmi Berhasil Diterbitkan!* 🇮🇩\n\n" .
+                "📌 *Nomor Tiket*: *#{$aspirasi->id}*\n" .
+                "🏡 *Desa Sasaran*: {$desa->nama_desa}\n" .
+                "👤 *Pelapor*: {$aspirasi->pelapor_nama}\n" .
+                "📂 *Kategori*: " . strtoupper($aspirasi->kategori) . "\n" .
+                "⚡ *Tingkat Urgensi*: " . strtoupper($aspirasi->urgensi) . "\n" .
+                "📝 *Uraian Masalah*: \"{$aspirasi->deskripsi}\"\n\n" .
+                "✅ Laporan Anda telah resmi masuk ke sistem database BaktiNusantara dan sedang dalam antrean verifikasi Perangkat Desa {$desa->nama_desa}.\n\n" .
+                "📱 *Pemantauan Mandiri Tanpa Buka Web*:\n" .
+                "Anda tidak perlu membuka website lagi. Anda dapat memantau perkembangan tiket ini langsung di nomor WhatsApp ini cukup dengan mengetik *STATUS* atau *CEK #{$aspirasi->id}*.\n\n" .
+                "_Salam hangat,_\n*AIIRA — Tim Layanan BaktiNusantara*";
         }
 
-        // 2. Menu Bantuan Standar
-        if (in_array($lower, ['halo', 'hi', 'menu', 'bantuan', 'help', 'info', 'p', 'start'])) {
-            return "Selamat datang di *Bot WhatsApp Resmi BaktiNusantara*! 🇮🇩\n\nLayanan yang tersedia:\n\n1️⃣ *Kirim Aspirasi Desa*: Ceritakan keluhan/kebutuhan desa Anda secara langsung (contoh: _\"Saya warga Sukamaju mau lapor jalan berlubang di dusun krajan\"_).\n\n2️⃣ *Cek Status Aspirasi*: Ketik *TIKET #ID* (contoh: *TIKET #15*).\n\n3️⃣ *Website*: Kunjungi platform web kami untuk informasi KKN terpadu.\n\n_Ketik keluhan Anda sekarang untuk meneruskannya ke perangkat desa._";
-        }
-
-        // 3. Parsing dan Simpan Aspirasi Baru via Chat
-        $parsed = $this->aiService->parseAspirasi($message);
-
-        // Cari desa yang sesuai di database
-        $desa = null;
-        if (!empty($parsed['desa_nama'])) {
-            $cleanName = trim(str_ireplace(['desa', 'kelurahan'], '', $parsed['desa_nama']));
-            $desa = ProfilDesa::where('nama_desa', 'LIKE', '%' . $cleanName . '%')->first();
-        }
-
-        if (!$desa) {
-            foreach (ProfilDesa::all() as $d) {
-                $clean = trim(str_ireplace(['desa', 'kelurahan'], '', $d->nama_desa));
-                if (!empty($clean) && str_contains($lower, strtolower($clean))) {
-                    $desa = $d;
-                    break;
-                }
-            }
-        }
-
-        if (!$desa) {
-            $daftarDesa = ProfilDesa::take(3)->pluck('nama_desa')->implode(', ');
-            return "Terima kasih telah menghubungi BaktiNusantara! 🙏\n\nUntuk mencatat aspirasi Anda ke sistem desa, mohon sebutkan *nama desa* Anda dalam pesan.\n\n_Contoh_: *\"Saya warga Desa Sukamaju ingin lapor pelatihan pembukuan UMKM desa.\"*\n\n(Contoh desa terdaftar: {$daftarDesa})";
-        }
-
-        // Simpan otomatis ke tabel `aspirasi` MySQL
-        $namaPelapor = $senderName ?: 'Warga ' . $desa->nama_desa;
-        $aspirasi = Aspirasi::create([
-            'desa_id' => $desa->id,
-            'pelapor_nama' => $namaPelapor,
-            'pelapor_wa' => $sender,
-            'kategori' => $parsed['kategori'],
-            'deskripsi' => $parsed['deskripsi'],
-            'urgensi' => $parsed['urgensi'],
-            'latitude' => $desa->latitude ?? -7.5,
-            'longitude' => $desa->longitude ?? 112.5,
-            'status' => 'menunggu',
-        ]);
-
-        return "✅ *Aspirasi Anda Berhasil Dicatat!*\n\n📌 *Nomor Tiket*: *#{$aspirasi->id}*\n🏡 *Desa Sasaran*: {$desa->nama_desa}\n📂 *Kategori*: " . strtoupper($aspirasi->kategori) . "\n⚡ *Urgensi*: " . strtoupper($aspirasi->urgensi) . "\n📝 *Keluhan*: {$aspirasi->deskripsi}\n\nAspirasi Anda telah masuk ke sistem dan dapat langsung ditinjau oleh Perangkat {$desa->nama_desa}.\n\nKetik *TIKET #{$aspirasi->id}* kapan saja untuk mengecek perkembangan aspirasi Anda.\n\n_Salam hangat,_\n*Tim BaktiNusantara*";
+        return $aiResult['reply'];
     }
 }

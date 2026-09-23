@@ -44,6 +44,14 @@ export default function AspirasiPage() {
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [submittedTicket, setSubmittedTicket] = useState<string | number | null>(null);
 
+  const [submittedData, setSubmittedData] = useState<{
+    ticket: string | number;
+    waUrl: string;
+    botNumber: string;
+    kontak: string;
+    nama: string;
+  } | null>(null);
+
   const handleSearchTicket = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ticketQuery.trim()) return;
@@ -85,7 +93,18 @@ export default function AspirasiPage() {
       }
       const res = await api.aspirasi.submitAspirasi(payload);
       const ticket = res.nomor_tiket || (res.data as any)?.id;
+      const botNum = (res as any)?.wa_bot_number || '085932883277';
+      const cleanBot = botNum.replace(/\D/g, '').replace(/^0/, '62');
+      const waUrl = (res as any)?.wa_url || `https://wa.me/${cleanBot}?text=${encodeURIComponent(`Halo AIIRA, saya baru saja mengajukan aspirasi dengan nomor tiket #${ticket}. Mohon bantuan untuk memantau progres aduan ini.`)}`;
+
       if (ticket) {
+        setSubmittedData({
+          ticket,
+          waUrl,
+          botNumber: botNum,
+          kontak,
+          nama,
+        });
         setSubmittedTicket(ticket);
         toast.success(t('toast.successWithTicket', { ticket: String(ticket) }));
       } else {
@@ -130,22 +149,55 @@ export default function AspirasiPage() {
                 </p>
               </div>
 
-              {submittedTicket ? (
-                <div className="p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-center space-y-3 animate-in fade-in">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-sm">
-                    <CheckCircle2 className="w-6 h-6" />
+              {submittedData ? (
+                <div className="p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-center space-y-4 animate-in fade-in">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-md">
+                    <CheckCircle2 className="w-7 h-7" />
                   </div>
-                  <h3 className="text-base font-bold text-emerald-950 dark:text-emerald-200 font-epilogue">
-                    {t('form.successTitle')}
-                  </h3>
-                  <p className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">
-                    {t('form.successDesc')}
-                  </p>
-                  <div className="p-3 rounded-xl bg-white dark:bg-navy-950 border border-emerald-300 dark:border-emerald-700 font-mono font-bold text-sm text-emerald-900 dark:text-emerald-300 tracking-wider">
-                    {submittedTicket}
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-emerald-950 dark:text-emerald-100 font-epilogue">
+                      {t('form.successTitle')}
+                    </h3>
+                    <p className="text-xs text-emerald-800 dark:text-emerald-300 max-w-md mx-auto leading-relaxed">
+                      Aspirasi Anda telah tercatat resmi di database dan pesan notifikasi narasi otomatis telah dikirimkan ke nomor WhatsApp Anda (<b>{submittedData.kontak}</b>).
+                    </p>
                   </div>
+
+                  <div className="p-3.5 rounded-xl bg-white dark:bg-navy-950 border border-emerald-300 dark:border-emerald-700/80 inline-flex flex-col items-center">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider">Nomor Tiket Aduan Resmi</span>
+                    <span className="font-mono font-extrabold text-xl text-emerald-700 dark:text-emerald-300 tracking-wider mt-0.5">
+                      #{submittedData.ticket}
+                    </span>
+                  </div>
+
+                  {/* Direct WhatsApp CTA */}
+                  <div className="p-4 rounded-xl bg-emerald-100/70 dark:bg-emerald-900/40 border border-emerald-300/80 dark:border-emerald-700/60 text-left space-y-3">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                        <MessageSquare className="w-4 h-4" />
+                      </div>
+                      <div className="space-y-0.5 text-xs text-emerald-950 dark:text-emerald-200">
+                        <p className="font-bold">Pantau & Kontrol Progres Langsung di WhatsApp</p>
+                        <p className="text-[11px] text-emerald-900/80 dark:text-emerald-300/80 leading-relaxed">
+                          Anda tidak perlu membuka website ini lagi! Anda dapat langsung memantau perkembangan aduan Anda bersama AIIRA di WhatsApp cukup dengan mengetik <b>STATUS</b> atau <b>CEK #{submittedData.ticket}</b>.
+                        </p>
+                      </div>
+                    </div>
+
+                    <a
+                      href={submittedData.waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition-all transform active:scale-95"
+                    >
+                      <MessageSquare className="w-4 h-4 fill-white" />
+                      <span>Buka WhatsApp & Pantau Bersama AIIRA ({submittedData.botNumber})</span>
+                    </a>
+                  </div>
+
                   <Button
                     onClick={() => {
+                      setSubmittedData(null);
                       setSubmittedTicket(null);
                       setJudul('');
                       setDeskripsi('');
