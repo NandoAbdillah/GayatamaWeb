@@ -26,7 +26,7 @@ self.addEventListener('push', (event) => {
     url: '/notifications',
     tag: 'gayatama-notification-' + receivedAtUnix,
     icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-192x192.png',
+    badge: '/icons/badge-96x96.png',
     sent_at_iso: null,
   };
 
@@ -40,7 +40,7 @@ self.addEventListener('push', (event) => {
         url: payload.url || payload.action_url || payload.link || data.url,
         tag: 'gayatama-' + receivedAtUnix,
         icon: payload.icon || '/icons/icon-192x192.png',
-        badge: payload.badge || '/icons/icon-192x192.png',
+        badge: payload.badge || '/icons/badge-96x96.png',
         id: payload.id,
         sent_at_iso: payload.sent_at_iso,
         timestamp: payload.timestamp || receivedAtUnix,
