@@ -31,9 +31,9 @@ Dokumentasi resmi arsitektur, seluruh rute API, struktur data, format request/re
 ## 1. Arsitektur & Konvensi Umum
 
 - **Framework**: Laravel 12 on PHP 8.2+
-- **Database**: MySQL (`baktinusantaradb`)
+- **Database**: MySQL 
 - **Autentikasi**: Laravel Sanctum (Token-Based Bearer Authentication)
-- **Base URL**: `http://127.0.0.1:8000/api` (atau `http://localhost:8000/api`)
+- **Base URL**: `http://127.0.0.1:8000/api`
 - **Format Header Standar**:
   ```http
   Content-Type: application/json
