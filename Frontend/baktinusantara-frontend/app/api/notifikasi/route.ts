@@ -1,50 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pushStore } from '@/lib/server/push-store';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get('user_id') || '101';
-  const unreadOnly = searchParams.get('unread') === '1' || searchParams.get('unread') === 'true';
+  try {
+    const { searchParams } = new URL(req.url);
+    const authHeader = req.headers.get('authorization');
 
-  let notifications = pushStore.getUserNotifications(userId);
+    const res = await fetch(`${BACKEND_URL}/api/notifikasi?${searchParams.toString()}`, {
+      headers: {
+        Accept: 'application/json',
+        ...(authHeader ? { Authorization: authHeader } : {}),
+      },
+    });
 
-  if (unreadOnly) {
-    notifications = notifications.filter((n) => !n.is_read);
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: error?.message || 'Gagal memuat notifikasi dari server database.', data: [] },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({
-    message: 'Daftar notifikasi berhasil dimuat.',
-    data: notifications,
-  });
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { user_id, title, message, type, action_url } = body;
+    const authHeader = req.headers.get('authorization');
 
-    if (!user_id || !title || !message) {
-      return NextResponse.json(
-        { message: 'user_id, title, dan message diperlukan.' },
-        { status: 422 }
-      );
-    }
-
-    const created = pushStore.createNotification({
-      user_id: Number(user_id),
-      title,
-      message,
-      type: type || 'info',
-      action_url: action_url || '/',
+    const res = await fetch(`${BACKEND_URL}/api/notifikasi`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...(authHeader ? { Authorization: authHeader } : {}),
+      },
+      body: JSON.stringify(body),
     });
 
-    return NextResponse.json({
-      message: 'Notifikasi berhasil dibuat.',
-      data: created,
-    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error: any) {
     return NextResponse.json(
-      { message: error?.message || 'Terjadi kesalahan saat membuat notifikasi.' },
+      { message: error?.message || 'Terjadi kesalahan saat membuat notifikasi di server.' },
       { status: 500 }
     );
   }

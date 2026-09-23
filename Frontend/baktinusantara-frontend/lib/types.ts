@@ -148,6 +148,15 @@ export interface Proposal {
   catatan_dosen?: string;
   tanggal_pengajuan: string;
   anggaran_diusulkan: number;
+  nilai_desa?: {
+    skor1?: number;
+    skor2?: number;
+    skor3?: number;
+    nilaiAkhir?: number;
+    nilai_akhir?: number;
+  };
+  evaluasi_desa?: string;
+  nilai_desa_submitted_at?: string;
   pos_kebutuhan?: PosKebutuhan;
   posKebutuhan?: PosKebutuhan;
   kelompok?: Kelompok;

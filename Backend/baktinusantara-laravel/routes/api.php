@@ -26,6 +26,7 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\AdminVerifikasiController;
+use App\Http\Controllers\PushSubscriptionController;
 
 // E-Sertifikat & Public Verification Endpoints
 Route::get('/certificate/verify/{code}', [CertificateController::class, 'verify']);
@@ -51,6 +52,7 @@ Route::prefix('ai')->middleware('throttle:30,1')->group(function () {
     Route::get('/context', [AiContextController::class, 'globalContext']);
     Route::get('/search-desa', [AiContextController::class, 'searchDesa']);
     Route::post('/recommend-pos', [AiContextController::class, 'recommendPos']);
+    Route::post('/agent-tool', [AiContextController::class, 'executeTool']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user-context', [AiContextController::class, 'userContext']);
@@ -106,6 +108,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::patch('/admin/universitas/{profilUniversitas}/activate', [UniversitasController::class, 'activate']);
 });
 
+Route::get('/desa', [DesaController::class, 'index']);
 Route::get('/pos-kebutuhan', [PosKebutuhanController::class, 'index']);
 Route::get('/pos-kebutuhan/{posKebutuhan}', [PosKebutuhanController::class, 'show']);
 Route::get('/portofolio/{slug}', [PortofolioController::class, 'show']);
@@ -113,6 +116,12 @@ Route::get('/dosen', [DosenController::class, 'index']);
 Route::get('/universitas', [UniversitasController::class, 'index']);
 Route::get('/universitas/master', [UniversitasController::class, 'master']);
 Route::get('/dashboard/metrics', [DashboardController::class, 'metrics']);
+
+// Web Push Persistent Subscriptions
+Route::get('/push/vapid-public-key', [PushSubscriptionController::class, 'vapidPublicKey']);
+Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe']);
+Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe']);
+Route::get('/push/subscriptions', [PushSubscriptionController::class, 'listSubscriptions']);
 
 Route::prefix('wilayah')->group(function () {
     Route::get('/provinsi', [WilayahController::class, 'provinsi']);
@@ -128,6 +137,8 @@ Route::middleware(['auth:sanctum', 'role:perangkat_desa'])->group(function () {
     Route::get('/desa/pos-kebutuhan', [PosKebutuhanController::class, 'indexByDesa']);
     Route::get('/desa/proposal', [ProposalController::class, 'indexByDesa']);
     Route::patch('/desa/proposal/{proposal}/decide', [ProposalController::class, 'decide']);
+    Route::get('/desa/proposal/{proposal}/penilaian', [ProposalController::class, 'getPenilaian']);
+    Route::post('/desa/proposal/{proposal}/penilaian', [ProposalController::class, 'savePenilaian']);
     Route::get('/desa/luaran', [LuaranController::class, 'indexByDesa']);
     Route::patch('/desa/luaran/{luaran}/verify', [LuaranController::class, 'verify']);
     Route::post('/desa/laporan-dosen', [LaporanDosenController::class, 'store']);
@@ -174,6 +185,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/proposal/{proposal}/progress', [ProgressController::class, 'indexByProposal']);
     Route::get('/proposal/{proposal}/luaran', [LuaranController::class, 'showByProposal']);
     Route::get('/notifikasi', [NotificationController::class, 'index']);
+    Route::post('/notifikasi', [NotificationController::class, 'store']);
     Route::patch('/notifikasi/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::patch('/notifikasi/{notifikasi}/read', [NotificationController::class, 'markAsRead']);
     Route::get('/certificate/mine', [CertificateController::class, 'myCertificates']);

@@ -1,25 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pushStore } from '@/lib/server/push-store';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 export async function PATCH(req: NextRequest) {
   try {
-    let userId = '101';
+    let body = {};
     try {
-      const body = await req.json();
-      if (body?.user_id) userId = String(body.user_id);
+      body = await req.json();
     } catch {
       // no body
     }
 
-    const updatedCount = pushStore.markAllAsRead(userId);
+    const authHeader = req.headers.get('authorization');
 
-    return NextResponse.json({
-      message: 'Semua notifikasi berhasil ditandai telah dibaca.',
-      updated_count: updatedCount,
+    const res = await fetch(`${BACKEND_URL}/api/notifikasi/read-all`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...(authHeader ? { Authorization: authHeader } : {}),
+      },
+      body: JSON.stringify(body),
     });
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error: any) {
     return NextResponse.json(
-      { message: error?.message || 'Gagal menandai semua notifikasi.' },
+      { message: error?.message || 'Gagal menandai semua notifikasi dibaca.' },
       { status: 500 }
     );
   }

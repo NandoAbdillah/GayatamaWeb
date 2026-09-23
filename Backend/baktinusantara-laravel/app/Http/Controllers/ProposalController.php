@@ -63,6 +63,56 @@ class ProposalController extends Controller
         ]);
     }
 
+    public function getPenilaian(Proposal $proposal, Request $request)
+    {
+        return response()->json([
+            'proposal_id' => $proposal->id,
+            'kelompok_id' => $proposal->kelompok_id,
+            'nilai_desa' => $proposal->nilai_desa,
+            'evaluasi_desa' => $proposal->evaluasi_desa,
+            'submitted_at' => $proposal->nilai_desa_submitted_at,
+        ]);
+    }
+
+    public function savePenilaian(Request $request, Proposal $proposal)
+    {
+        $validated = $request->validate([
+            'skor1' => 'required|numeric|min:0|max:100',
+            'skor2' => 'required|numeric|min:0|max:100',
+            'skor3' => 'required|numeric|min:0|max:100',
+            'catatan' => 'nullable|string|max:1000',
+        ]);
+
+        $s1 = (float) $validated['skor1'];
+        $s2 = (float) $validated['skor2'];
+        $s3 = (float) $validated['skor3'];
+        $nilaiAkhir = (int) round(($s1 + $s2 + $s3) / 3);
+
+        $penilaian = [
+            'skor1' => $s1,
+            'skor2' => $s2,
+            'skor3' => $s3,
+            'nilaiAkhir' => $nilaiAkhir,
+            'nilai_akhir' => $nilaiAkhir,
+        ];
+
+        $proposal->update([
+            'nilai_desa' => $penilaian,
+            'evaluasi_desa' => $validated['catatan'] ?? null,
+            'nilai_desa_submitted_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Penilaian kelompok KKN berhasil disimpan secara permanen di database.',
+            'data' => [
+                'proposal_id' => $proposal->id,
+                'nilai_desa' => $penilaian,
+                'evaluasi_desa' => $proposal->evaluasi_desa,
+                'submitted_at' => $proposal->nilai_desa_submitted_at,
+            ],
+        ]);
+    }
+
     public function downloadFile(Proposal $proposal, Request $request)
     {
         $proposal->load('kelompok.anggota', 'posKebutuhan');

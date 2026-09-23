@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pushStore } from '@/lib/server/push-store';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 export async function PATCH(
   req: NextRequest,
@@ -7,17 +8,22 @@ export async function PATCH(
 ) {
   try {
     const id = params.id;
-    const success = pushStore.markAsRead(id);
+    const authHeader = req.headers.get('authorization');
+    const { searchParams } = new URL(req.url);
 
-    return NextResponse.json({
-      message: success
-        ? 'Notifikasi berhasil ditandai telah dibaca.'
-        : 'Notifikasi tidak ditemukan.',
-      success,
+    const res = await fetch(`${BACKEND_URL}/api/notifikasi/${id}/read?${searchParams.toString()}`, {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        ...(authHeader ? { Authorization: authHeader } : {}),
+      },
     });
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error: any) {
     return NextResponse.json(
-      { message: error?.message || 'Gagal menandai notifikasi.' },
+      { message: error?.message || 'Gagal menandai notifikasi dibaca.' },
       { status: 500 }
     );
   }

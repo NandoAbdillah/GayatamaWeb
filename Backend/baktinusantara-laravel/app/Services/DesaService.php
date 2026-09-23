@@ -76,4 +76,43 @@ class DesaService
         ]);
         return $desa;
     }
+
+    public function listVerifiedPublic(?string $keyword = null)
+    {
+        $query = ProfilDesa::withCount([
+            'aspirasi as total_aspirasi',
+            'aspirasi as aspirasi_selesai' => fn($q) => $q->where('status', 'terverifikasi'),
+            'posKebutuhan as total_pos',
+            'posKebutuhan as pos_aktif' => fn($q) => $q->where('status', 'open'),
+        ])->whereNotNull('verified_at');
+
+        if ($keyword) {
+            $k = strtolower(trim($keyword));
+            $query->where(function ($q) use ($k) {
+                $q->whereRaw('LOWER(nama_desa) LIKE ?', ["%{$k}%"])
+                  ->orWhereRaw('LOWER(kecamatan) LIKE ?', ["%{$k}%"])
+                  ->orWhereRaw('LOWER(kabupaten) LIKE ?', ["%{$k}%"])
+                  ->orWhereRaw('LOWER(provinsi) LIKE ?', ["%{$k}%"]);
+            });
+        }
+
+        return $query->get()->map(function ($desa) {
+            return [
+                'id' => $desa->id,
+                'nama' => $desa->nama_desa,
+                'nama_desa' => $desa->nama_desa,
+                'kecamatan' => $desa->kecamatan,
+                'kabupaten' => $desa->kabupaten,
+                'provinsi' => $desa->provinsi,
+                'latitude' => (float) $desa->latitude,
+                'longitude' => (float) $desa->longitude,
+                'kontak_resmi' => $desa->kontak_resmi,
+                'total_aspirasi' => $desa->total_aspirasi,
+                'aspirasi_selesai' => $desa->aspirasi_selesai,
+                'total_pos' => $desa->total_pos,
+                'pos_aktif' => $desa->pos_aktif,
+                'pos_tersedia' => $desa->pos_aktif,
+            ];
+        });
+    }
 }

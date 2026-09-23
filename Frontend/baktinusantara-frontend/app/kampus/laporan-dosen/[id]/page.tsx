@@ -27,11 +27,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/services";
-import {
-  INITIAL_LAPORAN,
-  LaporanDosen,
-  STORAGE_KEY,
-} from "@/lib/data/laporan-dosen";
+import { LaporanDosen } from "@/lib/data/laporan-dosen";
 
 export default function LaporanDosenReviewPage() {
   const params = useParams();

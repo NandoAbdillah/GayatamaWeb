@@ -12,6 +12,12 @@ class DesaController extends Controller
 {
     public function __construct(protected DesaService $desaService) {}
 
+    public function index(Request $request)
+    {
+        $keyword = $request->query('search') ?? $request->query('keyword');
+        return response()->json($this->desaService->listVerifiedPublic($keyword));
+    }
+
     public function register(RegistrasiDesaRequest $request)
     {
         $desa = $this->desaService->register($request->validated(), $request->file('sk_file'));

@@ -134,4 +134,28 @@ class AiContextController extends Controller
             'data' => $data,
         ]);
     }
+
+    /**
+     * Endpoint eksekusi tools AI Copilot terpadu berbasis data riil MySQL.
+     * POST /api/ai/agent-tool
+     */
+    public function executeTool(Request $request): JsonResponse
+    {
+        $toolName = $request->input('tool_name') ?? $request->input('toolName');
+        if (empty($toolName)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Parameter tool_name atau toolName wajib disertakan.',
+            ], 422);
+        }
+
+        $args = $request->input('args', []);
+        if (!is_array($args)) {
+            $args = (array) $args;
+        }
+
+        $result = $this->aiContextService->executeTool((string) $toolName, $args, $request->user());
+
+        return response()->json($result);
+    }
 }

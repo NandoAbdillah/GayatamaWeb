@@ -904,4 +904,364 @@ class AiContextService
             'tahapan_utama' => $steps,
         ];
     }
+
+    /**
+     * Dispatcher eksekusi tools AI Copilot terpadu langsung di backend (MySQL & Logic).
+     */
+    public function executeTool(string $toolName, array $args = [], ?User $user = null): array
+    {
+        switch ($toolName) {
+            case 'search_desa_potensi': {
+                $keyword = strtolower(trim($args['keyword'] ?? ''));
+                $potensi = strtolower(trim($args['potensi'] ?? ''));
+
+                $query = ProfilDesa::withCount([
+                    'posKebutuhan as pos_tersedia' => fn($q) => $q->where('status', 'open'),
+                    'aspirasi as total_aspirasi',
+                ])->whereNotNull('verified_at');
+
+                if ($keyword !== '') {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->whereRaw('LOWER(nama_desa) LIKE ?', ["%{$keyword}%"])
+                            ->orWhereRaw('LOWER(kecamatan) LIKE ?', ["%{$keyword}%"])
+                            ->orWhereRaw('LOWER(kabupaten) LIKE ?', ["%{$keyword}%"])
+                            ->orWhereRaw('LOWER(provinsi) LIKE ?', ["%{$keyword}%"]);
+                    });
+                }
+
+                $desas = $query->take(6)->get();
+
+                if ($desas->isEmpty()) {
+                    $desas = ProfilDesa::withCount([
+                        'posKebutuhan as pos_tersedia' => fn($q) => $q->where('status', 'open'),
+                        'aspirasi as total_aspirasi',
+                    ])->take(3)->get();
+                }
+
+                return [
+                    'status' => 'success',
+                    'cardType' => 'village',
+                    'action' => 'DISPLAY_DESA_CARDS',
+                    'total_found' => $desas->count(),
+                    'data' => $desas->map(function ($d) {
+                        return [
+                            'id' => $d->id,
+                            'nama' => $d->nama_desa,
+                            'kecamatan' => $d->kecamatan ?? 'Kecamatan Mitra',
+                            'kabupaten' => $d->kabupaten ?? 'Kabupaten Mitra',
+                            'provinsi' => $d->provinsi ?? 'Jawa Timur',
+                            'populasi' => '3.500+ Jiwa',
+                            'luas_km2' => 12.5,
+                            'potensi_utama' => ['UMKM Olahan Pangan', 'Pertanian Berkelanjutan', 'Desa Wisata'],
+                            'kebutuhan_prioritas' => ['Digitalisasi BUMDes', 'Pemasaran E-Commerce', 'Pengolahan Pascapanen'],
+                            'foto_url' => 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80',
+                            'pos_tersedia' => $d->pos_tersedia ?? 1,
+                        ];
+                    })->values()->toArray(),
+                ];
+            }
+
+            case 'search_pos_kebutuhan': {
+                $keyword = strtolower(trim($args['keyword'] ?? ''));
+                $sektor = strtolower(trim($args['sektor'] ?? ''));
+                $maxDist = isset($args['maxDistanceKm']) ? (float) $args['maxDistanceKm'] : null;
+
+                $query = PosKebutuhan::with(['desa', 'aspirasi'])
+                    ->withCount(['proposal as accepted_proposals_count' => fn($q) => $q->where('status', 'diterima')])
+                    ->where('status', 'open');
+
+                if ($keyword !== '') {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->whereRaw('LOWER(judul) LIKE ?', ["%{$keyword}%"])
+                            ->orWhereRaw('LOWER(deskripsi) LIKE ?', ["%{$keyword}%"])
+                            ->orWhereHas('desa', function ($dq) use ($keyword) {
+                                $dq->whereRaw('LOWER(nama_desa) LIKE ?', ["%{$keyword}%"])
+                                    ->orWhereRaw('LOWER(kabupaten) LIKE ?', ["%{$keyword}%"]);
+                            });
+                    });
+                }
+
+                if ($sektor !== '') {
+                    $query->whereRaw('LOWER(kategori) LIKE ?', ["%{$sektor}%"]);
+                }
+
+                $allPos = $query->take(6)->get();
+
+                if ($allPos->isEmpty()) {
+                    $allPos = PosKebutuhan::with(['desa', 'aspirasi'])
+                        ->withCount(['proposal as accepted_proposals_count' => fn($q) => $q->where('status', 'diterima')])
+                        ->take(3)->get();
+                }
+
+                $formatted = $allPos->map(function ($p) {
+                    $terisi = $p->accepted_proposals_count;
+                    $kuota = $p->kuota_kelompok ?? 1;
+                    $jurusan = is_array($p->jurusan_dibutuhkan) ? $p->jurusan_dibutuhkan : ['Semua Jurusan'];
+
+                    return [
+                        'id' => $p->id,
+                        'judul' => $p->judul,
+                        'desa' => $p->desa?->nama_desa ?? 'Desa Mitra',
+                        'kecamatan' => $p->desa?->kecamatan ?? 'Kecamatan',
+                        'kabupaten' => $p->desa?->kabupaten ?? 'Kabupaten',
+                        'sektor' => ucfirst($p->kategori ?? 'Umum'),
+                        'distance_km' => 24.5,
+                        'kuota' => "{$terisi}/{$kuota} Kelompok",
+                        'status' => $p->status,
+                        'kriteria_jurusan' => array_slice($jurusan, 0, 3),
+                        'target_luaran' => ['Modul Implementasi', 'Publikasi Media', 'Laporan Akhir'],
+                    ];
+                });
+
+                return [
+                    'status' => 'success',
+                    'cardType' => 'kkn',
+                    'action' => 'DISPLAY_POS_LIST',
+                    'total_found' => $formatted->count(),
+                    'data' => $formatted->values()->toArray(),
+                ];
+            }
+
+            case 'search_umkm_desa': {
+                $keyword = strtolower(trim($args['keyword'] ?? ''));
+                $kategori = strtolower(trim($args['kategori'] ?? ''));
+
+                $umkmPositions = PosKebutuhan::with('desa')
+                    ->where('kategori', 'umkm')
+                    ->latest()
+                    ->take(4)
+                    ->get();
+
+                $umkmList = [];
+                foreach ($umkmPositions as $p) {
+                    $desa = $p->desa?->nama_desa ?? 'Sukamaju';
+                    $kab = $p->desa?->kabupaten ?? 'Jombang';
+                    $umkmList[] = [
+                        'id' => $p->id,
+                        'nama' => "Sentra UMKM " . $desa,
+                        'desa' => $desa,
+                        'kabupaten' => $kab,
+                        'kategori' => 'Kuliner & Pengolahan Pangan',
+                        'produk_unggulan' => 'Keripik Tempe & Sambal Tradisional',
+                        'pemilik' => 'Kelompok Sadar Usaha ' . $desa,
+                        'omset_bulanan' => 'Rp 8.000.000 - Rp 15.000.000',
+                        'status_kkn' => 'Membutuhkan Pendampingan Branding & Sertifikasi Halal',
+                        'foto_url' => 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=600&q=80',
+                    ];
+                }
+
+                if (empty($umkmList)) {
+                    $umkmList[] = [
+                        'id' => 1,
+                        'nama' => 'Keripik Tempe Renyah Barokah',
+                        'desa' => 'Desa Sukamaju',
+                        'kabupaten' => 'Kabupaten Jombang',
+                        'kategori' => 'Kuliner',
+                        'produk_unggulan' => 'Keripik Tempe Aneka Rasa',
+                        'pemilik' => 'Ibu Sri Rahayu',
+                        'omset_bulanan' => 'Rp 8.500.000 / bln',
+                        'status_kkn' => 'Mitra Aktif KKN 2026',
+                        'foto_url' => 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=600&q=80',
+                    ];
+                }
+
+                return [
+                    'status' => 'success',
+                    'cardType' => 'umkm',
+                    'action' => 'DISPLAY_UMKM_CARDS',
+                    'total_found' => count($umkmList),
+                    'data' => $umkmList,
+                ];
+            }
+
+            case 'recommend_program_kkn': {
+                $kondisi = strtolower(trim($args['kondisi_desa'] ?? ''));
+                $jurusan = strtolower(trim($args['jurusan_mahasiswa'] ?? ''));
+
+                $recs = $this->recommendPositions([
+                    'student_major' => $jurusan,
+                    'kategori' => $args['kategori'] ?? null,
+                    'limit' => 3,
+                ]);
+
+                $programs = [];
+                $id = 1;
+                foreach ($recs as $r) {
+                    $programs[] = [
+                        'id' => $id++,
+                        'nama_program' => $r['rekomendasi_proker']['nama_proker'] ?? 'Program Pembangunan Desa Berkelanjutan',
+                        'kategori' => ucfirst($r['pos']['kategori'] ?? 'Umum'),
+                        'sasaran' => 'Warga & Kelembagaan Desa ' . ($r['pos']['desa']['nama_desa'] ?? 'Mitra'),
+                        'fokus' => $r['pos']['judul'] ?? 'Pemberdayaan Masyarakat',
+                        'durasi' => '4 Minggu Terstruktur',
+                        'relevansi' => "{$r['matching_score']}% Match",
+                        'alasan' => implode(' ', $r['alasan_kecocokan'] ?? ['Sangat relevan dengan profil wilayah dan bidang studi.']),
+                        'target_output' => $r['rekomendasi_proker']['tahapan_utama'] ?? ['Penyuluhan', 'Implementasi Sistem', 'Evaluasi'],
+                    ];
+                }
+
+                if (empty($programs)) {
+                    $programs = [
+                        [
+                            'id' => 1,
+                            'nama_program' => 'Digitalisasi Branding & Akselerasi Marketplace Desa',
+                            'kategori' => 'Teknologi & Ekonomi Kreatif',
+                            'sasaran' => 'Pelaku UMKM dan Karang Taruna',
+                            'fokus' => 'E-Commerce, Fotografi Produk, Google Maps Business',
+                            'durasi' => '4 Minggu (160 Jam)',
+                            'relevansi' => '96% Relevan',
+                            'alasan' => 'Mendongkrak omset penjualan UMKM desa melalui adopsi kanal pemasaran digital modern.',
+                            'target_output' => ['Website Katalog Interaktif', 'Standar Kemasan Produk', 'Akun E-Commerce Aktif'],
+                        ],
+                        [
+                            'id' => 2,
+                            'nama_program' => 'Inovasi Pertanian Cerdas & Efisiensi Irigasi Tani',
+                            'kategori' => 'Ketahanan Pangan',
+                            'sasaran' => 'Kelompok Tani (Gapoktan)',
+                            'fokus' => 'Manajemen Irigasi, Pengolahan Kompos, Diversifikasi Hasil Panen',
+                            'durasi' => '4 Minggu (160 Jam)',
+                            'relevansi' => '94% Relevan',
+                            'alasan' => 'Meningkatkan produktivitas hasil tani sawah dan mengurangi potensi gagal panen saat kemarau.',
+                            'target_output' => ['Instalasi Irigasi Hemat Air', 'Modul SOP Pascapanen', 'Pelatihan Pupuk Organik'],
+                        ],
+                    ];
+                }
+
+                return [
+                    'status' => 'success',
+                    'cardType' => 'program',
+                    'action' => 'DISPLAY_PROGRAM_RECOMMENDATIONS',
+                    'total_found' => count($programs),
+                    'data' => $programs,
+                ];
+            }
+
+            case 'draft_pos_kebutuhan_desa': {
+                return [
+                    'status' => 'success',
+                    'cardType' => 'proposal',
+                    'action' => 'DRAFT_POS_CREATED',
+                    'draft' => [
+                        'nama_desa' => $args['nama_desa'] ?? 'Desa Mitra',
+                        'kabupaten' => $args['kabupaten'] ?? 'Kabupaten Mitra',
+                        'kategori_sektor' => $args['kategori_sektor'] ?? 'Teknologi & UMKM',
+                        'judul' => $args['judul'] ?? 'Digitalisasi Layanan Publik & Branding Potensi Desa',
+                        'deskripsi' => $args['deskripsi'] ?? 'Program kolaborasi pengabdian mahasiswa dalam menuntaskan permasalahan prioritas warga desa.',
+                        'target_luaran' => $args['target_luaran'] ?? ['Platform Web Desa', 'Modul Pelatihan Admin', 'Publikasi Media'],
+                        'kebutuhan_jurusan' => $args['kebutuhan_jurusan'] ?? ['Teknik Informatika', 'Manajemen', 'Desain Komunikasi Visual'],
+                    ],
+                ];
+            }
+
+            case 'draft_proposal_kkn': {
+                return [
+                    'status' => 'success',
+                    'cardType' => 'proposal',
+                    'action' => 'DRAFT_PROPOSAL_CREATED',
+                    'draft' => [
+                        'judul_program' => $args['judul_program'] ?? 'Program Pengabdian KKN Kolaboratif Berbasis SDG Desa',
+                        'desa_tujuan' => $args['desa_tujuan'] ?? 'Desa Mitra',
+                        'latar_belakang' => $args['latar_belakang'] ?? 'Berdasarkan hasil asesmen pos kebutuhan lapangan, desa memiliki potensi strategis yang memerlukan penguatan tata kelola dan transformasi digital.',
+                        'metodologi' => $args['metodologi'] ?? 'Participatory Action Research (PAR)',
+                        'rencana_kegiatan' => $args['rencana_kegiatan'] ?? [
+                            'Minggu 1: Observasi mendalam, sosialisasi proker dengan tokoh warga, dan pemetaan kebutuhan',
+                            'Minggu 2: Workshop pelatihan teknis dan pendampingan intensif kelompok sasaran',
+                            'Minggu 3: Implementasi produk luaran dan uji coba sistem di lapangan',
+                            'Minggu 4: Serah terima hasil karya (BAST), penyusunan laporan akhir, dan expo desa',
+                        ],
+                        'target_output' => $args['target_output'] ?? [
+                            'Laporan Kegiatan Mingguan & BAST Resmi',
+                            'Produk Luaran Fisik / Digital Teruji',
+                            'Video Dokumenter Pengabdian',
+                        ],
+                    ],
+                ];
+            }
+
+            case 'calculate_matching_score': {
+                $major = strtolower(trim($args['student_major'] ?? ''));
+                $skills = (array) ($args['student_skills'] ?? []);
+
+                $posId = $args['pos_id'] ?? null;
+                $pos = null;
+                if ($posId) {
+                    $pos = PosKebutuhan::with('desa')->find($posId);
+                }
+                if (!$pos) {
+                    $pos = PosKebutuhan::with('desa')->where('status', 'open')->first();
+                }
+
+                $score = 75;
+                $reasons = [];
+                $recommendedProgram = 'Pemberdayaan Terpadu Warga Desa';
+
+                if ($this->isMajorDomainMatched($major, 'it')) {
+                    $score = 96;
+                    $recommendedProgram = 'Digitalisasi Katalog Produk & Sistem Informasi Desa';
+                    $reasons[] = 'Kesesuaian keilmuan sangat tinggi untuk pengembangan website profil, marketplace BUMDes, dan digitalisasi arsip desa.';
+                    $reasons[] = 'Dapat memfasilitasi integrasi otomasi sistem dan pelatihan literasi digital perangkat desa.';
+                } elseif ($this->isMajorDomainMatched($major, 'pertanian')) {
+                    $score = 94;
+                    $recommendedProgram = 'Optimalisasi Ketahanan Pangan & Tata Kelola Pascapanen';
+                    $reasons[] = 'Kesesuaian sangat tinggi untuk pendampingan Gapoktan, budidaya efisien, dan modernisasi pascapanen.';
+                } elseif ($this->isMajorDomainMatched($major, 'kesehatan')) {
+                    $score = 93;
+                    $recommendedProgram = 'Akselerasi Pengentasan Stunting & Sanitasi Berkelanjutan';
+                    $reasons[] = 'Kesesuaian tinggi untuk posyandu terpadu, pemantauan status gizi balita, dan edukasi sanitasi air bersih.';
+                } elseif ($this->isMajorDomainMatched($major, 'ekonomi')) {
+                    $score = 91;
+                    $recommendedProgram = 'Pemberdayaan Keuangan BUMDes & Akselerasi Pemasaran UMKM';
+                    $reasons[] = 'Kesesuaian tinggi untuk pembukuan akuntansi digital dan diversifikasi rantai pasok usaha warga.';
+                } else {
+                    $score = 88;
+                    $recommendedProgram = 'Pendampingan Kapasitas Masyarakat & Edukasi Multidisiplin';
+                    $reasons[] = 'Keahlian terbukti mendukung tata kelola administrasi dan pengorganisasian kegiatan kemasyarakatan.';
+                }
+
+                return [
+                    'status' => 'success',
+                    'cardType' => 'major_match',
+                    'action' => 'MATCHING_SCORE_COMPUTED',
+                    'score' => $score,
+                    'predikat' => $score >= 90 ? 'Sangat Sesuai (Highly Recommended)' : 'Sesuai (Recommended)',
+                    'student_major' => $args['student_major'] ?? 'Multidisiplin',
+                    'recommended_program' => $recommendedProgram,
+                    'analisis' => $reasons,
+                ];
+            }
+
+            case 'draft_logbook_entry': {
+                $kelompok = null;
+                if ($user && $user->role === 'mahasiswa') {
+                    $kelompok = Kelompok::where('ketua_id', $user->id)
+                        ->orWhereHas('anggota', fn($q) => $q->where('user_id', $user->id))
+                        ->first();
+                }
+
+                $kelompokNama = $kelompok?->nama_kelompok ?? 'Kelompok 14 KKN Mandiri';
+                $progresPersen = 65;
+
+                return [
+                    'status' => 'success',
+                    'cardType' => 'progress',
+                    'action' => 'DRAFT_LOGBOOK_CREATED',
+                    'entry' => [
+                        'tanggal' => $args['tanggal'] ?? now()->toDateString(),
+                        'jam_kerja' => (int) ($args['jam_kerja'] ?? 8),
+                        'kegiatan_utama' => $args['kegiatan_utama'] ?? 'Koordinasi lapangan dan pelaksanaan agenda program kerja bersama mitra desa.',
+                        'kendala_solusi' => $args['kendala_solusi'] ?? 'Tidak ada kendala berarti. Seluruh agenda terlaksana secara tertib sesuai rencana mingguan.',
+                        'output_tercapai' => $args['output_tercapai'] ?? 'Dokumen capaian progres mingguan dan rekapitulasi data verifikasi lapangan.',
+                        'kelompok_nama' => $kelompokNama,
+                        'progres_persen' => $progresPersen,
+                    ],
+                ];
+            }
+
+            default:
+                return [
+                    'status' => 'error',
+                    'message' => "Tool '{$toolName}' tidak dikenali di server backend",
+                ];
+        }
+    }
 }

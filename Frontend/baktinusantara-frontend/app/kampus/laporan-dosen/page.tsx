@@ -17,11 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/services";
-import {
-  LaporanDosen,
-  INITIAL_LAPORAN,
-  STORAGE_KEY,
-} from "@/lib/data/laporan-dosen";
+import { LaporanDosen } from "@/lib/data/laporan-dosen";
 
 export default function AdminLaporanDosenPage() {
   const router = useRouter();
@@ -261,12 +257,7 @@ export default function AdminLaporanDosenPage() {
 
               <div className="flex justify-end pt-3 border-t border-slate-100 dark:border-navy-800">
                 <Button
-                  onClick={() => {
-                    try {
-                      localStorage.setItem(STORAGE_KEY, JSON.stringify(laporanList));
-                    } catch {}
-                    router.push(`/kampus/laporan-dosen/${item.id}`);
-                  }}
+                  onClick={() => router.push(`/kampus/laporan-dosen/${item.id}`)}
                   variant="primary"
                   size="sm"
                   className="gap-1.5 font-bold shadow-sm"

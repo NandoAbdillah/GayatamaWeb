@@ -7,14 +7,23 @@ use App\Models\User;
 
 class NotificationService
 {
-    public function send(User|int $user, string $pesan, string $channel = 'in_app'): Notifikasi
-    {
+    public function send(
+        User|int $user,
+        string $pesan,
+        string $channel = 'in_app',
+        ?string $title = null,
+        ?string $type = 'info',
+        ?string $actionUrl = null
+    ): Notifikasi {
         $userId = $user instanceof User ? $user->id : $user;
 
         return Notifikasi::create([
             'user_id' => $userId,
+            'title' => $title,
             'pesan' => $pesan,
             'channel' => $channel,
+            'type' => $type ?? 'info',
+            'action_url' => $actionUrl,
             'is_read' => false,
         ]);
     }

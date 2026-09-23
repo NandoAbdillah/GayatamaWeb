@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import { pushStore } from '@/lib/server/push-store';
+
+const VAPID_PUBLIC_KEY =
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ||
+  'BGHxRpbw6tkPk01tgL65p2ThaT3zrzwRtnlSWbK6lJZC51GdYf2CdY-rrI0ol_SbhTjTeiUElZ0yeBpvQEENa1Y';
 
 export async function GET() {
-  const publicKey = pushStore.getVapidPublicKey();
-  return NextResponse.json({ publicKey });
+  return NextResponse.json({ publicKey: VAPID_PUBLIC_KEY });
 }

@@ -24,6 +24,7 @@ export default function BastNilaiPage() {
   const [skor1, setSkor1] = useState(0);
   const [skor2, setSkor2] = useState(0);
   const [skor3, setSkor3] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchKelompok = async () => {
@@ -37,6 +38,11 @@ export default function BastNilaiPage() {
               nama_kelompok: match.kelompok?.nama_kelompok || `Kelompok #${match.kelompok_id || match.id}`,
               kode_kelompok: match.kelompok?.kode_kelompok || `KKN-2026-${String(match.id).padStart(3, '0')}`,
             });
+            if (match.nilai_desa) {
+              setSkor1(match.nilai_desa.skor1 ?? 0);
+              setSkor2(match.nilai_desa.skor2 ?? 0);
+              setSkor3(match.nilai_desa.skor3 ?? 0);
+            }
           }
         }
       } catch (err) {
@@ -47,23 +53,11 @@ export default function BastNilaiPage() {
     };
 
     fetchKelompok();
-
-    try {
-      const raw = localStorage.getItem('bast-penilaian');
-      if (raw) {
-        const map = JSON.parse(raw);
-        if (map[id]) {
-          setSkor1(map[id].skor1 ?? 0);
-          setSkor2(map[id].skor2 ?? 0);
-          setSkor3(map[id].skor3 ?? 0);
-        }
-      }
-    } catch {}
   }, [id]);
 
   const nilaiAkhir = Math.round((Number(skor1) + Number(skor2) + Number(skor3)) / 3) || 0;
 
-  const handleSimpan = (e: React.FormEvent) => {
+  const handleSimpan = async (e: React.FormEvent) => {
     e.preventDefault();
     const s1 = Number(skor1);
     const s2 = Number(skor2);
@@ -72,14 +66,22 @@ export default function BastNilaiPage() {
       toast.error('Nilai harus 0 - 100');
       return;
     }
+
     try {
-      const raw = localStorage.getItem('bast-penilaian');
-      const map = raw ? JSON.parse(raw) : {};
-      map[id] = { skor1: s1, skor2: s2, skor3: s3, nilaiAkhir };
-      localStorage.setItem('bast-penilaian', JSON.stringify(map));
-    } catch {}
-    toast.success('Penilaian berhasil disimpan');
-    router.push('/perangkat-desa/bast');
+      setSubmitting(true);
+      await api.proposal.savePenilaian(id, {
+        skor1: s1,
+        skor2: s2,
+        skor3: s3,
+      });
+      toast.success('Penilaian berhasil disimpan di database server');
+      router.push('/perangkat-desa/bast');
+    } catch (err: any) {
+      console.error('Gagal menyimpan penilaian:', err);
+      toast.error(err?.response?.data?.message || 'Gagal menyimpan penilaian ke database server');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -160,8 +162,8 @@ export default function BastNilaiPage() {
                       Batal
                     </Button>
                   </Link>
-                  <Button type="submit" variant="emerald" size="md" className="text-xs font-bold">
-                    Simpan
+                  <Button type="submit" variant="emerald" size="md" className="text-xs font-bold" disabled={submitting}>
+                    {submitting ? 'Menyimpan ke Server...' : 'Simpan'}
                   </Button>
                 </div>
               </form>

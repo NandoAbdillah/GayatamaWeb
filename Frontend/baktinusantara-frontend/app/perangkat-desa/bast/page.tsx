@@ -60,6 +60,15 @@ export default function PerangkatDesaBastListPage() {
               periode: `Periode Aktif ${start}`,
             };
           });
+        const newPenilaianMap: Record<number, { nilaiAkhir: number }> = {};
+        proposals.forEach((p: any) => {
+          if (p.nilai_desa && (p.nilai_desa.nilaiAkhir !== undefined || p.nilai_desa.nilai_akhir !== undefined)) {
+            newPenilaianMap[p.id] = {
+              nilaiAkhir: Number(p.nilai_desa.nilaiAkhir ?? p.nilai_desa.nilai_akhir),
+            };
+          }
+        });
+        setPenilaianMap(newPenilaianMap);
         setKelompokList(normalized);
       } else {
         setKelompokList([]);
@@ -75,10 +84,6 @@ export default function PerangkatDesaBastListPage() {
 
   useEffect(() => {
     loadData();
-    try {
-      const raw = localStorage.getItem('bast-penilaian');
-      if (raw) setPenilaianMap(JSON.parse(raw));
-    } catch {}
   }, []);
 
   const filteredKelompok = useMemo(() => {

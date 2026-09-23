@@ -20,7 +20,15 @@ class Proposal extends Model
         'catatan_desa',
         'matching_score',
         'jarak_km',
+        'nilai_desa',
+        'evaluasi_desa',
+        'nilai_desa_submitted_at',
         'submitted_at',
+    ];
+
+    protected $casts = [
+        'nilai_desa' => 'array',
+        'nilai_desa_submitted_at' => 'datetime',
     ];
 
     public function kelompok() { return $this->belongsTo(Kelompok::class, 'kelompok_id'); }

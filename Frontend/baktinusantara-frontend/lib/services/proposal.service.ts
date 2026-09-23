@@ -99,6 +99,47 @@ export const proposalService = {
     const res = await apiClient.post(`/api/proposal/${proposalId}/surat-izin-ortu`, fd);
     return res.data;
   },
+
+  /**
+   * Get BAST evaluation score from village
+   * Endpoint: GET /api/desa/proposal/{id}/penilaian
+   */
+  async getPenilaian(id: number | string): Promise<{
+    proposal_id: number;
+    kelompok_id: number;
+    nilai_desa: {
+      skor1: number;
+      skor2: number;
+      skor3: number;
+      nilaiAkhir: number;
+      nilai_akhir: number;
+    } | null;
+    evaluasi_desa: string | null;
+    submitted_at: string | null;
+  }> {
+    const res = await apiClient.get(`/api/desa/proposal/${id}/penilaian`);
+    return res.data;
+  },
+
+  /**
+   * Save BAST evaluation score from village to MySQL database
+   * Endpoint: POST /api/desa/proposal/{id}/penilaian
+   */
+  async savePenilaian(
+    id: number | string,
+    payload: {
+      skor1: number;
+      skor2: number;
+      skor3: number;
+      catatan?: string;
+    }
+  ): Promise<{
+    message: string;
+    data: any;
+  }> {
+    const res = await apiClient.post(`/api/desa/proposal/${id}/penilaian`, payload);
+    return res.data;
+  },
 };
 
 export default proposalService;
