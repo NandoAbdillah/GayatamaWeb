@@ -2,7 +2,7 @@
 
 **Platform kolaborasi berbasis web untuk menyelaraskan kebutuhan riil desa dengan program kerja KKN mahasiswa, berlandaskan 17 SDGs.**
 
-Dikembangkan oleh Tim Gayatama 5 untuk *International Web Technology Competition* — Universitas Negeri Surabaya, 2026.
+Dikembangkan oleh Tim Memasak Bersama Gayatama untuk *International Web Technology Competition* — Universitas Negeri Surabaya, 2026.
 
 ---
 

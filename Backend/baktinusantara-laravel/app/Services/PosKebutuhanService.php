@@ -21,8 +21,20 @@ class PosKebutuhanService
     {
         $this->assertDesaVerified($user);
 
+        // Normalize target_luaran from array, string, or alias fields
+        $targetLuaran = $data['target_luaran'] ?? $data['luaran'] ?? $data['luaran_diharapkan'] ?? null;
+        if (is_string($targetLuaran)) {
+            $targetLuaran = array_values(array_filter(array_map('trim', explode("\n", $targetLuaran))));
+        }
+        $data['target_luaran'] = is_array($targetLuaran) ? $targetLuaran : [];
+
+        // Defaults for optional fields
+        $data['kuota_kelompok'] = $data['kuota_kelompok'] ?? 1;
+        $data['sdg_codes'] = $data['sdg_codes'] ?? [8, 9];
+        $data['jurusan_dibutuhkan'] = $data['jurusan_dibutuhkan'] ?? ['Teknik Informatika', 'Manajemen', 'Pendidikan'];
         $data['desa_id'] = $user->profilDesa->id;
         $data['status'] = 'open';
+
         return PosKebutuhan::create($data);
     }
 

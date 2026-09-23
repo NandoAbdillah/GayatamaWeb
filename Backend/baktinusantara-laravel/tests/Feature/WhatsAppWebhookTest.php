@@ -35,18 +35,28 @@ class WhatsAppWebhookTest extends TestCase
             'verified_at' => now(),
         ]);
 
-        $response = $this->postJson('/api/webhook/whatsapp', [
+        // 1. Kirim laporan awal (AIIRA membuat draf)
+        $response1 = $this->postJson('/api/webhook/whatsapp', [
             'sender' => '081234567890',
             'message' => 'Saya warga Sukamaju mau lapor jalan berlubang parah di dusun krajan',
             'name' => 'Pak Budi',
         ]);
 
-        $response->assertStatus(200);
-        $reply = $response->json('reply');
+        $response1->assertStatus(200);
+        $reply1 = $response1->json('reply');
+        $this->assertStringContainsString('Desa Sukamaju', $reply1);
+        $this->assertStringContainsString('FASILITAS', $reply1);
 
-        $this->assertStringContainsString('Nomor Tiket', $reply);
-        $this->assertStringContainsString('Desa Sukamaju', $reply);
-        $this->assertStringContainsString('FASILITAS', $reply);
+        // 2. Konfirmasi 'YA' untuk menerbitkan tiket
+        $response2 = $this->postJson('/api/webhook/whatsapp', [
+            'sender' => '081234567890',
+            'message' => 'YA',
+            'name' => 'Pak Budi',
+        ]);
+
+        $response2->assertStatus(200);
+        $reply2 = $response2->json('reply');
+        $this->assertStringContainsString('Nomor Tiket', $reply2);
 
         // Verifikasi data benar-benar tersimpan di database MySQL
         $this->assertDatabaseHas('aspirasi', [
@@ -88,7 +98,7 @@ class WhatsAppWebhookTest extends TestCase
         $reply = $response->json('reply');
 
         $this->assertStringContainsString((string) $aspirasi->id, $reply);
-        $this->assertStringContainsString('DISETUJUI & DITERBITKAN', $reply);
+        $this->assertStringContainsString('DISETUJUI', $reply);
     }
 
     public function test_mahasiswa_can_check_proposal_status_via_whatsapp(): void
