@@ -11,11 +11,11 @@ import {
   MapPin,
 } from 'lucide-react';
 import api from '@/lib/services';
-import { FALLBACK_UNIV_DETAIL, UnivDetail, getLogoUrl } from '@/lib/data/direktori-kampus-data';
+import { UnivDetail, getLogoUrl } from '@/lib/data/direktori-kampus-data';
 
 export default function AdminDirektoriKampusPage() {
   const router = useRouter();
-  const [univList, setUnivList] = useState<UnivDetail[]>(FALLBACK_UNIV_DETAIL);
+  const [univList, setUnivList] = useState<UnivDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -23,36 +23,43 @@ export default function AdminDirektoriKampusPage() {
     async function loadData() {
       try {
         const univs = await api.universitas.getUniversitasList();
-        if (Array.isArray(univs) && univs.length > 0) {
-          // merge API data with fallback detail for richer fields
-          const merged: UnivDetail[] = (univs as any[]).map((u: any) => {
-            const fallback = FALLBACK_UNIV_DETAIL.find((f) => f.kode_univ === u.kode_univ || f.id === u.id);
-            const website = fallback?.website || u.website || `https://www.${u.kode_univ.toLowerCase()}.ac.id`;
-            const domain = fallback?.domain || (u.domain as string) || (() => { try { return new URL(website).hostname.replace(/^www\./, ''); } catch { return `${u.kode_univ.toLowerCase()}.ac.id`; } })();
+        if (Array.isArray(univs)) {
+          const list: UnivDetail[] = (univs as any[]).map((u: any) => {
+            const kode = u.kode_univ || `UNIV-${u.id}`;
+            const website = u.website || `https://www.${kode.toLowerCase()}.ac.id`;
             return {
               id: u.id,
               nama_universitas: u.nama_universitas,
-              kode_univ: u.kode_univ,
-              kota: u.kota || fallback?.kota || 'Jawa Timur, Indonesia',
-              status: (u.status as any) || fallback?.status || 'verified',
-              tanggal_verifikasi: fallback?.tanggal_verifikasi || '-',
-              email: fallback?.email || `${u.kode_univ.toLowerCase()}@kampus.ac.id`,
-              telepon: fallback?.telepon || '-',
-              alamat_lengkap: fallback?.alamat_lengkap || u.kota || '-',
+              kode_univ: kode,
+              kota: u.kota || 'Indonesia',
+              status: (u.status as any) || 'verified',
+              tanggal_verifikasi: u.verified_at ? new Date(u.verified_at).toLocaleDateString('id-ID') : '-',
+              email: u.email || `${kode.toLowerCase()}@kampus.ac.id`,
+              telepon: u.telepon || '-',
+              alamat_lengkap: u.alamat || u.kota || '-',
               website,
-              domain,
-              statistik: fallback?.statistik || {
-                jumlah_program_kkn: 5,
-                jumlah_mahasiswa: 120,
-                jumlah_dosen_dpl: 4,
-                jumlah_desa_ditangani: 8,
+              domain: (() => {
+                try {
+                  return new URL(website).hostname.replace(/^www\./, '');
+                } catch {
+                  return `${kode.toLowerCase()}.ac.id`;
+                }
+              })(),
+              statistik: u.statistik || {
+                jumlah_program_kkn: u.kelompok_count || 0,
+                jumlah_mahasiswa: u.mahasiswa_count || 0,
+                jumlah_dosen_dpl: u.dosen_count || 0,
+                jumlah_desa_ditangani: 0,
               },
             };
           });
-          setUnivList(merged);
+          setUnivList(list);
+        } else {
+          setUnivList([]);
         }
       } catch (err) {
-        console.warn('Fallback to seeded campus data:', err);
+        console.error('Gagal mengambil daftar universitas:', err);
+        setUnivList([]);
       } finally {
         setLoading(false);
       }

@@ -52,8 +52,8 @@ export const aspirasiService = {
    * Endpoint: GET /api/aspirasi/{ticket}
    */
   async getByTicket(ticket: string | number): Promise<Aspirasi> {
-    const res = await apiClient.get<Aspirasi>(`/api/aspirasi/${ticket}`);
-    return res.data;
+    const res = await apiClient.get<any>(`/api/aspirasi/${ticket}`);
+    return res.data?.data || res.data;
   },
 
   /**

@@ -79,6 +79,8 @@ Route::middleware('throttle:15,1')->group(function () {
 
     Route::post('/register/mahasiswa', [MahasiswaController::class, 'register']);
     Route::post('/register/desa', [DesaController::class, 'register']);
+    Route::post('/register/universitas/check-kode', [UniversitasController::class, 'checkKodeAvailability']);
+    Route::post('/register/universitas/scan-sk', [UniversitasController::class, 'scanDocumentRealtime']);
     Route::post('/register/universitas', [UniversitasController::class, 'register']);
 });
 
@@ -109,6 +111,7 @@ Route::get('/pos-kebutuhan/{posKebutuhan}', [PosKebutuhanController::class, 'sho
 Route::get('/portofolio/{slug}', [PortofolioController::class, 'show']);
 Route::get('/dosen', [DosenController::class, 'index']);
 Route::get('/universitas', [UniversitasController::class, 'index']);
+Route::get('/universitas/master', [UniversitasController::class, 'master']);
 Route::get('/dashboard/metrics', [DashboardController::class, 'metrics']);
 
 Route::prefix('wilayah')->group(function () {

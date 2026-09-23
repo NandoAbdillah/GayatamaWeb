@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -20,14 +20,98 @@ import {
   BookOpen,
   Home,
   Award,
+  Loader2,
 } from 'lucide-react';
-import { FALLBACK_UNIV_DETAIL, getKampusById, getLogoUrl } from '@/lib/data/direktori-kampus-data';
+import { getLogoUrl, UnivDetail } from '@/lib/data/direktori-kampus-data';
+import api from '@/lib/services';
+import { toast } from 'sonner';
 
 export default function DirektoriKampusDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const id = Number(params?.id);
-  const kampus = getKampusById(id);
+  const [kampus, setKampus] = useState<UnivDetail | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!id || Number.isNaN(id)) {
+      setLoading(false);
+      return;
+    }
+    async function loadFromProfilUniversitas() {
+      try {
+        const res = await api.admin.getVerifikasiDetail('universitas', id);
+        const data = (res as any)?.data;
+        if (data && data.entity_type === 'universitas') {
+          const kodeUniv =
+            data.detail_info?.find((d: any) => d.label === 'Kode Institusi')?.value ||
+            `UNIV-${id}`;
+          const website = `https://www.${String(kodeUniv).toLowerCase()}.ac.id`;
+          const domain = (() => {
+            try {
+              return new URL(website).hostname.replace(/^www\./, '');
+            } catch {
+              return `${String(kodeUniv).toLowerCase()}.ac.id`;
+            }
+          })();
+
+          const mapped: UnivDetail = {
+            id: data.id,
+            nama_universitas: data.nama,
+            kode_univ: kodeUniv,
+            kota: data.sub_info || 'Indonesia',
+            status: data.status,
+            tanggal_verifikasi: data.status === 'verified' ? data.tanggal_pengajuan : '-',
+            email: data.email || '-',
+            telepon: data.kontak || '-',
+            alamat_lengkap: data.sub_info || '-',
+            website,
+            domain,
+            statistik: {
+              jumlah_program_kkn: 0,
+              jumlah_mahasiswa: 0,
+              jumlah_dosen_dpl: Number(
+                data.detail_info?.find((d: any) => d.label === 'DPL Terdaftar')?.value?.match(/\d+/)?.[0] || 0
+              ),
+              jumlah_desa_ditangani: 0,
+            },
+          };
+          setKampus(mapped);
+        } else {
+          setKampus(undefined);
+        }
+      } catch (err: any) {
+        console.error('Gagal ambil detail profil_universitas:', err);
+        setKampus(undefined);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadFromProfilUniversitas();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <DashboardLayout title="Detail Kampus">
+        <div className="space-y-4 font-jakarta w-full">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push('/admin/direktori-kampus')}
+            className="gap-1.5 text-xs font-semibold"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Kembali
+          </Button>
+          <Card className="p-12 text-center border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-3">
+            <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+            <p className="text-sm font-bold text-navy-950 dark:text-white">Memuat detail kampus dari profil_universitas...</p>
+            <p className="text-xs text-slate-500">Mengambil data terverifikasi dari database.</p>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!kampus) {
     return (
@@ -44,7 +128,7 @@ export default function DirektoriKampusDetailPage() {
           </Button>
           <Card className="p-12 text-center border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-3">
             <p className="text-sm font-bold text-navy-950 dark:text-white">Kampus tidak ditemukan</p>
-            <p className="text-xs text-slate-500">ID {String(params?.id)} tidak terdaftar.</p>
+            <p className="text-xs text-slate-500">ID {String(params?.id)} tidak terdaftar di tabel profil_universitas.</p>
             <Link href="/admin/direktori-kampus">
               <Button size="sm" variant="outline" className="mt-2 gap-1.5">
                 <ArrowLeft className="w-3.5 h-3.5" />

@@ -370,12 +370,12 @@ export default function RegisterMahasiswaMultiPhasePage() {
       fd.append('jurusan', `${finalFakultas} - ${finalJurusan}`);
       fd.append('semester', String(formData.semester || '6'));
 
-      if (ktmFile) {
-        fd.append('ktm_file', ktmFile);
-      } else {
-        const dummyPdf = new Blob(['%PDF-1.4 sample ktm'], { type: 'application/pdf' });
-        fd.append('ktm_file', dummyPdf, 'ktm_verifikasi.pdf');
+      if (!ktmFile) {
+        toast.error('Harap unggah foto atau pindaian Kartu Tanda Mahasiswa (KTM)');
+        setLoading(false);
+        return;
       }
+      fd.append('ktm_file', ktmFile);
 
       await register('mahasiswa', fd);
       toast.success('Pendaftaran Mahasiswa Berhasil! Selamat datang di BaktiNusantara.');

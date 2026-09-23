@@ -5,7 +5,6 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/services';
-import { MOCK_KELOMPOK_14 } from '@/lib/mock-data';
 import { Kelompok } from '@/lib/types';
 import {
   Users,
@@ -22,11 +21,12 @@ import {
   LogIn,
   Loader2,
   UserCheck,
+  Inbox,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function MahasiswaKelompokPage() {
-  const [kelompok, setKelompok] = useState<Kelompok>(MOCK_KELOMPOK_14);
+  const [kelompok, setKelompok] = useState<Kelompok | null>(null);
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -37,34 +37,57 @@ export default function MahasiswaKelompokPage() {
 
   // Form states
   const [namaKelompokInput, setNamaKelompokInput] = useState('');
-  const [kelompokIdJoin, setKelompokIdJoin] = useState('1');
-  const [jurusanKontribusi, setJurusanKontribusi] = useState('Teknik Informatika');
+  const [kelompokIdJoin, setKelompokIdJoin] = useState('');
+  const [jurusanKontribusi, setJurusanKontribusi] = useState('');
   const [dosenList, setDosenList] = useState<any[]>([]);
-  const [selectedDosenId, setSelectedDosenId] = useState('1');
+  const [selectedDosenId, setSelectedDosenId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    // 1. Fetch Kelompok 1 details from backend
-    api.kelompok.getDetail(1)
-      .then((res) => {
-        if (res) setKelompok(res);
-      })
-      .catch((err) => {
-        console.warn('Using mock kelompok:', err);
-      })
-      .finally(() => setIsLoading(false));
+  const fetchKelompokData = async () => {
+    try {
+      setIsLoading(true);
+      // Try to find kelompok from my submitted proposals first
+      const myProposals = await api.proposal.getMyProposals();
+      const propList = Array.isArray(myProposals) ? myProposals : [];
+      let foundKelompokId: number | null = null;
 
-    // 2. Fetch public Dosen list for assignment dropdown
+      if (propList.length > 0 && propList[0].kelompok_id) {
+        foundKelompokId = propList[0].kelompok_id;
+      }
+
+      if (foundKelompokId) {
+        const detail = await api.kelompok.getDetail(foundKelompokId);
+        if (detail) setKelompok(detail);
+      } else {
+        setKelompok(null);
+      }
+    } catch (err) {
+      console.error('Error memuat kelompok mahasiswa:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchKelompokData();
+
+    // Fetch public Dosen list for assignment dropdown
     api.dosen.getAllDosen()
       .then((res) => {
-        if (Array.isArray(res)) setDosenList(res);
+        if (Array.isArray(res)) {
+          setDosenList(res);
+          if (res.length > 0) {
+            setSelectedDosenId(String(res[0].id));
+          }
+        }
       })
       .catch(() => {});
   }, []);
 
   const handleCopyCode = () => {
-    if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(kelompok.kode_kelompok || 'KKN-UNESA-2026-01');
+    if (typeof window !== 'undefined' && kelompok) {
+      const code = kelompok.kode_kelompok || `KKN-TEAM-${kelompok.id}`;
+      navigator.clipboard.writeText(code);
       setCopied(true);
       toast.success('Kode undangan kelompok berhasil disalin!');
       setTimeout(() => setCopied(false), 2000);
@@ -81,21 +104,13 @@ export default function MahasiswaKelompokPage() {
       if (res?.data) {
         setKelompok(res.data);
       } else {
-        setKelompok((prev) => ({
-          ...prev,
-          nama_kelompok: namaKelompokInput,
-          kode_kelompok: `KKN-${Date.now().toString().slice(-4)}`,
-        }));
+        await fetchKelompokData();
       }
       setShowCreateModal(false);
       setNamaKelompokInput('');
     } catch (err: any) {
-      toast.success(`Kelompok "${namaKelompokInput}" berhasil dibuat! (Mode Demo)`);
-      setKelompok((prev) => ({
-        ...prev,
-        nama_kelompok: namaKelompokInput,
-      }));
-      setShowCreateModal(false);
+      console.error('Gagal membuat kelompok:', err);
+      toast.error(err.response?.data?.message || 'Gagal membuat kelompok KKN.');
     } finally {
       setIsSubmitting(false);
     }
@@ -103,14 +118,19 @@ export default function MahasiswaKelompokPage() {
 
   const handleJoinKelompok = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!kelompokIdJoin.trim()) {
+      toast.error('Masukkan ID kelompok yang valid');
+      return;
+    }
     setIsSubmitting(true);
     try {
-      await api.kelompok.joinKelompok(Number(kelompokIdJoin) || 1, jurusanKontribusi);
+      await api.kelompok.joinKelompok(Number(kelompokIdJoin), jurusanKontribusi || 'Umum');
       toast.success('Berhasil bergabung ke kelompok!');
       setShowJoinModal(false);
+      await fetchKelompokData();
     } catch (err: any) {
-      toast.success('Berhasil bergabung ke kelompok KKN! (Mode Demo)');
-      setShowJoinModal(false);
+      console.error('Gagal bergabung:', err);
+      toast.error(err.response?.data?.message || 'Gagal bergabung ke kelompok KKN.');
     } finally {
       setIsSubmitting(false);
     }
@@ -118,18 +138,34 @@ export default function MahasiswaKelompokPage() {
 
   const handleSetDosen = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!kelompok?.id || !selectedDosenId) {
+      toast.error('Pilih dosen pembimbing terlebih dahulu');
+      return;
+    }
     setIsSubmitting(true);
     try {
-      await api.kelompok.setDosen(kelompok.id || 1, Number(selectedDosenId) || 1);
+      await api.kelompok.setDosen(kelompok.id, Number(selectedDosenId));
       toast.success('Dosen Pembimbing Lapangan (DPL) berhasil ditetapkan!');
       setShowSetDosenModal(false);
+      await fetchKelompokData();
     } catch (err: any) {
-      toast.success('DPL berhasil ditetapkan! (Mode Demo)');
-      setShowSetDosenModal(false);
+      console.error('Gagal menetapkan DPL:', err);
+      toast.error(err.response?.data?.message || 'Gagal menetapkan DPL.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout title="Manajemen Tim Kelompok KKN">
+        <div className="p-16 flex flex-col items-center justify-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-xs text-slate-500 dark:text-slate-400">Memuat status keanggotaan kelompok...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout title="Manajemen Tim Kelompok KKN">
@@ -137,10 +173,13 @@ export default function MahasiswaKelompokPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {kelompok.nama_kelompok}
+              {kelompok ? kelompok.nama_kelompok : 'Keanggotaan Kelompok KKN'}
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-jakarta mt-0.5">
-              Lokasi Pengabdian: <span className="font-semibold text-navy-900 dark:text-slate-200">{kelompok.desa_nama || 'Desa Sukamaju, Jombang'}</span>
+              Lokasi Pengabdian:{' '}
+              <span className="font-semibold text-navy-900 dark:text-slate-200">
+                {kelompok?.desa_nama || (kelompok as any)?.proposal?.[0]?.posKebutuhan?.desa?.nama_desa || 'Menunggu penempatan proposal'}
+              </span>
             </p>
           </div>
 
@@ -165,110 +204,184 @@ export default function MahasiswaKelompokPage() {
               <span>Buat Tim Baru</span>
             </Button>
 
-            <div className="bg-white dark:bg-navy-900 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-navy-800 text-xs font-mono font-bold text-primary dark:text-primary-400 flex items-center gap-2 shadow-sm">
-              <span>{kelompok.kode_kelompok || 'KKN-UNESA-2026-01'}</span>
-              <button
-                onClick={handleCopyCode}
-                className="text-slate-400 hover:text-primary dark:hover:text-primary-300 transition-colors"
-                title="Salin Kode"
-              >
-                <Copy className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Info Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 flex flex-col justify-between">
-            <div>
-              <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
-                Dosen Pembimbing Lapangan
-              </span>
-              <p className="text-sm font-bold text-navy-950 dark:text-white font-epilogue mt-1">
-                {kelompok.dosen_nama || 'Dr. Budi Santoso, M.Kom.'}
-              </p>
-              <p className="text-xs text-primary-700 dark:text-primary-400 font-medium">Teknologi Informasi & Biosistem</p>
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowSetDosenModal(true)}
-              className="w-full text-xs mt-2"
-            >
-              <UserCheck className="w-3.5 h-3.5 mr-1.5" /> Pilih / Ubah DPL
-            </Button>
-          </Card>
-
-          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
-            <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
-              Pos Kebutuhan Terhubung
-            </span>
-            <p className="text-sm font-bold text-navy-950 dark:text-white font-epilogue line-clamp-1">
-              {kelompok.pos_kebutuhan_judul || 'Digitalisasi Branding dan E-Commerce UMKM'}
-            </p>
-            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">Status: Disetujui Desa & DPL</p>
-          </Card>
-
-          <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
-            <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
-              Total Keanggotaan
-            </span>
-            <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
-              {kelompok.total_anggota || kelompok.anggota?.length || 5}{' '}
-              <span className="text-xs font-normal text-slate-400">Mahasiswa</span>
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Multidisiplin (UNESA)</p>
-          </Card>
-        </div>
-
-        {/* Anggota Roster Card */}
-        <Card className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-ambient space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-navy-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
-                Daftar Mahasiswa Anggota Kelompok
-              </h2>
-            </div>
-            <span className="text-xs text-slate-500 dark:text-slate-400">
-              Kuota Terisi: {kelompok.anggota?.length || 5}/5
-            </span>
-          </div>
-
-          <div className="divide-y divide-slate-100 dark:divide-navy-800">
-            {(kelompok.anggota || []).map((mhs) => (
-              <div key={mhs.id} className="py-3.5 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={mhs.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                    alt={mhs.nama}
-                    className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-navy-700"
-                  />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs sm:text-sm font-bold text-navy-950 dark:text-white">{mhs.nama}</p>
-                      {mhs.role_kelompok === 'Ketua' && (
-                        <span className="text-[10px] font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/70 px-2 py-0.5 rounded-full border border-primary-200 dark:border-primary-800">
-                          Ketua Tim
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                      {mhs.nim} • {mhs.jurusan}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-                    Aktif di Lapangan
-                  </span>
-                </div>
+            {kelompok && (
+              <div className="bg-white dark:bg-navy-900 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-navy-800 text-xs font-mono font-bold text-primary dark:text-primary-400 flex items-center gap-2 shadow-sm">
+                <span>{kelompok.kode_kelompok || `TEAM-${kelompok.id}`}</span>
+                <button
+                  onClick={handleCopyCode}
+                  className="text-slate-400 hover:text-primary dark:hover:text-primary-300 transition-colors"
+                  title="Salin Kode"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
               </div>
-            ))}
+            )}
           </div>
-        </Card>
+        </div>
+
+        {!kelompok ? (
+          <Card className="p-12 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-navy-800 text-primary flex items-center justify-center mx-auto">
+              <Users className="w-7 h-7" />
+            </div>
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
+                Anda Belum Terdaftar dalam Kelompok KKN
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Anda dapat membuat kelompok baru sebagai ketua dan mengundang rekan mahasiswa lainnya, atau bergabung ke kelompok yang sudah ada menggunakan ID kelompok.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <Button size="sm" variant="primary" onClick={() => setShowCreateModal(true)}>
+                <PlusCircle className="w-4 h-4 mr-1.5" />
+                Buat Kelompok Baru
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setShowJoinModal(true)}>
+                <LogIn className="w-4 h-4 mr-1.5" />
+                Gabung ke Kelompok
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <>
+            {/* Info Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900 flex flex-col justify-between">
+                <div>
+                  <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                    Dosen Pembimbing Lapangan
+                  </span>
+                  <p className="text-sm font-bold text-navy-950 dark:text-white font-epilogue mt-1">
+                    {kelompok.dosen?.user?.name || kelompok.dosen_nama || 'Belum Ditetapkan'}
+                  </p>
+                  <p className="text-xs text-primary-700 dark:text-primary-400 font-medium">
+                    {kelompok.dosen?.nip ? `NIP: ${kelompok.dosen.nip}` : 'Menunggu pemilihan DPL'}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowSetDosenModal(true)}
+                  className="w-full text-xs mt-2"
+                >
+                  <UserCheck className="w-3.5 h-3.5 mr-1.5" /> Pilih / Ubah DPL
+                </Button>
+              </Card>
+
+              <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+                <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                  Status Kelompok
+                </span>
+                <p className="text-sm font-bold text-navy-950 dark:text-white font-epilogue line-clamp-1">
+                  {kelompok.status === 'aktif' ? 'Kelompok Aktif' : 'Persiapan Penugasan'}
+                </p>
+                <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">
+                  Ketua: {kelompok.ketua?.name || 'Ketua Kelompok'}
+                </p>
+              </Card>
+
+              <Card className="p-5 border-slate-200 dark:border-navy-800 space-y-2 bg-white dark:bg-navy-900">
+                <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                  Total Keanggotaan
+                </span>
+                <p className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+                  {(kelompok.anggota?.length || 0) + (kelompok.ketua ? 1 : 0)}{' '}
+                  <span className="text-xs font-normal text-slate-400">Mahasiswa</span>
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {kelompok.anggota?.length || 0} Anggota + 1 Ketua Tim
+                </p>
+              </Card>
+            </div>
+
+            {/* Anggota Roster Card */}
+            <Card className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-ambient space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-navy-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  <h2 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
+                    Daftar Mahasiswa Anggota Kelompok
+                  </h2>
+                </div>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  Total: {(kelompok.anggota?.length || 0) + (kelompok.ketua ? 1 : 0)} Mahasiswa
+                </span>
+              </div>
+
+              <div className="divide-y divide-slate-100 dark:divide-navy-800">
+                {/* Ketua Tim */}
+                {kelompok.ketua && (
+                  <div className="py-3.5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-950/70 border border-primary-300 dark:border-primary-800 flex items-center justify-center font-bold text-primary">
+                        {kelompok.ketua.name ? kelompok.ketua.name.charAt(0) : 'K'}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs sm:text-sm font-bold text-navy-950 dark:text-white">
+                            {kelompok.ketua.name}
+                          </p>
+                          <span className="text-[10px] font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/70 px-2 py-0.5 rounded-full border border-primary-200 dark:border-primary-800">
+                            Ketua Tim
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                          {kelompok.ketua.email || 'Ketua Kelompok KKN'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                        Aktif
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Anggota Lain */}
+                {(kelompok.anggota || []).map((mhs: any, idx: number) => {
+                  const mhsUser = mhs.user || mhs;
+                  return (
+                    <div key={mhs.id || idx} className="py-3.5 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-navy-800 border border-slate-200 dark:border-navy-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300">
+                          {mhsUser.name ? mhsUser.name.charAt(0) : 'M'}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs sm:text-sm font-bold text-navy-950 dark:text-white">
+                              {mhsUser.name || `Anggota ${idx + 1}`}
+                            </p>
+                            <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-navy-800 px-2 py-0.5 rounded-full">
+                              {mhs.jurusan_kontribusi || 'Anggota'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                            {mhsUser.email || mhs.jurusan_kontribusi || 'Mahasiswa Anggota'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                          Aktif
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {(!kelompok.anggota || kelompok.anggota.length === 0) && !kelompok.ketua && (
+                  <div className="py-8 text-center text-xs text-slate-400">
+                    Belum ada anggota yang bergabung dalam kelompok ini.
+                  </div>
+                )}
+              </div>
+            </Card>
+          </>
+        )}
       </div>
 
       {/* Modal Buat Kelompok */}
@@ -279,7 +392,7 @@ export default function MahasiswaKelompokPage() {
               Buat Kelompok KKN Baru
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Sebagai ketua, Anda akan mendapatkan kode undangan kelompok untuk dibagikan ke anggota tim.
+              Sebagai ketua, Anda akan membuat kelompok baru untuk mendaftarkan program kerja dan anggota tim Anda.
             </p>
             <form onSubmit={handleCreateKelompok} className="space-y-4">
               <div>
@@ -291,7 +404,7 @@ export default function MahasiswaKelompokPage() {
                   required
                   value={namaKelompokInput}
                   onChange={(e) => setNamaKelompokInput(e.target.value)}
-                  placeholder="Contoh: KKN UNESA Desa Sukamaju 2026"
+                  placeholder="Contoh: KKN Kelompok 14 - Bina Desa"
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -329,7 +442,7 @@ export default function MahasiswaKelompokPage() {
                   required
                   value={kelompokIdJoin}
                   onChange={(e) => setKelompokIdJoin(e.target.value)}
-                  placeholder="1"
+                  placeholder="Contoh: 1"
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -342,7 +455,7 @@ export default function MahasiswaKelompokPage() {
                   required
                   value={jurusanKontribusi}
                   onChange={(e) => setJurusanKontribusi(e.target.value)}
-                  placeholder="Contoh: Desain Komunikasi Visual"
+                  placeholder="Contoh: Teknik Informatika / Manajemen"
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -368,28 +481,36 @@ export default function MahasiswaKelompokPage() {
               Pilih Dosen Pembimbing Lapangan
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Pilih dosen DPL dari universitas asal kelompok Anda.
+              Pilih dosen DPL dari universitas untuk membimbing kelompok pengabdian Anda.
             </p>
             <form onSubmit={handleSetDosen} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
                   Dosen DPL Tersedia
                 </label>
-                <select
-                  value={selectedDosenId}
-                  onChange={(e) => setSelectedDosenId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
-                >
-                  <option value="1" className="dark:bg-navy-900">Dr. Budi Santoso, M.Kom. (UNESA - NIP: 198001012005011001)</option>
-                  <option value="2" className="dark:bg-navy-900">Dr. Retno Wulandari, M.Pd. (UNESA - NIP: 198503152010122002)</option>
-                  <option value="3" className="dark:bg-navy-900">Ir. Agus Setiawan, M.T. (ITS - NIP: 197808202003121002)</option>
-                </select>
+                {dosenList.length === 0 ? (
+                  <p className="text-xs text-slate-400 p-2 border border-dashed rounded-xl">
+                    Belum ada data DPL yang terdaftar di sistem.
+                  </p>
+                ) : (
+                  <select
+                    value={selectedDosenId}
+                    onChange={(e) => setSelectedDosenId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary font-semibold"
+                  >
+                    {dosenList.map((d: any) => (
+                      <option key={d.id} value={d.id} className="dark:bg-navy-900">
+                        {d.name || d.nama} {d.nip ? `(NIP: ${d.nip})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
               <div className="flex items-center justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowSetDosenModal(false)}>
                   Batal
                 </Button>
-                <Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>
+                <Button type="submit" variant="primary" size="sm" disabled={isSubmitting || dosenList.length === 0}>
                   {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
                   Tetapkan DPL
                 </Button>

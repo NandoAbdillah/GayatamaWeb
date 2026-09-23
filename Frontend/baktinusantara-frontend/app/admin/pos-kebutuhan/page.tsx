@@ -19,13 +19,11 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import api from '@/lib/services';
-import { FALLBACK_POS_DATA, PosKebutuhanItem } from '@/lib/data/pos-kebutuhan-data';
-
-
+import { PosKebutuhanItem } from '@/lib/data/pos-kebutuhan-data';
 
 export default function AdminPosKebutuhanPage() {
   const router = useRouter();
-  const [posList, setPosList] = useState<PosKebutuhanItem[]>(FALLBACK_POS_DATA);
+  const [posList, setPosList] = useState<PosKebutuhanItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeKategori, setActiveKategori] = useState<string>('all');
@@ -35,11 +33,14 @@ export default function AdminPosKebutuhanPage() {
     async function loadPosKebutuhan() {
       try {
         const res: any = await api.posKebutuhan.getAll({});
-        if (Array.isArray(res) && res.length > 0) {
+        if (Array.isArray(res)) {
           setPosList(res as PosKebutuhanItem[]);
+        } else {
+          setPosList([]);
         }
       } catch (err) {
-        console.warn('Fallback to seeded pos data:', err);
+        console.error('Gagal memuat pos kebutuhan dari server:', err);
+        setPosList([]);
       } finally {
         setLoading(false);
       }

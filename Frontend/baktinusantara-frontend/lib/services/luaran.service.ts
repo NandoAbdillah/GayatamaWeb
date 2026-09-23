@@ -74,6 +74,23 @@ export const luaranService = {
     const res = await apiClient.get<PortofolioPublik>(`/api/portofolio/${slug}`);
     return res.data;
   },
+
+  /**
+   * Get certificates awarded to current authenticated student
+   * Endpoint: GET /api/certificate/mine
+   */
+  async getMyCertificates(): Promise<{ total: number; certificates: any[] }> {
+    const res = await apiClient.get<{ total: number; certificates: any[] }>('/api/certificate/mine');
+    return res.data;
+  },
+
+  /**
+   * Get certificate download URL
+   */
+  getCertificateDownloadUrl(code: string): string {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+    return `${baseUrl}/api/certificate/${code}/download`;
+  },
 };
 
 export default luaranService;

@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { api } from '@/lib/services';
-import { MOCK_LOGBOOKS } from '@/lib/mock-data';
-import { LogbookEntry } from '@/lib/types';
+import { LogbookEntry, Proposal } from '@/lib/types';
 import {
   BookOpen,
   PlusCircle,
@@ -22,41 +22,61 @@ import {
   Send,
   Loader2,
   Camera,
+  Inbox,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function MahasiswaProgressPage() {
-  const [logbooks, setLogbooks] = useState<LogbookEntry[]>(MOCK_LOGBOOKS);
+  const [logbooks, setLogbooks] = useState<LogbookEntry[]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [activeProposalId, setActiveProposalId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Modal form state
   const [tanggal, setTanggal] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [mingguKe, setMingguKe] = useState<number>(4);
-  const [persentase, setPersentase] = useState<number>(75);
+  const [mingguKe, setMingguKe] = useState<number>(1);
+  const [persentase, setPersentase] = useState<number>(25);
   const [durasiJam, setDurasiJam] = useState<number>(6);
   const [judul, setJudul] = useState<string>('');
-  const [targetProgram, setTargetProgram] = useState<string>('Pelatihan Branding & Kemasan UMKM');
+  const [targetProgram, setTargetProgram] = useState<string>('Pelaksanaan Program Kerja Utama');
   const [deskripsi, setDeskripsi] = useState<string>('');
   const [fotoFile, setFotoFile] = useState<File | null>(null);
 
-  // Normalize ensures all fields are properly structured and enriched
-  const normalizeLogbook = (raw: any): LogbookEntry => {
-    return api.progress.normalizeEntry(raw);
+  const fetchProgressData = async () => {
+    try {
+      setIsLoading(true);
+      const props = await api.proposal.getMyProposals();
+      const propList = Array.isArray(props) ? props : [];
+      setProposals(propList);
+
+      let targetPropId: number | null = null;
+      if (propList.length > 0) {
+        targetPropId = propList[0].id;
+      }
+
+      setActiveProposalId(targetPropId);
+
+      if (targetPropId) {
+        try {
+          const res = await api.progress.getByProposal(targetPropId);
+          const list: any[] = Array.isArray(res) ? res : Array.isArray((res as any)?.data) ? (res as any).data : [];
+          setLogbooks(list.map((item) => api.progress.normalizeEntry(item)));
+        } catch {
+          setLogbooks([]);
+        }
+      }
+    } catch (err) {
+      console.error('Error memuat data progress mahasiswa:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    api.progress
-      .getByProposal(1)
-      .then((res) => {
-        // progressService already normalizes, but double-guard for any shape
-        const list: any[] = Array.isArray(res) ? res : Array.isArray((res as any)?.data) ? (res as any).data : [];
-        if (list.length > 0) {
-          setLogbooks(list.map(normalizeLogbook));
-        }
-      })
-      .catch(() => {});
+    fetchProgressData();
   }, []);
 
   const filteredLogs = logbooks.filter((log) => {
@@ -71,10 +91,15 @@ export default function MahasiswaProgressPage() {
       return;
     }
 
+    if (!activeProposalId) {
+      toast.error('Belum ada proposal aktif yang terhubung untuk pelaporan.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const payload: any = {
-        proposal_id: 1,
+        proposal_id: activeProposalId,
         minggu_ke: mingguKe,
         persentase,
         deskripsi: `[${judul}] ${deskripsi}`,
@@ -86,60 +111,24 @@ export default function MahasiswaProgressPage() {
       await api.progress.submitProgress(payload);
       toast.success('Logbook mingguan berhasil dikirim ke Dosen Pembimbing Lapangan!');
 
-      // Add to list
-      const newEntry: LogbookEntry = {
-        id: Date.now(),
-        kelompok_id: 1,
-        mahasiswa_id: 1,
-        mahasiswa_nama: 'Ahmad Fauzi',
-        mahasiswa_nim: '23051204001',
-        mahasiswa_jurusan: 'Teknik Informatika',
-        tanggal,
-        minggu_ke: mingguKe,
-        durasi_jam: Number(durasiJam),
-        judul_kegiatan: judul,
-        deskripsi,
-        target_program_terkait: targetProgram,
-        foto_dokumentasi_urls: [
-          'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=500&auto=format&fit=crop&q=80',
-        ],
-        status: 'submitted',
-      };
-      setLogbooks([newEntry, ...logbooks]);
+      // Re-fetch fresh logbooks from server
+      const res = await api.progress.getByProposal(activeProposalId);
+      const list: any[] = Array.isArray(res) ? res : Array.isArray((res as any)?.data) ? (res as any).data : [];
+      setLogbooks(list.map((item) => api.progress.normalizeEntry(item)));
+
       setIsModalOpen(false);
       setJudul('');
       setDeskripsi('');
       setFotoFile(null);
     } catch (err: any) {
-      console.warn('Backend progress submit error, fallback client entry:', err);
-      const newEntry: LogbookEntry = {
-        id: Date.now(),
-        kelompok_id: 1,
-        mahasiswa_id: 1,
-        mahasiswa_nama: 'Ahmad Fauzi',
-        mahasiswa_nim: '23051204001',
-        mahasiswa_jurusan: 'Teknik Informatika',
-        tanggal,
-        minggu_ke: mingguKe,
-        durasi_jam: Number(durasiJam),
-        judul_kegiatan: judul,
-        deskripsi,
-        target_program_terkait: targetProgram,
-        foto_dokumentasi_urls: [
-          'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=500&auto=format&fit=crop&q=80',
-        ],
-        status: 'submitted',
-      };
-      setLogbooks([newEntry, ...logbooks]);
-      setIsModalOpen(false);
-      toast.success('Logbook harian berhasil dikirim ke Dosen Pembimbing Lapangan!');
-      setJudul('');
-      setDeskripsi('');
-      setFotoFile(null);
+      console.error('Gagal mengirim logbook:', err);
+      toast.error(err.response?.data?.message || 'Gagal mengirimkan logbook mingguan ke server.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const activeProp = proposals.find((p) => p.id === activeProposalId) || proposals[0];
 
   return (
     <DashboardLayout title="Logbook & Progres Harian Mahasiswa">
@@ -169,7 +158,7 @@ export default function MahasiswaProgressPage() {
         {/* Filter Pills */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
           {[
-            { id: 'all', label: 'Semua Logbook' },
+            { id: 'all', label: `Semua Logbook (${logbooks.length})` },
             { id: 'approved', label: 'Disetujui DPL' },
             { id: 'submitted', label: 'Menunggu Verifikasi' },
             { id: 'revision', label: 'Perlu Revisi' },
@@ -188,72 +177,101 @@ export default function MahasiswaProgressPage() {
           ))}
         </div>
 
-        {/* Logbook Timeline Cards */}
-        <div className="space-y-4">
-          {filteredLogs.map((log) => (
-            <Card key={log.id} className="p-6 border-slate-200 dark:border-navy-800 space-y-4 bg-white dark:bg-navy-900 shadow-ambient">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    <Calendar className="w-3.5 h-3.5 text-primary" />
-                    <span>{log.tanggal}</span>
-                    <span>•</span>
-                    <span>Minggu ke-{log.minggu_ke}</span>
-                    <span>•</span>
-                    <span className="font-bold text-navy-900 dark:text-slate-200 bg-slate-100 dark:bg-navy-800 px-2 py-0.5 rounded-md">
-                      {log.durasi_jam} Jam Kerja
-                    </span>
-                  </div>
-                  <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue mt-1">
-                    {log.judul_kegiatan}
-                  </h3>
-                  <p className="text-xs font-semibold text-primary-700 dark:text-primary-400">
-                    Target: {log.target_program_terkait}
-                  </p>
-                </div>
-
-                <StatusBadge status={log.status} />
-              </div>
-
-              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-jakarta leading-relaxed whitespace-pre-line">
-                {log.deskripsi}
+        {/* Loading / Empty / List state */}
+        {isLoading ? (
+          <div className="p-16 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="text-xs text-slate-500 dark:text-slate-400">Memuat catatan logbook pengabdian...</p>
+          </div>
+        ) : filteredLogs.length === 0 ? (
+          <Card className="p-12 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-navy-800 text-primary flex items-center justify-center mx-auto">
+              <Inbox className="w-7 h-7" />
+            </div>
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
+                Belum Ada Catatan Logbook
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Mulai catat pelaksanaan program kerja lapangan Anda setiap minggunya untuk memenuhi syarat verifikasi DPL dan BAST Desa.
               </p>
-
-              {/* Revision note box if any */}
-              {log.catatan_revisi_dpl && (
-                <div className="p-4 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/80 text-xs text-orange-950 dark:text-orange-200 space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-bold text-orange-800 dark:text-orange-300">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>Catatan Perbaikan dari DPL (Dr. Ir. Hendra Gunawan):</span>
+            </div>
+            <Button size="sm" variant="primary" onClick={() => setIsModalOpen(true)}>
+              <PlusCircle className="w-4 h-4 mr-1.5" />
+              Isi Logbook Baru Sekarang
+            </Button>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {filteredLogs.map((log) => (
+              <Card key={log.id} className="p-6 border-slate-200 dark:border-navy-800 space-y-4 bg-white dark:bg-navy-900 shadow-ambient">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      <Calendar className="w-3.5 h-3.5 text-primary" />
+                      <span>{log.tanggal}</span>
+                      <span>•</span>
+                      <span>Minggu ke-{log.minggu_ke}</span>
+                      {log.durasi_jam ? (
+                        <>
+                          <span>•</span>
+                          <span className="font-bold text-navy-900 dark:text-slate-200 bg-slate-100 dark:bg-navy-800 px-2 py-0.5 rounded-md">
+                            {log.durasi_jam} Jam Kerja
+                          </span>
+                        </>
+                      ) : null}
+                    </div>
+                    <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue mt-1">
+                      {log.judul_kegiatan}
+                    </h3>
+                    <p className="text-xs font-semibold text-primary-700 dark:text-primary-400">
+                      Target: {log.target_program_terkait}
+                    </p>
                   </div>
-                  <p className="leading-relaxed">{log.catatan_revisi_dpl}</p>
-                </div>
-              )}
 
-              {/* Photos attached */}
-              {(log.foto_dokumentasi_urls?.length ?? 0) > 0 && (
-                <div className="pt-2">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                    Dokumentasi Kegiatan:
-                  </span>
-                  <div className="flex gap-3 overflow-x-auto pb-2">
-                    {(log.foto_dokumentasi_urls ?? []).map((url, i) => (
-                      <img
-                        key={i}
-                        src={url}
-                        alt="Dokumentasi"
-                        className="w-24 h-24 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm"
-                      />
-                    ))}
-                  </div>
+                  <StatusBadge status={log.status} />
                 </div>
-              )}
-            </Card>
-          ))}
-        </div>
+
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-jakarta leading-relaxed whitespace-pre-line">
+                  {log.deskripsi}
+                </p>
+
+                {/* Revision note box if any */}
+                {log.catatan_revisi_dpl && (
+                  <div className="p-4 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/80 text-xs text-orange-950 dark:text-orange-200 space-y-1.5">
+                    <div className="flex items-center gap-1.5 font-bold text-orange-800 dark:text-orange-300">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>Catatan Perbaikan dari DPL:</span>
+                    </div>
+                    <p className="leading-relaxed">{log.catatan_revisi_dpl}</p>
+                  </div>
+                )}
+
+                {/* Photos attached */}
+                {(log.foto_dokumentasi_urls?.length ?? 0) > 0 && (
+                  <div className="pt-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                      Dokumentasi Kegiatan:
+                    </span>
+                    <div className="flex gap-3 overflow-x-auto pb-2">
+                      {(log.foto_dokumentasi_urls ?? []).map((url, i) => (
+                        <img
+                          key={i}
+                          src={url}
+                          alt="Dokumentasi"
+                          className="w-24 h-24 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Modal Popup Pengisian Logbook (Stitch Screen: Modal Interaktif Pengisian Logbook Harian) */}
+      {/* Modal Popup Pengisian Logbook */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white dark:bg-navy-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-navy-800 max-h-[90vh] overflow-y-auto space-y-5">
@@ -266,7 +284,9 @@ export default function MahasiswaProgressPage() {
                   <h2 className="text-lg font-bold text-navy-950 dark:text-white font-epilogue">
                     Formulir Logbook Harian KKN
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Kelompok 14 — Desa Sukamaju</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {activeProp?.posKebutuhan?.desa?.nama_desa ? `Desa ${activeProp.posKebutuhan.desa.nama_desa}` : 'Pelaporan Kegiatan Lapangan'}
+                  </p>
                 </div>
               </div>
               <button
@@ -298,7 +318,7 @@ export default function MahasiswaProgressPage() {
                   <input
                     type="number"
                     min="1"
-                    max="10"
+                    max="52"
                     required
                     value={mingguKe}
                     onChange={(e) => setMingguKe(Number(e.target.value))}
@@ -307,15 +327,15 @@ export default function MahasiswaProgressPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
-                    Durasi (Jam)
+                    Persentase Capaian (%)
                   </label>
                   <input
                     type="number"
-                    min="1"
-                    max="12"
+                    min="0"
+                    max="100"
                     required
-                    value={durasiJam}
-                    onChange={(e) => setDurasiJam(Number(e.target.value))}
+                    value={persentase}
+                    onChange={(e) => setPersentase(Number(e.target.value))}
                     className="w-full px-3.5 py-2 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
@@ -330,25 +350,9 @@ export default function MahasiswaProgressPage() {
                   required
                   value={judul}
                   onChange={(e) => setJudul(e.target.value)}
-                  placeholder="Contoh: Pengujian Sensor Irigasi Blok Sawah Barat"
+                  placeholder="Contoh: Sosialisasi dan Pelatihan E-Commerce Warga Desa"
                   className="w-full px-4 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200 mb-1">
-                  Terkait Program Kerja
-                </label>
-                <select
-                  value={targetProgram}
-                  onChange={(e) => setTargetProgram(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="Pelatihan Branding & Kemasan UMKM" className="dark:bg-navy-900">Pelatihan Branding & Kemasan UMKM</option>
-                  <option value="Website Marketplace & Katalog Desa" className="dark:bg-navy-900">Website Marketplace & Katalog Desa</option>
-                  <option value="Modul Panduan Irigasi Terpadu" className="dark:bg-navy-900">Modul Panduan Irigasi Terpadu</option>
-                  <option value="Sosialisasi Sanitasi Air Bersih" className="dark:bg-navy-900">Sosialisasi Sanitasi Air Bersih</option>
-                </select>
               </div>
 
               <div>
@@ -360,7 +364,7 @@ export default function MahasiswaProgressPage() {
                   required
                   value={deskripsi}
                   onChange={(e) => setDeskripsi(e.target.value)}
-                  placeholder="Tuliskan secara objektif apa yang dikerjakan, siapa saja yang terlibat, serta kendala/solusi..."
+                  placeholder="Tuliskan secara objektif apa yang dikerjakan, pihak desa yang terlibat, serta kendala/solusi..."
                   className="w-full p-3.5 bg-slate-50 dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-2xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary font-jakarta leading-relaxed"
                 />
               </div>

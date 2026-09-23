@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -31,33 +31,46 @@ export default function MahasiswaProfilePage() {
   const [saving, setSaving] = useState(false);
   const [newSkill, setNewSkill] = useState('');
 
+  const mhs = (user?.profile as any) || {};
+
   const [profile, setProfile] = useState({
-    name: user?.name || 'Muhammad Raihan Pratama',
-    email: user?.email || 'raihan.pratama@mhs.kampus.ac.id',
-    nim: '21051204012',
-    universitas: 'Universitas Bakti Nusantara',
-    fakultas: 'Teknik & Rekayasa Sistem',
-    jurusan: 'Teknik Informatika & IoT',
-    angkatan: '2023',
-    semester: '6',
-    sks_lulus: 114,
-    ipk: 3.84,
-    no_hp: '0812-9876-5432',
-    golongan_darah: 'O+',
+    name: user?.name || '',
+    email: user?.email || '',
+    nim: mhs?.nim || '',
+    universitas: mhs?.universitas?.nama_universitas || 'Universitas Mitra',
+    fakultas: mhs?.fakultas || '',
+    jurusan: mhs?.jurusan || '',
+    angkatan: mhs?.angkatan || '',
+    semester: mhs?.semester || '6',
+    sks_lulus: mhs?.sks_lulus || 0,
+    ipk: mhs?.ipk || 0,
+    no_hp: user?.phone || '',
+    golongan_darah: mhs?.golongan_darah || '-',
     // Kontak Darurat
-    nama_wali: 'Ir. Hendro Pratama',
-    hubungan_wali: 'Ayah Kandung',
-    no_hp_wali: '0812-3344-5566',
-    alamat_asal: 'Jl. Surya Kencana No. 88, Kota Bogor, Jawa Barat',
+    nama_wali: mhs?.nama_wali || '',
+    hubungan_wali: mhs?.hubungan_wali || '',
+    no_hp_wali: mhs?.no_hp_wali || '',
+    alamat_asal: mhs?.alamat_asal || '',
     // Keahlian
-    skills: [
-      'IoT & Sensor Irigasi',
-      'Pengembangan Web Next.js',
-      'Pemetaan Geospasial GIS',
-      'Digitalisasi UMKM Desa',
-      'Penyuluhan Teknologi Pertanian',
-    ],
+    skills: (Array.isArray(mhs?.skills) ? mhs.skills : []) as string[],
   });
+
+  useEffect(() => {
+    if (user) {
+      const m = (user.profile as any) || {};
+      setProfile((prev) => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        nim: m.nim || prev.nim,
+        universitas: m.universitas?.nama_universitas || prev.universitas,
+        fakultas: m.fakultas || prev.fakultas,
+        jurusan: m.jurusan || prev.jurusan,
+        angkatan: m.angkatan || prev.angkatan,
+        no_hp: user.phone || prev.no_hp,
+      }));
+    }
+  }, [user]);
 
   const handleAddSkill = () => {
     if (!newSkill.trim()) return;
@@ -76,7 +89,7 @@ export default function MahasiswaProfilePage() {
   const handleRemoveSkill = (skillToRemove: string) => {
     setProfile({
       ...profile,
-      skills: profile.skills.filter((s) => s !== skillToRemove),
+      skills: profile.skills.filter((s: string) => s !== skillToRemove),
     });
   };
 
@@ -85,15 +98,10 @@ export default function MahasiswaProfilePage() {
     setSaving(true);
 
     try {
-      try {
-        await apiClient.patch('/api/profile/mahasiswa', profile);
-      } catch (apiErr) {
-        // demo fallback
-      }
-
+      await apiClient.patch('/api/profile/mahasiswa', profile);
       toast.success('Profil mahasiswa dan data kontak darurat berhasil diperbarui!');
     } catch (err: any) {
-      toast.error('Gagal memperbarui profil: ' + (err.message || 'Kesalahan jaringan'));
+      toast.error('Gagal memperbarui profil: ' + (err?.response?.data?.message || err.message || 'Kesalahan jaringan'));
     } finally {
       setSaving(false);
     }
@@ -340,7 +348,7 @@ export default function MahasiswaProfilePage() {
 
             {/* List Skill Tags */}
             <div className="flex flex-wrap gap-2">
-              {profile.skills.map((skill, idx) => (
+              {profile.skills.map((skill: string, idx: number) => (
                 <span
                   key={idx}
                   className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 text-primary dark:text-primary-300 text-xs font-bold border border-primary/20"

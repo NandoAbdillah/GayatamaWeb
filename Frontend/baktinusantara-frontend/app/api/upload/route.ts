@@ -48,14 +48,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Proxy upload to Laravel backend if available
+    // Proxy upload to Laravel backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     const token = request.headers.get('authorization') || '';
 
     try {
       const backendFormData = new FormData();
       backendFormData.append('file', file);
-      backendFormData.append('category', category);
+      backendFormData.append('folder', category);
+      backendFormData.append('disk', 'public');
 
       const backendResponse = await fetch(`${backendUrl}/api/upload`, {
         method: 'POST',
@@ -67,29 +68,37 @@ export async function POST(request: NextRequest) {
 
       if (backendResponse.ok) {
         const data = await backendResponse.json();
-        return NextResponse.json(data);
+        return NextResponse.json({
+          success: true,
+          data: {
+            file_url: data.data?.url || data.url,
+            file_name: data.data?.filename || file.name,
+            file_size: data.data?.size || file.size,
+            mime_type: data.data?.mime_type || file.type,
+            category,
+            uploaded_at: new Date().toISOString(),
+          },
+          message: data.message || 'Berkas berhasil diunggah ke repositori',
+        });
+      } else {
+        const errData = await backendResponse.json().catch(() => ({}));
+        return NextResponse.json(
+          {
+            success: false,
+            message: errData.message || 'Gagal mengunggah berkas ke repositori server',
+          },
+          { status: backendResponse.status }
+        );
       }
-    } catch (backendErr) {
-      // In development fallback: generate synthetic storage URL
+    } catch (backendErr: any) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Koneksi ke repositori berkas backend gagal: ' + (backendErr?.message || 'Server offline'),
+        },
+        { status: 502 }
+      );
     }
-
-    // Fallback response for development/demo mode
-    const timestamp = Date.now();
-    const cleanFileName = file.name.replace(/\s+/g, '_');
-    const mockFileUrl = `https://storage.gayatama.ac.id/uploads/${category}/${timestamp}_${cleanFileName}`;
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        file_url: mockFileUrl,
-        file_name: file.name,
-        file_size: file.size,
-        mime_type: file.type,
-        category,
-        uploaded_at: new Date().toISOString(),
-      },
-      message: 'Berkas berhasil diverifikasi dan diunggah ke repositori aman',
-    });
   } catch (error: any) {
     return NextResponse.json(
       {

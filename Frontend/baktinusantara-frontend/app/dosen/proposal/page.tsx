@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { api } from '@/lib/services';
 import {
   FileText,
   CheckCircle2,
@@ -12,12 +13,12 @@ import {
   MessageSquare,
   Send,
   ShieldCheck,
-  Filter,
   ChevronDown,
   ChevronUp,
   Users,
   MapPin,
   Download,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -39,56 +40,66 @@ interface ProposalItem {
 }
 
 export default function DosenProposalPage() {
-  const [proposals, setProposals] = useState<ProposalItem[]>([
-    {
-      id: 1,
-      judul: 'Digitalisasi Katalog Produk UMKM & Manajemen Irigasi Cerdas',
-      kelompok: 'Kelompok 14 — Sukamaju Berdaya',
-      lokasi: 'Desa Sukamaju, Ciawi, Bogor',
-      tujuan:
-        'Mendigitalisasi 42 pelaku UMKM keripik talas & madu hutan melalui katalog online terintegrasi, serta meningkatkan efisiensi distribusi air irigasi sawah blok barat dengan sistem monitoring IoT berbasis sensor ultrasonik.',
-      file_name: 'Proposal_KKN_Kelompok14_Sukamaju_Berdaya.pdf',
-      file_url: '#',
-      status: 'approved',
-      created_at: '2026-08-24',
-      disetujui_pada: '2026-08-26 10:30:00',
-    },
-    {
-      id: 2,
-      judul: 'Pengembangan Agrowisata Organik & Edukasi Zero Waste Desa',
-      kelompok: 'Kelompok 08 — Cibodas Asri',
-      lokasi: 'Desa Cibodas Asri, Cianjur',
-      tujuan:
-        'Membangun agrowisata sayur organik berkelanjutan, mengolah limbah sayur menjadi kompos bernilai ekonomi, serta membuat peta jalur hiking desa dengan QR Code untuk meningkatkan kunjungan wisata edukatif.',
-      file_name: 'Proposal_KKN_Kelompok08_Cibodas_Asri.pdf',
-      file_url: '#',
-      status: 'menunggu',
-      created_at: '2026-08-28',
-      catatan_revisi: '',
-    },
-    {
-      id: 3,
-      judul: 'Pemberdayaan Posyandu Digital & Pencegahan Stunting Balita',
-      kelompok: 'Kelompok 11 — Tanjung Karang Sehat',
-      lokasi: 'Desa Tanjung Karang, Bogor',
-      tujuan:
-        'Menyusun dashboard gizi balita terintegrasi WhatsApp reminder untuk ibu hamil dan menyusun modul MPASI berbasis pangan lokal untuk menekan angka stunting di 3 dusun prioritas.',
-      file_name: 'Proposal_KKN_Kelompok11_TanjungKarang.pdf',
-      file_url: '#',
-      status: 'revision',
-      created_at: '2026-08-27',
-      catatan_revisi:
-        'Tambahkan instrumen survei kepuasan dan detail pembagian peran anggota kelompok pada lampiran metodologi. Lengkapi juga estimasi anggaran filter air.',
-    },
-  ]);
-
+  const [proposals, setProposals] = useState<ProposalItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('semua');
   const [activeRevisionId, setActiveRevisionId] = useState<number | null>(null);
   const [revisionNotes, setRevisionNotes] = useState('');
-  const [expandedRevisions, setExpandedRevisions] = useState<Set<number>>(
-    () => new Set(proposals.filter((p) => !!p.catatan_revisi).map((p) => p.id))
-  );
+  const [expandedRevisions, setExpandedRevisions] = useState<Set<number>>(new Set());
   const [pendingApprove, setPendingApprove] = useState<ProposalItem | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const loadProposals = async () => {
+    try {
+      setLoading(true);
+      const groups = await api.dosen.getBimbinganKelompok();
+      if (Array.isArray(groups)) {
+        const list: ProposalItem[] = [];
+        groups.forEach((k: any) => {
+          if (k.proposal) {
+            const p = k.proposal;
+            const statusKelayakan = p.status_kelayakan_dosen;
+            let uiStatus: ProposalStatus = 'menunggu';
+            if (statusKelayakan === 'layak') uiStatus = 'approved';
+            else if (statusKelayakan === 'revisi') uiStatus = 'revision';
+
+            const desaObj = p.pos_kebutuhan?.desa;
+            const desaStr = desaObj
+              ? `Desa ${desaObj.nama_desa || ''}, ${desaObj.kabupaten || desaObj.kecamatan || ''}`
+              : 'Desa Mitra';
+
+            list.push({
+              id: p.id,
+              judul: p.pos_kebutuhan?.judul || p.draf_proker || `Proposal Program #${p.id}`,
+              kelompok: k.nama_kelompok || `Kelompok #${k.id}`,
+              lokasi: desaStr,
+              tujuan: p.pos_kebutuhan?.deskripsi || p.draf_proker || 'Pengabdian masyarakat dan implementasi teknologi.',
+              file_name: p.file_proposal_url ? p.file_proposal_url.split('/').pop() || 'Proposal_KKN.pdf' : 'Proposal_KKN.pdf',
+              file_url: `/api/proposal/${p.id}/file`,
+              status: uiStatus,
+              catatan_revisi: p.catatan_dosen || '',
+              created_at: p.created_at ? new Date(p.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '2026',
+              disetujui_pada: p.dosen_reviewed_at || undefined,
+            });
+          }
+        });
+        setProposals(list);
+        setExpandedRevisions(new Set(list.filter((x) => !!x.catatan_revisi).map((x) => x.id)));
+      } else {
+        setProposals([]);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil proposal bimbingan dosen:', err);
+      toast.error('Gagal memuat proposal dari server.');
+      setProposals([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProposals();
+  }, []);
 
   const filtered = useMemo(() => {
     return proposals.filter((p) => {
@@ -99,16 +110,26 @@ export default function DosenProposalPage() {
     });
   }, [proposals, filterStatus]);
 
-  const handleSendRevision = (e: React.FormEvent, prop: ProposalItem) => {
+  const handleSendRevision = async (e: React.FormEvent, prop: ProposalItem) => {
     e.preventDefault();
     if (!revisionNotes.trim()) return;
-    setProposals((prev) =>
-      prev.map((p) => (p.id === prop.id ? { ...p, status: 'revision' as const, catatan_revisi: revisionNotes } : p))
-    );
-    setExpandedRevisions((prev) => new Set(prev).add(prop.id));
-    setActiveRevisionId(null);
-    setRevisionNotes('');
-    toast.success('Catatan revisi berhasil dikirim ke kelompok mahasiswa!');
+
+    try {
+      setSubmitting(true);
+      await api.dosen.reviewKelayakanProposal(prop.id, {
+        status_kelayakan: 'revisi',
+        catatan_dosen: revisionNotes.trim(),
+      });
+      toast.success('Catatan revisi berhasil dikirim ke kelompok mahasiswa!');
+      setActiveRevisionId(null);
+      setRevisionNotes('');
+      await loadProposals();
+    } catch (err: any) {
+      console.error('Gagal mengirim revisi proposal:', err);
+      toast.error('Gagal mengirim catatan revisi ke server.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCancelRevision = () => {
@@ -125,17 +146,56 @@ export default function DosenProposalPage() {
     });
   };
 
-  const confirmApprove = () => {
+  const confirmApprove = async () => {
     if (!pendingApprove) return;
-    setProposals((prev) =>
-      prev.map((p) =>
-        p.id === pendingApprove.id
-          ? { ...p, status: 'approved' as const, disetujui_pada: new Date().toISOString().replace('T', ' ').slice(0, 19) }
-          : p
-      )
-    );
-    setPendingApprove(null);
-    toast.success('Proposal berhasil disetujui!');
+    try {
+      setSubmitting(true);
+      await api.dosen.reviewKelayakanProposal(pendingApprove.id, {
+        status_kelayakan: 'layak',
+        catatan_dosen: 'Proposal telah memenuhi seluruh standar kelayakan akademik & operasional DPL.',
+      });
+      toast.success('Proposal berhasil disetujui!');
+      setPendingApprove(null);
+      await loadProposals();
+    } catch (err) {
+      console.error('Gagal menyetujui proposal:', err);
+      toast.error('Gagal menyetujui proposal di server.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDownloadFile = async (prop: ProposalItem) => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('sanctum_token') : null;
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+      const fileUrl = `${baseUrl}/api/proposal/${prop.id}/file`;
+      
+      const res = await fetch(fileUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/pdf, application/octet-stream, */*',
+        },
+      });
+
+      if (!res.ok) {
+        toast.error('Berkas proposal belum diunggah atau tidak ditemukan di server.');
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = prop.file_name || `Proposal_${prop.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Berkas proposal berhasil diunduh');
+    } catch (err) {
+      toast.error('Gagal mengunduh berkas proposal.');
+    }
   };
 
   const filterOptions: { value: FilterStatus; label: string }[] = [
@@ -224,20 +284,14 @@ export default function DosenProposalPage() {
                       </div>
                       <span className="text-xs font-medium text-navy-950 dark:text-white truncate">{prop.file_name}</span>
                     </div>
-                    <a
-                      href={prop.file_url}
-                      download={prop.file_name}
-                      onClick={(e) => {
-                        if (prop.file_url === '#') {
-                          e.preventDefault();
-                          toast.info('File proposal akan diunduh (mock).');
-                        }
-                      }}
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadFile(prop)}
                       className="w-8 h-8 rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-navy-950 hover:text-white dark:hover:bg-navy-800 transition-colors shrink-0"
                       title="Download proposal"
                     >
                       <Download className="w-4 h-4" />
-                    </a>
+                    </button>
                   </div>
 
                   {/* Catatan revisi dropdown (jika ada) */}

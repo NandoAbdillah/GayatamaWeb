@@ -49,95 +49,67 @@ export default function LaporanDosenReviewPage() {
   useEffect(() => {
     async function load() {
       setLoading(true);
-      let found: LaporanDosen | undefined;
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed: LaporanDosen[] = JSON.parse(stored);
-          found = parsed.find((x) => x.id === id);
-          if (found) {
-            setLaporan(found);
-            if (found.alasanRevisi) setRevisiExpanded(false);
-            setLoading(false);
-            return;
-          }
-        }
-      } catch {}
       try {
         const data = await api.universitas.getLaporanDosen();
-        if (Array.isArray(data) && data.length > 0) {
-          const normalized: LaporanDosen[] = data.map((item: any) => ({
-            id: item.id,
-            dosen: item.dosen?.name || "Dr. Budi Utomo, M.Kom",
-            nip: item.dosen?.nip || "197508122003121002",
-            kelompok: item.proposal?.judul
-              ? `Kelompok ${item.proposal_id}`
-              : "Kelompok Binaan KKN",
-            desa: item.desa?.nama_desa || "Desa Sukamaju",
-            tanggal_kunjungan: item.created_at
-              ? new Date(item.created_at).toLocaleDateString("id-ID")
-              : "Baru saja",
-            jenis_supervisi: "Supervisi & Evaluasi Lapangan",
-            status:
-              item.status === "selesai"
-                ? "disetujui"
-                : item.status === "ditinjau"
-                  ? "menunggu"
-                  : "menunggu",
-            ringkasan:
-              item.isi ||
-              "Laporan hasil monev kinerja kelompok mahasiswa KKN di desa mitra.",
-            catatan_dpl:
-              item.catatan ||
-              "Kinerja pengabdian terlaksana sesuai rencana kerja.",
-            lampiran_url: item.lampiran_url || item.file_url || "",
-            lampiran_name: item.lampiran_name || item.file_name || undefined,
-          }));
-          found = normalized.find((x) => x.id === id);
-          if (found) {
-            setLaporan(found);
+        if (Array.isArray(data)) {
+          const match = data.find((item: any) => item.id === id);
+          if (match) {
+            setLaporan({
+              id: match.id,
+              dosen: match.dosen?.user?.name || match.dosen?.name || "Dosen DPL",
+              nip: match.dosen?.nip || "-",
+              kelompok: match.proposal?.pos_kebutuhan?.judul
+                ? `Kelompok Program: ${match.proposal.pos_kebutuhan.judul}`
+                : (match.proposal?.kelompok?.nama_kelompok || `Kelompok #${match.proposal_id || match.id}`),
+              desa: match.desa?.nama_desa ? `Desa ${match.desa.nama_desa}` : "Desa Mitra",
+              tanggal_kunjungan: match.created_at
+                ? new Date(match.created_at).toLocaleDateString("id-ID", { day: '2-digit', month: 'short', year: 'numeric' })
+                : "Baru saja",
+              jenis_supervisi: "Supervisi & Evaluasi Lapangan",
+              status:
+                match.status === "selesai"
+                  ? "disetujui"
+                  : match.status === "ditinjau"
+                    ? "revisi"
+                    : "menunggu",
+              ringkasan:
+                match.isi ||
+                "Laporan hasil monev kinerja kelompok mahasiswa KKN di desa mitra.",
+              catatan_dpl:
+                match.catatan ||
+                match.isi ||
+                "Kinerja pengabdian terlaksana sesuai rencana kerja.",
+              lampiran_url: match.lampiran_url || match.file_url || "",
+              lampiran_name: match.lampiran_name || match.file_name || undefined,
+            });
             setLoading(false);
             return;
           }
         }
       } catch (err) {
-        console.warn("Review load API fallback:", err);
+        console.error("Gagal mengambil laporan DPL dari server:", err);
       }
-      found = INITIAL_LAPORAN.find((x) => x.id === id);
-      if (found) setLaporan(found);
+      setLaporan(null);
       setLoading(false);
     }
     if (!isNaN(id)) load();
     else setLoading(false);
   }, [id]);
 
-  const persistUpdate = (updated: LaporanDosen) => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      let list: LaporanDosen[] = [];
-      if (stored) list = JSON.parse(stored);
-      else list = [...INITIAL_LAPORAN];
-      const idx = list.findIndex((x) => x.id === updated.id);
-      if (idx >= 0) list[idx] = updated;
-      else list.push(updated);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    } catch {}
-  };
-
   const handleApprove = async () => {
     if (!laporan) return;
     setSubmitting(true);
     try {
       await api.universitas.updateLaporanStatus(laporan.id, "selesai");
+      setLaporan((prev) => prev ? { ...prev, status: "disetujui" } : null);
+      toast.success("Laporan supervisi DPL berhasil disetujui oleh LPPM!");
+      setShowApproveConfirm(false);
     } catch (err) {
-      console.warn("Backend approve error:", err);
+      console.error("Gagal menyetujui laporan DPL:", err);
+      toast.error("Gagal memperbarui status laporan di server.");
+    } finally {
+      setSubmitting(false);
     }
-    const updated: LaporanDosen = { ...laporan, status: "disetujui" };
-    setLaporan(updated);
-    persistUpdate(updated);
-    toast.success("Laporan supervisi DPL berhasil disetujui oleh LPPM!");
-    setShowApproveConfirm(false);
-    setSubmitting(false);
   };
 
   const handleSendRevision = async (e: React.FormEvent) => {
@@ -150,28 +122,32 @@ export default function LaporanDosenReviewPage() {
     setSubmitting(true);
     try {
       await api.universitas.updateLaporanStatus(laporan.id, "ditinjau");
+      setLaporan((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: "revisi",
+              alasanRevisi: revisiNote.trim(),
+              alasanRevisiAt: new Date().toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+            }
+          : null
+      );
+      toast.info("Catatan revisi telah berhasil dikirim ke DPL.");
+      setRevisiMode(false);
+      setRevisiNote("");
+      setRevisiExpanded(true);
     } catch (err) {
-      console.warn("Backend revisi error:", err);
+      console.error("Gagal mengirim revisi laporan:", err);
+      toast.error("Gagal mengirim catatan revisi ke server.");
+    } finally {
+      setSubmitting(false);
     }
-    const updated: LaporanDosen = {
-      ...laporan,
-      status: "revisi",
-      alasanRevisi: revisiNote.trim(),
-      alasanRevisiAt: new Date().toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-    setLaporan(updated);
-    persistUpdate(updated);
-    toast.info("Catatan revisi telah dikirim ke email Dosen DPL.");
-    setRevisiMode(false);
-    setRevisiNote("");
-    setRevisiExpanded(true);
-    setSubmitting(false);
   };
 
   const hasFile =

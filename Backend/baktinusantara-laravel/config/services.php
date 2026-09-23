@@ -39,6 +39,14 @@ return [
         'token' => env('FONNTE_TOKEN'),
         'url' => env('FONNTE_URL', 'https://api.fonnte.com/send'),
         'enabled' => env('WA_ENABLED', true),
+        'bot_number' => env('FONNTE_BOT_NUMBER', '085932883277'),
+        'webhook_secret' => env('FONNTE_WEBHOOK_SECRET'),
+    ],
+
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'keys' => array_filter(explode(',', env('GEMINI_API_KEYS', ''))),
+        'model' => env('GEMINI_MODEL', 'gemini-1.5-flash'),
     ],
 
     'google' => [

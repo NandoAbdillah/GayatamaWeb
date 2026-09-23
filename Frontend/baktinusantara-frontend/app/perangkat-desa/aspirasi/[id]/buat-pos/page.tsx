@@ -6,9 +6,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { MOCK_ASPIRASI } from '@/lib/mock-data';
 import { api } from '@/lib/services';
-import { ArrowLeft, FileText, Layers, Target, Tag, Send, Loader2, MessageSquare } from 'lucide-react';
+import { ArrowLeft, FileText, Layers, Target, Tag, Send, Loader2, MessageSquare, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const KATEGORI_OPTIONS: { value: string; label: string }[] = [
@@ -24,8 +23,9 @@ export default function BuatPosDariAspirasiPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const id = Number(params?.id);
-  const aspirasi = MOCK_ASPIRASI.find((a) => a.id === id) || null;
 
+  const [loading, setLoading] = useState(true);
+  const [aspirasi, setAspirasi] = useState<any>(null);
   const [judul, setJudul] = useState('');
   const [deskripsi, setDeskripsi] = useState('');
   const [luaran, setLuaran] = useState('');
@@ -33,19 +33,44 @@ export default function BuatPosDariAspirasiPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (aspirasi) {
-      setJudul(aspirasi.judul);
-      setDeskripsi(aspirasi.deskripsi);
-      // prefill luaran contoh dari kategori
-      if (aspirasi.kategori === 'Infrastruktur') {
-        setKategori('Digitalisasi & Teknologi Desa');
-        setLuaran('Perbaikan saluran irigasi dusun 2\nPengerukan sedimentasi pintu air\nJadwal kerja bakti mingguan');
-      } else if (aspirasi.kategori === 'Ekonomi / UMKM') {
-        setKategori('Pemberdayaan UMKM');
-        setLuaran('Modul pelatihan P-IRT & Halal\nDesain kemasan baru\nFoto produk UMKM');
+    async function loadAspirasi() {
+      try {
+        setLoading(true);
+        const res = await api.aspirasi.getByDesa();
+        if (Array.isArray(res)) {
+          const found = res.find((a: any) => a.id === id);
+          if (found) {
+            setAspirasi(found);
+            setJudul(found.judul || '');
+            setDeskripsi(found.deskripsi || '');
+            setLuaran('1. Sosialisasi & Edukasi Warga Desa\n2. Penerapan Solusi & Pendampingan Berkelanjutan\n3. Laporan Akhir Hasil Pengabdian');
+          } else {
+            setAspirasi(null);
+          }
+        }
+      } catch (err) {
+        console.error('Gagal mengambil aspirasi:', err);
+        setAspirasi(null);
+      } finally {
+        setLoading(false);
       }
     }
-  }, [aspirasi]);
+
+    if (id) {
+      loadAspirasi();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <DashboardLayout title="Buat Pos Kebutuhan">
+        <div className="py-24 flex flex-col items-center justify-center gap-3 text-slate-400">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm">Memuat data aspirasi warga...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!aspirasi) {
     return (
@@ -56,9 +81,10 @@ export default function BuatPosDariAspirasiPage() {
               <ArrowLeft className="w-3.5 h-3.5" /> Kembali
             </Button>
           </Link>
-          <Card className="p-8 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
-            <p className="text-sm font-bold text-navy-950 dark:text-white">Aspirasi tidak ditemukan</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">ID {params?.id} tidak ada.</p>
+          <Card className="p-12 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <AlertCircle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-navy-950 dark:text-white">Aspirasi Tidak Ditemukan</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Aspirasi dengan ID {params?.id} tidak ditemukan di database desa Anda.</p>
           </Card>
         </div>
       </DashboardLayout>
@@ -68,43 +94,29 @@ export default function BuatPosDariAspirasiPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!judul.trim() || !deskripsi.trim() || !luaran.trim() || !kategori) {
-      toast.error('Lengkapi semua field');
+      toast.error('Harap lengkapi semua field');
       return;
     }
     setIsSubmitting(true);
-    const luaranList = luaran
-      .split('\n')
-      .map((s) => s.trim())
-      .filter(Boolean);
 
     try {
-      try {
-        // coba approve via aspirasi decide sekaligus buat pos
-        await api.aspirasi.decide(aspirasi.id, {
-          action: 'approve',
-          judul,
-          deskripsi,
-          kategori,
-          target_luaran: luaranList,
-        } as any);
-      } catch {}
-      try {
-        await api.posKebutuhan.createDirect({
-          judul,
-          deskripsi,
-          kategori,
-          target_luaran: luaranList,
-          sdg_codes: [8, 9],
-          kuota_kelompok: 1,
-          deadline: '2026-11-30',
-          jurusan_dibutuhkan: { 'Teknik Informatika': 1 },
-        } as any);
-      } catch {}
-      toast.success('Pos Kebutuhan berhasil dibuat dari aspirasi!');
-      router.push('/perangkat-desa/aspirasi');
+      // Panggil endpoint resmi PATCH /api/desa/aspirasi/{id}/decide dengan action approve
+      // yang di backend otomatis mengubah status aspirasi dan menerbitkan Pos Kebutuhan riil
+      await api.aspirasi.decide(aspirasi.id, {
+        action: 'approve',
+        judul: judul.trim(),
+        kuota_kelompok: 1,
+        deadline: '2026-12-31',
+        jurusan_dibutuhkan: [1, 2],
+        sdg_codes: [8, 9, 11],
+      } as any);
+
+      toast.success('Aspirasi berhasil disahkan dan Pos Kebutuhan baru resmi diterbitkan!');
+      router.push('/perangkat-desa/pos-kebutuhan');
     } catch (err: any) {
-      toast.success('Pos Kebutuhan berhasil dibuat! (Mode Demo)');
-      router.push('/perangkat-desa/aspirasi');
+      console.error('Gagal menerbitkan pos kebutuhan dari aspirasi:', err);
+      const errMsg = err?.response?.data?.message || 'Gagal menerbitkan Pos Kebutuhan.';
+      toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -112,98 +124,62 @@ export default function BuatPosDariAspirasiPage() {
 
   return (
     <DashboardLayout title="Buat Pos Kebutuhan dari Aspirasi">
-      <div className="space-y-6 font-jakarta w-full">
+      <div className="space-y-6 font-jakarta max-w-4xl">
         <Link href="/perangkat-desa/aspirasi">
           <Button variant="outline" size="sm" className="gap-1.5 text-xs font-bold bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
-            <ArrowLeft className="w-3.5 h-3.5" /> Kembali
+            <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Daftar Aspirasi
           </Button>
         </Link>
 
-        {/* Info aspirasi asal */}
-        <Card className="p-5 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 space-y-2">
-          <div className="flex items-center gap-2 text-[11px]">
-            <span className="font-mono font-bold text-navy-900 dark:text-slate-200 bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 px-2.5 py-1 rounded-full">
-              {aspirasi.ticket_number}
+        <div>
+          <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+            Terbitkan Pos Kebutuhan KKN dari Aspirasi Warga
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Data aspirasi warga otomatis diverifikasi dan diubah menjadi program pos kebutuhan terbuka bagi mahasiswa perguruan tinggi.
+          </p>
+        </div>
+
+        {/* Info Aspirasi Card */}
+        <Card className="p-5 border-slate-200 dark:border-navy-800 bg-surface-subtle dark:bg-navy-950 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-xs font-bold text-primary dark:text-primary-300">
+              {aspirasi.ticket_number || `ASP-#${aspirasi.id}`}
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-primary-50 dark:bg-primary-950/70 text-primary-700 dark:text-primary-300 text-[11px] font-semibold">{aspirasi.kategori}</span>
+            <span className="text-[11px] text-slate-400">
+              Pengusul: {aspirasi.nama_pengadu || aspirasi.pelapor_nama || 'Warga'} ({aspirasi.nomor_kontak || aspirasi.pelapor_wa || '-'})
+            </span>
           </div>
-          <h2 className="text-sm font-bold text-navy-950 dark:text-white flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4 text-primary" />
-            {aspirasi.judul}
-          </h2>
+          <h3 className="text-sm font-bold text-navy-950 dark:text-white">{aspirasi.judul}</h3>
           <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{aspirasi.deskripsi}</p>
-          <div className="flex flex-wrap gap-2 pt-1">
-            <span className="px-3 py-1 rounded-full bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 text-xs text-slate-600 dark:text-slate-300">
-              Pengusul: <strong className="text-navy-900 dark:text-slate-200">{aspirasi.nama_pengadu}</strong>
-            </span>
-            <span className="px-3 py-1 rounded-full bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 text-xs text-slate-600 dark:text-slate-300">Tanggal: {aspirasi.created_at}</span>
-          </div>
         </Card>
 
-        {/* Form */}
-        <Card className="p-6 sm:p-8 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm space-y-6">
-          <div>
-            <h1 className="text-xl font-extrabold text-navy-950 dark:text-white font-epilogue">Buat Pos Kebutuhan Baru</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Lengkapi detail di bawah untuk menerbitkan pos kebutuhan resmi desa dari aspirasi warga.</p>
-          </div>
-
+        {/* Formulir Pos Kebutuhan */}
+        <Card className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900 dark:text-slate-200">
-                <FileText className="w-3.5 h-3.5 text-slate-400" />
-                Judul Pos Kebutuhan <span className="text-rose-500">*</span>
+              <label className="text-xs font-bold text-navy-950 dark:text-white flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-primary" />
+                Judul Pos Kebutuhan KKN
               </label>
               <input
                 type="text"
-                required
                 value={judul}
                 onChange={(e) => setJudul(e.target.value)}
-                placeholder="Contoh: Perbaikan Saluran Irigasi & Pengerukan Sedimen Dusun 2"
-                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900 dark:text-slate-200">
-                <Layers className="w-3.5 h-3.5 text-slate-400" />
-                Deskripsi Kebutuhan <span className="text-rose-500">*</span>
-              </label>
-              <textarea
-                rows={4}
+                className="w-full p-3 bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 rounded-2xl text-xs text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
                 required
-                value={deskripsi}
-                onChange={(e) => setDeskripsi(e.target.value)}
-                placeholder="Jelaskan kondisi lapangan, urgensi, dan capaian yang diharapkan bersama mahasiswa KKN..."
-                className="w-full p-3.5 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary leading-relaxed"
               />
-              <p className="text-[11px] text-slate-400 dark:text-slate-500">Minimal 20 karakter, jelaskan konteks desa.</p>
             </div>
 
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900 dark:text-slate-200">
-                <Target className="w-3.5 h-3.5 text-slate-400" />
-                Luaran yang Diharapkan <span className="text-rose-500">*</span>
-              </label>
-              <textarea
-                rows={4}
-                required
-                value={luaran}
-                onChange={(e) => setLuaran(e.target.value)}
-                placeholder="Tulis satu luaran per baris&#10;Contoh:&#10;Saluran irigasi bersih & lancar&#10;Dokumentasi foto before-after&#10;Jadwal kerja bakti"
-                className="w-full p-3.5 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary leading-relaxed font-mono"
-              />
-              <p className="text-[11px] text-slate-400 dark:text-slate-500">Satu baris = satu luaran. Akan ditampilkan sebagai checklist.</p>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-navy-900 dark:text-slate-200">
-                <Tag className="w-3.5 h-3.5 text-slate-400" />
-                Kategori <span className="text-rose-500">*</span>
+              <label className="text-xs font-bold text-navy-950 dark:text-white flex items-center gap-1.5">
+                <Tag className="w-3.5 h-3.5 text-primary" />
+                Kategori Sektor KKN
               </label>
               <select
                 value={kategori}
                 onChange={(e) => setKategori(e.target.value)}
-                className="w-full px-4 py-3 bg-white dark:bg-navy-950 border border-slate-300 dark:border-navy-700 rounded-xl text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full p-3 bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 rounded-2xl text-xs text-navy-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
               >
                 {KATEGORI_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -213,15 +189,50 @@ export default function BuatPosDariAspirasiPage() {
               </select>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-navy-800">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-navy-950 dark:text-white flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-primary" />
+                Deskripsi Masalah & Kebutuhan Riil di Lapangan
+              </label>
+              <textarea
+                rows={4}
+                value={deskripsi}
+                onChange={(e) => setDeskripsi(e.target.value)}
+                className="w-full p-3 bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 rounded-2xl text-xs text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-navy-950 dark:text-white flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-primary" />
+                Ekspektasi Target Luaran yang Diharapkan
+              </label>
+              <textarea
+                rows={4}
+                value={luaran}
+                onChange={(e) => setLuaran(e.target.value)}
+                placeholder="Tuliskan target per baris (contoh: 1. Aplikasi web desa, 2. Modul pelatihan)..."
+                className="w-full p-3 bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 rounded-2xl text-xs text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+                required
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-navy-800">
               <Link href="/perangkat-desa/aspirasi">
-                <Button type="button" variant="outline" size="md" className="text-xs">
+                <Button variant="outline" size="sm" type="button" className="text-xs" disabled={isSubmitting}>
                   Batal
                 </Button>
               </Link>
-              <Button type="submit" variant="emerald" size="md" isLoading={isSubmitting} className="gap-1.5 font-bold text-xs">
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                <span>Terbitkan Pos Kebutuhan</span>
+              <Button
+                type="submit"
+                variant="emerald"
+                size="sm"
+                className="text-xs gap-1.5 shadow-glow-secondary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                <span>Sahkan Aspirasi & Terbitkan Pos</span>
               </Button>
             </div>
           </form>

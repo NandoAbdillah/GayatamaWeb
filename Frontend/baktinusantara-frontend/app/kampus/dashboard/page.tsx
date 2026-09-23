@@ -59,40 +59,14 @@ export default function KampusDashboardPage() {
   const fetchMetrics = async () => {
     try {
       setRefreshing(true);
-      const res = await api.dashboard.getMetrics();
+      const res = await api.universitas.getCampusMetrics();
       if (res) {
         setMetrics(res);
       }
     } catch (err) {
-      console.warn("Backend metrics fetch fallback:", err);
-      // Fallback fallback default values if network fails
-      setMetrics({
-        total_desa_terbantu: 2,
-        total_umkm_terdigitalisasi: 1,
-        total_kelompok_kkn: 3,
-        total_mahasiswa_terlibat: 7,
-        total_jam_pengabdian: 640,
-        total_pos_kebutuhan: 5,
-        status_pos_breakdown: { open: 2, in_progress: 2, completed: 1 },
-        total_luaran_terverifikasi: 1,
-        total_portofolio_publik: 1,
-        kategori_breakdown: {
-          umkm: 1,
-          lingkungan: 1,
-          kesehatan: 1,
-          pendidikan: 1,
-          fasilitas: 1,
-        },
-        sdgs_distribution: {
-          "SDG 3": 1,
-          "SDG 4": 1,
-          "SDG 8": 1,
-          "SDG 9": 2,
-          "SDG 11": 1,
-          "SDG 13": 1,
-          "SDG 15": 1,
-        },
-      });
+      console.error("Gagal mengambil metrik kampus:", err);
+      toast.error("Gagal memuat metrik kampus dari server.");
+      setMetrics(null);
     } finally {
       setLoading(false);
       setRefreshing(false);

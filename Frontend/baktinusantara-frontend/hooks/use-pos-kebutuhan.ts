@@ -3,10 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import posKebutuhanService, { PosKebutuhanQueryParams } from '@/lib/services/pos-kebutuhan.service';
 import { PosKebutuhan } from '@/lib/types';
-import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
-
 export function usePosKebutuhan(initialParams?: PosKebutuhanQueryParams) {
-  const [items, setItems] = useState<PosKebutuhan[]>(MOCK_POS_KEBUTUHAN);
+  const [items, setItems] = useState<PosKebutuhan[]>([]);
   const [params, setParams] = useState<PosKebutuhanQueryParams | undefined>(initialParams);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,14 +15,15 @@ export function usePosKebutuhan(initialParams?: PosKebutuhanQueryParams) {
     try {
       const activeParams = customParams !== undefined ? customParams : params;
       const data = await posKebutuhanService.getAll(activeParams);
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setItems(data);
-      } else if (Array.isArray(data) && data.length === 0 && activeParams && Object.keys(activeParams).length > 0) {
+      } else {
         setItems([]);
       }
     } catch (err: any) {
-      console.warn('Pos kebutuhan fetch error, keeping fallback data:', err);
+      console.error('Pos kebutuhan fetch error:', err);
       setError(err?.message || 'Gagal memuat katalog pos kebutuhan.');
+      setItems([]);
     } finally {
       setIsLoading(false);
     }

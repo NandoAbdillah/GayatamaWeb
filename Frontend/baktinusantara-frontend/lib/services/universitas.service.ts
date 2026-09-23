@@ -9,6 +9,23 @@ export interface CreateDosenPayload {
   no_hp: string;
 }
 
+export interface MasterUniversitasItem {
+  id?: string;
+  nama_universitas: string;
+  nama_singkat?: string | null;
+  kode_univ: string;
+  jenis?: string;
+  kelompok?: string;
+  akreditasi: string;
+  alamat_kampus?: string;
+  provinsi?: string;
+  kabupaten_kota?: string;
+  website?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  is_verified?: boolean;
+}
+
 export const universitasService = {
   /**
    * Get public list of registered universities
@@ -16,6 +33,95 @@ export const universitasService = {
    */
   async getUniversitasList(): Promise<any[]> {
     const res = await apiClient.get<any[]>('/api/universitas');
+    return res.data;
+  },
+
+  /**
+   * Get master database of universities with PDDikti codes
+   * Endpoint: GET /api/universitas/master?search=...
+   */
+  async getMasterList(search?: string): Promise<MasterUniversitasItem[]> {
+    const res = await apiClient.get<MasterUniversitasItem[]>('/api/universitas/master', {
+      params: search ? { search } : undefined,
+    });
+    return res.data;
+  },
+
+  /**
+   * Check if a university PDDikti code is already claimed
+   * Endpoint: POST /api/register/universitas/check-kode
+   */
+  async checkKodeAvailability(kode_univ: string): Promise<{
+    available: boolean;
+    is_registered: boolean;
+    message: string;
+  }> {
+    const res = await apiClient.post('/api/register/universitas/check-kode', { kode_univ });
+    return res.data;
+  },
+
+  /**
+   * Scan SK document in realtime and extract legal entities (e-KYC style)
+   * Endpoint: POST /api/register/universitas/scan-sk
+   */
+  async scanDocumentRealtime(file: File, context?: {
+    nama_universitas?: string;
+    kode_univ?: string;
+    email?: string;
+    name?: string;
+    nip_admin?: string;
+  }): Promise<{
+    success: boolean;
+    is_valid?: boolean;
+    status_verifikasi?: string;
+    engine?: string;
+    extracted?: {
+      judul_sk?: string;
+      nomor_sk?: string;
+      instansi_penerbit?: string;
+      pejabat_penandatangan?: string;
+      nama_tertulis?: string;
+      nip_tertulis?: string;
+      tanggal_sk?: string;
+      berlaku_sampai?: string;
+      has_kop_resmi?: boolean;
+      has_tte_or_qr_code?: boolean;
+      has_cap_stempel?: boolean;
+      has_materai?: boolean;
+      dokumen_filename?: string;
+    } | null;
+    trust_score?: number;
+    catatan?: string;
+  }> {
+    const form = new FormData();
+    form.append('file', file);
+    if (context?.nama_universitas) form.append('nama_universitas', context.nama_universitas);
+    if (context?.kode_univ) form.append('kode_univ', context.kode_univ);
+    if (context?.email) form.append('email', context.email);
+    if (context?.name) form.append('name', context.name);
+    if (context?.nip_admin) form.append('nip_admin', context.nip_admin);
+
+    const res = await apiClient.post('/api/register/universitas/scan-sk', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  },
+
+  /**
+   * Register a new university with official SK file
+   * Endpoint: POST /api/register/universitas
+   */
+  async registerUniversitas(formData: FormData): Promise<{
+    message: string;
+    data: any;
+  }> {
+    const res = await apiClient.post('/api/register/universitas', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return res.data;
   },
 
@@ -74,6 +180,42 @@ export const universitasService = {
   }): Promise<{ message: string; data: any }> {
     const res = await apiClient.post('/api/desa/laporan-dosen', payload);
     return res.data;
+  },
+
+  /**
+   * Get comprehensive internal campus metrics & statistics
+   * Endpoint: GET /api/universitas/metrics
+   */
+  async getCampusMetrics(): Promise<any> {
+    const res = await apiClient.get<{ message: string; data: any }>('/api/universitas/metrics');
+    return res.data?.data || res.data;
+  },
+
+  /**
+   * Get list of groups under this university's supervision
+   * Endpoint: GET /api/universitas/kelompok
+   */
+  async getKelompokList(): Promise<any[]> {
+    const res = await apiClient.get<{ message: string; data: any[] }>('/api/universitas/kelompok');
+    return res.data?.data || res.data || [];
+  },
+
+  /**
+   * Get civitas audit logs and activity trail
+   * Endpoint: GET /api/universitas/logs
+   */
+  async getAuditLogs(): Promise<any[]> {
+    const res = await apiClient.get<{ message: string; data: any[] }>('/api/universitas/logs');
+    return res.data?.data || res.data || [];
+  },
+
+  /**
+   * Get logbooks of students under this university
+   * Endpoint: GET /api/universitas/logbook
+   */
+  async getLogbooks(): Promise<any[]> {
+    const res = await apiClient.get<{ message: string; data: any[] }>('/api/universitas/logbook');
+    return res.data?.data || res.data || [];
   },
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -17,16 +17,101 @@ import {
   Layers,
   Calendar,
   FileCheck2,
+  Loader2,
 } from "lucide-react";
-import {
-  SEEDED_MONITORING_GROUPS,
-  getStatusLabel,
-} from "@/lib/data/kampus-monitoring";
+import { api } from "@/lib/services";
+import { useAuth } from "@/context/AuthContext";
 
 export default function KampusMonitoringDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
-  const group = SEEDED_MONITORING_GROUPS.find((g) => g.id === id);
+  const { user } = useAuth();
+
+  const [loading, setLoading] = useState(true);
+  const [group, setGroup] = useState<any>(null);
+
+  const univName = (user as any)?.profil_universitas?.nama_universitas || user?.name || "Universitas";
+
+  useEffect(() => {
+    const fetchDetail = async () => {
+      try {
+        setLoading(true);
+        const list = await api.universitas.getKelompokList();
+        if (Array.isArray(list)) {
+          const match = list.find((k: any) => String(k.id) === String(id));
+          if (match) {
+            const anggota = Array.isArray(match.anggota) ? match.anggota : [];
+            const progressList = Array.isArray(match.proposal?.progress_mingguan) ? match.proposal.progress_mingguan : [];
+            const maxProg = progressList.length > 0
+              ? Math.max(...progressList.map((p: any) => Number(p.persentase || 0)))
+              : (match.proposal?.status === 'diterima' ? 25 : 5);
+            const isDone = maxProg >= 100 || match.proposal?.luaran_akhir?.status_verifikasi === 'verified';
+
+            const desaObj = match.proposal?.pos_kebutuhan?.desa;
+            const desaStr = desaObj
+              ? `Desa ${desaObj.nama_desa || ''}, ${desaObj.kabupaten || desaObj.kecamatan || ''}`
+              : 'Belum Terhubung Desa';
+
+            // Generate weekly logbook view from real progress reports or 4-week cycle
+            const logbookDetails = [1, 2, 3, 4].map((wk) => {
+              const report = progressList.find((p: any) => Number(p.minggu_ke) === wk);
+              if (report) {
+                return {
+                  minggu: wk,
+                  status: Number(report.persentase) > 0 ? "Tuntas" : "Kendala",
+                  tanggal: report.created_at ? new Date(report.created_at).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : undefined,
+                  catatan: report.catatan_kegiatan || report.deskripsi || "Laporan mingguan telah disampaikan mahasiswa.",
+                };
+              }
+              return {
+                minggu: wk,
+                status: "Belum Mulai",
+                tanggal: undefined,
+                catatan: undefined,
+              };
+            });
+
+            setGroup({
+              id: String(match.id),
+              nama: match.nama_kelompok || `Kelompok #${match.id}`,
+              universitas: univName,
+              desa: desaStr,
+              jarak_km: 15,
+              izin_ortu: "Radius Standar (<1000 km)",
+              dpl: match.dosen?.user?.name || match.dosen?.name || "Belum Ditugaskan",
+              anggota_count: anggota.length > 0 ? anggota.length : 1,
+              anggota_nama: anggota.map((a: any) => a.user?.name || a.nim || "Mahasiswa"),
+              jam_kerja: `${Math.round(maxProg * 1.6)} / 160 Jam`,
+              progres_pct: Math.min(100, Math.max(0, maxProg)),
+              logbook_minggu: progressList.length,
+              logbook_detail: logbookDetails,
+              projek: match.proposal?.pos_kebutuhan?.judul || match.proposal?.draf_proker || "Program Pengabdian KKN",
+              projek_deskripsi: match.proposal?.pos_kebutuhan?.deskripsi || "Implementasi program kerja mahasiswa KKN bersama masyarakat desa mitra.",
+              projek_kategori: match.proposal?.pos_kebutuhan?.kategori || "Pemberdayaan Masyarakat",
+              status: isDone ? "Selesai" : "Berjalan",
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Gagal mengambil detail kelompok:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetail();
+  }, [id, univName]);
+
+  if (loading) {
+    return (
+      <DashboardLayout title="Detail Monitoring Kelompok">
+        <div className="py-24 flex flex-col items-center justify-center gap-3 text-slate-400">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm">Memuat data kelompok dan logbook binaan...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!group) {
     return (
@@ -46,7 +131,7 @@ export default function KampusMonitoringDetailPage() {
               Kelompok tidak ditemukan
             </p>
             <p className="text-xs text-slate-500 mt-1">
-              ID <span className="font-mono">{id}</span> tidak ada di data monitoring.
+              ID <span className="font-mono">{id}</span> tidak ada di data monitoring kampus Anda.
             </p>
             <Link href="/kampus/monitoring" className="mt-4 inline-block">
               <Button size="sm" variant="outline" className="text-xs">
@@ -59,7 +144,7 @@ export default function KampusMonitoringDetailPage() {
     );
   }
 
-  const status = getStatusLabel(group);
+  const status = group.status;
 
   return (
     <DashboardLayout title="Detail Monitoring Kelompok">
@@ -136,7 +221,7 @@ export default function KampusMonitoringDetailPage() {
                 <Users className="w-4 h-4 text-primary" />
                 Informasi Kelompok
               </h2>
-              {/* Dosen DPL - paling atas */}
+              {/* Dosen DPL */}
               <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                   <GraduationCap className="w-5 h-5" />
@@ -197,12 +282,10 @@ export default function KampusMonitoringDetailPage() {
                 </div>
               </div>
             </Card>
-
           </div>
 
           {/* Kolom Kanan: Projek */}
           <div className="space-y-6">
-            {/* Projek */}
             <Card className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm space-y-3">
               <h2 className="text-sm font-bold text-navy-950 dark:text-white font-epilogue flex items-center gap-2">
                 <Layers className="w-4 h-4 text-primary" />
@@ -234,7 +317,7 @@ export default function KampusMonitoringDetailPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {group.logbook_detail.map((lb) => (
+            {group.logbook_detail.map((lb: any) => (
               <div
                 key={lb.minggu}
                 className={`p-4 rounded-xl border space-y-2 ${

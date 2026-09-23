@@ -17,14 +17,15 @@ import {
   X,
   RefreshCw,
   Loader2,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/services';
-import { INITIAL_VERIFIKASI_DATA, VerifikasiItem } from '@/lib/data/verifikasi-data';
+import { VerifikasiItem } from '@/lib/data/verifikasi-data';
 
 export default function AdminVerifikasiPage() {
   const router = useRouter();
-  const [verifikasiList, setVerifikasiList] = useState<VerifikasiItem[]>(INITIAL_VERIFIKASI_DATA);
+  const [verifikasiList, setVerifikasiList] = useState<VerifikasiItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'all' | 'universitas' | 'desa'>('all');
@@ -41,13 +42,15 @@ export default function AdminVerifikasiPage() {
       const res = await api.admin.getVerifikasiList();
       if (res && res.data && Array.isArray(res.data)) {
         setVerifikasiList(res.data);
+      } else {
+        setVerifikasiList([]);
       }
     } catch (err: any) {
       console.error('Gagal memuat data verifikasi entitas dari backend:', err);
-      // If error (e.g. not logged in or backend booting), keep existing data
       if (!silent) {
-        toast.error('Gagal mengambil data terbaru dari server. Menampilkan cache lokal.');
+        toast.error('Gagal mengambil data verifikasi dari server.');
       }
+      setVerifikasiList([]);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -306,6 +309,13 @@ export default function AdminVerifikasiPage() {
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[11px] font-bold">
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                               Terverifikasi Resmi
+                            </span>
+                          )}
+
+                          {item.ai_trust_score && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-extrabold border border-indigo-200 dark:border-indigo-800">
+                              <Sparkles className="w-3 h-3 text-indigo-500" />
+                              <span>AI Trust: {item.ai_trust_score}%</span>
                             </span>
                           )}
                         </div>

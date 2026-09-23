@@ -7,14 +7,19 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { api } from '@/lib/services';
-import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
 import { PosKebutuhan } from '@/lib/types';
-import { PlusCircle, CheckCircle2, Search } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { PlusCircle, CheckCircle2, Search, Loader2, ClipboardList } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function PerangkatDesaPosKebutuhanPage() {
-  const [posList, setPosList] = useState<PosKebutuhan[]>(MOCK_POS_KEBUTUHAN);
+  const { user } = useAuth();
+  const [posList, setPosList] = useState<PosKebutuhan[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'semua' | 'terbuka' | 'berjalan' | 'selesai'>('semua');
+
+  const desaName = (user as any)?.profil_desa?.nama_desa || user?.name || 'Desa Mitra';
 
   const filterOptions: { value: typeof filterStatus; label: string }[] = [
     { value: 'semua', label: 'Semua' },
@@ -25,9 +30,9 @@ export default function PerangkatDesaPosKebutuhanPage() {
 
   const getFilterStatus = (status: string) => {
     const s = (status || '').toLowerCase();
-    if (s === 'open') return 'terbuka';
-    if (s === 'in_progress') return 'berjalan';
-    if (s === 'completed') return 'selesai';
+    if (s === 'open' || s === 'terbuka') return 'terbuka';
+    if (s === 'in_progress' || s === 'berjalan') return 'berjalan';
+    if (s === 'completed' || s === 'selesai') return 'selesai';
     return 'terbuka';
   };
 
@@ -43,17 +48,49 @@ export default function PerangkatDesaPosKebutuhanPage() {
     });
   }, [posList, searchQuery, filterStatus]);
 
-  const fetchDesaPos = () => {
-    api.posKebutuhan
-      .getByDesa()
-      .then((res) => {
-        if (Array.isArray(res) && res.length > 0) {
-          setPosList(res);
-        }
-      })
-      .catch((err) => {
-        console.warn('Could not load desa pos kebutuhan, using fallback:', err);
-      });
+  const fetchDesaPos = async () => {
+    try {
+      setLoading(true);
+      const res = await api.posKebutuhan.getByDesa();
+      if (Array.isArray(res)) {
+        const normalized: PosKebutuhan[] = res.map((item: any) => ({
+          id: item.id,
+          desa_id: item.desa_id,
+          judul: item.judul,
+          deskripsi: item.deskripsi,
+          nama_desa: item.desa?.nama_desa || desaName,
+          kecamatan: item.desa?.kecamatan || '',
+          kabupaten: item.desa?.kabupaten || '',
+          provinsi: item.desa?.provinsi || '',
+          latitude: item.latitude || -6.595,
+          longitude: item.longitude || 106.8166,
+          kategori_sektor: item.kategori || item.kategori_sektor || 'Pemberdayaan Masyarakat',
+          kuota_mahasiswa: item.kuota_kelompok ? item.kuota_kelompok * 10 : 10,
+          terisi_mahasiswa: item.terisi_mahasiswa || 0,
+          status: item.status || 'open',
+          matching_score: 95,
+          kriteria_jurusan: Array.isArray(item.kriteria_jurusan)
+            ? item.kriteria_jurusan
+            : item.jurusan_dibutuhkan
+            ? Object.keys(item.jurusan_dibutuhkan)
+            : ['Teknik Informatika', 'Pertanian', 'Manajemen'],
+          target_luaran: Array.isArray(item.target_luaran)
+            ? item.target_luaran
+            : ['Laporan Program Kerja', 'Dokumen Evaluasi Lapangan'],
+          distance_km: 0,
+          created_at: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja',
+        }));
+        setPosList(normalized);
+      } else {
+        setPosList([]);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil pos kebutuhan desa:', err);
+      toast.error('Gagal memuat pos kebutuhan dari server.');
+      setPosList([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -65,7 +102,9 @@ export default function PerangkatDesaPosKebutuhanPage() {
       <div className="space-y-6 font-jakarta">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">Pos Kebutuhan KKN Desa Sukamaju</h1>
+            <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+              Pos Kebutuhan KKN {desaName}
+            </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Publikasikan kebutuhan riil masyarakat desa agar mahasiswa perguruan tinggi dapat mengajukan proposal pengabdian.
             </p>
@@ -98,7 +137,7 @@ export default function PerangkatDesaPosKebutuhanPage() {
                 onClick={() => setFilterStatus(opt.value)}
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                   filterStatus === opt.value
-                    ? 'bg-navy-950 dark:bg-primary-600 text-white shadow-sm'
+                    ? 'bg-navy-950 dark:bg-primary text-white shadow-sm'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-navy-800'
                 }`}
               >
@@ -108,10 +147,19 @@ export default function PerangkatDesaPosKebutuhanPage() {
           </div>
         </div>
 
-        {/* Pos List - 3 grid, pakai filteredPos */}
-        {filteredPos.length === 0 ? (
-          <Card className="p-10 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
-            <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada pos kebutuhan yang sesuai pencarian / filter.</p>
+        {/* Pos List */}
+        {loading ? (
+          <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <p className="text-sm">Memuat pos kebutuhan desa...</p>
+          </div>
+        ) : filteredPos.length === 0 ? (
+          <Card className="p-12 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <ClipboardList className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-navy-950 dark:text-white">Tidak Ada Pos Kebutuhan</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+              Belum ada pos kebutuhan KKN yang diterbitkan desa ini. Klik tombol "Terbitkan Pos Baru" untuk membuat pos kebutuhan pertama.
+            </p>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -132,7 +180,7 @@ export default function PerangkatDesaPosKebutuhanPage() {
                     <div className="space-y-1 text-xs text-slate-700 dark:text-slate-300">
                       {pos.target_luaran.slice(0, 2).map((luar, i) => (
                         <div key={i} className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                           <span className="truncate">{luar}</span>
                         </div>
                       ))}

@@ -17,6 +17,7 @@ import {
   RotateCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import apiClient from '@/lib/api-client';
 
 export default function MahasiswaLokasiPage() {
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -76,29 +77,27 @@ export default function MahasiswaLokasiPage() {
       },
       (err) => {
         setGpsLoading(false);
-        // Fallback simulation for demonstration
-        const simulatedLat = -7.0835;
-        const simulatedLng = 107.5501;
-        setCurrentCoords({ lat: simulatedLat, lng: simulatedLng });
-        const dist = calculateDistance(simulatedLat, simulatedLng, POSKO_COORDS.lat, POSKO_COORDS.lng);
-        setDistanceKm(dist);
-        toast.info('GPS diblokir/tidak aktif. Menggunakan koordinat simulasi area Posko KKN.');
+        toast.error('Gagal mendeteksi lokasi GPS. Pastikan izin akses lokasi peramban diaktifkan.');
       },
       { timeout: 10000, enableHighAccuracy: true }
     );
   };
 
-  const handleManualCheckIn = (e: React.FormEvent) => {
+  const handleManualCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualCode.trim()) {
-      toast.error('Masukkan kode OTP/token dari Kepala Desa.');
+      toast.error('Masukkan kode OTP/token presensi dari Kepala Desa.');
       return;
     }
-    if (manualCode.toUpperCase() === 'SKM-7788' || manualCode.length >= 6) {
+    try {
+      await apiClient.post('/api/progress/check-in', {
+        token: manualCode.trim(),
+        coords: currentCoords,
+      });
       setCheckInSuccess(true);
-      toast.success('Presensi manual berhasil diverifikasi dengan token resmi Kades Sukamaju!');
-    } else {
-      toast.error('Kode verifikasi tidak valid atau telah kedaluwarsa.');
+      toast.success('Presensi manual berhasil diverifikasi dengan token resmi desa!');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Kode verifikasi tidak valid atau telah kedaluwarsa.');
     }
   };
 

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { MapFilterSelect, MapFilterOption } from '@/components/ui/MapFilterSelect';
 import { RegionLogo } from '@/components/ui/RegionLogo';
-import { MOCK_POS_KEBUTUHAN } from '@/lib/mock-data';
 import { PosKebutuhan } from '@/lib/types';
 import { Province } from '@/lib/wilayah-types';
 import { WilayahService } from '@/lib/wilayah-api';
@@ -156,7 +155,7 @@ const STATUS_OPTIONS = [
 
 export default function KatalogPublikPage() {
   const tkatalog = useTranslations('katalog');
-  const [posList, setPosList] = useState<PosKebutuhan[]>(MOCK_POS_KEBUTUHAN);
+  const [posList, setPosList] = useState<PosKebutuhan[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSektor, setSelectedSektor] = useState<string>('all');
@@ -184,7 +183,7 @@ export default function KatalogPublikPage() {
       try {
         setLoading(true);
         const data = await api.posKebutuhan.getAll();
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           const normalized: PosKebutuhan[] = data.map((item: any) => ({
             id: item.id,
             desa_id: item.desa_id || 1,
@@ -213,9 +212,12 @@ export default function KatalogPublikPage() {
             created_at: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja',
           }));
           setPosList(normalized);
+        } else {
+          setPosList([]);
         }
       } catch (err) {
-        console.warn('Fallback to mock catalog data:', err);
+        console.error('Gagal memuat katalog pos kebutuhan:', err);
+        setPosList([]);
       } finally {
         setLoading(false);
       }

@@ -18,12 +18,52 @@ class UniversitasController extends Controller
         return response()->json($this->universitasService->listVerifiedPublic());
     }
 
-    public function register(RegisterUniversitasRequest $request)
+    public function master(Request $request)
     {
-        $univ = $this->universitasService->register($request->validated());
+        return response()->json($this->universitasService->getMasterList($request->query('search')));
+    }
+
+    public function checkKodeAvailability(Request $request)
+    {
+        $request->validate(['kode_univ' => 'required|string|max:50']);
+        $kode = trim($request->input('kode_univ'));
+
+        $isTaken = ProfilUniversitas::where('kode_univ', $kode)->exists();
 
         return response()->json([
-            'message' => 'Registrasi universitas berhasil, menunggu verifikasi admin',
+            'available' => !$isTaken,
+            'is_registered' => $isTaken,
+            'message' => $isTaken 
+                ? 'Perguruan Tinggi dengan Kode PT ini telah terdaftar atau dalam peninjauan LPPM resmi.' 
+                : 'Kode PT belum terdaftar dan siap untuk didaftarkan.',
+        ]);
+    }
+
+    public function scanDocumentRealtime(Request $request, \App\Services\AiDocumentAuditorService $auditor)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'nama_universitas' => 'nullable|string',
+            'kode_univ' => 'nullable|string',
+            'email' => 'nullable|string',
+            'name' => 'nullable|string',
+            'nip_admin' => 'nullable|string',
+        ]);
+
+        $result = $auditor->scanAndExtractRealtime($request->file('file'), $request->all());
+
+        return response()->json($result);
+    }
+
+    public function register(RegisterUniversitasRequest $request)
+    {
+        $skFile = $request->file('sk_file') ?: $request->file('mou_file');
+        $sptjmFile = $request->file('sptjm_file');
+        $signatureFile = $request->file('signature_file');
+        $univ = $this->universitasService->register($request->validated(), $skFile, $sptjmFile, $signatureFile);
+
+        return response()->json([
+            'message' => 'Registrasi institusi universitas berhasil! Berkas sedang diverifikasi admin.',
             'data' => $univ,
         ], 201);
     }

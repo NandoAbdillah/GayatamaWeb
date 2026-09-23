@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -18,13 +18,16 @@ import {
   Users,
   MapPin,
   Download,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { api } from '@/lib/services';
+import apiClient from '@/lib/api-client';
 
 type ProposalStatus = 'menunggu' | 'revision' | 'approved';
 type FilterStatus = 'semua' | 'menunggu' | 'revisi' | 'disetujui';
 
-interface ProposalItem {
+interface NormalizedProposal {
   id: number;
   judul: string;
   kelompok: string;
@@ -39,56 +42,56 @@ interface ProposalItem {
 }
 
 export default function PerangkatDesaProposalPage() {
-  const [proposals, setProposals] = useState<ProposalItem[]>([
-    {
-      id: 1,
-      judul: 'Digitalisasi Katalog Produk UMKM & Manajemen Irigasi Cerdas',
-      kelompok: 'Kelompok 14 — Sukamaju Berdaya',
-      lokasi: 'Desa Sukamaju, Ciawi, Bogor',
-      tujuan:
-        'Mendigitalisasi 42 pelaku UMKM keripik talas & madu hutan melalui katalog online terintegrasi, serta meningkatkan efisiensi distribusi air irigasi sawah blok barat dengan sistem monitoring IoT berbasis sensor ultrasonik.',
-      file_name: 'Proposal_KKN_Kelompok14_Sukamaju_Berdaya.pdf',
-      file_url: '#',
-      status: 'approved',
-      created_at: '2026-08-24',
-      disetujui_pada: '2026-08-26 10:30:00',
-    },
-    {
-      id: 2,
-      judul: 'Pengembangan Agrowisata Organik & Edukasi Zero Waste Desa',
-      kelompok: 'Kelompok 08 — Cibodas Asri',
-      lokasi: 'Desa Cibodas Asri, Cianjur',
-      tujuan:
-        'Membangun agrowisata sayur organik berkelanjutan, mengolah limbah sayur menjadi kompos bernilai ekonomi, serta membuat peta jalur hiking desa dengan QR Code untuk meningkatkan kunjungan wisata edukatif.',
-      file_name: 'Proposal_KKN_Kelompok08_Cibodas_Asri.pdf',
-      file_url: '#',
-      status: 'menunggu',
-      created_at: '2026-08-28',
-      catatan_revisi: '',
-    },
-    {
-      id: 3,
-      judul: 'Pemberdayaan Posyandu Digital & Pencegahan Stunting Balita',
-      kelompok: 'Kelompok 11 — Tanjung Karang Sehat',
-      lokasi: 'Desa Tanjung Karang, Bogor',
-      tujuan:
-        'Menyusun dashboard gizi balita terintegrasi WhatsApp reminder untuk ibu hamil dan menyusun modul MPASI berbasis pangan lokal untuk menekan angka stunting di 3 dusun prioritas.',
-      file_name: 'Proposal_KKN_Kelompok11_TanjungKarang.pdf',
-      file_url: '#',
-      status: 'revision',
-      created_at: '2026-08-27',
-      catatan_revisi:
-        'Mohon sesuaikan jadwal posyandu dengan hari pasar desa (Jumat) dan tambahkan pelibatan kader PKK pada lampiran. Lengkapi juga rincian kebutuhan PMT balita agar sinkron dengan anggaran desa.',
-    },
-  ]);
-
+  const [proposals, setProposals] = useState<NormalizedProposal[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('semua');
   const [activeRevisionId, setActiveRevisionId] = useState<number | null>(null);
   const [revisionNotes, setRevisionNotes] = useState('');
-  const [expandedRevisions, setExpandedRevisions] = useState<Set<number>>(
-    () => new Set(proposals.filter((p) => !!p.catatan_revisi).map((p) => p.id))
-  );
-  const [pendingApprove, setPendingApprove] = useState<ProposalItem | null>(null);
+  const [expandedRevisions, setExpandedRevisions] = useState<Set<number>>(new Set());
+  const [pendingApprove, setPendingApprove] = useState<NormalizedProposal | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchProposals = async () => {
+    try {
+      setLoading(true);
+      const data = await api.proposal.getByDesa();
+      if (Array.isArray(data)) {
+        const normalized: NormalizedProposal[] = data.map((p: any) => {
+          let status: ProposalStatus = 'menunggu';
+          if (p.status === 'diterima' || p.status === 'approved') status = 'approved';
+          else if (p.status === 'ditolak' || p.status === 'revision' || p.catatan_desa) status = 'revision';
+
+          return {
+            id: p.id,
+            judul: p.pos_kebutuhan?.judul || p.draf_proker?.slice(0, 60) || 'Proposal Pengabdian KKN',
+            kelompok: p.kelompok?.nama_kelompok || `Kelompok #${p.kelompok_id}`,
+            lokasi: p.pos_kebutuhan?.desa?.nama_desa ? `Desa ${p.pos_kebutuhan.desa.nama_desa}` : 'Desa Mitra',
+            tujuan: p.draf_proker || p.pos_kebutuhan?.deskripsi || 'Rancangan kerja program pengabdian mahasiswa.',
+            file_name: p.file_proposal_url ? p.file_proposal_url.split('/').pop() || 'Proposal_KKN.pdf' : 'Proposal_KKN.pdf',
+            file_url: p.file_proposal_url || '#',
+            status,
+            catatan_revisi: p.catatan_desa || '',
+            created_at: p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '2026-08-24',
+            disetujui_pada: p.updated_at && status === 'approved' ? p.updated_at : undefined,
+          };
+        });
+        setProposals(normalized);
+        setExpandedRevisions(new Set(normalized.filter((p) => !!p.catatan_revisi).map((p) => p.id)));
+      } else {
+        setProposals([]);
+      }
+    } catch (err: any) {
+      console.error('Gagal mengambil daftar proposal desa:', err);
+      toast.error('Gagal memuat proposal dari server.');
+      setProposals([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProposals();
+  }, []);
 
   const filtered = useMemo(() => {
     return proposals.filter((p) => {
@@ -99,16 +102,29 @@ export default function PerangkatDesaProposalPage() {
     });
   }, [proposals, filterStatus]);
 
-  const handleSendRevision = (e: React.FormEvent, prop: ProposalItem) => {
+  const handleSendRevision = async (e: React.FormEvent, prop: NormalizedProposal) => {
     e.preventDefault();
-    if (!revisionNotes.trim()) return;
-    setProposals((prev) =>
-      prev.map((p) => (p.id === prop.id ? { ...p, status: 'revision' as const, catatan_revisi: revisionNotes } : p))
-    );
-    setExpandedRevisions((prev) => new Set(prev).add(prop.id));
-    setActiveRevisionId(null);
-    setRevisionNotes('');
-    toast.success('Catatan revisi berhasil dikirim ke kelompok mahasiswa!');
+    if (!revisionNotes.trim()) {
+      toast.error('Harap masukkan catatan revisi untuk mahasiswa');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await api.proposal.decideByDesa(prop.id, {
+        action: 'reject',
+        catatan_desa: revisionNotes.trim(),
+      });
+      toast.success('Catatan revisi berhasil dikirim ke kelompok mahasiswa!');
+      setActiveRevisionId(null);
+      setRevisionNotes('');
+      await fetchProposals();
+    } catch (err: any) {
+      console.error('Gagal mengirim revisi proposal:', err);
+      const errMsg = err?.response?.data?.message || 'Gagal mengirim revisi ke server.';
+      toast.error(errMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancelRevision = () => {
@@ -125,17 +141,42 @@ export default function PerangkatDesaProposalPage() {
     });
   };
 
-  const confirmApprove = () => {
+  const confirmApprove = async () => {
     if (!pendingApprove) return;
-    setProposals((prev) =>
-      prev.map((p) =>
-        p.id === pendingApprove.id
-          ? { ...p, status: 'approved' as const, disetujui_pada: new Date().toISOString().replace('T', ' ').slice(0, 19) }
-          : p
-      )
-    );
-    setPendingApprove(null);
-    toast.success('Proposal berhasil disetujui Pemerintah Desa!');
+    setIsSubmitting(true);
+    try {
+      await api.proposal.decideByDesa(pendingApprove.id, {
+        action: 'approve',
+      });
+      toast.success('Proposal berhasil disetujui Pemerintah Desa!');
+      setPendingApprove(null);
+      await fetchProposals();
+    } catch (err: any) {
+      console.error('Gagal menyetujui proposal:', err);
+      const errMsg = err?.response?.data?.message || 'Gagal menyetujui proposal.';
+      toast.error(errMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDownload = async (prop: NormalizedProposal) => {
+    try {
+      const response = await apiClient.get(`/api/proposal/${prop.id}/file`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', prop.file_name);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success(`Mengunduh berkas ${prop.file_name}`);
+    } catch (err: any) {
+      console.error('Gagal mengunduh berkas proposal:', err);
+      toast.error('Berkas fisik proposal belum tersedia di penyimpanan server.');
+    }
   };
 
   const filterOptions: { value: FilterStatus; label: string }[] = [
@@ -155,22 +196,24 @@ export default function PerangkatDesaProposalPage() {
     <DashboardLayout title="Validasi Proposal Masuk Desa">
       <div className="space-y-6 font-jakarta">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">Validasi Proposal Program KKN Masuk Desa</h1>
+          <h1 className="text-2xl font-extrabold text-navy-950 dark:text-white font-epilogue">
+            Validasi Proposal Program KKN Masuk Desa
+          </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Perangkat Desa memastikan usulan mahasiswa selaras dengan kebutuhan warga, kearifan lokal, dan kesiapan fasilitas
-            lapangan sebelum diterjunkan.
+            Perangkat Desa memastikan usulan mahasiswa selaras dengan kebutuhan warga, kearifan lokal, dan kesiapan fasilitas desa sebelum program lapangan dimulai.
           </p>
         </div>
 
-        {/* Filter */}
-        <div className="flex flex-wrap gap-2 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-2xl p-1.5 shadow-sm w-fit">
+        {/* Filter Pills */}
+        <div className="flex items-center gap-2 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-2xl p-1.5 shadow-sm w-fit">
+          <Filter className="w-4 h-4 text-slate-400 ml-2 mr-1" />
           {filterOptions.map((opt) => (
             <button
               key={opt.value}
               onClick={() => setFilterStatus(opt.value)}
               className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                 filterStatus === opt.value
-                  ? 'bg-navy-950 dark:bg-primary-600 text-white shadow-sm'
+                  ? 'bg-navy-950 dark:bg-primary text-white shadow-sm'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-navy-800'
               }`}
             >
@@ -179,175 +222,263 @@ export default function PerangkatDesaProposalPage() {
           ))}
         </div>
 
-        <div className="space-y-4">
-          {filtered.length === 0 ? (
-            <Card className="p-10 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
-              <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada proposal pada filter ini.</p>
-            </Card>
-          ) : (
-            filtered.map((prop) => {
-              const isRevisionActive = activeRevisionId === prop.id;
-              const isExpanded = expandedRevisions.has(prop.id);
+        {/* Proposal List */}
+        {loading ? (
+          <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <p className="text-sm">Memuat daftar proposal dari server...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <Card className="p-12 text-center bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
+            <FileText className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-navy-950 dark:text-white">Tidak Ada Proposal</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+              Belum ada proposal program KKN yang diajukan ke pos kebutuhan desa Anda dengan status filter ini.
+            </p>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {filtered.map((prop) => {
               const badge = getStatusBadgeProps(prop.status);
-              const showActions = prop.status === 'menunggu' || prop.status === 'revision';
+              const isRevisionExpanded = expandedRevisions.has(prop.id);
+              const isEditingRevision = activeRevisionId === prop.id;
 
               return (
-                <Card key={prop.id} className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 space-y-4 shadow-card">
-                  {/* Judul sejajar dengan status */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b border-slate-100 dark:border-navy-800 pb-3">
-                    <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue leading-snug flex-1 pr-2">{prop.judul}</h3>
-                    <StatusBadge status={badge.status} label={badge.label} className="shrink-0" />
-                  </div>
-
-                  {/* Kelompok & Lokasi di bawah judul */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    <span className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-primary dark:text-primary-400" />
-                      {prop.kelompok}
-                    </span>
-                  </div>
-
-                  {/* Tujuan */}
-                  <div className="space-y-1">
-                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tujuan Program KKN:</span>
-                    <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">{prop.tujuan}</p>
-                  </div>
-
-                  {/* File proposal + download icon */}
-                  <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-navy-950/70 border border-slate-200 dark:border-navy-800">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 flex items-center justify-center shrink-0">
-                        <FileText className="w-4 h-4 text-primary dark:text-primary-400" />
+                <Card
+                  key={prop.id}
+                  className="p-6 border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 shadow-sm space-y-4 transition-all"
+                >
+                  {/* Top Bar */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-navy-800 pb-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-primary dark:text-primary-300 bg-primary/10 dark:bg-primary-950/70 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          {prop.kelompok}
+                        </span>
+                        <span className="text-xs text-slate-400 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {prop.lokasi}
+                        </span>
                       </div>
-                      <span className="text-xs font-medium text-navy-950 dark:text-slate-100 truncate">{prop.file_name}</span>
+                      <h2 className="text-lg font-bold text-navy-950 dark:text-white font-epilogue">
+                        {prop.judul}
+                      </h2>
                     </div>
-                    <a
-                      href={prop.file_url}
-                      download={prop.file_name}
-                      onClick={(e) => {
-                        if (prop.file_url === '#') {
-                          e.preventDefault();
-                          toast.info('File proposal akan diunduh (mock).');
-                        }
-                      }}
-                      className="w-8 h-8 rounded-full bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-navy-950 dark:hover:bg-primary-600 hover:text-white transition-colors shrink-0"
-                      title="Download proposal"
-                    >
-                      <Download className="w-4 h-4" />
-                    </a>
+                    <div className="flex items-center gap-2 self-start sm:self-center">
+                      <StatusBadge status={badge.status} size="sm" />
+                    </div>
                   </div>
 
-                  {/* Catatan revisi dropdown (jika ada) */}
+                  {/* Body Content */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-slate-400 uppercase font-semibold">Tujuan & Ringkasan Program</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-surface-subtle dark:bg-navy-950 p-3.5 rounded-xl border border-slate-100 dark:border-navy-800">
+                      {prop.tujuan}
+                    </p>
+                  </div>
+
+                  {/* File Download Bar */}
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-navy-950/50 border border-slate-200 dark:border-navy-800">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-navy-950 dark:text-white">{prop.file_name}</p>
+                        <p className="text-[10px] text-slate-400">Diajukan: {prop.created_at}</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownload(prop)}
+                      className="text-xs gap-1.5 bg-white dark:bg-navy-900"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Unduh Berkas</span>
+                    </Button>
+                  </div>
+
+                  {/* Catatan Revisi Section */}
                   {prop.catatan_revisi && (
-                    <div className="rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/60 overflow-hidden">
+                    <div className="border border-amber-200 dark:border-amber-900/60 bg-amber-50/50 dark:bg-amber-950/20 rounded-xl overflow-hidden">
                       <button
                         type="button"
                         onClick={() => toggleRevision(prop.id)}
-                        className="w-full flex items-center justify-between p-4 text-left"
+                        className="w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-amber-100/40 dark:hover:bg-amber-900/30"
                       >
-                        <span className="flex items-center gap-1.5 font-bold text-orange-800 dark:text-orange-300 text-xs">
-                          <AlertCircle className="w-4 h-4" />
-                          Catatan Revisi dari Desa:
-                        </span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4 text-orange-700 dark:text-orange-400" /> : <ChevronDown className="w-4 h-4 text-orange-700 dark:text-orange-400" />}
+                        <div className="flex items-center gap-2 text-xs font-bold text-amber-800 dark:text-amber-300">
+                          <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span>Catatan Revisi dari Pemerintah Desa</span>
+                        </div>
+                        {isRevisionExpanded ? (
+                          <ChevronUp className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        )}
                       </button>
-                      {isExpanded && (
-                        <div className="px-4 pb-4 -mt-1">
-                          <p className="text-xs text-orange-950 dark:text-orange-200 leading-relaxed whitespace-pre-line">{prop.catatan_revisi}</p>
+
+                      {isRevisionExpanded && (
+                        <div className="p-3 pt-0 text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed border-t border-amber-200/60 dark:border-amber-900/40">
+                          {prop.catatan_revisi}
                         </div>
                       )}
                     </div>
                   )}
 
-                  {/* Inline input revisi */}
-                  {isRevisionActive && (
+                  {/* Form Kirim Catatan Revisi (Jika Desa klik revisi) */}
+                  {isEditingRevision && (
                     <form
                       onSubmit={(e) => handleSendRevision(e, prop)}
-                      className="p-4 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-navy-800 space-y-3 animate-in fade-in"
+                      className="space-y-3 p-4 rounded-xl bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 animate-fadeIn"
                     >
-                      <label className="block text-xs font-semibold text-navy-900 dark:text-slate-200">
-                        Alasan Revisi <span className="text-rose-500">*</span>
-                      </label>
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-navy-950 dark:text-white">
+                        <MessageSquare className="w-3.5 h-3.5 text-primary" />
+                        <span>Form Catatan Koreksi & Revisi untuk Mahasiswa</span>
+                      </div>
                       <textarea
                         rows={3}
-                        required
-                        autoFocus
                         value={revisionNotes}
                         onChange={(e) => setRevisionNotes(e.target.value)}
-                        placeholder="Contoh: Mohon sesuaikan jadwal kegiatan dengan agenda desa, tambahkan pelibatan karang taruna dan rincian anggaran konsumsi..."
-                        className="w-full p-3.5 bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-xl text-xs text-navy-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary font-jakarta leading-relaxed"
+                        placeholder="Contoh: Jadwal penyuluhan perlu diselaraskan dengan hari pasar desa (Jumat). Rincian anggaran pengadaan filter air mohon dilengkapi pada lampiran 2..."
+                        className="w-full p-3 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 rounded-xl text-xs text-navy-950 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+                        autoFocus
                       />
                       <div className="flex items-center justify-end gap-2">
-                        <Button type="button" variant="outline" size="sm" onClick={handleCancelRevision} className="dark:border-navy-700 dark:text-slate-300">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCancelRevision}
+                          className="text-xs"
+                          disabled={isSubmitting}
+                        >
                           Batal
                         </Button>
-                        <Button type="submit" variant="amber" size="sm" className="gap-1.5 font-bold">
-                          <Send className="w-3.5 h-3.5" />
-                          <span>Kirim</span>
+                        <Button
+                          type="submit"
+                          variant="primary"
+                          size="sm"
+                          className="text-xs gap-1.5"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Send className="w-3.5 h-3.5" />
+                          )}
+                          <span>Kirim Catatan Revisi</span>
                         </Button>
                       </div>
                     </form>
                   )}
 
-                  {/* Bottom bar: tanggal kiri, button kanan */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-navy-800">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium order-1">{prop.created_at}</span>
-                    {showActions ? (
-                      <div className="flex items-center gap-2 order-2 sm:justify-end">
-                        <Button
-                          onClick={() => {
-                            setActiveRevisionId(prop.id);
-                            setRevisionNotes(prop.catatan_revisi || '');
-                          }}
-                          variant="outline"
-                          size="sm"
-                          className="text-xs gap-1 dark:border-navy-700 dark:text-slate-200"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
-                          <span>Beri Catatan Revisi</span>
-                        </Button>
-                        <Button
-                          onClick={() => setPendingApprove(prop)}
-                          variant="emerald"
-                          size="sm"
-                          className="shadow-glow-secondary gap-1.5 text-xs font-semibold"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Setujui Proposal</span>
-                        </Button>
-                      </div>
-                    ) : (
-                      <span className="order-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                        Disetujui {(prop.disetujui_pada ?? prop.created_at).split(' ')[0].slice(0, 10)}
-                      </span>
-                    )}
+                  {/* Bottom Actions */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                    <p className="text-[11px] text-slate-400">
+                      {prop.status === 'approved' && prop.disetujui_pada ? (
+                        <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Disetujui pada {prop.disetujui_pada}
+                        </span>
+                      ) : (
+                        <span>Status verifikasi mengikat secara resmi antara Desa & Perguruan Tinggi.</span>
+                      )}
+                    </p>
+
+                    <div className="flex items-center gap-2">
+                      {prop.status !== 'approved' && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setActiveRevisionId(prop.id);
+                              setRevisionNotes(prop.catatan_revisi || '');
+                            }}
+                            className="text-xs gap-1 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/60 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                            disabled={isSubmitting}
+                          >
+                            <AlertCircle className="w-3.5 h-3.5" />
+                            <span>Minta Revisi</span>
+                          </Button>
+                          <Button
+                            variant="emerald"
+                            size="sm"
+                            onClick={() => setPendingApprove(prop)}
+                            className="text-xs gap-1 shadow-glow-secondary"
+                            disabled={isSubmitting}
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Sahkan & Setujui</span>
+                          </Button>
+                        </>
+                      )}
+                      {prop.status === 'approved' && (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-full">
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          Disahkan Pemerintah Desa
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </Card>
               );
-            })
-          )}
-        </div>
+            })}
+          </div>
+        )}
 
-        {/* Popup konfirmasi Setujui */}
+        {/* Modal Konfirmasi Persetujuan */}
         {pendingApprove && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white dark:bg-navy-900 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-navy-800 space-y-5">
-              <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
-                <ShieldCheck className="w-8 h-8" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-3xl max-w-md w-full p-6 shadow-ambient-xl space-y-4 font-jakarta">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-navy-950 dark:text-white font-epilogue">
+                    Konfirmasi Pengesahan Proposal
+                  </h3>
+                  <p className="text-xs text-slate-500">Persetujuan Resmi Program Pengabdian KKN</p>
+                </div>
               </div>
-              <div className="text-center space-y-2">
-                <h3 className="text-lg font-extrabold text-navy-950 dark:text-white font-epilogue">Setujui Proposal Masuk Desa?</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 font-jakarta leading-relaxed">
-                  Anda akan menyetujui <strong className="text-navy-950 dark:text-white">{pendingApprove.judul}</strong> dari <strong className="text-navy-950 dark:text-white">{pendingApprove.kelompok}</strong>{' '}
-                  sebagai program resmi di desa. Aksi ini tidak dapat dibatalkan. Pastikan sudah selaras dengan kebutuhan warga.
+
+              <div className="p-4 rounded-2xl bg-surface-subtle dark:bg-navy-950 border border-slate-200 dark:border-navy-800 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <p>
+                  Dengan menyetujui, Pemerintah Desa menyatakan menerima program kerja:{' '}
+                  <span className="font-bold text-navy-950 dark:text-white">{pendingApprove.judul}</span> oleh{' '}
+                  <span className="font-semibold text-primary">{pendingApprove.kelompok}</span>.
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  Notifikasi real-time akan dikirimkan ke Ketua Kelompok Mahasiswa dan Dosen Pembimbing Lapangan.
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="md" className="flex-1 dark:border-navy-700 dark:text-slate-300" onClick={() => setPendingApprove(null)}>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPendingApprove(null)}
+                  className="text-xs"
+                  disabled={isSubmitting}
+                >
                   Batal
                 </Button>
-                <Button variant="emerald" size="md" className="flex-1 font-semibold" onClick={confirmApprove}>
-                  Ya, Setujui
+                <Button
+                  variant="emerald"
+                  size="sm"
+                  onClick={confirmApprove}
+                  className="text-xs gap-1.5 shadow-glow-secondary"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4" />
+                  )}
+                  <span>Ya, Sahkan Proposal</span>
                 </Button>
               </div>
             </div>

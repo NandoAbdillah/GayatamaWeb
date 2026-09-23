@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, UserRole } from '@/lib/types';
 import authService from '@/lib/services/auth.service';
-import { MOCK_USERS } from '@/lib/mock-data';
 
 interface AuthContextType {
   user: User | null;
@@ -262,14 +261,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const switchRoleDemo = async (role: UserRole): Promise<User> => {
     const creds = SEEDED_ACCOUNTS[role] || SEEDED_ACCOUNTS.mahasiswa;
-    try {
-      return await login(creds.email, creds.password, role);
-    } catch (e) {
-      console.warn('Backend login for seeded role failed, using fallback mock session:', e);
-      const mockUser = MOCK_USERS[role] || MOCK_USERS.mahasiswa;
-      saveAuthSession(`demo-token-${role}-${Date.now()}`, mockUser);
-      return mockUser;
-    }
+    return await login(creds.email, creds.password, role);
   };
 
   return (

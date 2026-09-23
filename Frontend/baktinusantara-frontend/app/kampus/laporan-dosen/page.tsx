@@ -25,79 +25,62 @@ import {
 
 export default function AdminLaporanDosenPage() {
   const router = useRouter();
-  const [laporanList, setLaporanList] =
-    useState<LaporanDosen[]>(INITIAL_LAPORAN);
+  const [laporanList, setLaporanList] = useState<LaporanDosen[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<
     "all" | "menunggu" | "disetujui" | "revisi"
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    async function loadReports() {
-      try {
-        const data = await api.universitas.getLaporanDosen();
-        if (Array.isArray(data) && data.length > 0) {
-          const normalized: LaporanDosen[] = data.map((item: any) => ({
-            id: item.id,
-            dosen: item.dosen?.name || "Dr. Budi Utomo, M.Kom",
-            nip: item.dosen?.nip || "197508122003121002",
-            kelompok: item.proposal?.judul
-              ? `Kelompok ${item.proposal_id}`
-              : "Kelompok Binaan KKN",
-            desa: item.desa?.nama_desa || "Desa Sukamaju",
-            tanggal_kunjungan: item.created_at
-              ? new Date(item.created_at).toLocaleDateString("id-ID")
-              : "Baru saja",
-            jenis_supervisi: "Supervisi & Evaluasi Lapangan",
-            status:
-              item.status === "selesai"
-                ? "disetujui"
-                : item.status === "ditinjau"
-                  ? "menunggu"
-                  : "menunggu",
-            ringkasan:
-              item.isi ||
-              "Laporan hasil monev kinerja kelompok mahasiswa KKN di desa mitra.",
-            catatan_dpl:
-              item.catatan ||
-              "Kinerja pengabdian terlaksana sesuai rencana kerja.",
-            lampiran_url: item.lampiran_url || item.file_url || "",
-            lampiran_name: item.lampiran_name || item.file_name || undefined,
-          }));
-          setLaporanList(normalized);
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-          } catch {}
-          return;
-        }
-      } catch (err) {
-        console.warn("Fallback to mock reports:", err);
+  const loadReports = async () => {
+    try {
+      setLoading(true);
+      const data = await api.universitas.getLaporanDosen();
+      if (Array.isArray(data)) {
+        const normalized: LaporanDosen[] = data.map((item: any) => ({
+          id: item.id,
+          dosen: item.dosen?.user?.name || item.dosen?.name || "Dosen DPL",
+          nip: item.dosen?.nip || "-",
+          kelompok: item.proposal?.pos_kebutuhan?.judul
+            ? `Kelompok Program: ${item.proposal.pos_kebutuhan.judul}`
+            : (item.proposal?.kelompok?.nama_kelompok || `Kelompok #${item.proposal_id || item.id}`),
+          desa: item.desa?.nama_desa ? `Desa ${item.desa.nama_desa}` : "Desa Mitra",
+          tanggal_kunjungan: item.created_at
+            ? new Date(item.created_at).toLocaleDateString("id-ID", { day: '2-digit', month: 'short', year: 'numeric' })
+            : "Baru saja",
+          jenis_supervisi: "Supervisi & Evaluasi Lapangan",
+          status:
+            item.status === "selesai"
+              ? "disetujui"
+              : item.status === "ditinjau"
+                ? "revisi"
+                : "menunggu",
+          ringkasan:
+            item.isi ||
+            "Laporan hasil monev kinerja kelompok mahasiswa KKN di desa mitra.",
+          catatan_dpl:
+            item.catatan ||
+            item.isi ||
+            "Kinerja pengabdian terlaksana sesuai rencana kerja.",
+          lampiran_url: item.lampiran_url || item.file_url || "",
+          lampiran_name: item.lampiran_name || item.file_name || undefined,
+        }));
+        setLaporanList(normalized);
+      } else {
+        setLaporanList([]);
       }
-      // fallback: coba restore dari localStorage jika ada update status sebelumnya
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setLaporanList(parsed);
-            return;
-          }
-        }
-      } catch {}
-      // tetap gunakan INITIAL dan simpan
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_LAPORAN));
-      } catch {}
+    } catch (err) {
+      console.error("Gagal mengambil laporan DPL dari server:", err);
+      toast.error("Gagal memuat laporan DPL dari server.");
+      setLaporanList([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadReports();
   }, []);
-
-  // sync ke localStorage setiap ada perubahan (agar halaman detail konsisten)
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(laporanList));
-    } catch {}
-  }, [laporanList]);
 
   const filteredLaporan = laporanList.filter((item) => {
     const matchFilter = activeFilter === "all" || item.status === activeFilter;

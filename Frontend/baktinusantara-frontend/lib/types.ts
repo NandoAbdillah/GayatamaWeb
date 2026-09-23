@@ -88,17 +88,20 @@ export interface PosKebutuhan {
   provinsi: string;
   judul: string;
   deskripsi: string;
-  kategori_sektor: 'Agrikultur & Ketahanan Pangan' | 'Kesehatan & Sanitasi' | 'Digitalisasi & Teknologi Desa' | 'Pemberdayaan UMKM' | 'Pendidikan & Literasi' | 'Lingkungan & Energi';
+  kategori_sektor: 'Agrikultur & Ketahanan Pangan' | 'Kesehatan & Sanitasi' | 'Digitalisasi & Teknologi Desa' | 'Pemberdayaan UMKM' | 'Pendidikan & Literasi' | 'Lingkungan & Energi' | string;
   kuota_mahasiswa: number;
   terisi_mahasiswa: number;
   latitude: number;
   longitude: number;
   target_luaran: string[];
   kriteria_jurusan: string[];
-  status: 'open' | 'in_progress' | 'completed';
+  status: 'open' | 'in_progress' | 'completed' | string;
   matching_score?: number;
   distance_km?: number;
   created_at: string;
+  desa?: { id?: number; nama_desa: string; kecamatan?: string; kabupaten?: string; provinsi?: string };
+  sdg_codes?: number[];
+  sdg_target?: string | number[];
 }
 
 export interface Kelompok {
@@ -107,8 +110,10 @@ export interface Kelompok {
   kode_kelompok: string;
   ketua_id: number;
   ketua_nama: string;
+  ketua?: any;
   dosen_id?: number;
   dosen_nama?: string;
+  dosen?: any;
   pos_kebutuhan_id?: number;
   pos_kebutuhan_judul?: string;
   desa_nama?: string;
@@ -122,8 +127,10 @@ export interface Kelompok {
     avatar_url?: string;
   }[];
   total_anggota: number;
-  status_program: 'perencanaan' | 'pelaksanaan' | 'penyusunan_luaran' | 'selesai';
+  status_program: 'perencanaan' | 'pelaksanaan' | 'penyusunan_luaran' | 'selesai' | string;
+  status?: string;
   progres_persen: number;
+  proposal?: any;
 }
 
 export interface Proposal {
@@ -133,13 +140,16 @@ export interface Proposal {
   judul_program: string;
   ringkasan_eksekutif: string;
   dokumen_url?: string;
-  status_desa: 'pending' | 'approved' | 'rejected' | 'revision';
-  status_dosen: 'pending' | 'approved' | 'rejected' | 'revision';
+  status_desa: 'pending' | 'approved' | 'rejected' | 'revision' | string;
+  status_dosen: 'pending' | 'approved' | 'rejected' | 'revision' | string;
+  status?: string;
+  status_kelayakan_dosen?: string;
   catatan_desa?: string;
   catatan_dosen?: string;
   tanggal_pengajuan: string;
   anggaran_diusulkan: number;
   pos_kebutuhan?: PosKebutuhan;
+  posKebutuhan?: PosKebutuhan;
   kelompok?: Kelompok;
 }
 
@@ -157,7 +167,7 @@ export interface LogbookEntry {
   deskripsi: string;
   target_program_terkait: string;
   foto_dokumentasi_urls: string[];
-  status: 'draft' | 'submitted' | 'approved' | 'revision';
+  status: 'draft' | 'submitted' | 'approved' | 'revision' | string;
   catatan_revisi_dpl?: string;
   disahkan_pada?: string;
 }
@@ -166,15 +176,19 @@ export interface LuaranAkhir {
   id: number;
   kelompok_id: number;
   judul_luaran: string;
-  jenis_luaran: 'Laporan Akhir KKN' | 'Video Dokumenter' | 'Modul / Panduan Desa' | 'Produk UMKM Inovasi' | 'Publikasi Jurnal / Media';
+  jenis_luaran: 'Laporan Akhir KKN' | 'Video Dokumenter' | 'Modul / Panduan Desa' | 'Produk UMKM Inovasi' | 'Publikasi Jurnal / Media' | string;
   file_url?: string;
   link_eksternal?: string;
   deskripsi: string;
-  status_verifikasi_desa: 'pending' | 'approved' | 'rejected';
-  status_verifikasi_dpl: 'pending' | 'approved' | 'rejected';
+  status_verifikasi_desa: 'pending' | 'approved' | 'rejected' | string;
+  status_verifikasi_dpl: 'pending' | 'approved' | 'rejected' | string;
+  status_verifikasi?: string;
   nilai_akhir?: number;
   catatan?: string;
   slug?: string;
+  testimoni_desa?: string;
+  ringkasan_dampak?: string;
+  portofolio_publik?: any;
 }
 
 export interface BASTDocument {
@@ -277,11 +291,14 @@ export interface LaporanDosenItem {
   dosen_id: number;
   proposal_id: number;
   isi: string;
-  status: 'menunggu' | 'ditinjau' | 'selesai';
-  dosen?: {
-    id: number;
-    name: string;
-    email: string;
-  };
+  status: 'menunggu' | 'ditinjau' | 'selesai' | string;
+  dosen?: any;
+  proposal?: any;
+  desa?: any;
+  catatan?: string;
+  lampiran_url?: string;
+  file_url?: string;
+  lampiran_name?: string;
+  file_name?: string;
   created_at: string;
 }
