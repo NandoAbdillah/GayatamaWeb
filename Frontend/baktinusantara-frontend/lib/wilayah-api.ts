@@ -208,6 +208,7 @@ export const WilayahService = {
       const res = await fetch(url, {
         headers: { Accept: 'application/json' },
         next: { revalidate: 86400 },
+        signal: AbortSignal.timeout(2000),
       });
       if (!res.ok) return '';
       const json = await res.json();
@@ -239,6 +240,7 @@ export const WilayahService = {
       const res = await fetch(url, {
         headers: { Accept: 'application/json' },
         next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(3000),
       });
 
       if (!res.ok) {

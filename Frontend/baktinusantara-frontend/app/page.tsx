@@ -387,8 +387,8 @@ export default function HomePage() {
                   {showLocationDropdown && locationSuggestions.length > 0 && (
                     <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
                       <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
-                        <span>PILIH WILAYAH RESMI KEMENDAGRI</span>
-                        <span className="text-emerald-600 font-mono">38 Provinsi</span>
+                        <span>PILIH WILAYAH & DESA MITRA</span>
+                        <span className="text-emerald-600 font-mono">BaktiNusantara</span>
                       </div>
                       {locationSuggestions.map((item) => (
                         <button
@@ -398,22 +398,37 @@ export default function HomePage() {
                             setSearchLocation(item.nama_lengkap || item.nama);
                             setShowLocationDropdown(false);
                           }}
-                          className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
+                          className={`w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group ${
+                            item.is_mitra ? 'bg-emerald-50/40 dark:bg-emerald-950/30' : ''
+                          }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <RegionLogo
-                              code={item.kode}
-                              name={item.nama}
-                              size="xs"
-                              showBadge={true}
-                              customUrl={item.logo_url || undefined}
-                            />
+                            {item.is_mitra ? (
+                              <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 text-[10px] font-black shadow-xs">
+                                BN
+                              </div>
+                            ) : (
+                              <RegionLogo
+                                code={item.kode}
+                                name={item.nama}
+                                size="xs"
+                                showBadge={true}
+                                customUrl={item.logo_url || undefined}
+                              />
+                            )}
                             <div className="truncate">
-                              <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors truncate">
-                                {item.nama_lengkap || item.nama}
-                              </h5>
+                              <div className="flex items-center gap-1.5">
+                                <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors truncate">
+                                  {item.nama_lengkap || item.nama}
+                                </h5>
+                                {item.is_mitra && (
+                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
+                                    Mitra
+                                  </span>
+                                )}
+                              </div>
                               <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                                {item.level} {item.kodepos ? `• Pos: ${item.kodepos}` : ''}
+                                {item.level} {item.kodepos ? `• ${item.kodepos}` : ''}
                               </p>
                             </div>
                           </div>
