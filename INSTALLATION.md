@@ -53,48 +53,13 @@ Jalankan Composer untuk mengunduh seluruh vendor library:
 composer install
 ```
 
-### Langkah 3.3: Konfigurasi File Environment (`.env`)
-Salin template konfigurasi `.env.example` menjadi `.env`:
-```bash
-cp .env.example .env
-```
-*(Pengguna Windows PowerShell / Command Prompt dapat menggunakan perintah `copy .env.example .env`)*
-
-Buka file `.env` yang baru dibuat, lalu sesuaikan koneksi database MySQL Anda:
-```env
-APP_NAME=BaktiNusantara
-APP_ENV=local
-APP_KEY=
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-FRONTEND_URL=http://localhost:3000
-
-# Koneksi Basis Data MySQL
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=baktinusantaradb
-DB_USERNAME=root
-DB_PASSWORD=
-
-# WhatsApp Gateway (Fonnte)
-FONNTE_TOKEN=TXNfJzsbf2oBVhYFZFbn
-FONNTE_URL=https://api.fonnte.com/send
-WA_ENABLED=true
-
-# Google OAuth 2.0 Credentials
-GOOGLE_CLIENT_ID=411606118566-q1pupeff65t4r7enkpii2mfqg0cflj70.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
-GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback
-```
-
-### Langkah 3.4: Generate Encryption Key
+### Langkah 3.3: Generate Encryption Key
 Buat *Application Key* unik Laravel untuk enkripsi sesi dan token Sanctum:
 ```bash
 php artisan key:generate
 ```
 
-### Langkah 3.5: Buat Database & Jalankan Migrasi + Seeder
+### Langkah 3.4: Buat Database & Jalankan Migrasi + Seeder
 Pastikan service MySQL Anda sudah menyala (misal via XAMPP). Kemudian buat database baru bernama **`baktinusantaradb`**.
 
 Jalankan perintah migrasi skema tabel beserta seluruh akun demo dan data master awal:
@@ -104,13 +69,13 @@ php artisan migrate --seed
 
 > **Catatan:** Perintah `--seed` akan mengisi akun demo untuk 5 peran (*Super Admin, LPPM Universitas, Dosen DPL, Perangkat Desa, Mahasiswa*), katalog pos kebutuhan desa berbasis 17 SDGs, data master wilayah, dan riwayat KKN.
 
-### Langkah 3.6: Buat Tautan Simbolik Storage Publik
+### Langkah 3.5: Buat Tautan Simbolik Storage Publik
 Hubungkan folder penyimpanan publik agar foto progres, avatar, dan berkas proposal dapat diakses browser:
 ```bash
 php artisan storage:link
 ```
 
-### Langkah 3.7: Jalankan Server Backend
+### Langkah 3.6: Jalankan Server Backend
 ```bash
 php artisan serve
 ```
