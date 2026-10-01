@@ -155,6 +155,20 @@
   animation: starTwinkle 3.5s ease-in-out infinite;
 }
 
+/* Dropdown / popover (portal) - hanya opacity agar tidak mengganggu pengukuran posisi */
+@keyframes dropdownFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-dropdown-in {
+  animation: dropdownFadeIn 0.12s ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-aira-float,
   .animate-aira-fade,
@@ -164,6 +178,11 @@
     transform: none !important;
     opacity: 1 !important;
     transition: none !important;
+  }
+
+  .animate-dropdown-in {
+    animation: none !important;
+    opacity: 1 !important;
   }
 }
 

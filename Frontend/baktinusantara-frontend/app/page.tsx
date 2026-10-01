@@ -12,6 +12,7 @@ import { IndonesiaMapBackdrop } from '@/components/ui/IndonesiaMapBackdrop';
 import { DashboardPreview } from '@/components/landing/DashboardPreview';
 import { ProvinceDistributionCarousel } from '@/components/landing/ProvinceDistributionCarousel';
 import { RegionLogo } from '@/components/ui/RegionLogo';
+import { PortalDropdown } from '@/components/ui/PortalDropdown';
 import { INDONESIA_POPULAR_MAJORS } from '@/data/indonesia-majors';
 import { useDashboardMetrics, usePosKebutuhan } from '@/hooks';
 import { useTranslations } from 'next-intl';
@@ -211,22 +212,8 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [searchLocation]);
 
-  // Handle click outside to close dropdowns
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (locationContainerRef.current && !locationContainerRef.current.contains(e.target as Node)) {
-        setShowLocationDropdown(false);
-      }
-      if (sectorContainerRef.current && !sectorContainerRef.current.contains(e.target as Node)) {
-        setShowSectorDropdown(false);
-      }
-      if (jurusanContainerRef.current && !jurusanContainerRef.current.contains(e.target as Node)) {
-        setShowJurusanDropdown(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  // NOTE: penutupan saat klik di luar (dan repositioning) ditangani oleh
+  // komponen PortalDropdown di dalam document.body.
 
   // Toggle multiple sector selection
   const toggleSector = (key: string) => {
@@ -384,59 +371,65 @@ export default function HomePage() {
                     )}
                   </div>
 
-                  {showLocationDropdown && locationSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
-                      <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
-                        <span>PILIH WILAYAH & DESA MITRA</span>
-                        <span className="text-emerald-600 font-mono">BaktiNusantara</span>
-                      </div>
-                      {locationSuggestions.map((item) => (
-                        <button
-                          key={item.kode}
-                          type="button"
-                          onClick={() => {
-                            setSearchLocation(item.nama_lengkap || item.nama);
-                            setShowLocationDropdown(false);
-                          }}
-                          className={`w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group ${
-                            item.is_mitra ? 'bg-emerald-50/40 dark:bg-emerald-950/30' : ''
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            {item.is_mitra ? (
-                              <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 text-[10px] font-black shadow-xs">
-                                BN
-                              </div>
-                            ) : (
-                              <RegionLogo
-                                code={item.kode}
-                                name={item.nama}
-                                size="xs"
-                                showBadge={true}
-                                customUrl={item.logo_url || undefined}
-                              />
-                            )}
-                            <div className="truncate">
-                              <div className="flex items-center gap-1.5">
-                                <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors truncate">
-                                  {item.nama_lengkap || item.nama}
-                                </h5>
-                                {item.is_mitra && (
-                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
-                                    Mitra
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                                {item.level} {item.kodepos ? `• ${item.kodepos}` : ''}
-                              </p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-primary shrink-0 transition-colors" />
-                        </button>
-                      ))}
+                  <PortalDropdown
+                    open={showLocationDropdown && locationSuggestions.length > 0}
+                    onClose={() => setShowLocationDropdown(false)}
+                    anchorRef={locationContainerRef}
+                    matchAnchorWidth
+                    offset={8}
+                    maxHeight={288}
+                    className="bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden divide-y divide-slate-100 dark:divide-navy-800"
+                  >
+                    <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
+                      <span>PILIH WILAYAH & DESA MITRA</span>
+                      <span className="text-emerald-600 font-mono">BaktiNusantara</span>
                     </div>
-                  )}
+                    {locationSuggestions.map((item) => (
+                      <button
+                        key={item.kode}
+                        type="button"
+                        onClick={() => {
+                          setSearchLocation(item.nama_lengkap || item.nama);
+                          setShowLocationDropdown(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group ${
+                          item.is_mitra ? 'bg-emerald-50/40 dark:bg-emerald-950/30' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          {item.is_mitra ? (
+                            <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 text-[10px] font-black shadow-xs">
+                              BN
+                            </div>
+                          ) : (
+                            <RegionLogo
+                              code={item.kode}
+                              name={item.nama}
+                              size="xs"
+                              showBadge={true}
+                              customUrl={item.logo_url || undefined}
+                            />
+                          )}
+                          <div className="truncate">
+                            <div className="flex items-center gap-1.5">
+                              <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors truncate">
+                                {item.nama_lengkap || item.nama}
+                              </h5>
+                              {item.is_mitra && (
+                                <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
+                                  Mitra
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                              {item.level} {item.kodepos ? `• ${item.kodepos}` : ''}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-primary shrink-0 transition-colors" />
+                      </button>
+                    ))}
+                  </PortalDropdown>
                 </div>
 
                 {/* 2. Tema / Sektor Pengabdian */}
@@ -478,51 +471,57 @@ export default function HomePage() {
                     </span>
                   </button>
 
-                  {showSectorDropdown && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-72 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
-                      <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
-                        <span>PILIH SEKTOR (MULTI-PILIHAN)</span>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedSectors([])}
-                          className="text-primary hover:underline"
-                        >
-                          Semua Sektor
-                        </button>
-                      </div>
-                      {SECTOR_OPTIONS.map((sec) => {
-                        const Icon = sec.icon;
-                        const isChecked = selectedSectors.includes(sec.key);
-                        return (
-                          <button
-                            key={sec.key}
-                            type="button"
-                            onClick={() => toggleSector(sec.key)}
-                            className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between transition-colors ${isChecked
-                                ? 'bg-primary-50/70 dark:bg-primary-950/40 text-primary dark:text-primary-300'
-                                : 'hover:bg-slate-50 dark:hover:bg-navy-800 text-slate-700 dark:text-slate-300'
-                              }`}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div
-                                className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${isChecked
-                                    ? 'bg-primary border-primary text-white'
-                                    : 'border-slate-300 dark:border-navy-600 bg-white dark:bg-navy-950'
-                                  }`}
-                              >
-                                {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
-                              </div>
-                              <Icon className="w-4 h-4 shrink-0 text-slate-400 group-hover:text-primary" />
-                              <span className="text-xs font-semibold truncate">{sec.label}</span>
-                            </div>
-                            <span className="text-[10px] px-1.5 py-0.2 rounded-md font-mono bg-slate-100 dark:bg-navy-800 text-slate-500 dark:text-slate-400 shrink-0 ml-2">
-                              {sec.count}
-                            </span>
-                          </button>
-                        );
-                      })}
+                  <PortalDropdown
+                    open={showSectorDropdown}
+                    onClose={() => setShowSectorDropdown(false)}
+                    anchorRef={sectorContainerRef}
+                    matchAnchorWidth
+                    offset={8}
+                    maxHeight={288}
+                    className="bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden divide-y divide-slate-100 dark:divide-navy-800"
+                  >
+                    <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
+                      <span>PILIH SEKTOR (MULTI-PILIHAN)</span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSectors([])}
+                        className="text-primary hover:underline"
+                      >
+                        Semua Sektor
+                      </button>
                     </div>
-                  )}
+                    {SECTOR_OPTIONS.map((sec) => {
+                      const Icon = sec.icon;
+                      const isChecked = selectedSectors.includes(sec.key);
+                      return (
+                        <button
+                          key={sec.key}
+                          type="button"
+                          onClick={() => toggleSector(sec.key)}
+                          className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between transition-colors ${isChecked
+                            ? 'bg-primary-50/70 dark:bg-primary-950/40 text-primary dark:text-primary-300'
+                            : 'hover:bg-slate-50 dark:hover:bg-navy-800 text-slate-700 dark:text-slate-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div
+                              className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${isChecked
+                                ? 'bg-primary border-primary text-white'
+                                : 'border-slate-300 dark:border-navy-600 bg-white dark:bg-navy-950'
+                              }`}
+                            >
+                              {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                            </div>
+                            <Icon className="w-4 h-4 shrink-0 text-slate-400 group-hover:text-primary" />
+                            <span className="text-xs font-semibold truncate">{sec.label}</span>
+                          </div>
+                          <span className="text-[10px] px-1.5 py-0.2 rounded-md font-mono bg-slate-100 dark:bg-navy-800 text-slate-500 dark:text-slate-400 shrink-0 ml-2">
+                            {sec.count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </PortalDropdown>
                 </div>
 
                 {/* 3. Tombol Cari Pos KKN */}
@@ -617,35 +616,41 @@ export default function HomePage() {
                       )}
                     </div>
 
-                    {showJurusanDropdown && filteredMajors.length > 0 && (
-                      <div className="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden max-h-56 overflow-y-auto z-50 divide-y divide-slate-100 dark:divide-navy-800">
-                        <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
-                          <span>STANDAR PDDikti / KEMDIKTISAINTEK</span>
-                          <span className="text-emerald-600 font-mono">Resmi</span>
-                        </div>
-                        {filteredMajors.map((major) => (
-                          <button
-                            key={major.id}
-                            type="button"
-                            onClick={() => {
-                              setSearchJurusan(major.name);
-                              setShowJurusanDropdown(false);
-                            }}
-                            className="w-full text-left px-3.5 py-2 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
-                          >
-                            <div>
-                              <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors">
-                                {major.name}
-                              </h5>
-                              <span className="text-[10px] text-slate-400 dark:text-slate-500">
-                                Bidang: {major.category}
-                              </span>
-                            </div>
-                            <Check className="w-3.5 h-3.5 text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </button>
-                        ))}
+                    <PortalDropdown
+                      open={showJurusanDropdown && filteredMajors.length > 0}
+                      onClose={() => setShowJurusanDropdown(false)}
+                      anchorRef={jurusanContainerRef}
+                      matchAnchorWidth
+                      offset={6}
+                      maxHeight={224}
+                      className="bg-white dark:bg-navy-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-navy-700 overflow-hidden divide-y divide-slate-100 dark:divide-navy-800"
+                    >
+                      <div className="p-2 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between text-[10px] text-slate-400 font-bold px-3">
+                        <span>STANDAR PDDikti / KEMDIKTISAINTEK</span>
+                        <span className="text-emerald-600 font-mono">Resmi</span>
                       </div>
-                    )}
+                      {filteredMajors.map((major) => (
+                        <button
+                          key={major.id}
+                          type="button"
+                          onClick={() => {
+                            setSearchJurusan(major.name);
+                            setShowJurusanDropdown(false);
+                          }}
+                          className="w-full text-left px-3.5 py-2 hover:bg-emerald-50/70 dark:hover:bg-navy-800 flex items-center justify-between transition-colors group"
+                        >
+                          <div>
+                            <h5 className="text-xs font-bold text-navy-950 dark:text-white group-hover:text-primary transition-colors">
+                              {major.name}
+                            </h5>
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                              Bidang: {major.category}
+                            </span>
+                          </div>
+                          <Check className="w-3.5 h-3.5 text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      ))}
+                    </PortalDropdown>
                   </div>
 
                   <div className="flex flex-wrap gap-1.5 pt-1">
