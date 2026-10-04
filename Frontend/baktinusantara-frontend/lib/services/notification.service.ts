@@ -21,6 +21,9 @@ export const notificationService = {
       if (Array.isArray((res.data as any)?.data)) {
         return (res.data as any).data;
       }
+      if (Array.isArray((res.data as any)?.data?.data)) {
+        return (res.data as any).data.data;
+      }
       return [];
     } catch (err) {
       console.warn('Could not fetch notifications from Laravel backend:', err);

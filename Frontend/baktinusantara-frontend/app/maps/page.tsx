@@ -16,6 +16,7 @@ import { MapFilterSelect } from '@/components/ui/MapFilterSelect';
 import { fetchWikipediaSummary, WikipediaSummary } from '@/lib/wikipedia';
 import { KampusService, KampusItem, generateCampusMonogramSvg } from '@/lib/kampus-api';
 import api from '@/lib/services';
+import { API_BASE_URL } from '@/lib/api-client';
 import {
   MapPin,
   Navigation,
@@ -399,7 +400,7 @@ export default function MapsPage() {
     async function loadMedsos() {
       setLoadingMedsos(true);
       try {
-        const res = await fetch('http://localhost:8000/api/medsos-posts');
+        const res = await fetch(`${API_BASE_URL}/api/medsos-posts`);
         const json = await res.json();
         if (json.data && Array.isArray(json.data) && json.data.length > 0) {
           setMedsosPosts(json.data);

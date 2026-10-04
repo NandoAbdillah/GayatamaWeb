@@ -179,38 +179,52 @@ export default function KatalogPublikPage() {
 
   // Load Pos KKN Data
   useEffect(() => {
+    function mapKategoriToSektor(kategori: string): string {
+      const k = (kategori || '').toLowerCase();
+      if (k.includes('umkm') || k.includes('bisnis') || k.includes('ekonomi')) return 'Pemberdayaan UMKM';
+      if (k.includes('pangan') || k.includes('tani') || k.includes('ternak') || k.includes('kebun') || k.includes('pertanian') || k.includes('agrikultur')) return 'Agrikultur & Ketahanan Pangan';
+      if (k.includes('sehat') || k.includes('stunting') || k.includes('gizi') || k.includes('posyandu') || k.includes('kesehatan') || k.includes('sanitasi')) return 'Kesehatan & Sanitasi';
+      if (k.includes('didik') || k.includes('ajar') || k.includes('sekolah') || k.includes('literasi') || k.includes('pendidikan')) return 'Pendidikan & Literasi';
+      if (k.includes('lingkungan') || k.includes('energi') || k.includes('sampah') || k.includes('biogas') || k.includes('hutan') || k.includes('konservasi')) return 'Lingkungan & Energi';
+      return 'Digitalisasi & Teknologi Desa';
+    }
+
     async function loadData() {
       try {
         setLoading(true);
         const data = await api.posKebutuhan.getAll();
-        if (Array.isArray(data)) {
-          const normalized: PosKebutuhan[] = data.map((item: any) => ({
-            id: item.id,
-            desa_id: item.desa_id || 1,
-            judul: item.judul || item.title || 'Pos Kebutuhan KKN',
-            deskripsi: item.deskripsi || item.description || '',
-            nama_desa: item.desa?.nama_desa || item.nama_desa || 'Desa Mitra',
-            kecamatan: item.desa?.kecamatan || item.kecamatan || 'Kecamatan',
-            kabupaten: item.desa?.kabupaten || item.kabupaten || 'Kabupaten',
-            provinsi: item.desa?.provinsi || item.provinsi || 'Jawa Barat',
-            latitude: item.latitude || -6.595,
-            longitude: item.longitude || 106.8166,
-            kategori_sektor: item.kategori || item.kategori_sektor || 'Digitalisasi & Teknologi Desa',
-            kuota_mahasiswa: item.kuota_kelompok ? item.kuota_kelompok * 10 : (item.kuota_mahasiswa || 10),
-            terisi_mahasiswa: item.terisi_mahasiswa || 0,
-            status: item.status || 'open',
-            matching_score: item.matching_score || 95,
-            kriteria_jurusan: Array.isArray(item.kriteria_jurusan)
-              ? item.kriteria_jurusan
-              : item.jurusan_dibutuhkan
-              ? Object.keys(item.jurusan_dibutuhkan)
-              : ['Teknik Informatika', 'Manajemen', 'Sistem Informasi'],
-            target_luaran: Array.isArray(item.target_luaran)
-              ? item.target_luaran
-              : ['Sistem Informasi Web Desa', 'Modul Pelatihan Aparatur', 'Laporan Akhir KKN'],
-            distance_km: item.distance_km || Math.floor(Math.random() * 40) + 5,
-            created_at: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja',
-          }));
+        const rawItems = Array.isArray(data) ? data : (data as any)?.data || [];
+        if (Array.isArray(rawItems) && rawItems.length > 0) {
+          const normalized: PosKebutuhan[] = rawItems.map((item: any) => {
+            const sector = item.kategori_sektor || mapKategoriToSektor(item.kategori);
+            return {
+              id: item.id,
+              desa_id: item.desa_id || item.desa?.id || 1,
+              judul: item.judul || item.title || 'Pos Kebutuhan KKN',
+              deskripsi: item.deskripsi || item.description || '',
+              nama_desa: item.desa?.nama_desa || item.nama_desa || 'Desa Mitra',
+              kecamatan: item.desa?.kecamatan || item.kecamatan || 'Kecamatan',
+              kabupaten: item.desa?.kabupaten || item.kabupaten || 'Kabupaten',
+              provinsi: item.desa?.provinsi || item.provinsi || 'Jawa Timur',
+              latitude: item.desa?.latitude || item.latitude || -7.6358,
+              longitude: item.desa?.longitude || item.longitude || 112.2965,
+              kategori_sektor: sector,
+              kuota_mahasiswa: item.kuota_kelompok ? item.kuota_kelompok * 10 : (item.kuota_mahasiswa || 10),
+              terisi_mahasiswa: item.terisi_mahasiswa || 0,
+              status: item.status || 'open',
+              matching_score: item.matching_score || 95,
+              kriteria_jurusan: Array.isArray(item.kriteria_jurusan)
+                ? item.kriteria_jurusan
+                : item.jurusan_dibutuhkan
+                ? Object.keys(item.jurusan_dibutuhkan)
+                : ['Teknik Informatika', 'Manajemen', 'Sistem Informasi'],
+              target_luaran: Array.isArray(item.target_luaran)
+                ? item.target_luaran
+                : ['Sistem Informasi Web Desa', 'Modul Pelatihan Aparatur', 'Laporan Akhir KKN'],
+              distance_km: item.jarak_km || item.distance_km || Math.floor(Math.random() * 40) + 5,
+              created_at: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja',
+            };
+          });
           setPosList(normalized);
         } else {
           setPosList([]);
@@ -592,7 +606,7 @@ export default function KatalogPublikPage() {
                           <span>Target Luaran Program</span>
                         </div>
                         <div className="flex flex-wrap gap-1.5">
-                          {pos.target_luaran?.slice(0, 3).map((tag, tIdx) => (
+                          {(pos.target_luaran || []).slice(0, 3).map((tag, tIdx) => (
                             <span
                               key={tIdx}
                               className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-navy-700/60"
@@ -610,7 +624,7 @@ export default function KatalogPublikPage() {
                           <span>{tkatalog('criteriaLabel')}</span>
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {pos.kriteria_jurusan.slice(0, 4).map((j, jIdx) => (
+                          {(pos.kriteria_jurusan || []).slice(0, 4).map((j, jIdx) => (
                             <span
                               key={jIdx}
                               className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900"

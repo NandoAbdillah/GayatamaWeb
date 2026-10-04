@@ -30,7 +30,7 @@ import { toast } from 'sonner';
 export default function PublicPortofolioPage() {
   const routeParams = useParams();
   const rawSlug = routeParams?.slug;
-  const slug = (Array.isArray(rawSlug) ? rawSlug[0] : rawSlug) || 'kelompok-14-sukamaju';
+  const slug = (Array.isArray(rawSlug) ? rawSlug[0] : rawSlug) || 'digitalisasi-branding-dan-e-commerce-umkm-kripik-singkong-sukamaju';
   const [data, setData] = useState<PortofolioPublik | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -47,11 +47,11 @@ export default function PublicPortofolioPage() {
       });
   }, [slug]);
 
-  const namaProgram = data?.judul_program || 'Portal Katalog & Marketplace Produk UMKM Desa Sukamaju';
+  const namaProgram = data?.judul_program || 'Digitalisasi Branding dan E-Commerce UMKM Kripik Singkong';
   const namaDesa = data?.desa?.nama_desa
-    ? `${data.desa.nama_desa}, ${data.desa.kecamatan || ''}, ${data.desa.kabupaten || ''}`
-    : 'Desa Sukamaju, Ciawi, Bogor';
-  const namaKelompok = data?.kelompok?.nama_kelompok || 'Kelompok 14 KKN Tematik 2026';
+    ? `${data.desa.nama_desa}, ${data.desa.kecamatan || 'Mojowarno'}, ${data.desa.kabupaten || 'Kabupaten Jombang'}`
+    : 'Desa Sukamaju, Mojowarno, Kabupaten Jombang';
+  const namaKelompok = data?.kelompok?.nama_kelompok || 'KKN UNESA 01 - Sukamaju Digital';
   const ringkasan = data?.ringkasan_dampak || 'Meningkatkan penjualan dan jangkauan pasar UMKM desa hingga 65% melalui standardisasi foto produk dan digital marketing terpadu.';
   const testimoni = data?.testimoni_desa || 'Sangat solutif, membumi, dan membantu warga desa secara langsung.';
   const sertifikatUrl = data?.sertifikat_pdf_url || '#';

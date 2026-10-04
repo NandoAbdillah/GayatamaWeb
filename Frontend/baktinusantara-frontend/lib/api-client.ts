@@ -1,8 +1,14 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 
 // Normalize base URL: Ensure default is local Laravel (http://127.0.0.1:8000) and trim trailing slash
-const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-export const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
+const getValidBaseUrl = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!url || url === 'http://:8000' || url === 'https://:8000' || url.startsWith('http://:') || url.startsWith('https://:')) {
+    return 'http://127.0.0.1:8000';
+  }
+  return url.replace(/\/+$/, '');
+};
+export const API_BASE_URL = getValidBaseUrl();
 
 /**
  * Core Axios Client configured for Laravel 12 REST API & Sanctum

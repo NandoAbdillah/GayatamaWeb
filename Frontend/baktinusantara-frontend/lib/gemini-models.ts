@@ -9,14 +9,13 @@
 
 // 1. Model Priority Pool
 export const DEFAULT_GEMINI_MODELS: string[] = [
-  'gemini-3.5-flash',      // Primary (Model utama cepat & cerdas)
-  'gemini-3-flash',        // Model Flash generasi 3
-  'gemini-2.5-flash',      // Model Flash 2.5
-  'gemini-3.1-flash-lite', // Model Lite kapasitas tinggi
-  'gemini-2.5-flash-lite', // Model Lite 2.5
-  'gemma-4-26b',           // Open weights model 26B
-  'gemma-4-31b',           // Open weights model 31B
-  'gemini-1.5-flash',      // Fallback
+  'gemini-1.5-flash',
+  'gemini-2.0-flash',
+  'gemini-1.5-flash-latest',
+  'gemini-1.5-pro',
+  'gemini-2.0-flash-exp',
+  'gemini-1.5-flash-8b',
+  'gemini-1.0-pro',
 ];
 
 // 2. Cooldown & Attempt Settings
@@ -117,9 +116,8 @@ class GeminiModelManager {
   public isRotationEligibleError(status: number, errorMessageOrBody: string): boolean {
     // Status HTTP yang memicu rotasi
     if (status === 429) return true; // Too Many Requests / Quota Exceeded
-    if (status === 503) return true; // Service Unavailable
-    if (status === 502 || status === 504 || status === 500) return true; // Temporary server errors
-    if (status === 404) return true; // Model not available / discontinued on account
+    if (status === 503 || status === 502 || status === 504 || status === 500) return true; // Temporary server errors
+    if (status === 404 || status === 400 || status === 429) return true; // Model not found, bad request, or rate limit
 
     const text = (errorMessageOrBody || '').toUpperCase();
 
