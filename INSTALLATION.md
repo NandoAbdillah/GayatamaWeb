@@ -107,9 +107,9 @@ Pastikan isi file `.env.local` memiliki variabel berikut:
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
-# Google OAuth 2.0 Client ID
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=411606118566-q1pupeff65t4r7enkpii2mfqg0cflj70.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
+# Google OAuth 2.0 Client ID (Placeholder)
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id_here.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 ```
 
 ### Langkah 4.4: Jalankan Server Development Frontend
