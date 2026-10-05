@@ -93,19 +93,19 @@ class AiService
         // 3. Skor kata per kata
         $tokens = preg_split('/[^a-z0-9]+/i', $lower);
         $enKeywords = [
-            'hello', 'hi', 'hey', 'the', 'is', 'are', 'was', 'were', 'am',
+            'the', 'is', 'are', 'was', 'were', 'am',
             'what', 'who', 'how', 'why', 'where', 'when', 'which', 'can',
-            'could', 'would', 'should', 'you', 'your', 'my', 'our', 'we', 'i',
+            'could', 'would', 'should', 'you', 'your', 'my', 'our', 'we',
             'village', 'villages', 'student', 'students', 'community', 'service',
             'report', 'complaint', 'problem', 'issue', 'ticket', 'status',
             'broken', 'bridge', 'road', 'light', 'flood', 'trash',
             'submit', 'proposal', 'matching', 'score', 'certificate', 'verify',
             'free', 'cost', 'fee', 'contact', 'admin', 'help', 'please', 'thanks', 'thank',
-            'english', 'open', 'need', 'lack', 'counseling'
+            'open', 'need', 'lack', 'counseling'
         ];
 
         $idKeywords = [
-            'halo', 'hai', 'yang', 'di', 'ke', 'dari', 'pada', 'dalam', 'untuk',
+            'halo', 'hai', 'hello', 'hi', 'hey', 'yang', 'di', 'ke', 'dari', 'pada', 'dalam', 'untuk',
             'dengan', 'dan', 'atau', 'ini', 'itu', 'adalah', 'saya', 'kami', 'kita',
             'kamu', 'anda', 'mereka', 'dia', 'apa', 'siapa', 'bagaimana', 'kenapa',
             'mengapa', 'dimana', 'kapan', 'bisa', 'ada', 'tidak', 'nggak', 'gak',
@@ -127,14 +127,11 @@ class AiService
             }
         }
 
-        if ($enScore > $idScore) {
+        if ($enScore >= 2 && $enScore > $idScore) {
             return 'en';
         }
-        if ($idScore > $enScore) {
-            return 'id';
-        }
 
-        return $default;
+        return 'id';
     }
 
     /**
@@ -315,6 +312,78 @@ class AiService
 
             return [
                 'reply' => $reply,
+                'action' => 'none',
+                'ticket_data' => null,
+                'lang' => $lang,
+            ];
+        }
+
+        // 1C. INTENT: PILIHAN MENU NOMOR CEPAT (QUICK ACTION 1, 2, 3, 4, 5)
+        if (in_array($lower, ['1', 'menu 1', '1.', 'opsi 1', 'pilihan 1', 'desa', 'daftar desa'])) {
+            return [
+                'reply' => $this->handleDesaInquiry($lang),
+                'action' => 'none',
+                'ticket_data' => null,
+                'lang' => $lang,
+            ];
+        }
+
+        if (in_array($lower, ['2', 'menu 2', '2.', 'opsi 2', 'pilihan 2', 'program', 'kkn', 'pos'])) {
+            return [
+                'reply' => $this->handleProgramInquiry($lang),
+                'action' => 'none',
+                'ticket_data' => null,
+                'lang' => $lang,
+            ];
+        }
+
+        if (in_array($lower, ['3', 'menu 3', '3.', 'opsi 3', 'pilihan 3', 'lapor', 'aspirasi', 'aduan', 'buat aduan', 'lapor aspirasi'])) {
+            $session['step'] = 'gathering_info';
+            $session['draft'] = [
+                'pelapor_nama' => $senderName,
+                'desa_id' => null,
+                'desa_nama' => null,
+                'kategori' => null,
+                'urgensi' => 'sedang',
+                'deskripsi' => null,
+            ];
+            Cache::put($cacheKey, $session, now()->addHours(2));
+
+            $db = $this->getDatabaseContextSummary();
+            $contohDesa = !empty($db['desa_names']) ? implode(', ', array_slice($db['desa_names'], 0, 4)) : 'Desa Sukamaju, Desa Berkah Makmur, Desa Cibodas';
+            $nama = $senderName ? "Kak *{$senderName}*" : "Kakak";
+
+            $reply = $lang === 'en'
+                ? "📢 *Citizen Aspiration & Village Reporting Service* 🇮🇩\n\n" .
+                  "Please describe your village facility issue, health/stunting concern, environmental problem, or MSME needs along with your *Village Name*.\n\n" .
+                  "👉 *Example Format*:\n" .
+                  "_\"I am a resident of Desa Sukamaju reporting a heavily damaged bridge and broken road in Dusun Krajan\"_\n\n" .
+                  "(Registered partner villages: {$contohDesa})\n\n" .
+                  "AIIRA will automatically log and issue an official ticket directly to the Village Administration! 📝\n\n_Type *CANCEL* anytime to stop._"
+                : "📢 *Layanan Aspirasi & Pengaduan Warga Desa* 🇮🇩\n\n" .
+                  "Halo {$nama}! Silakan ceritakan permasalahan fasilitas umum, kesehatan/stunting, lingkungan, atau kebutuhan UMKM desa Anda beserta *Nama Desa* Anda.\n\n" .
+                  "👉 *Contoh Format*:\n" .
+                  "_\"Saya warga Desa Sukamaju ingin lapor jalan berlubang dan jembatan rusak di Dusun Krajan\"_\n\n" .
+                  "(Beberapa desa mitra terdaftar: {$contohDesa})\n\n" .
+                  "AIIRA akan langsung memproses laporan dan menerbitkan nomor tiket resmi ke Perangkat Desa! 📝\n\n_Ketik *BATAL* kapan saja jika ingin membatalkan._";
+
+            return [
+                'reply' => $reply,
+                'action' => 'none',
+                'ticket_data' => null,
+                'lang' => $lang,
+            ];
+        }
+
+        if (in_array($lower, ['4', 'menu 4', '4.', 'opsi 4', 'pilihan 4'])) {
+            $statusRes = $this->handleStatusCheck($cleanSender, 'STATUS', $senderName, $lang);
+            $statusRes['lang'] = $lang;
+            return $statusRes;
+        }
+
+        if (in_array($lower, ['5', 'menu 5', '5.', 'opsi 5', 'pilihan 5', 'konsultasi', 'help', 'bantuan'])) {
+            return [
+                'reply' => $this->handleCapabilitiesInquiry($senderName, $session, $lang),
                 'action' => 'none',
                 'ticket_data' => null,
                 'lang' => $lang,
@@ -947,28 +1016,7 @@ class AiService
             ];
         }
 
-        // SKENARIO DEMO RESMI / DIRECT TICKETING (Indonesian & English)
-        $isClearComplaint = strlen($draft['deskripsi']) >= 15 && !empty($draft['desa_id']);
-        if ($isClearComplaint) {
-            Cache::forget($cacheKey);
-
-            return [
-                'reply' => '', // Diformat oleh WhatsAppBotService::handlePublicRole
-                'action' => 'create_ticket',
-                'ticket_data' => [
-                    'desa_id' => $draft['desa_id'],
-                    'desa_nama' => $draft['desa_nama'],
-                    'pelapor_nama' => $draft['pelapor_nama'] ?: ($senderName ?: (($lang === 'en' ? 'Citizen of ' : 'Warga ') . $draft['desa_nama'])),
-                    'pelapor_wa' => $cleanSender,
-                    'kategori' => $draft['kategori'] ?: 'fasilitas',
-                    'urgensi' => $draft['urgensi'] ?: 'sedang',
-                    'deskripsi' => $draft['deskripsi'],
-                ],
-                'lang' => $lang,
-            ];
-        }
-
-        // Skenario 2: Minta konfirmasi jika diperlukan
+        // Minta konfirmasi penerbitan tiket resmi ke warga
         $session['step'] = 'awaiting_confirmation';
         $session['draft'] = $draft;
         Cache::put($cacheKey, $session, now()->addHours(2));
@@ -1539,32 +1587,34 @@ PROMPT;
     {
         $clean = trim($lower);
 
-        if (preg_match('/(?:tiket|cek|status|progres|lapor(?:an)?|#|asp-?|ticket|check)\s*#?\s*(\d+)/i', $clean)) {
+        if (in_array($clean, ['1', '2', '3', '4', '5', 'menu 1', 'menu 2', 'menu 3', 'menu 4', 'menu 5', 'opsi 1', 'opsi 2', 'opsi 3', 'opsi 4', 'opsi 5'])) {
+            return false;
+        }
+
+        if (preg_match('/(?:tiket|cek|status|progres|lapor(?:an)?|asp-?|ticket|check)\s*#?\s*(\d+)/i', $clean)) {
             return true;
         }
 
-        if (preg_match('/^#?\d+$/', $clean)) {
+        if (preg_match('/^#\d+$/', $clean)) {
             return true;
         }
 
         if (
-            str_contains($clean, 'status') ||
-            str_contains($clean, 'cek tiket') ||
-            str_contains($clean, 'check ticket') ||
-            str_contains($clean, 'progres') ||
-            str_contains($clean, 'progress') ||
-            str_contains($clean, 'aduan saya') ||
-            str_contains($clean, 'my ticket') ||
-            str_contains($clean, 'my report') ||
-            str_contains($clean, 'track ticket') ||
-            str_contains($clean, 'laporan saya') ||
-            str_contains($clean, 'cek aduan') ||
-            str_contains($clean, 'cek laporan') ||
-            str_contains($clean, 'pantau aduan')
+            $clean === 'status' ||
+            $clean === 'cek tiket' ||
+            $clean === 'check ticket' ||
+            $clean === 'progres' ||
+            $clean === 'progress' ||
+            $clean === 'aduan saya' ||
+            $clean === 'my ticket' ||
+            $clean === 'my report' ||
+            $clean === 'track ticket' ||
+            $clean === 'laporan saya' ||
+            $clean === 'cek aduan' ||
+            $clean === 'cek laporan' ||
+            $clean === 'pantau aduan'
         ) {
-            if (!preg_match('/\b(jalan|sampah|jembatan|lampu|banjir|posyandu|sekolah|stunting|umkm|rusak|lubang|amblas|roboh|bridge|road)\b/i', $clean)) {
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -1582,8 +1632,8 @@ PROMPT;
             '+' . $cleanSender,
         ];
 
-        // 1. Jika ada nomor tiket spesifik (#4, STATUS #4, CHECK #4, ASP-2026-SKM-01)
-        if (preg_match('/(?:tiket|cek|status|progres|lapor(?:an)?|#|asp-?|ticket|check)\s*#?\s*(\d+)/i', $message, $m) || preg_match('/^#?(\d+)$/', trim($message), $m)) {
+        // 1. Jika ada nomor tiket spesifik (#4, STATUS #4, CHECK #4, TIKET #3, TIKET 3, ASP-2026-SKM-01)
+        if (preg_match('/(?:tiket|cek|status|progres|lapor(?:an)?|asp-?|ticket|check)\s*#?\s*(\d+)/i', $message, $m) || preg_match('/^#(\d+)$/', trim($message), $m)) {
             $ticketId = (int) $m[1];
             $aspirasi = Aspirasi::with('desa', 'posKebutuhan')->find($ticketId);
 

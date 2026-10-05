@@ -34,12 +34,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'message' => 'Daftar notifikasi berhasil dimuat.',
-            'data' => $notifications->items(),
-            'pagination' => [
-                'total' => $notifications->total(),
-                'current_page' => $notifications->currentPage(),
-                'last_page' => $notifications->lastPage(),
-            ],
+            'data' => $notifications,
         ]);
     }
 

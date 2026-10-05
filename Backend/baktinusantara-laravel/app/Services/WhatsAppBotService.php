@@ -34,9 +34,9 @@ class WhatsAppBotService
             $lower = strtolower($trimmedMessage);
             // Cek apakah pesan adalah perintah spesifik role yang ingin melihat data internal
             $isRoleSpecific = match ($user->role) {
-                'perangkat_desa' => (bool) preg_match('/\b(proposal|lamaran|mhs|mahasiswa|aspirasi|warga|keluhan|menu desa|dashboard desa|applicant|applicants|tickets)\b/i', $lower),
-                'mahasiswa' => (bool) preg_match('/\b(proposal|kkn|progres|progress|laporan|portofolio|portfolio|sertifikat|certificate|luaran|kelompok saya|weekly)\b/i', $lower),
-                'dosen' => (bool) preg_match('/\b(kelompok|binaan|mahasiswa bimbingan|logbook|dosen|supervision|teams)\b/i', $lower),
+                'perangkat_desa' => (bool) preg_match('/\b(status|proposal|lamaran|mhs|mahasiswa|aspirasi|warga|keluhan|menu desa|dashboard desa|applicant|applicants|tickets)\b/i', $lower),
+                'mahasiswa' => (bool) preg_match('/\b(status|proposal|kkn|progres|progress|laporan|portofolio|portfolio|sertifikat|certificate|luaran|kelompok saya|weekly)\b/i', $lower),
+                'dosen' => (bool) preg_match('/\b(status|kelompok|binaan|mahasiswa bimbingan|logbook|dosen|supervision|teams)\b/i', $lower),
                 default => false,
             };
 
@@ -322,7 +322,7 @@ class WhatsAppBotService
             }
 
             return "🎉 *Tiket Aspirasi Berhasil Diterbitkan!* 🇮🇩\n\n" .
-                "Terima kasih Kak, aspirasi Anda telah dicatat dengan No Tiket: *{$kodeTiket}* (ID: *#{$aspirasi->id}*).\n\n" .
+                "Terima kasih Kak, aspirasi Anda telah dicatat dengan Nomor Tiket: *{$kodeTiket}* (ID: *#{$aspirasi->id}*).\n\n" .
                 "🏡 *Desa Sasaran*: {$desa->nama_desa}\n" .
                 "👤 *Pelapor*: {$aspirasi->pelapor_nama}\n" .
                 "📂 *Kategori*: " . strtoupper($aspirasi->kategori) . $sdgTag . "\n" .
