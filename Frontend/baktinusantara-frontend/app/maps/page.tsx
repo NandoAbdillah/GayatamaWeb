@@ -810,16 +810,14 @@ export default function MapsPage() {
   const mapMarkers: MapMarkerItem[] = useMemo(() => {
     const posMarkers: MapMarkerItem[] = showPosMarkers
       ? filteredPos.map((pos) => {
-          let lat = Number(pos.latitude) || campusCenter[0];
-          let lng = Number(pos.longitude) || campusCenter[1];
+          const rawLat = pos.desa?.latitude ?? pos.latitude;
+          const rawLng = pos.desa?.longitude ?? pos.longitude;
+          let lat = Number(rawLat);
+          let lng = Number(rawLng);
 
-          // If province is switched to another province, intelligently offset markers near province centroid
-          if (selectedProvinceId !== '32' && currentRegion?.lat && currentRegion?.lng) {
-            const numId = Number(pos.id) || 1;
-            const latOffset = (numId % 2 === 0 ? 0.08 : -0.07) * (numId * 0.4);
-            const lngOffset = (numId % 3 === 0 ? 0.09 : -0.08) * (numId * 0.35);
-            lat = currentRegion.lat + latOffset;
-            lng = currentRegion.lng + lngOffset;
+          if (isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0)) {
+            lat = campusCenter[0];
+            lng = campusCenter[1];
           }
 
           return {
@@ -848,7 +846,7 @@ export default function MapsPage() {
       : [];
 
     return [...posMarkers, ...campusMarkers];
-  }, [showPosMarkers, showCampusMarkers, filteredPos, filteredCampuses, selectedProvinceId, currentRegion, campusCenter]);
+  }, [showPosMarkers, showCampusMarkers, filteredPos, filteredCampuses, campusCenter]);
 
   return (
     <div className="h-[100dvh] w-screen flex flex-col bg-slate-900 font-jakarta overflow-hidden transition-colors selection:bg-emerald-100 selection:text-emerald-900 relative">
@@ -1877,9 +1875,11 @@ export default function MapsPage() {
                             onClick={() => {
                               setSelectedPos(pos);
                               setHeroImageIdx(0);
-                              if (pos.latitude && pos.longitude) {
-                                setMapCenter([Number(pos.latitude), Number(pos.longitude)]);
-                                setMapZoom(12);
+                              const posLat = Number(pos.desa?.latitude ?? pos.latitude);
+                              const posLng = Number(pos.desa?.longitude ?? pos.longitude);
+                              if (!isNaN(posLat) && !isNaN(posLng) && (posLat !== 0 || posLng !== 0)) {
+                                setMapCenter([posLat, posLng]);
+                                setMapZoom(13);
                               }
                             }}
                             className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 space-y-2 group ${
