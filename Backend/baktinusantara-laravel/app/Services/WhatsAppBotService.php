@@ -17,7 +17,7 @@ class WhatsAppBotService
     ) {}
 
     /**
-     * Memproses pesan WhatsApp masuk dan mengembalikan teks balasan interaktif.
+     * Memproses pesan WhatsApp masuk dan mengembalikan teks balasan interaktif cerdas.
      */
     public function handleIncoming(string $sender, string $message, ?string $senderName = null): string
     {
@@ -30,12 +30,26 @@ class WhatsAppBotService
             ->first();
 
         if ($user) {
-            return match ($user->role) {
-                'perangkat_desa' => $this->handleDesaRole($user, $trimmedMessage),
-                'mahasiswa' => $this->handleMahasiswaRole($user, $trimmedMessage),
-                'dosen' => $this->handleDosenRole($user, $trimmedMessage),
-                default => $this->handlePublicRole($normalizedSender, $trimmedMessage, $senderName ?: $user->name),
+            $lower = strtolower($trimmedMessage);
+            // Cek apakah pesan adalah perintah spesifik role yang ingin melihat data internal
+            $isRoleSpecific = match ($user->role) {
+                'perangkat_desa' => (bool) preg_match('/\b(proposal|lamaran|mhs|mahasiswa|aspirasi|warga|keluhan|menu desa|dashboard desa)\b/i', $lower),
+                'mahasiswa' => (bool) preg_match('/\b(proposal|kkn|progres|progress|laporan|portofolio|sertifikat|luaran|kelompok saya)\b/i', $lower),
+                'dosen' => (bool) preg_match('/\b(kelompok|binaan|mahasiswa bimbingan|logbook|dosen)\b/i', $lower),
+                default => false,
             };
+
+            if ($isRoleSpecific) {
+                return match ($user->role) {
+                    'perangkat_desa' => $this->handleDesaRole($user, $trimmedMessage),
+                    'mahasiswa' => $this->handleMahasiswaRole($user, $trimmedMessage),
+                    'dosen' => $this->handleDosenRole($user, $trimmedMessage),
+                    default => $this->handlePublicRole($normalizedSender, $trimmedMessage, $senderName ?: $user->name),
+                };
+            }
+
+            // Jika bukan perintah data internal spesifik, layani menggunakan kecerdasan AIIRA publik
+            return $this->handlePublicRole($normalizedSender, $trimmedMessage, $senderName ?: $user->name);
         }
 
         // 2. User umum / Warga masyarakat
@@ -86,13 +100,14 @@ class WhatsAppBotService
             $list = "Halo Pengurus *{$namaDesa}*,\n\nBerikut daftar aspirasi warga terbaru:\n\n";
             foreach ($aspirasi as $idx => $a) {
                 $num = $idx + 1;
-                $list .= "{$num}. *Tiket #{$a->id}* - {$a->pelapor_nama}\n   📂 Kategori: " . strtoupper($a->kategori) . "\n   📝 \"{$a->deskripsi}\"\n\n";
+                $kodeTiket = "#ASP-2026-SKM-" . str_pad($a->id, 2, '0', STR_PAD_LEFT);
+                $list .= "{$num}. *Tiket #{$a->id}* ({$kodeTiket}) - {$a->pelapor_nama}\n   📂 Kategori: " . strtoupper($a->kategori) . "\n   📝 \"{$a->deskripsi}\"\n\n";
             }
             $list .= "_Buka dashboard desa untuk mengangkat aspirasi ini menjadi Pos Kebutuhan KKN._";
             return $list;
         }
 
-        return "Halo Pengurus *{$namaDesa}*! 👋\n\nAnda terdaftar sebagai *Perangkat Desa* di platform BaktiNusantara.\n\nKetik kata kunci berikut untuk melihat data cepat:\n• *PROPOSAL* : Lihat proposal KKN yang masuk\n• *ASPIRASI* : Lihat aspirasi warga yang belum diverifikasi\n• *WEB* : Kunjungi dashboard desa";
+        return "Halo Pengurus *{$namaDesa}*! 👋\n\nAnda terdaftar sebagai *Perangkat Desa* di platform BaktiNusantara.\n\nKetik kata kunci berikut untuk melihat data cepat:\n• *PROPOSAL* : Lihat proposal KKN yang masuk\n• *ASPIRASI* : Lihat aspirasi warga yang belum diverifikasi\n• *WEB* : Kunjungi dashboard desa\n\n_Atau tanyakan apa saja kepada AIIRA untuk panduan fitur._";
     }
 
     /**
@@ -148,7 +163,7 @@ class WhatsAppBotService
             return "Halo *{$user->name}*,\n\nE-Portofolio dan sertifikat akan terbit otomatis setelah luaran akhir disahkan oleh perangkat desa (*Verified by Village*).";
         }
 
-        return "Halo *{$user->name}* ({$kelompok->nama_kelompok})! 👋\n\nKetik kata kunci berikut untuk info KKN Anda:\n• *STATUS* : Cek status proposal KKN\n• *PROGRESS* : Cek checklist laporan mingguan\n• *PORTOFOLIO* : Ambil link e-portofolio resmi";
+        return "Halo *{$user->name}* ({$kelompok->nama_kelompok})! 👋\n\nKetik kata kunci berikut untuk info KKN Anda:\n• *STATUS* : Cek status proposal KKN\n• *PROGRESS* : Cek checklist laporan mingguan\n• *PORTOFOLIO* : Ambil link e-portofolio resmi\n\n_Atau tanyakan apa saja kepada AIIRA untuk panduan seputar KKN._";
     }
 
     /**
@@ -175,23 +190,23 @@ class WhatsAppBotService
     }
 
     /**
-     * Handler untuk Publik / Warga Desa Umum (Bisa Bikin Aspirasi & Cek Tiket).
+     * Handler untuk Publik / Warga Desa Umum (Aspirasi Cerdas, Status, & QnA).
      */
     protected function handlePublicRole(string $sender, string $message, ?string $senderName = null): string
     {
         // Delegasikan percakapan interaktif ke AIIRA Conversational Engine
         $aiResult = $this->aiService->chatWithAiira($sender, $message, $senderName);
 
-        // Jika user telah mengonfirmasi pembuatan tiket resmi (Skema 2: Auto-Ticketing)
+        // Jika user telah mengonfirmasi pembuatan tiket resmi atau direct ticketing terpenuhi
         if ($aiResult['action'] === 'create_ticket') {
             $ticketData = $aiResult['ticket_data'];
             $desa = ProfilDesa::find($ticketData['desa_id']);
 
             if (!$desa) {
-                return "Maaf, data desa belum valid. Silakan sebutkan kembali nama desa Anda.";
+                return "Maaf Kak, data desa belum valid. Silakan sebutkan kembali nama desa Anda (contoh: *Desa Sukamaju*).";
             }
 
-            // Simpan resmi ke database tabel `aspirasi` (POST terjadi di database)
+            // Simpan resmi ke database tabel `aspirasi`
             $aspirasi = Aspirasi::create([
                 'desa_id' => $desa->id,
                 'pelapor_nama' => $ticketData['pelapor_nama'] ?: ($senderName ?: 'Warga ' . $desa->nama_desa),
@@ -204,16 +219,25 @@ class WhatsAppBotService
                 'status' => 'menunggu',
             ]);
 
-            return "🎉 *Tiket Aduan Resmi Berhasil Diterbitkan!* 🇮🇩\n\n" .
-                "📌 *Nomor Tiket*: *#{$aspirasi->id}*\n" .
+            $kodeTiket = "#ASP-2026-SKM-" . str_pad($aspirasi->id, 2, '0', STR_PAD_LEFT);
+            $sdgTag = match ($aspirasi->kategori) {
+                'kesehatan' => ' (SDG 3: Good Health & Well-being)',
+                'umkm' => ' (SDG 8: Decent Work & Economic Growth)',
+                'lingkungan' => ' (SDG 13: Climate Action & SDG 6: Clean Water)',
+                'pendidikan' => ' (SDG 4: Quality Education)',
+                default => ' (SDG 11: Sustainable Communities)',
+            };
+
+            return "🎉 *Tiket Aspirasi Berhasil Diterbitkan!* 🇮🇩\n\n" .
+                "Terima kasih Kak, aspirasi Anda telah dicatat dengan No Tiket: *{$kodeTiket}* (ID: *#{$aspirasi->id}*).\n\n" .
                 "🏡 *Desa Sasaran*: {$desa->nama_desa}\n" .
                 "👤 *Pelapor*: {$aspirasi->pelapor_nama}\n" .
-                "📂 *Kategori*: " . strtoupper($aspirasi->kategori) . "\n" .
+                "📂 *Kategori*: " . strtoupper($aspirasi->kategori) . $sdgTag . "\n" .
                 "⚡ *Tingkat Urgensi*: " . strtoupper($aspirasi->urgensi) . "\n" .
                 "📝 *Uraian Masalah*: \"{$aspirasi->deskripsi}\"\n\n" .
-                "✅ Laporan Anda telah resmi masuk ke sistem database BaktiNusantara dan sedang dalam antrean verifikasi Perangkat Desa {$desa->nama_desa}.\n\n" .
+                "✅ Laporan Anda telah resmi masuk ke sistem database BaktiNusantara dan sedang dalam antrean verifikasi Perangkat Desa {$desa->nama_desa}. Teruskan ke perangkat desa.\n\n" .
                 "📱 *Pemantauan Mandiri Tanpa Buka Web*:\n" .
-                "Anda tidak perlu membuka website lagi. Anda dapat memantau perkembangan tiket ini langsung di nomor WhatsApp ini cukup dengan mengetik *STATUS* atau *CEK #{$aspirasi->id}*.\n\n" .
+                "Warga tidak perlu repot membuka website. Anda dapat memantau perkembangan tiket ini langsung di nomor WhatsApp ini cukup dengan mengetik *STATUS* atau *CEK #{$aspirasi->id}*.\n\n" .
                 "_Salam hangat,_\n*AIIRA — Tim Layanan BaktiNusantara*";
         }
 

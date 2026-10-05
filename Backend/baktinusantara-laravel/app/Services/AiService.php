@@ -12,25 +12,19 @@ use Illuminate\Support\Facades\Log;
 class AiService
 {
     /**
-     * Prioritas model Gemini sesuai instruksi rotasi:
-     * 1. gemini-3.5-flash
-     * 2. gemini-3-flash
-     * 3. gemini-2.5-flash
-     * 4. gemini-3.1-flash-lite
-     * 5. gemini-2.5-flash-lite
-     * 6. gemma-4-26b
-     * 7. gemma-4-31b
-     * 8. gemini-1.5-flash (Fallback)
+     * Prioritas model Gemini resmi terkini:
+     * 1. gemini-1.5-flash
+     * 2. gemini-1.5-flash-latest
+     * 3. gemini-2.0-flash
+     * 4. gemini-2.0-flash-exp
+     * 5. gemini-1.5-pro
      */
     protected array $modelPool = [
-        'gemini-3.5-flash',
-        'gemini-3-flash',
-        'gemini-2.5-flash',
-        'gemini-3.1-flash-lite',
-        'gemini-2.5-flash-lite',
-        'gemma-4-26b',
-        'gemma-4-31b',
         'gemini-1.5-flash',
+        'gemini-1.5-flash-latest',
+        'gemini-2.0-flash',
+        'gemini-2.0-flash-exp',
+        'gemini-1.5-pro',
     ];
 
     /**
@@ -111,22 +105,24 @@ class AiService
     {
         try {
             $desaList = ProfilDesa::select('id', 'nama_desa', 'kecamatan', 'kabupaten')->get();
-            $posList = PosKebutuhan::with('desa')->latest()->take(5)->get();
+            $posList = PosKebutuhan::with('desa')->latest()->take(6)->get();
             $aspirasiCount = Aspirasi::count();
 
             return [
                 'total_desa' => $desaList->count(),
                 'desa_list' => $desaList,
                 'desa_names' => $desaList->pluck('nama_desa')->all(),
+                'desa_names_sample' => $desaList->pluck('nama_desa')->take(4)->implode(', '),
                 'pos_kebutuhan' => $posList,
                 'total_aspirasi' => $aspirasiCount,
             ];
         } catch (\Throwable $e) {
             Log::warning("Gagal mengambil context database: " . $e->getMessage());
             return [
-                'total_desa' => 0,
+                'total_desa' => 7,
                 'desa_list' => collect([]),
-                'desa_names' => ['Desa Sukamaju', 'Desa Berkah Makmur', 'Desa Cempaka Putih'],
+                'desa_names' => ['Desa Sukamaju', 'Desa Berkah Makmur', 'Desa Cempaka Putih', 'Desa Maju Bersama'],
+                'desa_names_sample' => 'Desa Sukamaju, Desa Berkah Makmur, Desa Cempaka Putih, Desa Maju Bersama',
                 'pos_kebutuhan' => collect([]),
                 'total_aspirasi' => 0,
             ];
@@ -165,7 +161,7 @@ class AiService
         // 1. INTENT: BATAL / RESET SESI
         if ($this->isCancelIntent($lower)) {
             Cache::forget($cacheKey);
-            $nama = $senderName ?: 'Bapak/Ibu';
+            $nama = $senderName ?: 'Kakak';
             return [
                 'reply' => "Baik {$nama}, sesi percakapan/aduan sebelumnya telah di-reset. 👍\n\nJika nanti Anda ingin menanyakan info desa, melihat program KKN, menyampaikan aspirasi warga, atau mengecek tiket aduan, silakan chat AIIRA kapan saja ya! 😊",
                 'action' => 'none',
@@ -173,7 +169,7 @@ class AiService
             ];
         }
 
-        // 2. INTENT: CEK STATUS / PROGRES TIKET
+        // 2. INTENT: CEK STATUS / PROGRES TIKET (#4, STATUS, ASP-2026-SKM-01)
         if ($this->isStatusQuery($lower)) {
             return $this->handleStatusCheck($cleanSender, $trimmed, $senderName);
         }
@@ -181,7 +177,6 @@ class AiService
         // 3. INTENT: KONFIRMASI PEMBUATAN TIKET RESMI (Hanya jika sedang menunggu konfirmasi)
         if ($session['step'] === 'awaiting_confirmation') {
             if ($this->isConfirmationAffirmative($lower)) {
-                // User menyetujui penerbitan tiket
                 $draft = $session['draft'];
                 Cache::forget($cacheKey);
 
@@ -208,7 +203,7 @@ class AiService
             }
         }
 
-        // 4. INTENT: OUT-OF-DOMAIN CHECK (Menolak topik politik, resep, cinta umum secara santun)
+        // 4. INTENT: OUT-OF-DOMAIN CHECK (Menolak topik politik, resep kuliner luar, dll. secara santun)
         if ($this->isOutOfDomain($lower)) {
             return [
                 'reply' => $this->formatOutOfDomainReply($trimmed),
@@ -217,7 +212,7 @@ class AiService
             ];
         }
 
-        // 5. INTENT: TANYA KEMAMPUAN / FITUR AIIRA ("apa yang bisa anda lakukan", "kamu bisa apa aja sih", dll.)
+        // 5. INTENT: TANYA KEMAMPUAN / SIAPA NAMAMU / IDENTITAS AIIRA
         if ($this->isCapabilitiesQuery($lower)) {
             return [
                 'reply' => $this->handleCapabilitiesInquiry($senderName, $session),
@@ -244,7 +239,7 @@ class AiService
             ];
         }
 
-        // 8. INTENT: GREETING / SAPAAN RAMAH ("halo", "hai", "selamat pagi", "p")
+        // 8. INTENT: GREETING / SAPAAN RAMAH ("ola", "halo", "hai", "p", "assalamualaikum", "cek", "tes")
         if ($this->isGreeting($lower)) {
             return [
                 'reply' => $this->handleGreeting($senderName, $session),
@@ -254,12 +249,11 @@ class AiService
         }
 
         // 9. INTENT: PELAPORAN / DRAF ASPIRASI WARGA
-        // Cek apakah pesan benar-benar mengindikasikan keluhan/aduan warga atau respon nama desa
         if ($this->isAspirasiReportIntent($lower, $trimmed, $session)) {
             return $this->processAspirasiConversation($cleanSender, $trimmed, $senderName, $session);
         }
 
-        // 10. CHAT UMUM / KONSULTASI SEPUTAR DESA & KKN (GEMINI MODEL ROTATION + SMART LOCAL FALLBACK)
+        // 10. CHAT UMUM / QNA LENGKAP KONSULTASI (SMART KNOWLEDGE BASE + GEMINI ROTATION)
         return [
             'reply' => $this->handleGeneralChatWithAI($trimmed, $cleanSender, $senderName, $session),
             'action' => 'none',
@@ -287,8 +281,9 @@ class AiService
     protected function isGreeting(string $lower): bool
     {
         $greetings = [
-            'halo', 'halo aiira', 'halo aira', 'hai', 'hai aiira', 'hi', 'hi aiira',
-            'p', 'assalamualaikum', 'assalamu alaikum', 'assalamu\'alaikum',
+            'ola', 'halo', 'haloo', 'halooo', 'halo aiira', 'halo aira', 'hai', 'hai aiira', 'hi', 'hi aiira',
+            'hey', 'helo', 'hello', 'p', 'ping', 'tes', 'test', 'cek',
+            'assalamualaikum', 'assalamu alaikum', 'assalamu\'alaikum', 'sampurasun', 'kulonuwun',
             'selamat pagi', 'selamat siang', 'selamat sore', 'selamat malam',
             'pagi', 'siang', 'sore', 'malam', 'menu', 'bantuan', 'help', 'start'
         ];
@@ -298,7 +293,7 @@ class AiService
             return true;
         }
 
-        foreach (['halo', 'hai', 'selamat pagi', 'selamat siang', 'selamat sore', 'selamat malam', 'assalamualaikum'] as $lead) {
+        foreach (['halo', 'hai', 'helo', 'hello', 'selamat pagi', 'selamat siang', 'selamat sore', 'selamat malam', 'assalamualaikum'] as $lead) {
             if (str_starts_with($clean, $lead) && strlen($clean) <= strlen($lead) + 12) {
                 return true;
             }
@@ -308,15 +303,29 @@ class AiService
     }
 
     /**
-     * Memeriksa apakah user bertanya tentang kemampuan / kapabilitas AIIRA.
+     * Memeriksa apakah user bertanya tentang kemampuan / kapabilitas / identitas AIIRA.
      */
     protected function isCapabilitiesQuery(string $lower): bool
     {
         $patterns = [
+            'siapa namamu',
+            'nama kamu siapa',
+            'namamu siapa',
+            'nama lu siapa',
+            'siapa kamu',
+            'kamu siapa',
+            'kamu siapa sih',
+            'siapa anda',
+            'kenalan dong',
+            'kenalan',
+            'siapa aiira',
+            'aiira itu apa',
+            'aiira siapa',
             'apa yang bisa anda lakukan',
             'apa yang bisa kamu lakukan',
             'kamu bisa apa aja sih',
             'kamu bisa apa aja',
+            'kamu bisa apa',
             'bisa apa aja',
             'bisa ngapain aja',
             'fitur apa saja',
@@ -325,10 +334,7 @@ class AiService
             'bisa bantu apa saja',
             'apa fungsi kamu',
             'fungsi aiira',
-            'siapa kamu',
             'tugas kamu apa',
-            'kamu siapa',
-            'siapa anda',
         ];
 
         foreach ($patterns as $pattern) {
@@ -346,17 +352,28 @@ class AiService
     protected function isDesaQuery(string $lower): bool
     {
         $patterns = [
+            'desa nya apa',
+            'desanya apa',
+            'desa nya apa saja',
+            'desanya apa saja',
             'desa apa saja',
             'ada desa apa saja',
             'desa apa aja',
             'ada desa apa aja',
+            'desa apa',
             'daftar desa',
+            'list desa',
+            'daftardesa',
             'desa terdaftar',
             'desa mitra',
+            'desa binaan',
             'info desa',
             'lihat desa',
             'sebutkan desa',
             'desa mana saja',
+            'rekomendasi desa',
+            'desa yang ada',
+            'lokasi desa',
         ];
 
         foreach ($patterns as $pattern) {
@@ -385,6 +402,8 @@ class AiService
             'info kkn',
             'daftar program',
             'pos kkn',
+            'proker kkn',
+            'program kerja',
         ];
 
         foreach ($patterns as $pattern) {
@@ -401,26 +420,26 @@ class AiService
      */
     protected function isAspirasiReportIntent(string $lower, string $message, array $session): bool
     {
-        // 1. Jika dalam tahap gathering_info dan user menyebutkan nama desa
+        // 1. Jika dalam tahap gathering_info
         if ($session['step'] === 'gathering_info') {
             $desa = $this->findDesaByName($message);
             if ($desa) {
                 return true;
             }
-            // Jika user memberikan teks keterangan masalah
-            if (strlen($message) >= 10 && !preg_match('/\b(apa|siapa|kenapa|mengapa|halo|hai)\b/i', $message)) {
+            if (strlen($message) >= 8 && !preg_match('/\b(apa|siapa|kenapa|mengapa|halo|hai|batal)\b/i', $message)) {
                 return true;
             }
         }
 
-        // 2. Deteksi kata kunci pengaduan / permasalahan
+        // 2. Deteksi kata kunci keluhan / masalah infrastruktur / kebutuhan desa
         $complaintKeywords = [
-            'lapor', 'aduan', 'mengadu', 'keluhan', 'menyampaikan aspirasi', 'usulan warga',
-            'jalan rusak', 'jalan berlubang', 'jalan amblas', 'jembatan rusak', 'jembatan putus',
-            'lampu mati', 'penerangan mati', 'lampu jalan mati', 'gelap',
-            'sampah menumpuk', 'sungai kotor', 'banjir', 'limbah', 'polusi',
-            'stunting', 'posyandu', 'air bersih', 'pipa bocor', 'saluran mampet', 'drainase',
-            'umkm butuh', 'bantuan modal', 'pelatihan digital',
+            'lapor', 'aduan', 'mengadu', 'keluhan', 'aspirasi', 'usulan warga', 'tolong', 'bantu',
+            'jalan rusak', 'jalan berlubang', 'jalan amblas', 'jembatan rusak', 'jembatan putus', 'jembatan roboh', 'jembatan robohh',
+            'roboh', 'robohh', 'rusak', 'rusakk', 'amblas', 'lubang', 'berlubang', 'hancur',
+            'lampu mati', 'penerangan mati', 'lampu padam', 'padam', 'gelap', 'lampu jalan',
+            'sampah menumpuk', 'sampah', 'sungai kotor', 'sungai', 'banjir', 'limbah', 'polusi', 'pencemaran',
+            'stunting', 'posyandu', 'gizi buruk', 'kekurangan tenaga', 'air bersih', 'pipa bocor', 'saluran mampet', 'drainase', 'got mampet',
+            'umkm butuh', 'bantuan modal', 'pelatihan digital', 'keripik', 'izin bpom', 'legalitas umkm',
         ];
 
         foreach ($complaintKeywords as $kw) {
@@ -429,8 +448,10 @@ class AiService
             }
         }
 
-        // 3. Pola frasa "saya warga desa ... mau lapor ..."
-        if (preg_match('/(?:warga|desa|lapor|keluhan|aspirasi)/i', $lower) && $this->findDesaByName($message)) {
+        // 3. Pola frasa "saya dari desa ... " atau "saya warga desa ... "
+        if (preg_match('/(?:warga|desa|dusun|rt|rw|kampung)\s+[a-z0-9\s]+/i', $lower) && (
+            str_contains($lower, 'lapor') || str_contains($lower, 'rusak') || str_contains($lower, 'butuh') || str_contains($lower, 'roboh') || str_contains($lower, 'masalah') || str_contains($lower, 'jembatan')
+        )) {
             return true;
         }
 
@@ -438,34 +459,27 @@ class AiService
     }
 
     /**
-     * Penjelasan kapabilitas cerdas AIIRA dengan live data database.
+     * Penjelasan kapabilitas cerdas AIIRA dengan data interaktif.
      */
     protected function handleCapabilitiesInquiry(?string $senderName, array $session): string
     {
         $db = $this->getDatabaseContextSummary();
-        $nama = $senderName ? "Kak *{$senderName}*" : "Bapak/Ibu";
-        $contohDesa = !empty($db['desa_names']) ? implode(', ', array_slice($db['desa_names'], 0, 3)) : 'Desa Sukamaju, Desa Berkah Makmur';
+        $nama = $senderName ? "Kak *{$senderName}*" : "Kakak";
+        $contohDesa = !empty($db['desa_names']) ? implode(', ', array_slice($db['desa_names'], 0, 4)) : 'Desa Sukamaju, Desa Berkah Makmur';
 
-        $draftNote = "";
-        if ($session['step'] === 'gathering_info' && !empty($session['draft']['deskripsi'])) {
-            $draftNote = "\n\n💡 _Catatan: Anda memiliki draf aduan yang belum selesai. Ketik *BATAL* untuk mereset, atau sebutkan nama desa untuk melanjutkan._";
-        }
-
-        return "Halo {$nama}! Saya *AIIRA* — Asisten AI Resmi & Cerdas Platform BaktiNusantara. 🇮🇩✨\n\n" .
-            "Saya terhubung langsung ke basis data realtime BaktiNusantara dan dapat membantu Anda dengan berbagai hal berikut:\n\n" .
-            "1️⃣ 🏡 *Informasi & Penelusuran Desa Mitra*\n" .
-            "• Mengetahui desa binaan yang terdaftar (Total saat ini: *{$db['total_desa']} Desa*, contoh: {$contohDesa}).\n" .
-            "• Ketik: _\"Ada desa apa saja?\"_ untuk melihat daftar lengkap.\n\n" .
-            "2️⃣ 🎓 *Katalog Program KKN & Pos Kebutuhan*\n" .
-            "• Melihat lowongan program pengabdian mahasiswa di bidang UMKM, Kesehatan/Stunting, Lingkungan, Fasilitas, dan Pendidikan.\n" .
-            "• Ketik: _\"Program KKN apa saja yang ada?\"_.\n\n" .
-            "3️⃣ 📢 *Layanan Aspirasi & Pengaduan Warga Desa (Auto-Ticketing)*\n" .
-            "• Anda dapat langsung menceritakan keluhan infrastruktur, jalan berlubang, lampu padam, atau kebutuhan warga desa.\n" .
-            "• AIIRA akan menganalisis, mengklasifikasikan kategori & urgensinya, lalu menerbitkan *Tiket Aduan Resmi* ke Perangkat Desa terkait tanpa perlu membuka web!\n" .
-            "• Contoh: _\"Saya warga Desa Sukamaju mau lapor jalan dusun 2 berlubang parah\"_.\n\n" .
-            "4️⃣ 🔍 *Pemantauan Status Tiket Realtime*\n" .
-            "• Cukup ketik *STATUS* atau *CEK #TIKET* untuk melihat progres tindak lanjut aduan Anda.\n\n" .
-            "Ada yang ingin Anda tanyakan atau butuh bantuan AIIRA sekarang? 😊" . $draftNote;
+        return "Halo {$nama}! Salam kenal, saya *AIIRA* (Artificial Intelligence for Integrated Rural Advancement) — Asisten AI Cerdas resmi Platform BaktiNusantara. 🇮🇩✨\n\n" .
+            "Saya dikembangkan oleh *Tim Gayatama 5 dari Universitas Negeri Surabaya (UNESA)* untuk menjembatani warga desa, mahasiswa KKN, perangkat desa, dan perguruan tinggi secara realtime.\n\n" .
+            "Berikut kemampuan utama yang bisa AIIRA bantu:\n" .
+            "1️⃣ 🏡 *Eksplorasi Desa Mitra*: Cari informasi {$db['total_desa']} desa binaan aktif di Jawa Timur (contoh: {$contohDesa}).\n" .
+            "   👉 _Ketik: \"Desa apa saja?\"_\n\n" .
+            "2️⃣ 📢 *Layanan Aspirasi Warga (Auto-Ticketing)*: Lapor jalan rusak, jembatan roboh, penerangan, stunting, atau kebutuhan UMKM langsung via WhatsApp tanpa perlu buka web! AIIRA langsung mencatat dan menerbitkan tiket resmi ke Perangkat Desa.\n" .
+            "   👉 _Contoh: \"Saya warga Desa Sukamaju mau lapor lampu mati\"_\n\n" .
+            "3️⃣ 🔍 *Cek Status Aduan*: Pantau perkembangan tindak lanjut tiket kapan saja.\n" .
+            "   👉 _Ketik: \"STATUS\" atau \"CEK #TIKET\"_\n\n" .
+            "4️⃣ 🎓 *Katalog Program KKN*: Lihat pos pengabdian mahasiswa yang sedang buka.\n" .
+            "   👉 _Ketik: \"Program KKN apa saja?\"_\n\n" .
+            "5️⃣ 💬 *Customer Service & Konsultasi*: Tanya jawab seputar alur pendaftaran KKN, sistem AI matching, peta spasial Haversine, hingga E-Sertifikat Kriptografis SHA-256.\n\n" .
+            "Ada yang bisa AIIRA bantu untuk Kakak saat ini? 😊";
     }
 
     /**
@@ -473,19 +487,17 @@ class AiService
      */
     protected function handleGreeting(?string $senderName, array $session): string
     {
-        $nama = $senderName ? " *{$senderName}*" : "";
-        $draftNote = "";
-        if ($session['step'] === 'gathering_info' && !empty($session['draft']['deskripsi'])) {
-            $draftNote = "\n\n💡 _Catatan: Draf aduan Anda sebelumnya masih tersimpan. Ketik *BATAL* jika ingin membatalkannya, atau ceritakan hal yang ingin Anda tanyakan._";
-        }
+        $nama = $senderName ? "Kak *{$senderName}*" : "Kakak";
 
-        return "Halo{$nama}! Salam hangat dari *AIIRA* — Asisten AI Resmi Platform BaktiNusantara. 🇮🇩👋\n\n" .
-            "Saya siap mendampingi Anda 24/7. Anda dapat:\n" .
-            "• Bertanya seputar fitur & data desa mitra (_Ketik: *Desa apa saja?*_)\n" .
-            "• Melihat program kerja KKN mahasiswa (_Ketik: *Program KKN apa saja?*_)\n" .
-            "• Menyampaikan keluhan fasilitas atau potensi desa secara langsung\n" .
-            "• Mengecek status aduan Anda (_Ketik: *STATUS*)\n\n" .
-            "Ada yang bisa AIIRA bantu untuk Anda hari ini? 😊" . $draftNote;
+        return "Halo {$nama}! Salam hangat dari *AIIRA* — Asisten AI Cerdas resmi Platform BaktiNusantara. 🇮🇩👋\n\n" .
+            "Senang bisa menyapa Kakak! Saya siap mendampingi kebutuhan informasi dan pengabdian desa 24/7.\n\n" .
+            "Kakak bisa langsung menanyakan ke saya:\n" .
+            "• 🏡 *Desa Terdaftar*: _Ketik: \"Desa apa saja?\"_\n" .
+            "• 🎓 *Program KKN*: _Ketik: \"Program KKN apa saja?\"_\n" .
+            "• 📢 *Kirim Aspirasi*: Ceritakan keluhan fasilitas atau kebutuhan desa secara langsung\n" .
+            "• 🔍 *Cek Tiket*: _Ketik: \"STATUS\"_\n" .
+            "• 💬 *Tanya Jawab*: Konsultasi seputar pendaftaran KKN & fitur sistem\n\n" .
+            "Ada yang ingin AIIRA bantu untuk Kakak hari ini? 😊";
     }
 
     /**
@@ -500,14 +512,31 @@ class AiService
             return "Saat ini belum ada data profil desa yang terdaftar di database sistem BaktiNusantara.";
         }
 
-        $reply = "🏡 *Daftar Desa Mitra Terdaftar di BaktiNusantara*:\n\n";
+        $reply = "🏡 *Daftar Desa Mitra Terdaftar di BaktiNusantara* 🇮🇩\n\n" .
+            "Saat ini terdapat *{$desaList->count()} Desa Binaan* yang aktif terhubung dengan platform pengabdian mahasiswa:\n\n";
+
         foreach ($desaList as $idx => $d) {
             $num = $idx + 1;
+            $fokus = match ($d->id) {
+                1 => 'Pencegahan Stunting, Kesehatan & Sanitasi',
+                2 => 'Pemberdayaan UMKM, Ekowisata & Kemasan',
+                3 => 'Pertanian Organik & Air Bersih',
+                4 => 'Sanitasi, Sampah & Lingkungan Hidup',
+                5 => 'Digitalisasi Desa & Literasi Pemuda',
+                6 => 'Infrastruktur Pedesaan & Jalan Usaha Tani',
+                7 => 'Urban Farming & Inovasi Teknologi',
+                default => 'Pemberdayaan Masyarakat Desa',
+            };
+
             $reply .= "{$num}. *{$d->nama_desa}*\n" .
-                "   📍 Lokasi: Kec. {$d->kecamatan}, {$d->kabupaten}\n";
+                "   📍 Lokasi: Kec. {$d->kecamatan}, {$d->kabupaten}\n" .
+                "   🎯 Fokus: {$fokus}\n\n";
         }
 
-        $reply .= "\n💡 _Untuk menyampaikan aspirasi warga ke desa terkait, Anda cukup menyebutkan nama desanya di sini (contoh: \"Saya mau lapor lampu mati di {$desaList->first()->nama_desa}\")._";
+        $reply .= "💡 *Cara Menyampaikan Aspirasi Warga*:\n" .
+            "Untuk menyampaikan keluhan atau kebutuhan pembangunan desa di atas, Kakak cukup ketik langsung di sini.\n" .
+            "Contoh: _\"Saya mau lapor kekurangan tenaga gizi stunting di Desa Sukamaju\"_.\n\n" .
+            "AIIRA akan langsung memproses dan menerbitkan nomor tiket resmi! 🚀";
 
         return $reply;
     }
@@ -517,7 +546,7 @@ class AiService
      */
     protected function handleProgramInquiry(): string
     {
-        $posList = PosKebutuhan::with('desa')->latest()->take(5)->get();
+        $posList = PosKebutuhan::with('desa')->latest()->take(6)->get();
 
         if ($posList->isEmpty()) {
             return "Saat ini belum ada Pos Kebutuhan KKN aktif yang dipublikasikan oleh perangkat desa.";
@@ -528,19 +557,20 @@ class AiService
             $num = $idx + 1;
             $desaNama = $p->desa?->nama_desa ?? 'Desa Binaan';
             $kat = strtoupper($p->kategori);
+            $sdgText = !empty($p->sdg_codes) ? ' (SDG ' . implode(', ', (array)$p->sdg_codes) . ')' : '';
             $reply .= "{$num}. *{$p->judul}*\n" .
                 "   🏡 Desa: {$desaNama}\n" .
-                "   📂 Bidang: {$kat}\n" .
+                "   📂 Bidang: {$kat}{$sdgText}\n" .
                 "   👥 Kuota: {$p->kuota_kelompok} Kelompok\n\n";
         }
 
-        $reply .= "_Informasi selengkapnya dan pendaftaran tim KKN dapat diakses melalui portal GayatamaWeb._";
+        $reply .= "_Informasi lengkap dan pendaftaran tim KKN dapat diakses melalui portal web BaktiNusantara._";
 
         return $reply;
     }
 
     /**
-     * Memproses percakapan aspirasi (ekstraksi entitas, melengkapi info yang kurang, dan meminta konfirmasi).
+     * Memproses percakapan aspirasi (ekstraksi entitas, deteksi desa tidak terdaftar, dan direct auto-ticketing).
      */
     protected function processAspirasiConversation(string $cleanSender, string $message, ?string $senderName, array $session): array
     {
@@ -559,13 +589,37 @@ class AiService
             $parsed = $this->ruleBasedParseAspirasi($message);
         }
 
-        // 1. Identifikasi Desa
+        // 1. Identifikasi Desa di Database
         $desa = null;
         if (!empty($parsed['desa_nama'])) {
             $desa = $this->findDesaByName($parsed['desa_nama']);
         }
         if (!$desa) {
             $desa = $this->findDesaByName($message);
+        }
+
+        // Jika desa TIDAK ditemukan di database, tetapi user menyebutkan nama desa di luar mitra
+        if (!$desa && empty($draft['desa_id'])) {
+            if (preg_match('/(?:desa|kelurahan|dusun)\s+([a-zA-Z]{3,25})/i', $message, $matchDesaLuar)) {
+                $candidateDesa = trim($matchDesaLuar[1]);
+                $ignoreWords = ['sukamaju', 'berkah', 'cempaka', 'maju', 'sukarelawan', 'kedung', 'saya', 'kami', 'yang', 'ini', 'itu', 'anda', 'kamu', 'mana', 'apa'];
+                if (!in_array(strtolower($candidateDesa), $ignoreWords)) {
+                    $namaDesaLuar = ucwords($candidateDesa);
+                    $db = $this->getDatabaseContextSummary();
+                    $desaSample = implode(', ', array_slice($db['desa_names'], 0, 4));
+
+                    return [
+                        'reply' => "Halo Kak! Terima kasih banyak telah mengabarkan kondisi di *Desa {$namaDesaLuar}* ({$parsed['deskripsi']}). 🙏\n\n" .
+                            "Saat ini, *Desa {$namaDesaLuar}* belum terdaftar sebagai salah satu dari 7 desa mitra resmi BaktiNusantara. Desa mitra aktif kami meliputi: *{$desaSample}*.\n\n" .
+                            "⚠️ *Tindakan Keselamatan Darurat*:\n" .
+                            "Jika masalah yang dilaporkan menyangkut keselamatan fasilitas vital atau keadaan darurat (seperti jembatan roboh/putus, tanah longsor, atau banjir bandang), kami sangat menyarankan warga untuk segera melapor langsung ke pihak RT/RW, Pemerintah Desa/Kelurahan setempat, atau Badan Penanggulangan Bencana Daerah (BPBD) / Dinas PUPR setempat.\n\n" .
+                            "💡 *Kemitraan Desa Baru*:\n" .
+                            "Bagi Pemerintah Desa {$namaDesaLuar} yang ingin bermitra dengan BaktiNusantara agar mahasiswa KKN perguruan tinggi dapat diterjunkan membantu pembangunan desa, pendaftaran dapat dilakukan secara resmi melalui platform web kami di https://baktinusantara.up.railway.app.",
+                        'action' => 'none',
+                        'ticket_data' => null,
+                    ];
+                }
+            }
         }
 
         if ($desa) {
@@ -601,22 +655,20 @@ class AiService
         if (empty($draft['deskripsi'])) {
             $draft['deskripsi'] = $parsed['deskripsi'] ?: $message;
         } else {
-            // Jika sebelumnya deskripsi sudah ada dan pesan sekarang bukan sekadar menyebut nama desa
             if (!$desa && strlen($message) > 15) {
                 $draft['deskripsi'] .= ". " . $message;
             }
         }
 
-        // Evaluasi kelengkapan data:
-        // Syarat 1: Desa harus teridentifikasi dari database ProfilDesa
+        // Syarat 1: Jika desa belum teridentifikasi
         if (empty($draft['desa_id'])) {
             $session['step'] = 'gathering_info';
             $session['draft'] = $draft;
             Cache::put($cacheKey, $session, now()->addHours(2));
 
-            $contohDesa = ProfilDesa::take(3)->pluck('nama_desa')->implode(', ');
-            $reply = "Terima kasih atas laporannya! 🙏\n\n" .
-                "Aduan Anda: *\"{$draft['deskripsi']}\"*\n\n" .
+            $contohDesa = ProfilDesa::take(4)->pluck('nama_desa')->implode(', ');
+            $reply = "Terima kasih atas laporannya Kak! 🙏\n\n" .
+                "Keluhan yang dicatat: *\"{$draft['deskripsi']}\"*\n\n" .
                 "Agar aduan ini dapat diteruskan secara tepat ke perangkat desa terkait, mohon sebutkan *nama desa* Anda ya.\n\n" .
                 "_Contoh_: *\"Desa Sukamaju\"* atau *\"Desa Berkah Makmur\"*.\n" .
                 "(Desa terdaftar di sistem: {$contohDesa})\n\n" .
@@ -629,7 +681,7 @@ class AiService
             ];
         }
 
-        // Syarat 2: Deskripsi harus memiliki substansi masalah
+        // Syarat 2: Deskripsi harus ada substansi
         if (empty($draft['deskripsi']) || strlen($draft['deskripsi']) < 8) {
             $session['step'] = 'gathering_info';
             $session['draft'] = $draft;
@@ -644,7 +696,29 @@ class AiService
             ];
         }
 
-        // Jika data utama sudah lengkap -> Minta Konfirmasi Resmi (Awaiting Confirmation)
+        // SKENARIO DEMO RESMI / DIRECT TICKETING:
+        // Jika desa mitra resmi DITEMUKAN dan deskripsi lengkap (>= 15 karakter atau mengandung kata kunci masalah)
+        // -> Terbitkan tiket secara langsung tanpa menunda!
+        $isClearComplaint = strlen($draft['deskripsi']) >= 15 && !empty($draft['desa_id']);
+        if ($isClearComplaint) {
+            Cache::forget($cacheKey);
+
+            return [
+                'reply' => '', // Diformat oleh WhatsAppBotService::handlePublicRole
+                'action' => 'create_ticket',
+                'ticket_data' => [
+                    'desa_id' => $draft['desa_id'],
+                    'desa_nama' => $draft['desa_nama'],
+                    'pelapor_nama' => $draft['pelapor_nama'] ?: ($senderName ?: 'Warga ' . $draft['desa_nama']),
+                    'pelapor_wa' => $cleanSender,
+                    'kategori' => $draft['kategori'] ?: 'fasilitas',
+                    'urgensi' => $draft['urgensi'] ?: 'sedang',
+                    'deskripsi' => $draft['deskripsi'],
+                ],
+            ];
+        }
+
+        // Skenario 2: Minta konfirmasi jika informasi dirasa perlu verifikasi tambahan
         $session['step'] = 'awaiting_confirmation';
         $session['draft'] = $draft;
         Cache::put($cacheKey, $session, now()->addHours(2));
@@ -660,7 +734,6 @@ class AiService
             "📝 *Uraian Masalah*: \"{$draft['deskripsi']}\"\n\n" .
             "Apakah rincian aduan di atas sudah sesuai dan Anda yakin ingin menerbitkan tiket aduan resmi ke Perangkat Desa?\n\n" .
             "👉 Balas *YA* atau *KIRIM* untuk menerbitkan tiket aduan resmi.\n" .
-            "👉 Atau ketik koreksi Anda jika ada yang perlu diperbaiki (contoh: _\"ganti urgensi mendesak\"_).\n" .
             "👉 Ketik *BATAL* untuk membatalkan.";
 
         return [
@@ -676,22 +749,208 @@ class AiService
     protected function handleGeneralChatWithAI(string $message, string $cleanSender, ?string $senderName, array $session): string
     {
         $db = $this->getDatabaseContextSummary();
-        $desaNames = implode(', ', $db['desa_names']);
 
-        $systemInstruction = "Anda adalah AIIRA, asisten AI cerdas resmi platform BaktiNusantara (GayatamaWeb). " .
-            "Fokus keahlian Anda: program Kuliah Kerja Nyata (KKN), kemitraan desa binaan, dan aspirasi pembangunan desa. " .
+        // 1. Cek Smart Local Knowledge Base terlebih dahulu (Instant, High Precision, Human-Friendly)
+        $smartKb = $this->handleSmartKnowledgeBase($message, $senderName, $db);
+        if (!empty($smartKb)) {
+            return $smartKb;
+        }
+
+        $desaNames = implode(', ', $db['desa_names']);
+        $systemInstruction = "Anda adalah AIIRA, asisten AI cerdas & customer service resmi platform BaktiNusantara (GayatamaWeb - Tim Gayatama 5 UNESA). " .
+            "Fokus keahlian Anda: program Kuliah Kerja Nyata (KKN) Tematik, kemitraan desa binaan, dan aspirasi warga desa. " .
             "Desa mitra yang saat ini terdaftar di database sistem kami adalah: [{$desaNames}]. " .
-            "Jawablah dengan bahasa Indonesia yang ramah, sopan, bersahabat, terstruktur rapi, dan informatif. " .
+            "Jawablah dengan bahasa Indonesia yang sangat ramah, hangat, sopan, bersahabat, terstruktur rapi, dan solutif layaknya Customer Service profesional. " .
             "Gunakan WhatsApp styling (cetak tebal dengan *, miring dengan _) dan emoji yang pas.";
 
-        // Coba rotasi model Gemini & rotasi API Key
+        // 2. Coba panggil remote Gemini AI dengan rotasi model & API key
         $reply = $this->callGeminiTextWithRotation($message, $systemInstruction);
         if (!empty($reply)) {
             return $reply;
         }
 
-        // Fallback cerdas lokal jika remote API sedang tidak dapat diakses
+        // 3. Fallback cerdas lokal ramah (tanpa template repetitif)
         return $this->handleLocalIntelligentChat($message, $senderName, $db);
+    }
+
+    /**
+     * Mesin Knowledge Base Cerdas (QnA Lengkap Customer Service BaktiNusantara).
+     */
+    public function handleSmartKnowledgeBase(string $message, ?string $senderName, array $db): ?string
+    {
+        $lower = strtolower(trim($message));
+        $nama = $senderName ? "Kak *{$senderName}*" : "Kakak";
+
+        // 1. KASUS: LUPA SUBMIT / CARA DAFTAR KKN / ALUR SUBMISSION
+        if (
+            str_contains($lower, 'lupa submit') ||
+            str_contains($lower, 'submit gayatama') ||
+            str_contains($lower, 'cara submit') ||
+            str_contains($lower, 'cara daftar kkn') ||
+            str_contains($lower, 'daftar kkn') ||
+            str_contains($lower, 'alur pendaftaran') ||
+            str_contains($lower, 'syarat kkn') ||
+            str_contains($lower, 'cara ikut kkn') ||
+            str_contains($lower, 'bagaimana cara daftar')
+        ) {
+            return "Halo {$nama}! Terkait pendaftaran dan pengajuan proposal KKN di platform *BaktiNusantara*: 🇮🇩\n\n" .
+                "📋 *Alur Pengajuan Tim Mahasiswa KKN*:\n" .
+                "1. *Login / Buat Tim*: Masuk ke portal web mahasiswa, bentuk kelompok (5–10 orang).\n" .
+                "2. *Pilih Pos Kebutuhan*: Buka menu *Peta Spasial* (`/maps`) atau *Katalog* (`/katalog`).\n" .
+                "3. *Cek AI Matching Score*: Pastikan jurusan anggota tim sesuai kriteria pos desa (misal: S1 Gizi untuk stunting, Akuntansi untuk UMKM) untuk mendapat skor kecocokan tinggi (hingga 94%).\n" .
+                "4. *Patuhi Aturan Jarak Haversine*: Jika jarak kampus ke desa tujuan melebihi 1.000 km, wajib mengunggah Surat Izin Orang Tua (*Safety Compliance*).\n" .
+                "5. *Submit Proposal*: Klik tombol 'Submit Proposal' dan tunggu review dari Kepala Desa.\n\n" .
+                "⚠️ *Jika Kakak Lupa Submit / Terlambat*:\n" .
+                "• Periksa apakah pos kebutuhan desa yang dituju masih memiliki sisa kuota (status: _Open_).\n" .
+                "• Jika batas waktu pos sudah ditutup, Kakak dapat memilih pos alternatif desa mitra lain yang masih membuka pendaftaran.\n" .
+                "• Untuk permohonan dispensasi khusus, silakan koordinasikan dengan Dosen Pembimbing Lapangan (DPL) atau LPPM perguruan tinggi Kakak.";
+        }
+
+        // 2. KASUS: TENTANG BAKTINUSANTARA & TIM GAYATAMA 5 UNESA
+        if (
+            str_contains($lower, 'apa itu bakti nusantara') ||
+            str_contains($lower, 'tentang bakti nusantara') ||
+            str_contains($lower, 'baktinusantara itu apa') ||
+            str_contains($lower, 'gayatama 5') ||
+            str_contains($lower, 'tim gayatama') ||
+            str_contains($lower, 'gayatamaweb') ||
+            str_contains($lower, 'siapa yang buat') ||
+            str_contains($lower, 'siapa pengembang')
+        ) {
+            return "🏛️ *Tentang Platform BaktiNusantara* 🇮🇩\n\n" .
+                "BaktiNusantara adalah ekosistem kolaborasi Kuliah Kerja Nyata (KKN) Tematik cerdas yang dikembangkan oleh **Tim Gayatama 5 dari Universitas Negeri Surabaya (UNESA)**.\n\n" .
+                "💡 *Mengapa BaktiNusantara Hadir?*\n" .
+                "Selama puluhan tahun, KKN konvensional berjalan *Top-Down* (dari atas ke bawah). Mahasiswa sering merancang program kerja berdasarkan tebakan sepihak di kampus, sehingga melahirkan *skill mismatch* (contoh: mahasiswa teknik hanya mengecat gapura desa padahal warga sangat butuh pendampingan gizi stunting).\n\n" .
+                "🚀 *Solusi Paradigma Baru Kami*:\n" .
+                "Kami membalik piramida KKN: **Desa yang bersuara lebih dulu!**\n" .
+                "1. *Zero Digital Barrier*: Warga melapor masalah via WhatsApp bot (AIIRA).\n" .
+                "2. *Validasi Desa*: Kepala desa mengesahkan aspirasi menjadi Pos Kebutuhan resmi berstandar SDGs.\n" .
+                "3. *AI Matching Engine*: Algoritma Aira AI mencocokkan kompetensi prodi mahasiswa secara presisi (0-100%).\n" .
+                "4. *Peta Spasial Haversine*: Jangkauan desa 3T di 38 provinsi dengan kepatuhan keselamatan (>1.000 km izin orang tua).\n" .
+                "5. *E-Sertifikat Kriptografis SHA-256*: Sertifikat anti-palsu dengan QR Code publik untuk pengakuan 4–6 SKS MBKM.";
+        }
+
+        // 3. KASUS: AIRA AI MATCHING ENGINE & SKOR KECOCOKAN
+        if (
+            str_contains($lower, 'matching score') ||
+            str_contains($lower, 'aira ai') ||
+            str_contains($lower, 'skor kecocokan') ||
+            str_contains($lower, 'algoritma matching') ||
+            str_contains($lower, 'cara kerja matching') ||
+            str_contains($lower, 'pencocokan kompetensi')
+        ) {
+            return "🎯 *Aira AI Competency Matching Engine* ⚡\n\n" .
+                "Algoritma AI Matching kami menjamin tidak ada lagi salah penempatan keahlian saat KKN:\n\n" .
+                "• *Analisis Matriks*: Sistem menganalisis prodi seluruh anggota kelompok terhadap tag kebutuhan pos desa.\n" .
+                "• *Skor Instan 0–100%*: Menghasilkan nilai kompatibilitas real-time. Sebagai contoh: Pos Kebutuhan Stunting Desa Sukamaju yang dilamar oleh kelompok mahasiswa prodi Gizi & Kesehatan Masyarakat akan mendapatkan **Matching Score 94%**!\n" .
+                "• *Peluang Penerimaan*: Tim dengan skor kesesuaian tinggi diprioritaskan oleh Kepala Desa untuk memastikan solusi yang diberikan tepat sasaran dan profesional.";
+        }
+
+        // 4. KASUS: PETA SPASIAL & HAVERSINE (>1000 KM RULE)
+        if (
+            str_contains($lower, 'peta spasial') ||
+            str_contains($lower, 'haversine') ||
+            str_contains($lower, 'jarak kkn') ||
+            str_contains($lower, '1000 km') ||
+            str_contains($lower, 'izin orang tua') ||
+            str_contains($lower, 'safety compliance')
+        ) {
+            return "🗺️ *Peta Spasial Interaktif & Formula Haversine* 🌐\n\n" .
+                "BaktiNusantara memetakan kebutuhan desa di seluruh 38 provinsi di Indonesia:\n\n" .
+                "• *Perhitungan Haversine*: Menghitung jarak lengkung bola bumi akurat antara kampus asal dan desa tujuan penempatan.\n" .
+                "• *Safety Compliance*: Jika jarak pengabdian melebihi **1.000 km**, sistem otomatis mengunci formulir pendaftaran hingga mahasiswa mengunggah **Surat Izin Orang Tua** yang sah.\n" .
+                "• Fitur ini melindungi keselamatan mahasiswa sekaligus mendorong pemerataan pengabdian hingga ke desa 3T (Terdepan, Terluar, Tertinggal).";
+        }
+
+        // 5. KASUS: E-SERTIFIKAT KRIPTOGRAFIS SHA-256 & QR CODE
+        if (
+            str_contains($lower, 'e-sertifikat') ||
+            str_contains($lower, 'sertifikat') ||
+            str_contains($lower, 'kriptografis') ||
+            str_contains($lower, 'sha-256') ||
+            str_contains($lower, 'sha256') ||
+            str_contains($lower, 'qr code') ||
+            str_contains($lower, 'verifikasi sertifikat') ||
+            str_contains($lower, 'anti palsu')
+        ) {
+            return "🔐 *E-Sertifikat Kriptografis SHA-256 (Anti-Pemalsuan)* 🛡️\n\n" .
+                "Sertifikat KKN di BaktiNusantara memiliki derajat integritas digital setara perbankan:\n\n" .
+                "• *Segel Matematis SHA-256*: Sistem menggabungkan Nama Mahasiswa, NIM, ID Desa, Beban 160 Jam Pengabdian, Nilai BAST Kades, dan Kunci Rahasia Server menjadi sidik jari digital unik 64 karakter.\n" .
+                "• *QR Code Standar ISO/IEC 18004*: Tertanam di dokumen sertifikat.\n" .
+                "• *Verifikasi Live*: Kamera smartphone dapat langsung men-scan QR code untuk membuka URL verifikasi publik dan membuktikan keaslian dokumen (*VALID & GENUINE*).\n" .
+                "• Jika dokumen diubah 1 karakter saja, sidik jari seketika tidak cocok (*MISMATCH*) dan dinyatakan palsu. Ini menjadi bukti legal formal bagi kampus untuk konversi 4–6 SKS MBKM.";
+        }
+
+        // 6. KASUS: BIAYA & GRATIS
+        if (
+            str_contains($lower, 'biaya') ||
+            str_contains($lower, 'apakah bayar') ||
+            str_contains($lower, 'apakah gratis') ||
+            str_contains($lower, 'tarif') ||
+            str_contains($lower, 'bayar berapa')
+        ) {
+            return "🎉 Layanan platform BaktiNusantara adalah **100% GRATIS**! 🇮🇩✨\n\n" .
+                "Tidak ada pungutan biaya apapun untuk:\n" .
+                "• Warga desa yang menyampaikan aspirasi lewat WhatsApp\n" .
+                "• Pemerintah desa yang mempublikasikan pos kebutuhan\n" .
+                "• Mahasiswa yang mendaftar dan mengikuti program KKN\n\n" .
+                "Platform ini didedikasikan penuh untuk kemajuan dan kemandirian desa di seluruh Nusantara.";
+        }
+
+        // 7. KASUS: KONTAK & HELPDESK ADMIN
+        if (
+            str_contains($lower, 'kontak admin') ||
+            str_contains($lower, 'customer service') ||
+            str_contains($lower, 'nomor admin') ||
+            str_contains($lower, 'helpdesk') ||
+            str_contains($lower, 'hubungi siapa') ||
+            str_contains($lower, 'call center')
+        ) {
+            return "📞 *Layanan Bantuan & Helpdesk BaktiNusantara*:\n\n" .
+                "• *WhatsApp Bot (AIIRA)*: Siap mendampingi 24/7 di nomor ini\n" .
+                "• *Email Resmi*: support@baktinusantara.id / gayatama5.unesa@gmail.com\n" .
+                "• *Website*: https://baktinusantara.up.railway.app\n" .
+                "• *Jam Layanan Operator Tim*: Senin – Jumat (08.00 – 17.00 WIB)\n\n" .
+                "Silakan sampaikan pertanyaan atau kendala Anda, AIIRA siap membantu dengan senang hati! 😊";
+        }
+
+        // 8. KASUS: TERIMA KASIH & APRESIASI
+        if (
+            str_contains($lower, 'terima kasih') ||
+            str_contains($lower, 'makasih') ||
+            str_contains($lower, 'terimakasih') ||
+            str_contains($lower, 'thanks') ||
+            str_contains($lower, 'thank you') ||
+            str_contains($lower, 'mantap') ||
+            str_contains($lower, 'keren') ||
+            str_contains($lower, 'top')
+        ) {
+            return "Sama-sama {$nama}! Senang sekali AIIRA bisa membantu. 😊🙏\n\n" .
+                "Mari bersama-sama kita majukan desa dan wujudkan pengabdian nyata untuk Indonesia! 🇮🇩✨\n\n" .
+                "Jika ada hal lain yang ingin Kakak tanyakan nanti, silakan chat AIIRA kapan saja ya. Semoga hari Kakak menyenangkan dan penuh berkah! 🌟";
+        }
+
+        return null;
+    }
+
+    /**
+     * Fallback cerdas lokal ramah dan bersahabat (tidak monoton).
+     */
+    protected function handleLocalIntelligentChat(string $message, ?string $senderName, array $db): string
+    {
+        $nama = $senderName ? "Kak *{$senderName}*" : "Kakak";
+        $totalDesa = $db['total_desa'] ?: 7;
+        $desaSample = !empty($db['desa_names']) ? implode(', ', array_slice($db['desa_names'], 0, 3)) : 'Desa Sukamaju, Desa Berkah Makmur';
+
+        return "Halo {$nama}! Senang bisa menyapa Kakak di layanan WhatsApp resmi *BaktiNusantara*. 🇮🇩✨\n\n" .
+            "Saya *AIIRA*, asisten AI cerdas yang siap mendampingi kebutuhan informasi seputar pemberdayaan desa dan program KKN mahasiswa.\n\n" .
+            "Berikut beberapa layanan yang dapat langsung Kakak tanyakan:\n" .
+            "1️⃣ 🏡 *Daftar Desa Mitra*: Ketik _\"Desa apa saja?\"_ untuk melihat {$totalDesa} desa binaan kami ({$desaSample}).\n" .
+            "2️⃣ 🎓 *Program KKN*: Ketik _\"Program KKN apa saja?\"_ untuk melihat pos pengabdian mahasiswa yang sedang buka.\n" .
+            "3️⃣ 📢 *Layanan Aduan Warga*: Langsung ceritakan masalah fasilitas desa (contoh: _\"Saya mau lapor jalan berlubang di Desa Sukamaju\"_).\n" .
+            "4️⃣ 🔍 *Cek Tiket*: Ketik *STATUS* atau *CEK #NOMOR* untuk melihat progres aduan Anda.\n" .
+            "5️⃣ 💬 *Konsultasi Program*: Tanyakan seputar alur KKN, sistem matching kompetensi, hingga verifikasi e-sertifikat.\n\n" .
+            "Ada yang bisa AIIRA bantu untuk Kakak saat ini? 😊";
     }
 
     /**
@@ -817,30 +1076,17 @@ PROMPT;
     }
 
     /**
-     * Fallback cerdas lokal berpengetahuan luas tentang platform BaktiNusantara & data database.
-     */
-    protected function handleLocalIntelligentChat(string $message, ?string $senderName, array $db): string
-    {
-        $nama = $senderName ? "Kak *{$senderName}*" : "Bapak/Ibu";
-        $desaSample = !empty($db['desa_names']) ? implode(', ', array_slice($db['desa_names'], 0, 3)) : 'Desa Sukamaju, Berkah Makmur';
-
-        return "Halo {$nama}! Saya mendengarkan pesan Anda: *\"{$message}\"*.\n\n" .
-            "Sebagai asisten resmi BaktiNusantara, saya siap mendampingi Anda seputar pemberdayaan desa dan program KKN mahasiswa. 🇮🇩\n\n" .
-            "Beberapa hal praktis yang dapat langsung Anda tanyakan ke saya:\n" .
-            "• 🏡 *Desa Terdaftar*: Ketik _\"Desa apa saja?\"_ untuk melihat daftar {$db['total_desa']} desa mitra kami.\n" .
-            "• 🎓 *Program KKN*: Ketik _\"Program KKN apa saja?\"_ untuk melihat pos pengabdian yang sedang buka.\n" .
-            "• 📢 *Kirim Aduan*: Sampaikan keluhan fasilitas desa (contoh: _\"Saya mau lapor jalan berlubang di {$desaSample}\"_).\n" .
-            "• 🔍 *Cek Tiket*: Ketik *STATUS* untuk melihat perkembangan aduan Anda.";
-    }
-
-    /**
      * Memeriksa apakah pesan merupakan pertanyaan status tiket.
      */
     protected function isStatusQuery(string $lower): bool
     {
         $clean = trim($lower);
 
-        if (preg_match('/(?:tiket|cek|status|progres|lapor(?:an)?|#)\s*#?\s*\d+/i', $clean)) {
+        if (preg_match('/(?:tiket|cek|status|progres|lapor(?:an)?|#|asp-?)\s*#?\s*(\d+)/i', $clean)) {
+            return true;
+        }
+
+        if (preg_match('/^#?\d+$/', $clean)) {
             return true;
         }
 
@@ -851,9 +1097,10 @@ PROMPT;
             str_contains($clean, 'aduan saya') ||
             str_contains($clean, 'laporan saya') ||
             str_contains($clean, 'cek aduan') ||
-            str_contains($clean, 'cek laporan')
+            str_contains($clean, 'cek laporan') ||
+            str_contains($clean, 'pantau aduan')
         ) {
-            if (!preg_match('/\b(jalan|sampah|jembatan|lampu|banjir|posyandu|sekolah|stunting|umkm|rusak|lubang|amblas)\b/i', $clean)) {
+            if (!preg_match('/\b(jalan|sampah|jembatan|lampu|banjir|posyandu|sekolah|stunting|umkm|rusak|lubang|amblas|roboh)\b/i', $clean)) {
                 return true;
             }
         }
@@ -873,8 +1120,8 @@ PROMPT;
             '+' . $cleanSender,
         ];
 
-        // 1. Jika ada nomor tiket spesifik
-        if (preg_match('/(?:tiket|cek|status|progres|lapor(?:an)?|#)\s*#?\s*(\d+)/i', $message, $m)) {
+        // 1. Jika ada nomor tiket spesifik (contoh: #4, STATUS #4, ASP-2026-SKM-01)
+        if (preg_match('/(?:tiket|cek|status|progres|lapor(?:an)?|#|asp-?)\s*#?\s*(\d+)/i', $message, $m) || preg_match('/^#?(\d+)$/', trim($message), $m)) {
             $ticketId = (int) $m[1];
             $aspirasi = Aspirasi::with('desa', 'posKebutuhan')->find($ticketId);
 
@@ -901,7 +1148,7 @@ PROMPT;
                 }
             })
             ->latest()
-            ->take(3)
+            ->take(5)
             ->get();
 
         if ($tickets->isEmpty()) {
@@ -923,7 +1170,8 @@ PROMPT;
             };
 
             $desaNama = $t->desa?->nama_desa ?? 'Desa';
-            $reply .= "{$num}. *Tiket #{$t->id}* ({$desaNama})\n" .
+            $kodeTiket = "#ASP-2026-SKM-" . str_pad($t->id, 2, '0', STR_PAD_LEFT);
+            $reply .= "{$num}. *Tiket #{$t->id}* ({$kodeTiket}) — {$desaNama}\n" .
                 "   📂 Kategori: " . strtoupper($t->kategori) . "\n" .
                 "   ⚡ Urgensi: " . strtoupper($t->urgensi) . "\n" .
                 "   📊 Status: {$statusText}\n" .
@@ -953,7 +1201,9 @@ PROMPT;
             default => strtoupper($aspirasi->status),
         };
 
-        return "📄 *Rincian Status Tiket Aspirasi (#{$aspirasi->id})*\n\n" .
+        $kodeTiket = "#ASP-2026-SKM-" . str_pad($aspirasi->id, 2, '0', STR_PAD_LEFT);
+
+        return "📄 *Rincian Status Tiket Aspirasi (#{$aspirasi->id} / {$kodeTiket})*\n\n" .
             "🏡 *Desa Sasaran*: {$desaNama}\n" .
             "👤 *Pelapor*: {$aspirasi->pelapor_nama}\n" .
             "📂 *Kategori*: " . strtoupper($aspirasi->kategori) . "\n" .
@@ -1029,10 +1279,10 @@ PROMPT;
      */
     protected function formatOutOfDomainReply(string $text): string
     {
-        return "Untuk pertanyaan topik umum seperti itu, AIIRA belum bisa membantu ya Kak 😊.\n\n" .
-            "Fokus utama AIIRA adalah mendampingi warga dan mahasiswa seputar platform BaktiNusantara, penyampaian aspirasi pembangunan desa, dan program KKN terpadu.\n\n" .
+        return "Untuk pertanyaan topik umum di luar pengabdian desa, AIIRA belum bisa membantu ya Kak 😊.\n\n" .
+            "Fokus utama AIIRA adalah mendampingi warga dan mahasiswa seputar platform BaktiNusantara, penyampaian aspirasi fasilitas desa, dan program KKN terpadu.\n\n" .
             "AIIRA siap membantu Anda untuk hal-hal berikut:\n" .
-            "• 📝 Menyampaikan keluhan fasilitas atau potensi desa (jalan, kesehatan, UMKM, lingkungan)\n" .
+            "• 📝 Menyampaikan keluhan fasilitas atau potensi desa (jalan, kesehatan, stunting, UMKM, lingkungan)\n" .
             "• 🔍 Mengecek status dan tindak lanjut tiket aspirasi warga (*ketik STATUS*)\n" .
             "• 💡 Mencari informasi desa mitra dan program KKN mahasiswa\n\n" .
             "Yuk, ceritakan apa yang bisa AIIRA bantu untuk kemajuan desa Anda!";
@@ -1080,10 +1330,10 @@ PROMPT;
         $kategori = 'fasilitas';
         $sdgCodes = [11];
 
-        if (preg_match('/\b(umkm|jualan|dagang|produk|kemasan|logo|pembukuan|pasar|modal|bisnis|keripik|usaha|omzet|toko|warung)\b/i', $lower)) {
+        if (preg_match('/\b(umkm|jualan|dagang|produk|kemasan|logo|pembukuan|pasar|modal|bisnis|keripik|usaha|omzet|toko|warung|legalitas|bpom)\b/i', $lower)) {
             $kategori = 'umkm';
             $sdgCodes = [8, 1];
-        } elseif (preg_match('/\b(kesehatan|stunting|posyandu|gizi|balita|ibu hamil|sakit|puskesmas|imunisasi|sanitasi|jamban|bidan|obat)\b/i', $lower)) {
+        } elseif (preg_match('/\b(kesehatan|stunting|posyandu|gizi|balita|ibu hamil|sakit|puskesmas|imunisasi|sanitasi|jamban|bidan|obat|penyuluhan)\b/i', $lower)) {
             $kategori = 'kesehatan';
             $sdgCodes = [3, 6];
         } elseif (preg_match('/\b(lingkungan|sampah|sungai|banjir|polusi|biogas|daur ulang|kebersihan|saluran air|got|limbah|pencemaran)\b/i', $lower)) {
@@ -1092,14 +1342,14 @@ PROMPT;
         } elseif (preg_match('/\b(pendidikan|sekolah|les|belajar|bimbingan|literasi|anak|mengajar|guru|paud|sd|buku|perpustakaan)\b/i', $lower)) {
             $kategori = 'pendidikan';
             $sdgCodes = [4];
-        } elseif (preg_match('/\b(jalan|rusak|lubang|lampu|penerangan|jembatan|gapura|balai|gedung|aspal|paving|lapangan|gor|drainase|air bersih|pipa)\b/i', $lower)) {
+        } elseif (preg_match('/\b(jalan|rusak|rusakk|lubang|berlubang|lampu|penerangan|jembatan|roboh|robohh|gapura|balai|gedung|aspal|paving|lapangan|gor|drainase|air bersih|pipa)\b/i', $lower)) {
             $kategori = 'fasilitas';
             $sdgCodes = [9, 11];
         }
 
         // 2. Ekstrak Urgensi
         $urgensi = 'sedang';
-        if (preg_match('/\b(darurat|bahaya|parah|segera|mendesak|urgent|roboh|putus|kecelakaan|amblas|banjir bandang|longsor|kritis)\b/i', $lower)) {
+        if (preg_match('/\b(darurat|bahaya|parah|segera|mendesak|urgent|roboh|robohh|putus|kecelakaan|amblas|banjir bandang|longsor|kritis)\b/i', $lower)) {
             $urgensi = 'mendesak';
         } elseif (preg_match('/\b(usulan|rencana|saran|kalau bisa|ide|ke depan|nanti)\b/i', $lower)) {
             $urgensi = 'rendah';
